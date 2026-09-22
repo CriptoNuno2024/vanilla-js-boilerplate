@@ -14,50 +14,60 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #0a0a0a;
       color: white;
       min-height: 100vh;
+      background-image: url('Yoshi_Cat.jpg');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 12px;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+      z-index: 1;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
       text-align: center;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 480px;
-    }
-
-    .hero-image {
-      width: 100%;
-      height: auto;
-      border-radius: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-      display: block;
+      padding-bottom: 20px;
     }
 
     h1 {
-      font-size: 22px;
-      margin-bottom: 6px;
+      font-size: 24px;
       color: #f5d76e;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
     }
 
     .subtitle {
-      font-size: 14px;
-      color: #ccc;
-      margin-bottom: 24px;
+      font-size: 15px;
+      color: #eee;
+      margin-bottom: 28px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
     }
 
     .btn {
       display: block;
       width: 100%;
-      padding: 15px;
-      margin: 10px 0;
+      padding: 16px;
+      margin: 12px 0;
       border: none;
-      border-radius: 12px;
-      font-size: 16px;
+      border-radius: 14px;
+      font-size: 17px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -68,16 +78,16 @@
     }
 
     .btn-secondary {
-      background: #2a2a2a;
+      background: rgba(30, 30, 30, 0.85);
       color: white;
-      border: 1px solid #444;
+      border: 1px solid #555;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="Yoshi_Cat.jpg" alt="YoshiCat na Quinta" class="hero-image">
+  <div class="overlay"></div>
 
+  <div class="content">
     <h1>YoshiCat e a Quinta do Moscatel</h1>
     <p class="subtitle">Protege a vinha. Faz o melhor Moscatel.</p>
 
