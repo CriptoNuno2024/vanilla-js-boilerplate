@@ -20,6 +20,7 @@
       background-size: cover;
       background-position: center bottom;
       background-repeat: no-repeat;
+      background-color: #0a1226; /* cor de fundo a condizer com o céu noturno */
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -33,12 +34,13 @@
       left: 0;
       width: 100%;
       height: 100%;
+      /* opacidade reduzida — já não fica quase preto no fundo */
       background: linear-gradient(
         to top,
-        rgba(0,0,0,0.92) 0%,
-        rgba(0,0,0,0.55) 35%,
-        rgba(0,0,0,0.15) 70%,
-        rgba(0,0,0,0.05) 100%
+        rgba(0,0,0,0.68) 0%,
+        rgba(0,0,0,0.35) 40%,
+        rgba(0,0,0,0.08) 75%,
+        rgba(0,0,0,0) 100%
       );
       z-index: 1;
     }
@@ -94,6 +96,7 @@
     @media (min-width: 600px) {
       body {
         background-position: center center;
+        background-size: contain;   /* <- mostra a imagem inteira, sem cortar a Lua nem o YoshiCat */
         justify-content: center;
         padding: 40px;
       }
@@ -137,12 +140,22 @@
     tg.ready();
     tg.expand();
 
+    // Dentro do Telegram usa tg.showAlert; fora (ex.: a testar no browser), usa alert normal
+    function showMessage(msg) {
+      const dentroDoTelegram = tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
+      if (dentroDoTelegram) {
+        tg.showAlert(msg);
+      } else {
+        alert(msg);
+      }
+    }
+
     function entrarNaQuinta() {
-      tg.showAlert("Em breve vais entrar na Quinta!");
+      showMessage("Em breve vais entrar na Quinta!");
     }
 
     function escolherLingua() {
-      tg.showAlert("Escolha de língua em desenvolvimento.");
+      showMessage("Escolha de língua em desenvolvimento.");
     }
   </script>
 </body>
