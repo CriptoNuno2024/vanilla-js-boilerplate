@@ -20,7 +20,7 @@
       background-size: cover;
       background-position: center bottom;
       background-repeat: no-repeat;
-      background-color: #0a1226; /* cor de fundo a condizer com o céu noturno */
+      background-color: #0a1226;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -34,7 +34,6 @@
       left: 0;
       width: 100%;
       height: 100%;
-      /* opacidade reduzida — já não fica quase preto no fundo */
       background: linear-gradient(
         to top,
         rgba(0,0,0,0.68) 0%,
@@ -95,10 +94,35 @@
     /* Ajustes para ecrãs maiores (PC) */
     @media (min-width: 600px) {
       body {
-        background-position: center center;
-        background-size: contain;   /* <- mostra a imagem inteira, sem cortar a Lua nem o YoshiCat */
+        background-image: none;  /* as duas camadas abaixo tratam disto agora */
         justify-content: center;
         padding: 40px;
+      }
+
+      /* Camada desfocada — preenche os lados, sem barras sólidas */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url('Yoshi_Cat.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        filter: blur(45px) brightness(0.55);
+        transform: scale(1.15);
+        z-index: 0;
+      }
+
+      /* Camada nítida — a imagem inteira, sem cortes, por cima da desfocada */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url('Yoshi_Cat.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        z-index: 0;
       }
 
       .content {
@@ -140,7 +164,6 @@
     tg.ready();
     tg.expand();
 
-    // Dentro do Telegram usa tg.showAlert; fora (ex.: a testar no browser), usa alert normal
     function showMessage(msg) {
       const dentroDoTelegram = tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
       if (dentroDoTelegram) {
