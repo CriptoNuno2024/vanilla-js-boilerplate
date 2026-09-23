@@ -113,12 +113,6 @@
       cursor: not-allowed;
     }
 
-    .btn-small {
-      padding: 12px;
-      font-size: 15px;
-      margin: 8px 0;
-    }
-
     /* Barra de estatísticas (Uvas, Gotas, Reputação, Garrafas) */
     .stats-bar {
       display: flex;
@@ -258,7 +252,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .profile-card {
@@ -287,7 +281,101 @@
       line-height: 1.5;
       color: #f0f0f0;
       text-align: left;
-      min-height: 110px;
+      min-height: 90px;
+    }
+
+    /* Fase atual da Vinha */
+    .phase-card {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(245, 215, 110, 0.4);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .phase-nome {
+      font-size: 17px;
+      font-weight: 700;
+      color: #f5d76e;
+      margin-bottom: 6px;
+    }
+
+    .phase-desc {
+      font-size: 14px;
+      color: #f0f0f0;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .phase-progress {
+      font-size: 13px;
+      color: #ddd;
+    }
+
+    .cooldown-suffix {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-left: 4px;
+    }
+
+    /* Enciclopédia do Moscatel */
+    .encyclopedia-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 16px 0;
+      text-align: left;
+      max-height: 48vh;
+      overflow-y: auto;
+    }
+
+    .encyclopedia-card {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(245, 215, 110, 0.4);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .encyclopedia-card h3 {
+      color: #f5d76e;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .encyclopedia-card p {
+      font-size: 13px;
+      color: #f0f0f0;
+      line-height: 1.4;
+    }
+
+    .encyclopedia-card.locked {
+      opacity: 0.45;
+      border-style: dashed;
+    }
+
+    .encyclopedia-card.locked h3 {
+      color: #aaa;
+    }
+
+    /* Título especial e galeria de garrafas (Perfil) */
+    .badge-title {
+      background: linear-gradient(135deg, #f5d76e, #d4a017);
+      color: #1a1a1a;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+    }
+
+    .bottle-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 24px;
     }
 
     /* Ajustes para ecrãs maiores (PC) */
@@ -347,447 +435,110 @@
 <body>
   <div class="overlay"></div>
 
-  <!-- ECRÃ INICIAL -->
+  <!-- ECRÃ INICIAL (mantido tal como estava) -->
   <div id="screen-home" class="screen content active">
-    <h1>YoshiCat e a Quinta do Moscatel</h1>
-    <p class="subtitle">Protege a vinha. Faz o melhor Moscatel.</p>
+    <h1 data-i18n="home.title">YoshiCat e a Quinta do Moscatel</h1>
+    <p class="subtitle" data-i18n="home.subtitle">Protege a vinha. Faz o melhor Moscatel.</p>
 
-    <button class="btn btn-primary" onclick="goTo('quinta')">
+    <button class="btn btn-primary" onclick="goTo('quinta')" data-i18n="home.btnEntrar">
       Entrar na Quinta
     </button>
 
-    <button class="btn btn-secondary" onclick="escolherLingua()">
+    <button class="btn btn-secondary" onclick="goTo('lingua')" data-i18n="home.btnLingua">
       Escolher Língua
     </button>
   </div>
 
   <!-- ECRÃ HUB: A QUINTA -->
   <div id="screen-quinta" class="screen content">
-    <h1>A Quinta do Moscatel</h1>
+    <h1 data-i18n="hub.title">A Quinta do Moscatel</h1>
 
     <div class="stats-bar">
       <div class="stat-item">
         <span class="stat-icon">🍇</span>
         <span class="stat-value val-uvas">0</span>
-        <span class="stat-label">Uvas</span>
+        <span class="stat-label" data-i18n="stat.uvas">Uvas</span>
       </div>
       <div class="stat-item">
         <span class="stat-icon">💧</span>
         <span class="stat-value val-gotas">0</span>
-        <span class="stat-label">Gotas</span>
+        <span class="stat-label" data-i18n="stat.gotas">Gotas</span>
       </div>
       <div class="stat-item">
         <span class="stat-icon">⭐</span>
         <span class="stat-value val-reputacao">0</span>
-        <span class="stat-label">Reputação</span>
+        <span class="stat-label" data-i18n="stat.reputacao">Reputação</span>
       </div>
       <div class="stat-item">
         <span class="stat-icon">🍾</span>
         <span class="stat-value val-garrafas">0</span>
-        <span class="stat-label">Garrafas</span>
+        <span class="stat-label" data-i18n="stat.garrafas">Garrafas</span>
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="goTo('vinha')">🌱 Tratar a Vinha</button>
-    <button class="btn btn-primary" onclick="goTo('proteger')">🛡️ Proteger a Quinta</button>
-    <button class="btn btn-secondary" onclick="goTo('garrafa')">🍾 Criar Garrafa</button>
-    <button class="btn btn-secondary" onclick="goTo('explorar')">📖 Explorar</button>
-    <button class="btn btn-secondary" onclick="goTo('perfil')">👤 Perfil</button>
-    <button class="btn btn-secondary" onclick="goTo('home')">⬅ Sair da Quinta</button>
+    <button class="btn btn-primary" onclick="goTo('vinha')" data-i18n="hub.btnVinha">🌱 Tratar a Vinha</button>
+    <button class="btn btn-primary" onclick="goTo('proteger')" data-i18n="hub.btnProteger">🛡️ Proteger a Quinta</button>
+    <button class="btn btn-secondary" onclick="goTo('garrafa')" data-i18n="hub.btnGarrafa">🍾 Criar Garrafa</button>
+    <button class="btn btn-secondary" onclick="goTo('explorar')" data-i18n="hub.btnExplorar">📖 Explorar</button>
+    <button class="btn btn-secondary" onclick="goTo('perfil')" data-i18n="hub.btnPerfil">👤 Perfil</button>
+    <button class="btn btn-secondary" onclick="goTo('home')" data-i18n="hub.btnSair">⬅ Sair da Quinta</button>
   </div>
 
-  <!-- ECRÃ: TRATAR A VINHA -->
+  <!-- ECRÃ: A VINHA (ciclo de trabalho agrícola) -->
   <div id="screen-vinha" class="screen content">
-    <h2>Tratar a Vinha</h2>
-    <p class="info-text" id="vinha-info">A vinha precisa de cuidados diários.</p>
-    <button id="btn-tratar-vinha" class="btn btn-primary" onclick="tratarVinha()">Tratar a Vinha</button>
-    <button class="btn btn-secondary" onclick="goTo('quinta')">⬅ Voltar à Quinta</button>
+    <div id="vinha-container"></div>
+    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
-  <!-- ECRÃ: PROTEGER A QUINTA (conteúdo do mini-jogo é gerado por JS) -->
+  <!-- ECRÃ: PROTEGER A QUINTA (mantido tal como estava; conteúdo gerado por JS) -->
   <div id="screen-proteger" class="screen content">
     <div id="proteger-container"></div>
     <button class="btn btn-secondary" onclick="goTo('quinta')">⬅ Voltar à Quinta</button>
   </div>
 
-  <!-- ECRÃ: CRIAR GARRAFA -->
+  <!-- ECRÃ: CRIAR GARRAFA (com pequena sequência narrativa) -->
   <div id="screen-garrafa" class="screen content">
-    <h2>Criar Garrafa</h2>
-    <p class="info-text">São precisas 100 Gotas de Moscatel para criar 1 Garrafa (+30 Reputação).</p>
-    <div class="progress-bar-outer">
-      <div class="progress-bar-inner" id="garrafa-progresso"></div>
-    </div>
-    <p class="info-text"><span id="garrafa-gotas-atual">0</span> / 100 Gotas de Moscatel</p>
-    <button id="btn-criar-garrafa" class="btn btn-primary" onclick="criarGarrafa()">Criar Garrafa</button>
-    <button class="btn btn-secondary" onclick="goTo('quinta')">⬅ Voltar à Quinta</button>
+    <div id="garrafa-container"></div>
+    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
-  <!-- ECRÃ: EXPLORAR -->
+  <!-- ECRÃ: EXPLORAR (desbloqueia uma entrada da Enciclopédia de cada vez) -->
   <div id="screen-explorar" class="screen content">
-    <h2>Explorar</h2>
-    <p class="info-text">Histórias sobre o Moscatel de Setúbal.</p>
-    <div class="story-box" id="historia-texto"></div>
-    <button class="btn btn-primary" onclick="novaHistoria()">Nova História</button>
-    <button class="btn btn-secondary" onclick="goTo('quinta')">⬅ Voltar à Quinta</button>
+    <div id="explorar-container"></div>
+    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
+  </div>
+
+  <!-- ECRÃ: ENCICLOPÉDIA DO MOSCATEL (galeria de entradas desbloqueadas/bloqueadas) -->
+  <div id="screen-enciclopedia" class="screen content">
+    <div id="enciclopedia-container"></div>
+    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
   <!-- ECRÃ: PERFIL -->
   <div id="screen-perfil" class="screen content">
-    <h2>Perfil</h2>
-    <div class="profile-grid">
-      <div class="profile-card">
-        <div class="stat-icon">🍇</div>
-        <div class="stat-value val-uvas">0</div>
-        <div class="stat-label">Uvas</div>
-      </div>
-      <div class="profile-card">
-        <div class="stat-icon">💧</div>
-        <div class="stat-value val-gotas">0</div>
-        <div class="stat-label">Gotas de Moscatel</div>
-      </div>
-      <div class="profile-card">
-        <div class="stat-icon">⭐</div>
-        <div class="stat-value val-reputacao">0</div>
-        <div class="stat-label">Reputação</div>
-      </div>
-      <div class="profile-card">
-        <div class="stat-icon">🍾</div>
-        <div class="stat-value val-garrafas">0</div>
-        <div class="stat-label">Garrafas</div>
-      </div>
-    </div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')">⬅ Voltar à Quinta</button>
+    <h2 data-i18n="perfil.title">Perfil</h2>
+    <div id="perfil-container"></div>
+    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+  <!-- ECRÃ: ESCOLHER LÍNGUA -->
+  <div id="screen-lingua" class="screen content">
+    <h2 data-i18n="lingua.title">Escolher Língua</h2>
+    <p class="info-text" data-i18n="lingua.subtitle">Escolhe o idioma da interface.</p>
+    <button class="btn btn-secondary" onclick="selecionarLingua('pt')" data-i18n="lingua.pt">🇵🇹 Português</button>
+    <button class="btn btn-secondary" onclick="selecionarLingua('en')" data-i18n="lingua.en">🇬🇧 English</button>
+    <button class="btn btn-secondary" onclick="selecionarLingua('es')" data-i18n="lingua.es">🇪🇸 Español</button>
+    <button class="btn btn-secondary" onclick="goTo('home')" data-i18n="nav.voltar">⬅ Voltar</button>
+  </div>
 
-    function showMessage(msg) {
-      const dentroDoTelegram = tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
-      if (dentroDoTelegram) {
-        tg.showAlert(msg);
-      } else {
-        alert(msg);
-      }
-    }
-
-    function escolherLingua() {
-      showMessage("Escolha de língua em desenvolvimento.");
-    }
-
-    // ---------------------------------------------------------------------
-    // ESTADO DO JOGO (persistido em localStorage)
-    //
-    // NOTA / FUTURO: neste momento todo o progresso (Uvas, Gotas, Reputação,
-    // Garrafas, etc.) é guardado apenas no localStorage do browser do
-    // jogador. Quando existir um backend/API real, as funções loadState()
-    // e saveState() abaixo devem passar a fazer GET/POST a essa API
-    // (ex.: fetch('/api/estado')) em vez de ler/escrever no localStorage,
-    // para que o progresso fique guardado no servidor e seja possível
-    // mostrar um ranking partilhado entre todos os jogadores.
-    // ---------------------------------------------------------------------
-
-    const STORAGE_KEY = 'yoshicat_quinta_state_v1';
-
-    function defaultState() {
-      return {
-        uvas: 0,
-        gotas: 0,
-        reputacao: 0,
-        garrafas: 0,
-        lastVinhaDate: null
-      };
-    }
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return defaultState();
-        return Object.assign(defaultState(), JSON.parse(raw));
-      } catch (e) {
-        return defaultState();
-      }
-    }
-
-    function saveState(s) {
-      // FUTURO: substituir esta linha por uma chamada à API (ver nota acima).
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-    }
-
-    let state = loadState();
-
-    function updateStatsDisplays() {
-      document.querySelectorAll('.val-uvas').forEach(el => el.textContent = state.uvas);
-      document.querySelectorAll('.val-gotas').forEach(el => el.textContent = state.gotas);
-      document.querySelectorAll('.val-reputacao').forEach(el => el.textContent = state.reputacao);
-      document.querySelectorAll('.val-garrafas').forEach(el => el.textContent = state.garrafas);
-    }
-
-    function randInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    // ---------------------------------------------------------------------
-    // NAVEGAÇÃO ENTRE ECRÃS
-    // ---------------------------------------------------------------------
-
-    function goTo(screen) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById('screen-' + screen).classList.add('active');
-      updateStatsDisplays();
-
-      if (screen === 'vinha') renderVinha();
-      if (screen === 'proteger') startProteger();
-      if (screen === 'garrafa') renderGarrafa();
-      if (screen === 'explorar') novaHistoria();
-    }
-
-    // ---------------------------------------------------------------------
-    // TRATAR A VINHA (1x por dia)
-    // ---------------------------------------------------------------------
-
-    function renderVinha() {
-      const hoje = new Date().toDateString();
-      const jaTratou = state.lastVinhaDate === hoje;
-      const btn = document.getElementById('btn-tratar-vinha');
-      const info = document.getElementById('vinha-info');
-
-      btn.disabled = jaTratou;
-      info.textContent = jaTratou
-        ? 'Já trataste da vinha hoje. Volta amanhã!'
-        : 'A vinha precisa de cuidados diários. Trata dela para ganhar Uvas e Gotas de Moscatel.';
-    }
-
-    function tratarVinha() {
-      const hoje = new Date().toDateString();
-      if (state.lastVinhaDate === hoje) {
-        showMessage('Já trataste da vinha hoje!');
-        return;
-      }
-
-      const uvasGanhas = randInt(8, 15);
-      const gotasGanhas = randInt(5, 10);
-
-      state.uvas += uvasGanhas;
-      state.gotas += gotasGanhas;
-      state.lastVinhaDate = hoje;
-      saveState(state);
-
-      updateStatsDisplays();
-      renderVinha();
-      showMessage('Trataste da vinha! +' + uvasGanhas + ' Uvas, +' + gotasGanhas + ' Gotas de Moscatel.');
-    }
-
-    // ---------------------------------------------------------------------
-    // PROTEGER A QUINTA (3 estilos de mini-jogo, escolhidos à sorte)
-    // ---------------------------------------------------------------------
-
-    const QUICK_CHOICE_SCENARIOS = [
-      { pergunta: 'Qual destes é um inimigo da vinha?', opcoes: ['Traça-da-uva', 'Joaninha', 'Andorinha'], correta: 0 },
-      { pergunta: 'O que ajuda a proteger as uvas do calor excessivo?', opcoes: ['Sombra das folhas', 'Regar com água salgada', 'Cortar todos os ramos'], correta: 0 },
-      { pergunta: 'Qual destes fungos pode atacar a vinha?', opcoes: ['Oídio', 'Cogumelo-do-campo', 'Fungo-do-pão'], correta: 0 },
-      { pergunta: 'Qual destas aves ajuda a controlar pragas na vinha?', opcoes: ['Pinguim', 'Andorinha', 'Avestruz'], correta: 1 },
-      { pergunta: 'O que NÃO se deve fazer numa vinha saudável?', opcoes: ['Podar no tempo certo', 'Deixar ervas competirem sem controlo', 'Vigiar as folhas'], correta: 1 }
-    ];
-
-    const LOCAL_ICONS = ['🌳', '🛖', '🚜', '🌾'];
-
-    let currentQuickChoice = null;
-    let currentPigIndex = -1;
-    let rpsState = { playerScore: 0, compScore: 0, round: 0 };
-
-    function startProteger() {
-      const tipos = ['quick', 'pigs', 'rps'];
-      const tipo = tipos[randInt(0, tipos.length - 1)];
-      if (tipo === 'quick') renderQuickChoice();
-      else if (tipo === 'pigs') renderPigs();
-      else {
-        rpsState = { playerScore: 0, compScore: 0, round: 0 };
-        renderRPS();
-      }
-    }
-
-    function renderQuickChoice() {
-      currentQuickChoice = QUICK_CHOICE_SCENARIOS[randInt(0, QUICK_CHOICE_SCENARIOS.length - 1)];
-      const container = document.getElementById('proteger-container');
-      container.innerHTML =
-        '<h2>Proteger a Quinta</h2>' +
-        '<p class="game-subtitle">Escolha Rápida</p>' +
-        '<p class="game-question">' + currentQuickChoice.pergunta + '</p>' +
-        '<div class="choice-list">' +
-        currentQuickChoice.opcoes.map((op, i) =>
-          '<button class="btn btn-secondary" onclick="responderQuickChoice(' + i + ')">' + op + '</button>'
-        ).join('') +
-        '</div>';
-    }
-
-    function responderQuickChoice(i) {
-      finishProteger(i === currentQuickChoice.correta);
-    }
-
-    function renderPigs() {
-      currentPigIndex = randInt(0, LOCAL_ICONS.length - 1);
-      const container = document.getElementById('proteger-container');
-      container.innerHTML =
-        '<h2>Proteger a Quinta</h2>' +
-        '<p class="game-subtitle">Onde estão os porcos?</p>' +
-        '<p class="game-question">Os porcos fugiram e andam a comer as uvas! Escolhe o esconderijo certo.</p>' +
-        '<div class="options-grid">' +
-        LOCAL_ICONS.map((icon, i) =>
-          '<div class="option-card" onclick="responderPigs(' + i + ')">' + icon + '</div>'
-        ).join('') +
-        '</div>';
-    }
-
-    function responderPigs(i) {
-      finishProteger(i === currentPigIndex);
-    }
-
-    function emojiRPS(jogada) {
-      return jogada === 'pedra' ? '🪨' : jogada === 'papel' ? '📄' : '✂️';
-    }
-
-    function labelResultado(resultado) {
-      return resultado === 'ganhou' ? 'Ganhaste a ronda!' : resultado === 'perdeu' ? 'Perdeste a ronda.' : 'Empate.';
-    }
-
-    function renderRPS(ultimaJogada, ultimaComp, ultimoResultado) {
-      const container = document.getElementById('proteger-container');
-      const historico = ultimaJogada
-        ? '<p class="game-result">Tu: ' + emojiRPS(ultimaJogada) + '  ·  YoshiCat: ' + emojiRPS(ultimaComp) + '<br>' + labelResultado(ultimoResultado) + '</p>'
-        : '';
-
-      container.innerHTML =
-        '<h2>Proteger a Quinta</h2>' +
-        '<p class="game-subtitle">Pedra, Papel ou Tesoura (melhor de 3)</p>' +
-        '<p class="game-question">Placar: Tu ' + rpsState.playerScore + ' — ' + rpsState.compScore + ' YoshiCat</p>' +
-        historico +
-        '<div class="rps-row">' +
-        '<button class="rps-btn" onclick="playRPS(\'pedra\')">🪨</button>' +
-        '<button class="rps-btn" onclick="playRPS(\'papel\')">📄</button>' +
-        '<button class="rps-btn" onclick="playRPS(\'tesoura\')">✂️</button>' +
-        '</div>';
-    }
-
-    function playRPS(escolha) {
-      const opcoes = ['pedra', 'papel', 'tesoura'];
-      const comp = opcoes[randInt(0, 2)];
-      let resultado;
-
-      if (escolha === comp) {
-        resultado = 'empate';
-      } else if (
-        (escolha === 'pedra' && comp === 'tesoura') ||
-        (escolha === 'papel' && comp === 'pedra') ||
-        (escolha === 'tesoura' && comp === 'papel')
-      ) {
-        resultado = 'ganhou';
-        rpsState.playerScore++;
-      } else {
-        resultado = 'perdeu';
-        rpsState.compScore++;
-      }
-
-      rpsState.round++;
-
-      if (rpsState.playerScore === 2 || rpsState.compScore === 2) {
-        const venceu = rpsState.playerScore === 2;
-        renderRPS(escolha, comp, resultado);
-        setTimeout(() => finishProteger(venceu), 900);
-      } else {
-        renderRPS(escolha, comp, resultado);
-      }
-    }
-
-    function finishProteger(venceu) {
-      if (venceu) {
-        const uvasGanhas = randInt(6, 12);
-        const gotasGanhas = randInt(6, 12);
-        const repGanha = randInt(2, 5);
-
-        state.uvas += uvasGanhas;
-        state.gotas += gotasGanhas;
-        state.reputacao += repGanha;
-        saveState(state);
-        updateStatsDisplays();
-
-        showResultProteger(true, uvasGanhas, gotasGanhas, repGanha);
-      } else {
-        showResultProteger(false);
-      }
-    }
-
-    function showResultProteger(venceu, uvas, gotas, rep) {
-      const container = document.getElementById('proteger-container');
-      container.innerHTML =
-        '<h2>' + (venceu ? 'A Quinta está protegida!' : 'Desta vez não correu bem...') + '</h2>' +
-        '<p class="game-question">' +
-        (venceu
-          ? '+' + uvas + ' Uvas, +' + gotas + ' Gotas, +' + rep + ' Reputação'
-          : 'A vinha sofreu um pequeno dano. Tenta outra vez para a proteger.') +
-        '</p>' +
-        '<button class="btn btn-primary" onclick="startProteger()">Jogar Novamente</button>';
-    }
-
-    // ---------------------------------------------------------------------
-    // CRIAR GARRAFA (100 Gotas = 1 Garrafa, +30 Reputação)
-    // ---------------------------------------------------------------------
-
-    function renderGarrafa() {
-      const pct = Math.min(100, Math.round((state.gotas / 100) * 100));
-      document.getElementById('garrafa-progresso').style.width = pct + '%';
-      document.getElementById('garrafa-gotas-atual').textContent = state.gotas;
-      document.getElementById('btn-criar-garrafa').disabled = state.gotas < 100;
-    }
-
-    function criarGarrafa() {
-      if (state.gotas < 100) {
-        showMessage('Ainda não tens Gotas de Moscatel suficientes. Precisas de 100.');
-        return;
-      }
-
-      state.gotas -= 100;
-      state.garrafas += 1;
-      state.reputacao += 30;
-      saveState(state);
-
-      updateStatsDisplays();
-      renderGarrafa();
-      showMessage('Criaste uma nova Garrafa de Moscatel! +30 Reputação.');
-    }
-
-    // ---------------------------------------------------------------------
-    // EXPLORAR (histórias curtas sobre o Moscatel de Setúbal)
-    // ---------------------------------------------------------------------
-
-    const HISTORIAS_MOSCATEL = [
-      'Dizem os mais velhos da Quinta que o Moscatel de Setúbal nasceu há mais de 500 anos, quando os primeiros bacelos de Moscatel Graúdo chegaram à península vindos de terras distantes.',
-      'A vinha da Quinta cresce em solos de argila e calcário, virada a poente — a mesma exposição que torna os Moscatéis de Setúbal tão doces e aromáticos.',
-      'Depois da vindima, os cachos mais generosos ficam a secar ao sol, concentrando o açúcar antes de seguirem para o lagar. É esse cuidado que dá ao Moscatel o seu perfume inconfundível.',
-      'O segredo de um bom Moscatel está na paciência: o vinho repousa em barricas de carvalho durante anos, ganhando notas de mel, frutos secos e passas.',
-      'Setúbal é uma das poucas regiões do mundo reconhecida pela qualidade excecional dos seus vinhos moscatel, ao lado de nomes como o Rütherglen australiano.',
-      'YoshiCat aprendeu com os antigos vinhateiros que proteger a vinha é tão importante como colhê-la — sem cuidado diário, nem a melhor terra dá bom vinho.'
-    ];
-
-    let ultimaHistoriaIndex = -1;
-
-    function novaHistoria() {
-      let i;
-      do {
-        i = randInt(0, HISTORIAS_MOSCATEL.length - 1);
-      } while (i === ultimaHistoriaIndex && HISTORIAS_MOSCATEL.length > 1);
-
-      ultimaHistoriaIndex = i;
-      document.getElementById('historia-texto').textContent = HISTORIAS_MOSCATEL[i];
-    }
-
-    // ---------------------------------------------------------------------
-    // ARRANQUE
-    // ---------------------------------------------------------------------
-
-    updateStatsDisplays();
-  </script>
+  <!-- Módulos JS (ordem importa: state e i18n primeiro, main por último) -->
+  <script src="js/state.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/vinha.js"></script>
+  <script src="js/explorar.js"></script>
+  <script src="js/proteger.js"></script>
+  <script src="js/garrafa.js"></script>
+  <script src="js/perfil.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
