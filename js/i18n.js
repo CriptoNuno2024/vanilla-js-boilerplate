@@ -5,8 +5,9 @@
 // de botões, nomes dos recursos). As histórias da Enciclopédia e as
 // frases de "flavor text" da Vinha mantêm-se em português.
 //
-// A Página Inicial e o "Proteger a Quinta" não são traduzidos por
-// pedido explícito de manter esses ecrãs exatamente como estão.
+// O "Proteger a Quinta" não é traduzido por pedido explícito de manter
+// esse ecrã exatamente como está (o seu conteúdo é gerado sem
+// atributos data-i18n).
 // ---------------------------------------------------------------------
 
 const TRANSLATIONS = {
@@ -52,6 +53,11 @@ const TRANSLATIONS = {
     'vinha.fase.crescendo.desc': 'Os bacelos estão a crescer. Rega, aduba e protege as videiras até estarem prontas.',
     'vinha.fase.pronta.nome': 'Pronta para a vindima',
     'vinha.fase.pronta.desc': 'Os cachos estão maduros e doces. Está na hora da vindima.',
+    'vinha.msgCooldown': 'Ainda não podes fazer isso. Tenta novamente daqui a {tempo}.',
+    'vinha.msgPrecisaAdubo': 'Precisas de Adubo Orgânico. Usa a Compostagem para o produzir.',
+    'vinha.msgFaltamResiduos': 'Ainda não tens Resíduos Orgânicos suficientes.',
+
+    'garrafa.msgGotasInsuficientes': 'Ainda não tens Gotas de Moscatel suficientes. Precisas de 100.',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': 'Nova entrada desbloqueada!',
@@ -84,10 +90,10 @@ const TRANSLATIONS = {
   },
 
   en: {
-    'home.title': 'YoshiCat e a Quinta do Moscatel',
-    'home.subtitle': 'Protege a vinha. Faz o melhor Moscatel.',
-    'home.btnEntrar': 'Entrar na Quinta',
-    'home.btnLingua': 'Escolher Língua',
+    'home.title': 'YoshiCat and the Moscatel Farm',
+    'home.subtitle': 'Protect the vineyard. Make the best Moscatel.',
+    'home.btnEntrar': 'Enter the Farm',
+    'home.btnLingua': 'Choose Language',
 
     'hub.title': 'The Moscatel Farm',
     'hub.btnVinha': '🌱 Tend the Vineyard',
@@ -125,6 +131,11 @@ const TRANSLATIONS = {
     'vinha.fase.crescendo.desc': 'The vines are growing. Water, fertilize and protect them until they are ready.',
     'vinha.fase.pronta.nome': 'Ready for harvest',
     'vinha.fase.pronta.desc': "The bunches are ripe and sweet. It's time to harvest.",
+    'vinha.msgCooldown': "You can't do that yet. Try again in {tempo}.",
+    'vinha.msgPrecisaAdubo': 'You need Compost. Use Composting to produce it.',
+    'vinha.msgFaltamResiduos': "You don't have enough Organic Waste yet.",
+
+    'garrafa.msgGotasInsuficientes': "You don't have enough Moscatel Drops yet. You need 100.",
 
     'explorar.title': 'Explore',
     'explorar.subtitleNova': 'New entry unlocked!',
@@ -157,10 +168,10 @@ const TRANSLATIONS = {
   },
 
   es: {
-    'home.title': 'YoshiCat e a Quinta do Moscatel',
-    'home.subtitle': 'Protege a vinha. Faz o melhor Moscatel.',
-    'home.btnEntrar': 'Entrar na Quinta',
-    'home.btnLingua': 'Escolher Língua',
+    'home.title': 'YoshiCat y la Quinta del Moscatel',
+    'home.subtitle': 'Protege el viñedo. Haz el mejor Moscatel.',
+    'home.btnEntrar': 'Entrar en la Quinta',
+    'home.btnLingua': 'Elegir Idioma',
 
     'hub.title': 'La Quinta del Moscatel',
     'hub.btnVinha': '🌱 Cuidar el Viñedo',
@@ -198,6 +209,11 @@ const TRANSLATIONS = {
     'vinha.fase.crescendo.desc': 'Las vides están creciendo. Riega, abona y protégelas hasta que estén listas.',
     'vinha.fase.pronta.nome': 'Lista para la vendimia',
     'vinha.fase.pronta.desc': 'Los racimos están maduros y dulces. Es hora de la vendimia.',
+    'vinha.msgCooldown': 'Todavía no puedes hacer eso. Vuelve a intentarlo dentro de {tempo}.',
+    'vinha.msgPrecisaAdubo': 'Necesitas Abono. Usa el Compostaje para producirlo.',
+    'vinha.msgFaltamResiduos': 'Todavía no tienes suficientes Residuos.',
+
+    'garrafa.msgGotasInsuficientes': 'Todavía no tienes suficientes Gotas de Moscatel. Necesitas 100.',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': '¡Nueva entrada desbloqueada!',
@@ -241,6 +257,12 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(function (el) {
     el.textContent = t(el.getAttribute('data-i18n'));
   });
+}
+
+const LOCALE_DO_IDIOMA = { pt: 'pt-PT', en: 'en-GB', es: 'es-ES' };
+
+function localeAtual() {
+  return LOCALE_DO_IDIOMA[currentLang] || 'pt-PT';
 }
 
 function setLanguage(lang) {

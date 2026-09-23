@@ -116,7 +116,7 @@ function renderVinha() {
 
 function executarAcaoVinha(actionKey) {
   if (tempoRestanteVinha(actionKey) > 0) {
-    vinhaMensagemAtual = 'Ainda não podes fazer isso. Tenta novamente daqui a ' + formatarTempoVinha(tempoRestanteVinha(actionKey)) + '.';
+    vinhaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(tempoRestanteVinha(actionKey)));
     renderVinha();
     return;
   }
@@ -140,7 +140,7 @@ function executarAcaoVinha(actionKey) {
   } else if (actionKey === 'adubar') {
     if (v.fase !== 'crescendo') return;
     if (v.adubo < 1) {
-      vinhaMensagemAtual = 'Precisas de Adubo Orgânico. Usa a Compostagem para o produzir.';
+      vinhaMensagemAtual = t('vinha.msgPrecisaAdubo');
       renderVinha();
       return;
     }
@@ -148,7 +148,7 @@ function executarAcaoVinha(actionKey) {
     v.pontosCuidado += 2;
   } else if (actionKey === 'compostagem') {
     if (v.residuos < RESIDUOS_POR_COMPOSTAGEM) {
-      vinhaMensagemAtual = 'Ainda não tens Resíduos Orgânicos suficientes.';
+      vinhaMensagemAtual = t('vinha.msgFaltamResiduos');
       renderVinha();
       return;
     }
@@ -162,7 +162,7 @@ function executarAcaoVinha(actionKey) {
     v.fase = 'preparar';
     v.pontosCuidado = 0;
     registarCooldownVinha(actionKey);
-    vinhaMensagemAtual = VINHA_FLAVOR.colher + ' (+' + uvasGanhas + ' Uvas)';
+    vinhaMensagemAtual = VINHA_FLAVOR.colher + ' (+' + uvasGanhas + ' ' + t('stat.uvas') + ')';
     saveState(state);
     updateStatsDisplays();
     renderVinha();

@@ -36,7 +36,7 @@ function renderGarrafaIdle() {
 
 function iniciarCriacaoGarrafa() {
   if (state.gotas < 100) {
-    showMessage('Ainda não tens Gotas de Moscatel suficientes. Precisas de 100.');
+    showMessage(t('garrafa.msgGotasInsuficientes'));
     return;
   }
   garrafaPasso = 0;
@@ -65,7 +65,7 @@ function finalizarCriacaoGarrafa() {
   state.gotas -= 100;
   state.garrafas += 1;
   state.reputacao += 30;
-  state.ultimaGarrafaData = new Date().toLocaleDateString('pt-PT');
+  state.ultimaGarrafaData = new Date().toLocaleDateString(localeAtual());
   saveState(state);
   updateStatsDisplays();
 
