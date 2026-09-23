@@ -36,7 +36,25 @@ const VINHA_FASES = {
   pronta: { nomeKey: 'vinha.fase.pronta.nome', descKey: 'vinha.fase.pronta.desc' }
 };
 
+// Fotos mostradas depois de uma ação. As restantes ações (Regar, Adubar,
+// Cavar, Ervas, Compostagem) ficam só com texto por agora.
+const VINHA_FOTOS = {
+  plantar: { src: 'assets/vinha/plantar.jpg', w: 580, h: 511, altKey: 'vinha.btnPlantar' },
+  colher: { src: 'assets/vinha/colher.jpg', w: 571, h: 522, altKey: 'vinha.btnColher' }
+};
+
 let vinhaMensagemAtual = '';
+let vinhaFotoAtual = null;
+
+function preCarregarFotosVinha() {
+  Object.keys(VINHA_FOTOS).forEach(function (k) { new Image().src = VINHA_FOTOS[k].src; });
+}
+
+function fotoVinhaHtml(foto) {
+  if (!foto) return '';
+  return '<img class="story-photo" src="' + foto.src + '" width="' + foto.w + '" height="' + foto.h +
+    '" alt="' + t(foto.altKey) + '">';
+}
 
 function tempoRestanteVinha(actionKey) {
   const ultima = state.vinha.cooldowns[actionKey];
@@ -58,6 +76,8 @@ function registarCooldownVinha(actionKey) {
 
 function enterVinha() {
   vinhaMensagemAtual = '';
+  vinhaFotoAtual = null;
+  preCarregarFotosVinha();
   renderVinha();
 }
 
@@ -108,6 +128,7 @@ function renderVinha() {
       '<div class="stat-item"><span class="stat-icon">🍂</span><span class="stat-value">' + v.residuos + '</span><span class="stat-label" data-i18n="vinha.recursoResiduos"></span></div>' +
       '<div class="stat-item"><span class="stat-icon">🌿</span><span class="stat-value">' + v.adubo + '</span><span class="stat-label" data-i18n="vinha.recursoAdubo"></span></div>' +
     '</div>' +
+    fotoVinhaHtml(vinhaFotoAtual) +
     '<p class="game-result">' + vinhaMensagemAtual + '</p>' +
     '<div class="action-list">' + botoesHtml + '</div>';
 
@@ -115,6 +136,8 @@ function renderVinha() {
 }
 
 function executarAcaoVinha(actionKey) {
+  vinhaFotoAtual = null;
+
   if (tempoRestanteVinha(actionKey) > 0) {
     vinhaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(tempoRestanteVinha(actionKey)));
     renderVinha();
@@ -163,6 +186,7 @@ function executarAcaoVinha(actionKey) {
     v.pontosCuidado = 0;
     registarCooldownVinha(actionKey);
     vinhaMensagemAtual = VINHA_FLAVOR.colher + ' (+' + uvasGanhas + ' ' + t('stat.uvas') + ')';
+    vinhaFotoAtual = VINHA_FOTOS.colher;
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -177,6 +201,7 @@ function executarAcaoVinha(actionKey) {
 
   registarCooldownVinha(actionKey);
   vinhaMensagemAtual = VINHA_FLAVOR[actionKey] || '';
+  vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
   saveState(state);
   updateStatsDisplays();
   renderVinha();

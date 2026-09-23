@@ -73,6 +73,10 @@ const TRANSLATIONS = {
     'garrafa.btnSeguinte': 'Seguinte',
     'garrafa.btnContinuar': 'Continuar',
     'garrafa.resultadoTitulo': 'Garrafa Criada!',
+    'garrafa.passo1': 'As uvas de Moscatel são prensadas à mão, e o mosto doce e perfumado começa a escorrer da prensa.',
+    'garrafa.passo2': 'A fermentação é interrompida com aguardente vínica, preservando a doçura natural. O mosto é mexido para que as películas fiquem em contacto — a maceração pelicular liberta os aromas florais e frutados do Moscatel.',
+    'garrafa.passo3': 'O vinho repousa em barris de madeira, onde ganha, com o tempo, cor âmbar e notas de mel e frutos secos.',
+    'garrafa.passo4': 'O vinho é finalmente engarrafado, pronto para continuar a evoluir e revelar todo o seu carácter.',
 
     'perfil.title': 'Perfil',
     'perfil.galeriaTitulo': 'Garrafas de Moscatel',
@@ -151,6 +155,10 @@ const TRANSLATIONS = {
     'garrafa.btnSeguinte': 'Next',
     'garrafa.btnContinuar': 'Continue',
     'garrafa.resultadoTitulo': 'Bottle Made!',
+    'garrafa.passo1': 'The Moscatel grapes are pressed by hand, and the sweet, fragrant must starts to flow from the press.',
+    'garrafa.passo2': 'Fermentation is stopped with grape brandy, preserving the natural sweetness. The must is stirred to keep the skins in contact — skin maceration releases the floral and fruity aromas of Moscatel.',
+    'garrafa.passo3': 'The wine rests in wooden barrels, where over time it takes on an amber colour and notes of honey and dried fruit.',
+    'garrafa.passo4': 'The wine is finally bottled, ready to keep evolving and reveal its full character.',
 
     'perfil.title': 'Profile',
     'perfil.galeriaTitulo': 'Moscatel Bottles',
@@ -229,6 +237,10 @@ const TRANSLATIONS = {
     'garrafa.btnSeguinte': 'Siguiente',
     'garrafa.btnContinuar': 'Continuar',
     'garrafa.resultadoTitulo': '¡Botella Creada!',
+    'garrafa.passo1': 'Las uvas de Moscatel se prensan a mano, y el mosto dulce y perfumado empieza a brotar de la prensa.',
+    'garrafa.passo2': 'La fermentación se detiene con aguardiente vínico, conservando el dulzor natural. El mosto se remueve para que los hollejos sigan en contacto: la maceración pelicular libera los aromas florales y afrutados del Moscatel.',
+    'garrafa.passo3': 'El vino reposa en barricas de madera, donde con el tiempo adquiere un color ámbar y notas de miel y frutos secos.',
+    'garrafa.passo4': 'El vino se embotella por fin, listo para seguir evolucionando y revelar todo su carácter.',
 
     'perfil.title': 'Perfil',
     'perfil.galeriaTitulo': 'Botellas de Moscatel',

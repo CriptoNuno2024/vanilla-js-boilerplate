@@ -2,20 +2,27 @@
 // CRIAR GARRAFA (100 Gotas = 1 Garrafa, +30 Reputação)
 //
 // Mesma economia de antes, mas agora com uma pequena sequência
-// narrativa (fermentação interrompida -> maceração pelicular ->
-// engarrafamento) antes de mostrar o resultado.
+// narrativa com fotos (prensar -> mexer o mosto -> barril ->
+// engarrafar) antes de mostrar o resultado.
 // ---------------------------------------------------------------------
 
+// Os textos de cada passo estão em i18n.js (garrafa.passo1 .. passo4).
 const GARRAFA_NARRATIVA = [
-  'A fermentação da uva Moscatel é interrompida com aguardente vínica, preservando o açúcar natural e a doçura característica.',
-  'As películas das uvas permanecem em contacto com o mosto — a maceração pelicular liberta os aromas florais e frutados intensos do Moscatel.',
-  'O vinho é finalmente engarrafado, pronto para continuar a evoluir e revelar todo o seu carácter.'
+  { textoKey: 'garrafa.passo1', foto: 'assets/vinha/prensar.jpg', w: 600, h: 840 },
+  { textoKey: 'garrafa.passo2', foto: 'assets/vinha/mexer_mosto.jpg', w: 579, h: 516 },
+  { textoKey: 'garrafa.passo3', foto: 'assets/vinha/barril.jpg', w: 572, h: 511 },
+  { textoKey: 'garrafa.passo4', foto: 'assets/vinha/engarrafar.jpg', w: 585, h: 519 }
 ];
 
 let garrafaPasso = -1;
 
+function preCarregarFotosGarrafa() {
+  GARRAFA_NARRATIVA.forEach(function (passo) { new Image().src = passo.foto; });
+}
+
 function renderGarrafaScreen() {
   garrafaPasso = -1;
+  preCarregarFotosGarrafa();
   renderGarrafaIdle();
 }
 
@@ -45,9 +52,11 @@ function iniciarCriacaoGarrafa() {
 
 function renderGarrafaNarrativa() {
   const container = document.getElementById('garrafa-container');
+  const passo = GARRAFA_NARRATIVA[garrafaPasso];
   container.innerHTML =
     '<h2 data-i18n="garrafa.title"></h2>' +
-    '<div class="story-box">' + GARRAFA_NARRATIVA[garrafaPasso] + '</div>' +
+    '<img class="story-photo" src="' + passo.foto + '" width="' + passo.w + '" height="' + passo.h + '" alt="">' +
+    '<div class="story-box" data-i18n="' + passo.textoKey + '"></div>' +
     '<button class="btn btn-primary" onclick="avancarNarrativaGarrafa()" data-i18n="garrafa.btnSeguinte"></button>';
   applyTranslations();
 }
