@@ -16,32 +16,124 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: white;
       min-height: 100vh;
-      background-image: url('Yoshi_Cat.jpg');
-      background-size: cover;
-      background-position: center bottom;
-      background-repeat: no-repeat;
       background-color: #0a1226;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       padding: 24px 16px;
       position: relative;
+      --barra-home: calc(76px + env(safe-area-inset-bottom, 0px));
     }
 
-    .overlay {
+    /* -----------------------------------------------------------------
+       FUNDOS (definidos em definirFundo() no js/main.js)
+       - modo-capa: ecrã inicial, capa inteira visível + versão desfocada
+         a preencher os lados/baixo, sem cortes.
+       - modo-paisagem: a capa ampliada e presa ao topo, para só se ver o
+         céu, a casa e a vinha (o YoshiCat, o cartaz e o logótipo ficam
+         abaixo do ecrã). Não descarrega nada a mais: é a mesma imagem.
+       - modo-foto: uma imagem da história (Vinha e Criar Garrafa).
+       ----------------------------------------------------------------- */
+    #fundo {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background-color: #0a1226;
+    }
+
+    #fundo > div {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
+      background-repeat: no-repeat;
+    }
+
+    #fundo.modo-capa .fundo-desfocado {
+      background-image: url('Yoshi_Cat.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: blur(30px) brightness(0.45);
+      transform: scale(1.15);
+    }
+
+    #fundo.modo-capa .fundo-nitido {
+      background-image: url('Yoshi_Cat.jpg');
+      background-size: contain;
+      background-position: center bottom;
+      bottom: var(--barra-home);
+    }
+
+    #fundo.modo-paisagem .fundo-desfocado,
+    #fundo.modo-foto .fundo-desfocado {
+      display: none;
+    }
+
+    /* 170vh: só os 59% de cima da capa ficam no ecrã, e o YoshiCat
+       começa a 61% da altura, com qualquer tamanho de ecrã. */
+    #fundo.modo-paisagem .fundo-nitido {
+      background-image: url('Yoshi_Cat.jpg');
+      background-size: cover;
+      background-position: center top;
+      bottom: auto;
+      height: 170vh;
+      filter: brightness(0.6);
+    }
+
+    #fundo.modo-foto .fundo-nitido {
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.6);
+    }
+
+    /* Escurecimento extra por cima dos fundos, para o texto se ler bem */
+    .overlay {
+      position: fixed;
+      inset: 0;
       background: linear-gradient(
         to top,
-        rgba(0,0,0,0.68) 0%,
-        rgba(0,0,0,0.35) 40%,
-        rgba(0,0,0,0.08) 75%,
-        rgba(0,0,0,0) 100%
+        rgba(0,0,0,0.72) 0%,
+        rgba(0,0,0,0.5) 50%,
+        rgba(0,0,0,0.35) 100%
       );
       z-index: 1;
+    }
+
+    /* No ecrã inicial a capa fica limpa, sem escurecimento */
+    body.tela-home .overlay {
+      display: none;
+    }
+
+    /* Texto que continua na página (para leitores de ecrã) mas não se vê */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    /* Ecrã inicial: botões pequenos, lado a lado, na faixa de baixo */
+    body.tela-home {
+      padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .home-botoes {
+      display: flex;
+      gap: 10px;
+    }
+
+    .home-botoes .btn {
+      flex: 1;
+      margin: 0;
+      padding: 11px 8px;
+      font-size: 15px;
+      border-radius: 12px;
+    }
+
+    .home-botoes .btn-secondary {
+      background: rgba(15, 15, 20, 0.7);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .content {
@@ -103,7 +195,7 @@
     }
 
     .btn-secondary {
-      background: rgba(25, 25, 25, 0.9);
+      background: rgba(20, 20, 26, 0.92);
       color: white;
       border: 1px solid #666;
     }
@@ -119,7 +211,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
-      background: rgba(0,0,0,0.4);
+      background: rgba(12, 14, 22, 0.84);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 12px 10px;
@@ -196,7 +288,7 @@
     }
 
     .option-card {
-      background: rgba(25, 25, 25, 0.85);
+      background: rgba(20, 20, 26, 0.9);
       border: 1px solid #666;
       border-radius: 14px;
       padding: 26px 10px;
@@ -225,7 +317,7 @@
 
     .rps-btn {
       font-size: 30px;
-      background: rgba(25, 25, 25, 0.85);
+      background: rgba(20, 20, 26, 0.9);
       border: 1px solid #666;
       border-radius: 50%;
       width: 68px;
@@ -240,7 +332,7 @@
     .progress-bar-outer {
       width: 100%;
       height: 16px;
-      background: rgba(25, 25, 25, 0.85);
+      background: rgba(20, 20, 26, 0.9);
       border: 1px solid #666;
       border-radius: 10px;
       overflow: hidden;
@@ -262,7 +354,7 @@
     }
 
     .profile-card {
-      background: rgba(0,0,0,0.4);
+      background: rgba(12, 14, 22, 0.84);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 18px 10px;
@@ -278,7 +370,7 @@
     }
 
     .story-box {
-      background: rgba(0,0,0,0.4);
+      background: rgba(12, 14, 22, 0.84);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 18px;
@@ -305,7 +397,7 @@
 
     /* Vinha no telemóvel: tudo mais compacto para caber no ecrã sem
        deslizar. A foto ainda encolhe mais em ecrãs baixos (ver
-       ajustarFotoVinha em js/vinha.js). */
+       ajustarFotoAoEcra em js/vinha.js). */
     @media (max-width: 599px) {
       #screen-vinha h2 { font-size: 19px; margin-bottom: 6px; }
       #screen-vinha .phase-card { padding: 10px 12px; margin-bottom: 8px; }
@@ -319,9 +411,19 @@
       #screen-vinha .btn { padding: 11px; margin: 7px 0; font-size: 16px; }
     }
 
+    /* Perfil no telemóvel: 3 colunas de cartões mais compactos, para caber
+       mesmo com a galeria de garrafas e o título especial */
+    @media (max-width: 599px) {
+      .profile-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+      .profile-card { padding: 10px 4px; }
+      .profile-card .stat-icon { font-size: 20px; margin-bottom: 2px; }
+      .profile-card .stat-value { font-size: 17px; }
+      #perfil-container .bottle-gallery { font-size: 20px; margin-bottom: 12px; }
+    }
+
     /* Fase atual da Vinha */
     .phase-card {
-      background: rgba(0,0,0,0.4);
+      background: rgba(12, 14, 22, 0.84);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 16px;
@@ -366,7 +468,7 @@
     }
 
     .encyclopedia-card {
-      background: rgba(0,0,0,0.4);
+      background: rgba(12, 14, 22, 0.84);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 14px 16px;
@@ -416,39 +518,26 @@
     /* Ajustes para ecrãs maiores (PC) */
     @media (min-width: 600px) {
       body {
-        background-image: none;  /* as duas camadas abaixo tratam disto agora */
         justify-content: center;
         padding: 40px;
       }
 
-      /* Camada desfocada — preenche os lados, sem barras sólidas */
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background-image: url('Yoshi_Cat.jpg');
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
-        filter: blur(45px) brightness(0.55);
-        transform: scale(1.15);
-        z-index: 0;
+      /* Ecrã inicial: botões em baixo, sem quadro escuro por cima da capa */
+      body.tela-home {
+        justify-content: flex-end;
+        padding: 0 40px calc(18px + env(safe-area-inset-bottom, 0px));
       }
 
-      /* Camada nítida — a imagem inteira, sem cortes, por cima da desfocada */
-      body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background-image: url('Yoshi_Cat.jpg');
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        z-index: 0;
+      #screen-home.content {
+        background: none;
+        padding: 0;
+        border-radius: 0;
+        backdrop-filter: none;
+        max-width: 360px;
       }
 
       .content {
-        background: rgba(0,0,0,0.65);
+        background: rgba(8, 10, 18, 0.82);
         padding: 30px 25px;
         border-radius: 20px;
         backdrop-filter: blur(6px);
@@ -467,21 +556,29 @@
     }
   </style>
 </head>
-<body>
+<body class="tela-home">
+  <!-- Fundo (capa, paisagem ou foto da história) — ver definirFundo() -->
+  <div id="fundo" class="modo-capa">
+    <div class="fundo-desfocado"></div>
+    <div class="fundo-nitido"></div>
+  </div>
   <div class="overlay"></div>
 
-  <!-- ECRÃ INICIAL (mantido tal como estava) -->
+  <!-- ECRÃ INICIAL: a capa fica toda visível; o título já está no logótipo
+       da capa, por isso fica só para leitores de ecrã -->
   <div id="screen-home" class="screen content active">
-    <h1 data-i18n="home.title">YoshiCat e a Quinta do Moscatel</h1>
-    <p class="subtitle" data-i18n="home.subtitle">Protege a vinha. Faz o melhor Moscatel.</p>
+    <h1 class="sr-only" data-i18n="home.title">YoshiCat e a Quinta do Moscatel</h1>
+    <p class="sr-only" data-i18n="home.subtitle">Protege a vinha. Faz o melhor Moscatel.</p>
 
-    <button class="btn btn-primary" onclick="goTo('quinta')" data-i18n="home.btnEntrar">
-      Entrar na Quinta
-    </button>
+    <div class="home-botoes">
+      <button class="btn btn-primary" onclick="goTo('quinta')" data-i18n="home.btnEntrar">
+        Entrar na Quinta
+      </button>
 
-    <button class="btn btn-secondary" onclick="goTo('lingua')" data-i18n="home.btnLingua">
-      Escolher Língua
-    </button>
+      <button class="btn btn-secondary" onclick="goTo('lingua')" data-i18n="home.btnLingua">
+        Escolher Língua
+      </button>
+    </div>
   </div>
 
   <!-- ECRÃ HUB: A QUINTA -->
@@ -574,13 +671,13 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=9"></script>
-  <script src="js/i18n.js?v=9"></script>
-  <script src="js/vinha.js?v=9"></script>
-  <script src="js/explorar.js?v=9"></script>
-  <script src="js/proteger.js?v=9"></script>
-  <script src="js/garrafa.js?v=9"></script>
-  <script src="js/perfil.js?v=9"></script>
-  <script src="js/main.js?v=9"></script>
+  <script src="js/state.js?v=14"></script>
+  <script src="js/i18n.js?v=14"></script>
+  <script src="js/vinha.js?v=14"></script>
+  <script src="js/explorar.js?v=14"></script>
+  <script src="js/proteger.js?v=14"></script>
+  <script src="js/garrafa.js?v=14"></script>
+  <script src="js/perfil.js?v=14"></script>
+  <script src="js/main.js?v=14"></script>
 </body>
 </html>

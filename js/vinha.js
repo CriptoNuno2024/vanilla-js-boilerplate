@@ -47,6 +47,14 @@ const VINHA_FOTOS = {
   colher: { src: 'assets/vinha/colher.jpg', w: 800, h: 739, altKey: 'vinha.btnColher' }
 };
 
+// Fundo quando ainda não se fez nenhuma ação: depende da fase da vinha.
+const VINHA_FUNDO_POR_FASE = {
+  preparar: 'cavar',
+  preparada: 'plantar',
+  crescendo: 'regar',
+  pronta: 'colher'
+};
+
 let vinhaMensagemAtual = '';
 let vinhaFotoAtual = null;
 
@@ -56,21 +64,22 @@ function preCarregarFotoVinha(actionKey) {
   if (VINHA_FOTOS[actionKey]) new Image().src = VINHA_FOTOS[actionKey].src;
 }
 
-// No telemóvel, encolhe a foto o necessário para o ecrã da Vinha caber
-// sem deslizar (ex: telemóveis mais baixos ou a janela do Telegram).
-const ALTURA_MIN_FOTO_VINHA = 80;
+// No telemóvel, encolhe a foto do ecrã ativo (Vinha ou Criar Garrafa) o
+// necessário para caber sem deslizar (ex: telemóveis mais baixos ou a
+// janela do Telegram).
+const ALTURA_MIN_FOTO = 80;
 
-function ajustarFotoVinha() {
-  const img = document.querySelector('#vinha-container .story-photo');
+function ajustarFotoAoEcra() {
+  const img = document.querySelector('.screen.active .story-photo');
   if (!img || window.innerWidth >= 600) return;
   img.style.maxHeight = '';
   const excesso = document.documentElement.scrollHeight - window.innerHeight;
   if (excesso > 0) {
-    img.style.maxHeight = Math.max(ALTURA_MIN_FOTO_VINHA, img.getBoundingClientRect().height - excesso) + 'px';
+    img.style.maxHeight = Math.max(ALTURA_MIN_FOTO, img.getBoundingClientRect().height - excesso) + 'px';
   }
 }
 
-window.addEventListener('resize', ajustarFotoVinha);
+window.addEventListener('resize', ajustarFotoAoEcra);
 
 function fotoVinhaHtml(foto) {
   if (!foto) return '';
@@ -154,8 +163,11 @@ function renderVinha() {
     '<p class="game-result">' + vinhaMensagemAtual + '</p>' +
     '<div class="action-list">' + botoesHtml + '</div>';
 
+  const fotoFundo = vinhaFotoAtual || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]];
+  definirFundo('foto', fotoFundo.src);
+
   applyTranslations();
-  ajustarFotoVinha();
+  ajustarFotoAoEcra();
 }
 
 function executarAcaoVinha(actionKey) {

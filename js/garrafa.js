@@ -38,6 +38,7 @@ function renderGarrafaIdle() {
     '<button class="btn btn-primary" ' + (state.gotas < 100 ? 'disabled' : '') +
     ' onclick="iniciarCriacaoGarrafa()" data-i18n="garrafa.btnCriar"></button>';
 
+  definirFundo('foto', GARRAFA_NARRATIVA[0].foto);
   applyTranslations();
 }
 
@@ -58,7 +59,9 @@ function renderGarrafaNarrativa() {
     '<img class="story-photo" src="' + passo.foto + '" width="' + passo.w + '" height="' + passo.h + '" alt="">' +
     '<div class="story-box" data-i18n="' + passo.textoKey + '"></div>' +
     '<button class="btn btn-primary" onclick="avancarNarrativaGarrafa()" data-i18n="garrafa.btnSeguinte"></button>';
+  definirFundo('foto', passo.foto);
   applyTranslations();
+  ajustarFotoAoEcra();
 }
 
 function avancarNarrativaGarrafa() {
@@ -84,5 +87,6 @@ function finalizarCriacaoGarrafa() {
     '<p class="game-question">+1 <span data-i18n="stat.garrafas"></span>, +30 <span data-i18n="stat.reputacao"></span></p>' +
     '<button class="btn btn-primary" onclick="renderGarrafaIdle()" data-i18n="garrafa.btnContinuar"></button>';
 
+  definirFundo('foto', GARRAFA_NARRATIVA[GARRAFA_NARRATIVA.length - 1].foto);
   applyTranslations();
 }
