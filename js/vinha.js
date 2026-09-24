@@ -36,19 +36,41 @@ const VINHA_FASES = {
   pronta: { nomeKey: 'vinha.fase.pronta.nome', descKey: 'vinha.fase.pronta.desc' }
 };
 
-// Fotos mostradas depois de uma ação. As restantes ações (Regar, Adubar,
-// Cavar, Ervas, Compostagem) ficam só com texto por agora.
+// Foto mostrada depois de cada ação.
 const VINHA_FOTOS = {
-  plantar: { src: 'assets/vinha/plantar.jpg', w: 580, h: 511, altKey: 'vinha.btnPlantar' },
-  colher: { src: 'assets/vinha/colher.jpg', w: 571, h: 522, altKey: 'vinha.btnColher' }
+  cavar: { src: 'assets/vinha/cavar_2.jpg', w: 800, h: 705, altKey: 'vinha.btnCavar' },
+  plantar: { src: 'assets/vinha/plantar.jpg', w: 1160, h: 1022, altKey: 'vinha.btnPlantar' },
+  ervas: { src: 'assets/vinha/eliminarervasdaninhas_2.jpg', w: 800, h: 705, altKey: 'vinha.btnErvas' },
+  regar: { src: 'assets/vinha/regar.jpg', w: 800, h: 705, altKey: 'vinha.btnRegar' },
+  adubar: { src: 'assets/vinha/adubar_2.jpg', w: 720, h: 1029, altKey: 'vinha.btnAdubar' },
+  compostagem: { src: 'assets/vinha/compostagem_1.jpg', w: 800, h: 705, altKey: 'vinha.btnCompostar' },
+  colher: { src: 'assets/vinha/colher.jpg', w: 800, h: 739, altKey: 'vinha.btnColher' }
 };
 
 let vinhaMensagemAtual = '';
 let vinhaFotoAtual = null;
 
-function preCarregarFotosVinha() {
-  Object.keys(VINHA_FOTOS).forEach(function (k) { new Image().src = VINHA_FOTOS[k].src; });
+// Pré-carrega só a foto de uma ação que está visível, para não descarregar
+// as 7 fotos de uma vez no telemóvel.
+function preCarregarFotoVinha(actionKey) {
+  if (VINHA_FOTOS[actionKey]) new Image().src = VINHA_FOTOS[actionKey].src;
 }
+
+// No telemóvel, encolhe a foto o necessário para o ecrã da Vinha caber
+// sem deslizar (ex: telemóveis mais baixos ou a janela do Telegram).
+const ALTURA_MIN_FOTO_VINHA = 80;
+
+function ajustarFotoVinha() {
+  const img = document.querySelector('#vinha-container .story-photo');
+  if (!img || window.innerWidth >= 600) return;
+  img.style.maxHeight = '';
+  const excesso = document.documentElement.scrollHeight - window.innerHeight;
+  if (excesso > 0) {
+    img.style.maxHeight = Math.max(ALTURA_MIN_FOTO_VINHA, img.getBoundingClientRect().height - excesso) + 'px';
+  }
+}
+
+window.addEventListener('resize', ajustarFotoVinha);
 
 function fotoVinhaHtml(foto) {
   if (!foto) return '';
@@ -77,7 +99,6 @@ function registarCooldownVinha(actionKey) {
 function enterVinha() {
   vinhaMensagemAtual = '';
   vinhaFotoAtual = null;
-  preCarregarFotosVinha();
   renderVinha();
 }
 
@@ -85,6 +106,7 @@ function botaoVinha(actionKey, i18nKey, bloqueadoExtra) {
   const restante = tempoRestanteVinha(actionKey);
   const bloqueado = restante > 0 || !!bloqueadoExtra;
   const sufixo = restante > 0 ? (' (' + formatarTempoVinha(restante) + ')') : '';
+  if (!bloqueado) preCarregarFotoVinha(actionKey);
   return '<button class="btn btn-primary" ' + (bloqueado ? 'disabled' : '') +
     ' onclick="executarAcaoVinha(\'' + actionKey + '\')">' +
     '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixo + '</span>' +
@@ -133,6 +155,7 @@ function renderVinha() {
     '<div class="action-list">' + botoesHtml + '</div>';
 
   applyTranslations();
+  ajustarFotoVinha();
 }
 
 function executarAcaoVinha(actionKey) {

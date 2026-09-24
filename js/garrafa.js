@@ -9,9 +9,9 @@
 // Os textos de cada passo estão em i18n.js (garrafa.passo1 .. passo4).
 const GARRAFA_NARRATIVA = [
   { textoKey: 'garrafa.passo1', foto: 'assets/vinha/prensar.jpg', w: 600, h: 840 },
-  { textoKey: 'garrafa.passo2', foto: 'assets/vinha/mexer_mosto.jpg', w: 579, h: 516 },
-  { textoKey: 'garrafa.passo3', foto: 'assets/vinha/barril.jpg', w: 572, h: 511 },
-  { textoKey: 'garrafa.passo4', foto: 'assets/vinha/engarrafar.jpg', w: 585, h: 519 }
+  { textoKey: 'garrafa.passo2', foto: 'assets/vinha/mexer_mosto.jpg', w: 800, h: 716 },
+  { textoKey: 'garrafa.passo3', foto: 'assets/vinha/barril_dourado.jpg', w: 704, h: 971 },
+  { textoKey: 'garrafa.passo4', foto: 'assets/vinha/engarrafar.jpg', w: 800, h: 716 }
 ];
 
 let garrafaPasso = -1;

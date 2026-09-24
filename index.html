@@ -303,6 +303,22 @@
       border: 1px solid rgba(245, 215, 110, 0.4);
     }
 
+    /* Vinha no telemóvel: tudo mais compacto para caber no ecrã sem
+       deslizar. A foto ainda encolhe mais em ecrãs baixos (ver
+       ajustarFotoVinha em js/vinha.js). */
+    @media (max-width: 599px) {
+      #screen-vinha h2 { font-size: 19px; margin-bottom: 6px; }
+      #screen-vinha .phase-card { padding: 10px 12px; margin-bottom: 8px; }
+      #screen-vinha .phase-nome { font-size: 15px; margin-bottom: 3px; }
+      #screen-vinha .phase-desc { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
+      #screen-vinha .stats-bar { padding: 6px 10px; margin-bottom: 8px; }
+      #screen-vinha .stat-item { flex-direction: row; justify-content: center; gap: 6px; }
+      #screen-vinha .stat-icon { font-size: 16px; }
+      #screen-vinha .story-photo { max-height: 30vh; margin-bottom: 8px; }
+      #screen-vinha .game-result { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
+      #screen-vinha .btn { padding: 11px; margin: 7px 0; font-size: 16px; }
+    }
+
     /* Fase atual da Vinha */
     .phase-card {
       background: rgba(0,0,0,0.4);
@@ -558,13 +574,13 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=7"></script>
-  <script src="js/i18n.js?v=7"></script>
-  <script src="js/vinha.js?v=7"></script>
-  <script src="js/explorar.js?v=7"></script>
-  <script src="js/proteger.js?v=7"></script>
-  <script src="js/garrafa.js?v=7"></script>
-  <script src="js/perfil.js?v=7"></script>
-  <script src="js/main.js?v=7"></script>
+  <script src="js/state.js?v=9"></script>
+  <script src="js/i18n.js?v=9"></script>
+  <script src="js/vinha.js?v=9"></script>
+  <script src="js/explorar.js?v=9"></script>
+  <script src="js/proteger.js?v=9"></script>
+  <script src="js/garrafa.js?v=9"></script>
+  <script src="js/perfil.js?v=9"></script>
+  <script src="js/main.js?v=9"></script>
 </body>
 </html>
