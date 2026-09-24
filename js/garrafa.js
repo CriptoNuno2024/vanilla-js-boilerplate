@@ -2,16 +2,16 @@
 // CRIAR GARRAFA (100 Gotas = 1 Garrafa, +30 Reputação)
 //
 // Mesma economia de antes, mas agora com uma pequena sequência
-// narrativa com fotos (prensar -> mexer o mosto -> barril ->
-// engarrafar) antes de mostrar o resultado.
+// narrativa (prensar -> mexer o mosto -> barril -> engarrafar) antes de
+// mostrar o resultado. A foto de cada passo aparece como fundo.
 // ---------------------------------------------------------------------
 
 // Os textos de cada passo estão em i18n.js (garrafa.passo1 .. passo4).
 const GARRAFA_NARRATIVA = [
-  { textoKey: 'garrafa.passo1', foto: 'assets/vinha/prensar.jpg', w: 600, h: 840 },
-  { textoKey: 'garrafa.passo2', foto: 'assets/vinha/mexer_mosto.jpg', w: 800, h: 716 },
-  { textoKey: 'garrafa.passo3', foto: 'assets/vinha/barril_dourado.jpg', w: 704, h: 971 },
-  { textoKey: 'garrafa.passo4', foto: 'assets/vinha/engarrafar.jpg', w: 800, h: 716 }
+  { textoKey: 'garrafa.passo1', foto: 'assets/vinha/prensar.jpg' },
+  { textoKey: 'garrafa.passo2', foto: 'assets/vinha/mexer_mosto.jpg' },
+  { textoKey: 'garrafa.passo3', foto: 'assets/vinha/barril_dourado.jpg' },
+  { textoKey: 'garrafa.passo4', foto: 'assets/vinha/engarrafar.jpg' }
 ];
 
 let garrafaPasso = -1;
@@ -56,12 +56,10 @@ function renderGarrafaNarrativa() {
   const passo = GARRAFA_NARRATIVA[garrafaPasso];
   container.innerHTML =
     '<h2 data-i18n="garrafa.title"></h2>' +
-    '<img class="story-photo" src="' + passo.foto + '" width="' + passo.w + '" height="' + passo.h + '" alt="">' +
     '<div class="story-box" data-i18n="' + passo.textoKey + '"></div>' +
     '<button class="btn btn-primary" onclick="avancarNarrativaGarrafa()" data-i18n="garrafa.btnSeguinte"></button>';
   definirFundo('foto', passo.foto);
   applyTranslations();
-  ajustarFotoAoEcra();
 }
 
 function avancarNarrativaGarrafa() {

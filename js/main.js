@@ -17,26 +17,38 @@ function showMessage(msg) {
 
 // Fundo do jogo (ver #fundo no index.html):
 //   'capa'     — ecrã inicial, capa inteira
-//   'paisagem' — capa escurecida, só com céu, casa e vinha (sem o YoshiCat)
+//   'paisagem' — parte de cima da capa: céu, lua, casa e vinha (sem o YoshiCat)
 //   'foto'     — uma imagem da história, passada em src
 function definirFundo(modo, src) {
   const fundo = document.getElementById('fundo');
-  const nitido = fundo.querySelector('.fundo-nitido');
   const imagem = (modo === 'foto' && src) ? 'url("' + src + '")' : '';
 
   fundo.className = 'modo-' + modo;
-  if (nitido.style.backgroundImage !== imagem) nitido.style.backgroundImage = imagem;
+  fundo.querySelectorAll('div').forEach(function (camada) {
+    if (camada.style.backgroundImage !== imagem) camada.style.backgroundImage = imagem;
+  });
 }
 
-// Vinha e Criar Garrafa escolhem a sua própria foto de fundo quando desenham.
-const ECRAS_COM_FOTO = ['vinha', 'garrafa'];
+// Foto de fundo de cada ecrã. null = ainda sem foto própria, usa a
+// paisagem da capa. Para dar uma foto a um ecrã, põe aqui o caminho
+// (ex: 'assets/ecras/proteger.jpg').
+// Vinha e Criar Garrafa não estão aqui: escolhem a foto quando desenham.
+const FUNDO_DOS_ECRAS = {
+  quinta: null,
+  proteger: null,
+  explorar: null,
+  enciclopedia: null,
+  perfil: null,
+  lingua: null
+};
 
 function goTo(screen) {
   document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
   document.getElementById('screen-' + screen).classList.add('active');
   document.body.classList.toggle('tela-home', screen === 'home');
   if (screen === 'home') definirFundo('capa');
-  else if (ECRAS_COM_FOTO.indexOf(screen) === -1) definirFundo('paisagem');
+  else if (FUNDO_DOS_ECRAS[screen]) definirFundo('foto', FUNDO_DOS_ECRAS[screen]);
+  else if (screen in FUNDO_DOS_ECRAS) definirFundo('paisagem');
   updateStatsDisplays();
   applyTranslations();
 

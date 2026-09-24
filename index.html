@@ -20,19 +20,23 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 24px 16px;
+      padding: 16px 10px;
       position: relative;
       --barra-home: calc(76px + env(safe-area-inset-bottom, 0px));
+      /* Coluna do jogo: largura de telemóvel, também no PC */
+      --coluna: min(100vw, 480px);
     }
 
     /* -----------------------------------------------------------------
        FUNDOS (definidos em definirFundo() no js/main.js)
        - modo-capa: ecrã inicial, capa inteira visível + versão desfocada
          a preencher os lados/baixo, sem cortes.
-       - modo-paisagem: a capa ampliada e presa ao topo, para só se ver o
-         céu, a casa e a vinha (o YoshiCat, o cartaz e o logótipo ficam
-         abaixo do ecrã). Não descarrega nada a mais: é a mesma imagem.
-       - modo-foto: uma imagem da história (Vinha e Criar Garrafa).
+       - modo-paisagem: a parte de cima da capa (céu, lua, casa e vinha,
+         até 59% da altura — o YoshiCat começa a 61%), inteira na coluna.
+       - modo-foto: uma imagem da história (Vinha e Criar Garrafa),
+         inteira na largura da coluna, presa ao topo.
+       Nos modos paisagem e foto, a camada desfocada é a mesma imagem,
+       escura, a preencher o resto do ecrã e os lados no PC.
        ----------------------------------------------------------------- */
     #fundo {
       position: fixed;
@@ -48,12 +52,15 @@
       background-repeat: no-repeat;
     }
 
-    #fundo.modo-capa .fundo-desfocado {
-      background-image: url('Yoshi_Cat.jpg');
+    #fundo .fundo-desfocado {
       background-size: cover;
       background-position: center;
-      filter: blur(30px) brightness(0.45);
+      filter: blur(28px) brightness(0.4);
       transform: scale(1.15);
+    }
+
+    #fundo.modo-capa .fundo-desfocado {
+      background-image: url('Yoshi_Cat.jpg');
     }
 
     #fundo.modo-capa .fundo-nitido {
@@ -63,39 +70,86 @@
       bottom: var(--barra-home);
     }
 
-    #fundo.modo-paisagem .fundo-desfocado,
-    #fundo.modo-foto .fundo-desfocado {
-      display: none;
-    }
-
-    /* 170vh: só os 59% de cima da capa ficam no ecrã, e o YoshiCat
-       começa a 61% da altura, com qualquer tamanho de ecrã. */
-    #fundo.modo-paisagem .fundo-nitido {
+    /* Desfocada da paisagem: só a parte de cima da capa, sem o gato */
+    #fundo.modo-paisagem .fundo-desfocado {
       background-image: url('Yoshi_Cat.jpg');
-      background-size: cover;
       background-position: center top;
       bottom: auto;
       height: 170vh;
-      filter: brightness(0.6);
     }
 
+    /* Caixa da foto: MESMA regra em todos os ecrãs (menos o inicial) —
+       mesma altura, proporcional à largura da coluna. A foto preenche a
+       caixa toda (background-size: cover) e o que sobra é cortado, em
+       vez de a foto encolher para caber. Por isso todas as fotos ficam
+       do mesmo tamanho, seja qual for a proporção original de cada uma. */
+    #fundo.modo-paisagem .fundo-nitido,
     #fundo.modo-foto .fundo-nitido {
+      left: 50%;
+      right: auto;
+      bottom: auto;
+      width: var(--coluna);
+      height: calc(var(--coluna) * 0.95);
+      transform: translateX(-50%);
       background-size: cover;
-      background-position: center;
-      filter: brightness(0.6);
+      background-position: center top;
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 60px), transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 calc(100% - 60px), transparent 100%);
     }
 
-    /* Escurecimento extra por cima dos fundos, para o texto se ler bem */
+    #fundo.modo-paisagem .fundo-nitido {
+      background-image: url('Yoshi_Cat.jpg');
+    }
+
+    /* Escurecimento leve só na parte de baixo, onde fica a janela */
     .overlay {
       position: fixed;
       inset: 0;
       background: linear-gradient(
         to top,
-        rgba(0,0,0,0.72) 0%,
-        rgba(0,0,0,0.5) 50%,
-        rgba(0,0,0,0.35) 100%
+        rgba(0,0,0,0.45) 0%,
+        rgba(0,0,0,0.1) 35%,
+        rgba(0,0,0,0) 55%
       );
       z-index: 1;
+    }
+
+    /* -----------------------------------------------------------------
+       JANELA DOS ECRÃS (todos menos o inicial): encostada em baixo,
+       semitransparente, para se ver a cena por cima dela
+       ----------------------------------------------------------------- */
+    .screen.content:not(#screen-home) {
+      background: rgba(10, 12, 20, 0.45);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(245, 215, 110, 0.25);
+      border-radius: 18px;
+      padding: 12px 12px 6px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+    }
+
+    .screen:not(#screen-home) .btn {
+      padding: 11px;
+      margin: 7px 0;
+      font-size: 16px;
+      text-shadow: none;
+    }
+
+    .screen:not(#screen-home) .choice-list .btn {
+      padding-left: 18px;
+    }
+
+    .screen:not(#screen-home) h2 {
+      font-size: 19px;
+      margin-bottom: 6px;
+    }
+
+    .game-subtitle {
+      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+    }
+
+    .game-result:empty {
+      display: none;
     }
 
     /* No ecrã inicial a capa fica limpa, sem escurecimento */
@@ -195,7 +249,7 @@
     }
 
     .btn-secondary {
-      background: rgba(20, 20, 26, 0.92);
+      background: rgba(20, 20, 26, 0.7);
       color: white;
       border: 1px solid #666;
     }
@@ -211,11 +265,11 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
-      background: rgba(12, 14, 22, 0.84);
+      background: rgba(12, 14, 22, 0.55);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
-      padding: 12px 10px;
-      margin-bottom: 22px;
+      padding: 7px 8px;
+      margin-bottom: 10px;
     }
 
     .stat-item {
@@ -273,6 +327,7 @@
       font-size: 14px;
       color: #f0f0f0;
       margin-bottom: 10px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.95);
     }
 
     .choice-list .btn {
@@ -288,11 +343,11 @@
     }
 
     .option-card {
-      background: rgba(20, 20, 26, 0.9);
+      background: rgba(20, 20, 26, 0.65);
       border: 1px solid #666;
       border-radius: 14px;
-      padding: 26px 10px;
-      font-size: 32px;
+      padding: 16px 8px;
+      font-size: 28px;
       cursor: pointer;
       text-align: center;
       transition: transform 0.1s ease;
@@ -317,7 +372,7 @@
 
     .rps-btn {
       font-size: 30px;
-      background: rgba(20, 20, 26, 0.9);
+      background: rgba(20, 20, 26, 0.65);
       border: 1px solid #666;
       border-radius: 50%;
       width: 68px;
@@ -332,7 +387,7 @@
     .progress-bar-outer {
       width: 100%;
       height: 16px;
-      background: rgba(20, 20, 26, 0.9);
+      background: rgba(20, 20, 26, 0.65);
       border: 1px solid #666;
       border-radius: 10px;
       overflow: hidden;
@@ -354,7 +409,7 @@
     }
 
     .profile-card {
-      background: rgba(12, 14, 22, 0.84);
+      background: rgba(12, 14, 22, 0.55);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 18px 10px;
@@ -370,7 +425,7 @@
     }
 
     .story-box {
-      background: rgba(12, 14, 22, 0.84);
+      background: rgba(12, 14, 22, 0.55);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 18px;
@@ -382,34 +437,16 @@
       min-height: 90px;
     }
 
-    /* Fotos das ações (Vinha e Criar Garrafa) — altura limitada para
-       caber no ecrã do telemóvel junto com o texto e os botões */
-    .story-photo {
-      display: block;
-      max-width: 100%;
-      max-height: 38vh;
-      width: auto;
-      height: auto;
-      margin: 0 auto 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(245, 215, 110, 0.4);
-    }
-
-    /* Vinha no telemóvel: tudo mais compacto para caber no ecrã sem
-       deslizar. A foto ainda encolhe mais em ecrãs baixos (ver
-       ajustarFotoAoEcra em js/vinha.js). */
-    @media (max-width: 599px) {
-      #screen-vinha h2 { font-size: 19px; margin-bottom: 6px; }
-      #screen-vinha .phase-card { padding: 10px 12px; margin-bottom: 8px; }
-      #screen-vinha .phase-nome { font-size: 15px; margin-bottom: 3px; }
-      #screen-vinha .phase-desc { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
-      #screen-vinha .stats-bar { padding: 6px 10px; margin-bottom: 8px; }
-      #screen-vinha .stat-item { flex-direction: row; justify-content: center; gap: 6px; }
-      #screen-vinha .stat-icon { font-size: 16px; }
-      #screen-vinha .story-photo { max-height: 30vh; margin-bottom: 8px; }
-      #screen-vinha .game-result { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
-      #screen-vinha .btn { padding: 11px; margin: 7px 0; font-size: 16px; }
-    }
+    /* Vinha (telemóvel e PC): tudo mais compacto, para caber no ecrã sem
+       deslizar e deixar ver mais da foto de fundo */
+    #screen-vinha h2 { font-size: 19px; margin-bottom: 6px; }
+    #screen-vinha .phase-card { padding: 10px 12px; margin-bottom: 8px; }
+    #screen-vinha .phase-nome { font-size: 15px; margin-bottom: 3px; }
+    #screen-vinha .phase-desc { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
+    #screen-vinha .stats-bar { padding: 6px 10px; margin-bottom: 8px; }
+    #screen-vinha .stat-item { flex-direction: row; justify-content: center; gap: 6px; }
+    #screen-vinha .stat-icon { font-size: 16px; }
+    #screen-vinha .game-result { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
 
     /* Perfil no telemóvel: 3 colunas de cartões mais compactos, para caber
        mesmo com a galeria de garrafas e o título especial */
@@ -419,11 +456,14 @@
       .profile-card .stat-icon { font-size: 20px; margin-bottom: 2px; }
       .profile-card .stat-value { font-size: 17px; }
       #perfil-container .bottle-gallery { font-size: 20px; margin-bottom: 12px; }
+      #screen-perfil h2 { margin-bottom: 6px; }
+      #perfil-container .info-text { margin-bottom: 10px; }
+      #perfil-container .badge-title { margin-bottom: 10px; }
     }
 
     /* Fase atual da Vinha */
     .phase-card {
-      background: rgba(12, 14, 22, 0.84);
+      background: rgba(12, 14, 22, 0.55);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 16px;
@@ -468,7 +508,7 @@
     }
 
     .encyclopedia-card {
-      background: rgba(12, 14, 22, 0.84);
+      background: rgba(12, 14, 22, 0.55);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 14px 16px;
@@ -517,30 +557,23 @@
 
     /* Ajustes para ecrãs maiores (PC) */
     @media (min-width: 600px) {
+      /* Janela encostada em baixo, dentro da coluna, como no telemóvel */
       body {
-        justify-content: center;
-        padding: 40px;
+        justify-content: flex-end;
+        padding: 0 40px 20px;
       }
 
-      /* Ecrã inicial: botões em baixo, sem quadro escuro por cima da capa */
+      /* Ecrã inicial: botões em baixo, sem quadro por cima da capa */
       body.tela-home {
-        justify-content: flex-end;
         padding: 0 40px calc(18px + env(safe-area-inset-bottom, 0px));
       }
 
       #screen-home.content {
-        background: none;
-        padding: 0;
-        border-radius: 0;
-        backdrop-filter: none;
         max-width: 360px;
       }
 
       .content {
-        background: rgba(8, 10, 18, 0.82);
-        padding: 30px 25px;
-        border-radius: 20px;
-        backdrop-filter: blur(6px);
+        max-width: 440px;
         max-height: 85vh;
         overflow-y: auto;
       }
@@ -671,13 +704,13 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=14"></script>
-  <script src="js/i18n.js?v=14"></script>
-  <script src="js/vinha.js?v=14"></script>
-  <script src="js/explorar.js?v=14"></script>
-  <script src="js/proteger.js?v=14"></script>
-  <script src="js/garrafa.js?v=14"></script>
-  <script src="js/perfil.js?v=14"></script>
-  <script src="js/main.js?v=14"></script>
+  <script src="js/state.js?v=20"></script>
+  <script src="js/i18n.js?v=20"></script>
+  <script src="js/vinha.js?v=20"></script>
+  <script src="js/explorar.js?v=20"></script>
+  <script src="js/proteger.js?v=20"></script>
+  <script src="js/garrafa.js?v=20"></script>
+  <script src="js/perfil.js?v=20"></script>
+  <script src="js/main.js?v=20"></script>
 </body>
 </html>

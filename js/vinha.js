@@ -36,15 +36,15 @@ const VINHA_FASES = {
   pronta: { nomeKey: 'vinha.fase.pronta.nome', descKey: 'vinha.fase.pronta.desc' }
 };
 
-// Foto mostrada depois de cada ação.
+// Foto de fundo depois de cada ação.
 const VINHA_FOTOS = {
-  cavar: { src: 'assets/vinha/cavar_2.jpg', w: 800, h: 705, altKey: 'vinha.btnCavar' },
-  plantar: { src: 'assets/vinha/plantar.jpg', w: 1160, h: 1022, altKey: 'vinha.btnPlantar' },
-  ervas: { src: 'assets/vinha/eliminarervasdaninhas_2.jpg', w: 800, h: 705, altKey: 'vinha.btnErvas' },
-  regar: { src: 'assets/vinha/regar.jpg', w: 800, h: 705, altKey: 'vinha.btnRegar' },
-  adubar: { src: 'assets/vinha/adubar_2.jpg', w: 720, h: 1029, altKey: 'vinha.btnAdubar' },
-  compostagem: { src: 'assets/vinha/compostagem_1.jpg', w: 800, h: 705, altKey: 'vinha.btnCompostar' },
-  colher: { src: 'assets/vinha/colher.jpg', w: 800, h: 739, altKey: 'vinha.btnColher' }
+  cavar: 'assets/vinha/cavar_2.jpg',
+  plantar: 'assets/vinha/plantar.jpg',
+  ervas: 'assets/vinha/eliminarervasdaninhas_2.jpg',
+  regar: 'assets/vinha/regar.jpg',
+  adubar: 'assets/vinha/adubar_2.jpg',
+  compostagem: 'assets/vinha/compostagem_1.jpg',
+  colher: 'assets/vinha/colher.jpg'
 };
 
 // Fundo quando ainda não se fez nenhuma ação: depende da fase da vinha.
@@ -61,30 +61,7 @@ let vinhaFotoAtual = null;
 // Pré-carrega só a foto de uma ação que está visível, para não descarregar
 // as 7 fotos de uma vez no telemóvel.
 function preCarregarFotoVinha(actionKey) {
-  if (VINHA_FOTOS[actionKey]) new Image().src = VINHA_FOTOS[actionKey].src;
-}
-
-// No telemóvel, encolhe a foto do ecrã ativo (Vinha ou Criar Garrafa) o
-// necessário para caber sem deslizar (ex: telemóveis mais baixos ou a
-// janela do Telegram).
-const ALTURA_MIN_FOTO = 80;
-
-function ajustarFotoAoEcra() {
-  const img = document.querySelector('.screen.active .story-photo');
-  if (!img || window.innerWidth >= 600) return;
-  img.style.maxHeight = '';
-  const excesso = document.documentElement.scrollHeight - window.innerHeight;
-  if (excesso > 0) {
-    img.style.maxHeight = Math.max(ALTURA_MIN_FOTO, img.getBoundingClientRect().height - excesso) + 'px';
-  }
-}
-
-window.addEventListener('resize', ajustarFotoAoEcra);
-
-function fotoVinhaHtml(foto) {
-  if (!foto) return '';
-  return '<img class="story-photo" src="' + foto.src + '" width="' + foto.w + '" height="' + foto.h +
-    '" alt="' + t(foto.altKey) + '">';
+  if (VINHA_FOTOS[actionKey]) new Image().src = VINHA_FOTOS[actionKey];
 }
 
 function tempoRestanteVinha(actionKey) {
@@ -159,15 +136,12 @@ function renderVinha() {
       '<div class="stat-item"><span class="stat-icon">🍂</span><span class="stat-value">' + v.residuos + '</span><span class="stat-label" data-i18n="vinha.recursoResiduos"></span></div>' +
       '<div class="stat-item"><span class="stat-icon">🌿</span><span class="stat-value">' + v.adubo + '</span><span class="stat-label" data-i18n="vinha.recursoAdubo"></span></div>' +
     '</div>' +
-    fotoVinhaHtml(vinhaFotoAtual) +
     '<p class="game-result">' + vinhaMensagemAtual + '</p>' +
     '<div class="action-list">' + botoesHtml + '</div>';
 
-  const fotoFundo = vinhaFotoAtual || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]];
-  definirFundo('foto', fotoFundo.src);
+  definirFundo('foto', vinhaFotoAtual || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]]);
 
   applyTranslations();
-  ajustarFotoAoEcra();
 }
 
 function executarAcaoVinha(actionKey) {
