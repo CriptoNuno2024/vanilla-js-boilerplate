@@ -114,6 +114,16 @@ function pStr() {
   return PROTEGER_STRINGS[currentLang] || PROTEGER_STRINGS.pt;
 }
 
+// Fundo de cada momento do Proteger. O "geral" serve também para o
+// estilo 3 (Chizo), que ainda não tem foto própria.
+const PROTEGER_FUNDOS = {
+  geral: { src: 'assets/ecras/cimo_da_colina_apontar.jpg', pos: 'left top' },
+  disfarces: { src: 'assets/ecras/apontar_esquerda.jpg' },
+  fechadura: { src: 'assets/ecras/adega_juntos.jpg', pos: 'right top' }
+};
+const PROTEGER_FUNDO_VITORIA = 'assets/ecras/yoshi_cat_festejar_vitoria.jpg';
+const PROTEGER_FUNDO_DERROTA = 'assets/ecras/yoshi_cat_cruzados_derrota_3.jpg';
+
 function startProteger() {
   const tipos = ['fechadura', 'disfarces', 'chizo'];
   const tipo = tipos[randInt(0, tipos.length - 1)];
@@ -144,6 +154,8 @@ function renderFechadura() {
       '<button class="btn btn-secondary" onclick="responderFechadura(' + i + ')">' + op + '</button>'
     ).join('') +
     '</div>';
+
+  definirFundo('foto', PROTEGER_FUNDOS.fechadura.src, PROTEGER_FUNDOS.fechadura.pos);
 }
 
 function responderFechadura(i) {
@@ -176,6 +188,8 @@ function renderDisfarces() {
       return '<div class="option-card" onclick="responderDisfarce(' + i + ')">🍇<div class="option-label">' + S.monteLabel + ' ' + (i + 1) + '</div></div>';
     }).join('') +
     '</div>';
+
+  definirFundo('foto', PROTEGER_FUNDOS.disfarces.src, PROTEGER_FUNDOS.disfarces.pos);
 }
 
 function responderDisfarce(i) {
@@ -234,6 +248,8 @@ function renderChizo() {
     '<p class="game-subtitle">' + S.chizoSubtitulo + '</p>' +
     '<p class="game-question">' + S.chizoTurnos[chizoTurnoAtual] + '</p>' +
     '<button class="btn btn-primary" onclick="alertarChizo()">' + S.chizoBotao + '</button>';
+
+  definirFundo('foto', PROTEGER_FUNDOS.geral.src, PROTEGER_FUNDOS.geral.pos);
 }
 
 function alertarChizo() {
@@ -281,4 +297,6 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem) {
     '<p class="game-question">' + mensagem + '</p>' +
     (venceu ? '<p class="game-result">+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao') + '</p>' : '') +
     '<button class="btn btn-primary" onclick="startProteger()">' + S.jogarNovamente + '</button>';
+
+  definirFundo('foto', venceu ? PROTEGER_FUNDO_VITORIA : PROTEGER_FUNDO_DERROTA);
 }
