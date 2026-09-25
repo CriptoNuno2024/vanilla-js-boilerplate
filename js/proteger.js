@@ -124,9 +124,38 @@ const PROTEGER_FUNDOS = {
 const PROTEGER_FUNDO_VITORIA = 'assets/ecras/yoshi_cat_festejar_vitoria.jpg';
 const PROTEGER_FUNDO_DERROTA = 'assets/ecras/yoshi_cat_cruzados_derrota_3.jpg';
 
+// -----------------------------------------------------------------
+// ESTAÇÕES DO ANO (Parte C): não há um mecanismo de "hoje não há
+// ataque" — cada vez que se entra em Proteger aparece sempre um dos
+// 3 jogos. Por isso a estação muda antes é QUAL jogo é mais provável:
+//   Inverno: sem uvas maduras, os porcos vão sempre à Fechadura da
+//            reserva (só há isso para roubar).
+//   Verão e Outono: uvas maduras, os jogos das uvas (Disfarces e
+//            Chizo) ficam bem mais prováveis do que a Fechadura.
+//   Primavera: ainda não há uvas que valham a pena, a Fechadura fica
+//            mais provável e os jogos das uvas menos.
+// -----------------------------------------------------------------
+const PESOS_PROTEGER_POR_ESTACAO = {
+  inverno: { fechadura: 1, disfarces: 0, chizo: 0 },
+  primavera: { fechadura: 0.5, disfarces: 0.25, chizo: 0.25 },
+  verao: { fechadura: 0.15, disfarces: 0.425, chizo: 0.425 },
+  outono: { fechadura: 0.15, disfarces: 0.425, chizo: 0.425 }
+};
+
+function escolherTipoProteger() {
+  const pesos = PESOS_PROTEGER_POR_ESTACAO[estacaoAtual()];
+  const entradas = Object.keys(pesos).filter(function (tipo) { return pesos[tipo] > 0; });
+  const total = entradas.reduce(function (soma, tipo) { return soma + pesos[tipo]; }, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < entradas.length; i++) {
+    if (r < pesos[entradas[i]]) return entradas[i];
+    r -= pesos[entradas[i]];
+  }
+  return entradas[entradas.length - 1];
+}
+
 function startProteger() {
-  const tipos = ['fechadura', 'disfarces', 'chizo'];
-  const tipo = tipos[randInt(0, tipos.length - 1)];
+  const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
   else if (tipo === 'disfarces') renderDisfarces();
   else iniciarChizo();

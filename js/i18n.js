@@ -57,11 +57,46 @@ const TRANSLATIONS = {
     'vinha.msgPrecisaAdubo': 'Precisas de Adubo Orgânico. Usa a Compostagem para o produzir.',
     'vinha.msgFaltamResiduos': 'Ainda não tens Resíduos Orgânicos suficientes.',
 
+    // Estações do ano — vantagens junto aos botões (Parte A)
+    'vinha.bonusCuidado': '(+50% cuidado)',
+    'vinha.bonusAdubo': '(+50% adubo)',
+    'vinha.bonusColheita': '(+50% uvas e reputação)',
+
+    // Estações do ano — dicas próprias de cada ação com vantagem
+    'vinha.dica.plantar.primavera': 'É primavera, a altura certa para plantar: os novos bacelos de Moscatel Graúdo pegam com mais força nesta estação.',
+    'vinha.dica.ervas.primavera': 'Na primavera as ervas daninhas crescem depressa — arrancá-las agora dá um impulso extra às videiras.',
+    'vinha.dica.regar.verao': 'No calor do verão, a água é ainda mais preciosa: a vinha da Arrábida agradece cada rega.',
+    'vinha.dica.colher.outono': 'É outono, mês da vindima: os cachos maduros de Moscatel são colhidos à mão, cacho a cacho.',
+    'vinha.dica.compostagem.inverno': 'No inverno, os resíduos da poda enchem o composto: uma boa altura para transformá-los em adubo rico.',
+
+    // Estações do ano — a fase verdadeira da videira (Parte B)
+    'vinha.faseRealLabel': 'Na vinha real, agora:',
+    'vinha.faseReal.repouso': 'repouso — a videira descansa e é tempo de poda',
+    'vinha.faseReal.choro': 'o choro — a videira acorda e pinga seiva',
+    'vinha.faseReal.rebentacao': 'a rebentação — nascem os primeiros rebentos e folhas',
+    'vinha.faseReal.floracao': 'a floração — a videira dá pequenas flores',
+    'vinha.faseReal.vingamento': 'o vingamento — as flores dão lugar aos bagos',
+    'vinha.faseReal.pintor': 'o pintor — os bagos amolecem e ganham cor',
+    'vinha.faseReal.vindima': 'a vindima — as uvas estão doces e prontas',
+    'vinha.faseReal.fimVindima': 'fim da vindima — as folhas começam a amarelar',
+    'vinha.faseReal.quedaFolha': 'a queda da folha — a videira prepara-se para descansar',
+
     'garrafa.msgGotasInsuficientes': 'Ainda não tens Gotas de Moscatel suficientes. Precisas de 100.',
+
+    // Estações do ano — nome e frase curta de cada uma (Parte A)
+    'estacao.inverno': 'Inverno',
+    'estacao.primavera': 'Primavera',
+    'estacao.verao': 'Verão',
+    'estacao.outono': 'Outono',
+    'estacao.frase.inverno': 'tempo de poda',
+    'estacao.frase.primavera': 'a vinha desperta',
+    'estacao.frase.verao': 'os bagos ganham cor',
+    'estacao.frase.outono': 'época de vindima',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': 'Nova entrada desbloqueada!',
     'explorar.tudoDesbloqueado': 'Já desbloqueaste todo o conhecimento sobre o Moscatel de Setúbal!',
+    'explorar.nadaNestaEstacao': 'Já sabes tudo o que esta estação tem para ensinar. Volta noutra altura do ano para descobrires mais.',
     'explorar.btnVerEnciclopedia': 'Ver Enciclopédia',
 
     'enciclopedia.title': 'Enciclopédia do Moscatel',
@@ -139,11 +174,42 @@ const TRANSLATIONS = {
     'vinha.msgPrecisaAdubo': 'You need Compost. Use Composting to produce it.',
     'vinha.msgFaltamResiduos': "You don't have enough Organic Waste yet.",
 
+    'vinha.bonusCuidado': '(+50% care)',
+    'vinha.bonusAdubo': '(+50% compost)',
+    'vinha.bonusColheita': '(+50% grapes and reputation)',
+
+    'vinha.dica.plantar.primavera': "It's spring, the right time to plant: young Moscatel Graúdo vine cuttings take root more easily this season.",
+    'vinha.dica.ervas.primavera': 'In spring weeds grow fast — pulling them now gives the vines an extra boost.',
+    'vinha.dica.regar.verao': 'In the summer heat, water is even more precious: the Arrábida vineyard is grateful for every watering.',
+    'vinha.dica.colher.outono': "It's autumn, harvest time: the ripe Moscatel bunches are picked by hand, one by one.",
+    'vinha.dica.compostagem.inverno': 'In winter, pruning waste fills up the compost — a good time to turn it into rich fertiliser.',
+
+    'vinha.faseRealLabel': 'Right now, in the real vineyard:',
+    'vinha.faseReal.repouso': "dormancy — the vine rests, and it's pruning time",
+    'vinha.faseReal.choro': 'the weeping — the vine wakes up and drips sap',
+    'vinha.faseReal.rebentacao': 'budbreak — the first shoots and leaves appear',
+    'vinha.faseReal.floracao': 'flowering — the vine produces small flowers',
+    'vinha.faseReal.vingamento': 'fruit set — the flowers give way to berries',
+    'vinha.faseReal.pintor': 'véraison — the berries soften and take on colour',
+    'vinha.faseReal.vindima': 'harvest time — the grapes are sweet and ready',
+    'vinha.faseReal.fimVindima': 'end of harvest — the leaves start to turn yellow',
+    'vinha.faseReal.quedaFolha': 'leaf fall — the vine prepares to rest',
+
     'garrafa.msgGotasInsuficientes': "You don't have enough Moscatel Drops yet. You need 100.",
+
+    'estacao.inverno': 'Winter',
+    'estacao.primavera': 'Spring',
+    'estacao.verao': 'Summer',
+    'estacao.outono': 'Autumn',
+    'estacao.frase.inverno': 'pruning time',
+    'estacao.frase.primavera': 'the vineyard awakens',
+    'estacao.frase.verao': 'the berries take on colour',
+    'estacao.frase.outono': 'harvest time',
 
     'explorar.title': 'Explore',
     'explorar.subtitleNova': 'New entry unlocked!',
     'explorar.tudoDesbloqueado': "You've unlocked all the knowledge about Setúbal Moscatel!",
+    'explorar.nadaNestaEstacao': "You already know everything this season has to teach. Come back at another time of year to discover more.",
     'explorar.btnVerEnciclopedia': 'View Encyclopedia',
 
     'enciclopedia.title': 'Moscatel Encyclopedia',
@@ -221,11 +287,42 @@ const TRANSLATIONS = {
     'vinha.msgPrecisaAdubo': 'Necesitas Abono. Usa el Compostaje para producirlo.',
     'vinha.msgFaltamResiduos': 'Todavía no tienes suficientes Residuos.',
 
+    'vinha.bonusCuidado': '(+50% cuidado)',
+    'vinha.bonusAdubo': '(+50% abono)',
+    'vinha.bonusColheita': '(+50% uvas y reputación)',
+
+    'vinha.dica.plantar.primavera': 'Es primavera, el momento adecuado para plantar: los nuevos esquejes de Moscatel Graúdo arraigan con más fuerza en esta estación.',
+    'vinha.dica.ervas.primavera': 'En primavera las malas hierbas crecen deprisa: arrancarlas ahora da un impulso extra a las vides.',
+    'vinha.dica.regar.verao': 'En el calor del verano, el agua es aún más preciosa: el viñedo de Arrábida agradece cada riego.',
+    'vinha.dica.colher.outono': 'Es otoño, mes de la vendimia: los racimos maduros de Moscatel se recogen a mano, uno a uno.',
+    'vinha.dica.compostagem.inverno': 'En invierno, los residuos de la poda llenan el compost: un buen momento para convertirlos en abono rico.',
+
+    'vinha.faseRealLabel': 'Ahora mismo, en el viñedo real:',
+    'vinha.faseReal.repouso': 'reposo — la vid descansa y es tiempo de poda',
+    'vinha.faseReal.choro': 'el lloro — la vid despierta y gotea savia',
+    'vinha.faseReal.rebentacao': 'la brotación — nacen los primeros brotes y hojas',
+    'vinha.faseReal.floracao': 'la floración — la vid da pequeñas flores',
+    'vinha.faseReal.vingamento': 'el cuajado — las flores dan paso a las bayas',
+    'vinha.faseReal.pintor': 'el envero — las bayas se ablandan y cogen color',
+    'vinha.faseReal.vindima': 'la vendimia — las uvas están dulces y listas',
+    'vinha.faseReal.fimVindima': 'fin de la vendimia — las hojas empiezan a amarillear',
+    'vinha.faseReal.quedaFolha': 'la caída de la hoja — la vid se prepara para descansar',
+
     'garrafa.msgGotasInsuficientes': 'Todavía no tienes suficientes Gotas de Moscatel. Necesitas 100.',
+
+    'estacao.inverno': 'Invierno',
+    'estacao.primavera': 'Primavera',
+    'estacao.verao': 'Verano',
+    'estacao.outono': 'Otoño',
+    'estacao.frase.inverno': 'tiempo de poda',
+    'estacao.frase.primavera': 'el viñedo despierta',
+    'estacao.frase.verao': 'las bayas cogen color',
+    'estacao.frase.outono': 'época de vendimia',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': '¡Nueva entrada desbloqueada!',
     'explorar.tudoDesbloqueado': '¡Ya has desbloqueado todo el conocimiento sobre el Moscatel de Setúbal!',
+    'explorar.nadaNestaEstacao': 'Ya sabes todo lo que esta estación tiene para enseñar. Vuelve en otra época del año para descubrir más.',
     'explorar.btnVerEnciclopedia': 'Ver Enciclopedia',
 
     'enciclopedia.title': 'Enciclopedia del Moscatel',

@@ -59,6 +59,7 @@ function goTo(screen) {
   else if (screen in FUNDO_DOS_ECRAS) definirFundo('paisagem');
   updateStatsDisplays();
   applyTranslations();
+  atualizarLinhaEstacaoQuinta();
 
   if (screen === 'vinha') enterVinha();
   if (screen === 'proteger') startProteger();

@@ -55,6 +55,50 @@ const VINHA_FUNDO_POR_FASE = {
   pronta: 'colher'
 };
 
+// -----------------------------------------------------------------
+// ESTAÇÕES DO ANO (ver js/estacoes.js) — vantagens moderadas, nunca
+// bloqueiam nada. Cada estação dá um empurrão de cerca de +50% à
+// ação mais própria dela.
+// -----------------------------------------------------------------
+const VINHA_MULTIPLICADOR_BONUS = 1.5;
+
+const VINHA_BONUS_ESTACAO = {
+  primavera: ['plantar', 'ervas'],
+  verao: ['regar'],
+  outono: ['colher'],
+  inverno: ['compostagem']
+};
+
+function acaoTemBonusEstacao(actionKey) {
+  const acoes = VINHA_BONUS_ESTACAO[estacaoAtual()];
+  return !!(acoes && acoes.indexOf(actionKey) !== -1);
+}
+
+// Etiqueta simples junto ao botão, ex: "(+50% uvas e reputação)"
+const VINHA_BONUS_LABEL_KEY = {
+  plantar: 'vinha.bonusCuidado',
+  ervas: 'vinha.bonusCuidado',
+  regar: 'vinha.bonusCuidado',
+  compostagem: 'vinha.bonusAdubo',
+  colher: 'vinha.bonusColheita'
+};
+
+// A "dica" (frase de sabor) de cada ação com bónus ganha uma versão
+// própria da estação; fora dessa estação mantém a frase de sempre
+// (essa continua só em português, como já era o caso).
+const VINHA_DICA_SAZONAL_KEY = {
+  primavera: { plantar: 'vinha.dica.plantar.primavera', ervas: 'vinha.dica.ervas.primavera' },
+  verao: { regar: 'vinha.dica.regar.verao' },
+  outono: { colher: 'vinha.dica.colher.outono' },
+  inverno: { compostagem: 'vinha.dica.compostagem.inverno' }
+};
+
+function dicaVinha(actionKey) {
+  const porEstacao = VINHA_DICA_SAZONAL_KEY[estacaoAtual()];
+  const key = porEstacao && porEstacao[actionKey];
+  return key ? t(key) : (VINHA_FLAVOR[actionKey] || '');
+}
+
 let vinhaMensagemAtual = '';
 let vinhaFotoAtual = null;
 
@@ -92,10 +136,13 @@ function botaoVinha(actionKey, i18nKey, bloqueadoExtra) {
   const restante = tempoRestanteVinha(actionKey);
   const bloqueado = restante > 0 || !!bloqueadoExtra;
   const sufixo = restante > 0 ? (' (' + formatarTempoVinha(restante) + ')') : '';
+  const bonusHtml = acaoTemBonusEstacao(actionKey)
+    ? ' <span class="bonus-suffix">' + t(VINHA_BONUS_LABEL_KEY[actionKey]) + '</span>'
+    : '';
   if (!bloqueado) preCarregarFotoVinha(actionKey);
   return '<button class="btn btn-primary" ' + (bloqueado ? 'disabled' : '') +
     ' onclick="executarAcaoVinha(\'' + actionKey + '\')">' +
-    '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixo + '</span>' +
+    '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixo + '</span>' + bonusHtml +
     '</button>';
 }
 
@@ -132,6 +179,10 @@ function renderVinha() {
       '<p class="phase-desc" data-i18n="' + faseInfo.descKey + '"></p>' +
       progressoHtml +
     '</div>' +
+    '<div class="phase-card">' +
+      '<p class="phase-nome" data-i18n="vinha.faseRealLabel"></p>' +
+      '<p class="phase-desc">' + t('vinha.faseReal.' + faseRealAtual()) + '</p>' +
+    '</div>' +
     '<div class="stats-bar">' +
       '<div class="stat-item"><span class="stat-icon">🍂</span><span class="stat-value">' + v.residuos + '</span><span class="stat-label" data-i18n="vinha.recursoResiduos"></span></div>' +
       '<div class="stat-item"><span class="stat-icon">🌿</span><span class="stat-value">' + v.adubo + '</span><span class="stat-label" data-i18n="vinha.recursoAdubo"></span></div>' +
@@ -161,14 +212,15 @@ function executarAcaoVinha(actionKey) {
   } else if (actionKey === 'plantar') {
     if (v.fase !== 'preparada') return;
     v.fase = 'crescendo';
-    v.pontosCuidado = 0;
+    // Na primavera, plantar dá um pequeno impulso de cuidado à partida.
+    v.pontosCuidado = acaoTemBonusEstacao('plantar') ? 1 : 0;
   } else if (actionKey === 'ervas') {
     if (v.fase !== 'preparada' && v.fase !== 'crescendo') return;
-    if (v.fase === 'crescendo') v.pontosCuidado += 1;
+    if (v.fase === 'crescendo') v.pontosCuidado += acaoTemBonusEstacao('ervas') ? 2 : 1;
     v.residuos += randInt(1, 3);
   } else if (actionKey === 'regar') {
     if (v.fase !== 'crescendo') return;
-    v.pontosCuidado += 1;
+    v.pontosCuidado += acaoTemBonusEstacao('regar') ? 2 : 1;
   } else if (actionKey === 'adubar') {
     if (v.fase !== 'crescendo') return;
     if (v.adubo < 1) {
@@ -185,16 +237,23 @@ function executarAcaoVinha(actionKey) {
       return;
     }
     v.residuos -= RESIDUOS_POR_COMPOSTAGEM;
-    v.adubo += 1;
+    v.adubo += acaoTemBonusEstacao('compostagem') ? 2 : 1;
   } else if (actionKey === 'colher') {
     if (v.fase !== 'pronta') return;
-    const uvasGanhas = Math.max(1, 12 + v.pontosCuidado * 4 + randInt(-2, 2));
+    const bonusColheita = acaoTemBonusEstacao('colher');
+    const uvasBase = Math.max(1, 12 + v.pontosCuidado * 4 + randInt(-2, 2));
+    const uvasGanhas = bonusColheita ? Math.round(uvasBase * VINHA_MULTIPLICADOR_BONUS) : uvasBase;
+    const repGanha = bonusColheita ? randInt(2, 5) : 0;
     state.uvas += uvasGanhas;
+    state.reputacao += repGanha;
     v.residuos += randInt(3, 5);
     v.fase = 'preparar';
     v.pontosCuidado = 0;
     registarCooldownVinha(actionKey);
-    vinhaMensagemAtual = VINHA_FLAVOR.colher + ' (+' + uvasGanhas + ' ' + t('stat.uvas') + ')';
+    let sufixoColheita = ' (+' + uvasGanhas + ' ' + t('stat.uvas');
+    if (repGanha > 0) sufixoColheita += ', +' + repGanha + ' ' + t('stat.reputacao');
+    sufixoColheita += ')';
+    vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita;
     vinhaFotoAtual = VINHA_FOTOS.colher;
     saveState(state);
     updateStatsDisplays();
@@ -209,7 +268,7 @@ function executarAcaoVinha(actionKey) {
   }
 
   registarCooldownVinha(actionKey);
-  vinhaMensagemAtual = VINHA_FLAVOR[actionKey] || '';
+  vinhaMensagemAtual = dicaVinha(actionKey);
   vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
   saveState(state);
   updateStatsDisplays();

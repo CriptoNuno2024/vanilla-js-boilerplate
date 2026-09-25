@@ -18,7 +18,13 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'vindima', titulo: 'A Vindima Manual', texto: 'Na Região Demarcada de Setúbal, a vindima é ainda feita à mão: os cachos são cortados um a um e colocados em cestos, para chegarem inteiros e intactos ao lagar.' },
     { id: 'poda', titulo: 'A Poda da Vinha', texto: 'No inverno, com a videira em repouso, faz-se a poda: corta-se os ramos em excesso para concentrar a força da planta nos cachos que vão nascer na próxima estação.' },
     { id: 'aguardente', titulo: 'A Aguardente Vínica', texto: 'A fortificação do Moscatel é feita juntando aguardente vínica ao mosto em fermentação. O álcool interrompe o processo e preserva o açúcar natural da uva, dando ao vinho o seu característico doçor.' },
-    { id: 'regiao', titulo: 'A Região Demarcada de Setúbal', texto: 'A Região Demarcada de Setúbal é uma das mais antigas do mundo com denominação de origem, criada para proteger e garantir a autenticidade dos vinhos produzidos nesta península.' }
+    { id: 'regiao', titulo: 'A Região Demarcada de Setúbal', texto: 'A Região Demarcada de Setúbal é uma das mais antigas do mundo com denominação de origem, criada para proteger e garantir a autenticidade dos vinhos produzidos nesta península.' },
+    { id: 'repousoInverno', estacao: 'inverno', titulo: 'O Repouso da Videira', texto: 'No inverno a videira perde as folhas e descansa. A seiva quase para de correr, e é por isso que esta é a altura certa para a poda.' },
+    { id: 'choroVideira', estacao: 'primavera', titulo: 'O Choro da Videira', texto: 'Em março, depois da poda, a videira "chora": pingam gotas de seiva dos cortes. É o sinal de que acordou do inverno.' },
+    { id: 'floracao', estacao: 'primavera', titulo: 'A Floração', texto: 'Em maio a videira dá flores pequenas e verdes, quase invisíveis. De cada flor que vinga nasce um bago de uva.' },
+    { id: 'pintor', estacao: 'verao', titulo: 'O Pintor', texto: 'Em julho e agosto os bagos amolecem e mudam de cor. No Moscatel, passam de verde a dourado.' },
+    { id: 'epocaVindima', estacao: 'outono', titulo: 'A Vindima', texto: 'É a colheita das uvas, feita quando estão doces no ponto certo. Na Península de Setúbal, o Moscatel colhe-se entre o fim do verão e setembro.' },
+    { id: 'quedaFolha', estacao: 'outono', titulo: 'A Queda da Folha', texto: 'Em novembro as folhas amarelam e caem, e a videira prepara-se para descansar.' }
   ],
   en: [
     { id: 'origem', titulo: 'The Origins of Moscatel', texto: 'The elders of the Farm say that Setúbal Moscatel was born more than 500 years ago, when the first Moscatel Graúdo vine cuttings arrived on the peninsula from distant lands.' },
@@ -30,7 +36,13 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'vindima', titulo: 'The Manual Harvest', texto: 'In the Setúbal Demarcated Region, the harvest is still done by hand: bunches are cut one by one and placed in baskets, so they arrive whole and undamaged at the press.' },
     { id: 'poda', titulo: 'Pruning the Vineyard', texto: 'In winter, while the vine rests, pruning takes place: excess branches are cut back so the plant channels its strength into the bunches that will grow next season.' },
     { id: 'aguardente', titulo: 'Wine Spirit Fortification', texto: "Moscatel is fortified by adding wine spirit (aguardente vínica) to the fermenting must. The alcohol halts the process and preserves the grape's natural sugar, giving the wine its characteristic sweetness." },
-    { id: 'regiao', titulo: 'The Setúbal Demarcated Region', texto: 'The Setúbal Demarcated Region is one of the oldest denomination-of-origin regions in the world, created to protect and guarantee the authenticity of the wines produced on this peninsula.' }
+    { id: 'regiao', titulo: 'The Setúbal Demarcated Region', texto: 'The Setúbal Demarcated Region is one of the oldest denomination-of-origin regions in the world, created to protect and guarantee the authenticity of the wines produced on this peninsula.' },
+    { id: 'repousoInverno', estacao: 'inverno', titulo: 'Vine Dormancy', texto: "In winter the vine loses its leaves and rests. The sap almost stops flowing, which is why this is the right time for pruning." },
+    { id: 'choroVideira', estacao: 'primavera', titulo: "The Vine's Tears", texto: 'In March, after pruning, the vine "weeps": drops of sap seep from the cuts. It\'s the sign that it has woken from winter.' },
+    { id: 'floracao', estacao: 'primavera', titulo: 'Flowering', texto: 'In May the vine produces tiny, greenish flowers, almost invisible. Each flower that sets becomes a grape berry.' },
+    { id: 'pintor', estacao: 'verao', titulo: 'The Painter', texto: 'In July and August the berries soften and change colour. In Moscatel, they turn from green to gold.' },
+    { id: 'epocaVindima', estacao: 'outono', titulo: 'The Harvest', texto: "This is when the grapes are picked, once they're perfectly sweet. In the Setúbal Peninsula, Moscatel is harvested from late summer into September." },
+    { id: 'quedaFolha', estacao: 'outono', titulo: 'Leaf Fall', texto: 'In November the leaves turn yellow and fall, and the vine prepares to rest.' }
   ],
   es: [
     { id: 'origem', titulo: 'Los Orígenes del Moscatel', texto: 'Los más viejos de la Quinta cuentan que el Moscatel de Setúbal nació hace más de 500 años, cuando los primeros esquejes de Moscatel Graúdo llegaron a la península desde tierras lejanas.' },
@@ -42,7 +54,13 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'vindima', titulo: 'La Vendimia Manual', texto: 'En la Región Demarcada de Setúbal, la vendimia todavía se hace a mano: los racimos se cortan uno a uno y se colocan en cestos, para llegar enteros e intactos al lagar.' },
     { id: 'poda', titulo: 'La Poda del Viñedo', texto: 'En invierno, con la vid en reposo, se hace la poda: se cortan las ramas en exceso para concentrar la fuerza de la planta en los racimos que nacerán en la próxima temporada.' },
     { id: 'aguardente', titulo: 'El Aguardiente Vínico', texto: 'La fortificación del Moscatel se hace añadiendo aguardiente vínico al mosto en fermentación. El alcohol detiene el proceso y preserva el azúcar natural de la uva, dando al vino su característico dulzor.' },
-    { id: 'regiao', titulo: 'La Región Demarcada de Setúbal', texto: 'La Región Demarcada de Setúbal es una de las más antiguas del mundo con denominación de origen, creada para proteger y garantizar la autenticidad de los vinos producidos en esta península.' }
+    { id: 'regiao', titulo: 'La Región Demarcada de Setúbal', texto: 'La Región Demarcada de Setúbal es una de las más antiguas del mundo con denominación de origen, creada para proteger y garantizar la autenticidad de los vinos producidos en esta península.' },
+    { id: 'repousoInverno', estacao: 'inverno', titulo: 'El Reposo de la Vid', texto: 'En invierno la vid pierde las hojas y descansa. La savia casi deja de correr, y por eso es el momento adecuado para la poda.' },
+    { id: 'choroVideira', estacao: 'primavera', titulo: 'El Lloro de la Vid', texto: 'En marzo, después de la poda, la vid "llora": gotean gotas de savia de los cortes. Es la señal de que ha despertado del invierno.' },
+    { id: 'floracao', estacao: 'primavera', titulo: 'La Floración', texto: 'En mayo la vid da flores pequeñas y verdes, casi invisibles. De cada flor que cuaja nace una baya de uva.' },
+    { id: 'pintor', estacao: 'verao', titulo: 'El Pintor', texto: 'En julio y agosto las bayas se ablandan y cambian de color. En el Moscatel, pasan de verde a dorado.' },
+    { id: 'epocaVindima', estacao: 'outono', titulo: 'La Vendimia', texto: 'Es la recogida de las uvas, hecha cuando están dulces en su punto justo. En la Península de Setúbal, el Moscatel se vendimia entre el fin del verano y septiembre.' },
+    { id: 'quedaFolha', estacao: 'outono', titulo: 'La Caída de la Hoja', texto: 'En noviembre las hojas amarillean y caen, y la vid se prepara para descansar.' }
   ]
 };
 
@@ -52,9 +70,15 @@ function encyclopediaEntries() {
   return ENCYCLOPEDIA_ENTRIES[currentLang] || ENCYCLOPEDIA_ENTRIES.pt;
 }
 
+// Entradas ainda por desbloquear E disponíveis AGORA (uma entrada com
+// estação própria só entra nesta lista durante a sua estação — ver
+// Parte D das estações do ano).
 function entradasBloqueadas() {
+  const estacao = estacaoAtual();
   return encyclopediaEntries().filter(function (e) {
-    return state.encyclopedia.unlocked.indexOf(e.id) === -1;
+    if (state.encyclopedia.unlocked.indexOf(e.id) !== -1) return false;
+    if (e.estacao && e.estacao !== estacao) return false;
+    return true;
   });
 }
 
@@ -66,10 +90,23 @@ function enterExplorar() {
   const container = document.getElementById('explorar-container');
   const bloqueadas = entradasBloqueadas();
 
-  if (bloqueadas.length === 0) {
+  // Já sabe tudo o que existe, para sempre (mesmo contando as entradas
+  // de estação que só aparecem 3 meses por ano).
+  if (state.encyclopedia.unlocked.length >= encyclopediaEntries().length) {
     container.innerHTML =
       '<h2 data-i18n="explorar.title"></h2>' +
       '<div class="story-box" data-i18n="explorar.tudoDesbloqueado"></div>' +
+      '<button class="btn btn-primary" onclick="goTo(\'enciclopedia\')" data-i18n="explorar.btnVerEnciclopedia"></button>';
+    applyTranslations();
+    return;
+  }
+
+  // Ainda há entradas por descobrir, mas nenhuma disponível nesta
+  // estação — voltam a aparecer quando a estação certa chegar.
+  if (bloqueadas.length === 0) {
+    container.innerHTML =
+      '<h2 data-i18n="explorar.title"></h2>' +
+      '<div class="story-box" data-i18n="explorar.nadaNestaEstacao"></div>' +
       '<button class="btn btn-primary" onclick="goTo(\'enciclopedia\')" data-i18n="explorar.btnVerEnciclopedia"></button>';
     applyTranslations();
     return;
@@ -99,7 +136,10 @@ function renderEnciclopedia() {
     if (desbloqueada) {
       return '<div class="encyclopedia-card"><h3>' + e.titulo + '</h3><p>' + e.texto + '</p></div>';
     }
-    return '<div class="encyclopedia-card locked"><h3>???</h3><p data-i18n="enciclopedia.bloqueado"></p></div>';
+    // Uma entrada de estação mostra qual é, em vez de "???", para o
+    // jogador saber que tem de voltar ao Explorar nessa altura do ano.
+    const titulo = e.estacao ? t('estacao.' + e.estacao) : '???';
+    return '<div class="encyclopedia-card locked"><h3>' + titulo + '</h3><p data-i18n="enciclopedia.bloqueado"></p></div>';
   }).join('');
 
   container.innerHTML =
