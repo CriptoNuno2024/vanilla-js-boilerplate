@@ -60,6 +60,8 @@ function goTo(screen) {
   updateStatsDisplays();
   applyTranslations();
   atualizarLinhaEstacaoQuinta();
+  atualizarLinhaTempoQuinta();
+  if (screen === 'quinta') garantirTempoAtualizado().then(atualizarLinhaTempoQuinta);
 
   if (screen === 'vinha') enterVinha();
   if (screen === 'proteger') startProteger();

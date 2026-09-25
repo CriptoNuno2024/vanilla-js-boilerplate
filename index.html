@@ -534,6 +534,20 @@
       text-shadow: 0 1px 6px rgba(0,0,0,0.9);
     }
 
+    /* Linha "Setúbal agora: ..." (tempo real, ver js/tempo.js). Fica
+       vazia e sem espaço quando ainda não há dados disponíveis. */
+    .tempo-linha {
+      font-size: 13px;
+      color: #e8e8e8;
+      margin-top: -10px;
+      margin-bottom: 16px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+    }
+
+    .tempo-linha:empty {
+      display: none;
+    }
+
     /* Enciclopédia do Moscatel */
     .encyclopedia-grid {
       display: grid;
@@ -656,6 +670,7 @@
   <div id="screen-quinta" class="screen content">
     <h1 data-i18n="hub.title">A Quinta do Moscatel</h1>
     <p id="estacao-linha" class="estacao-linha"></p>
+    <p id="tempo-linha" class="tempo-linha"></p>
 
     <div class="stats-bar">
       <div class="stat-item">
@@ -743,14 +758,15 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=27"></script>
-  <script src="js/i18n.js?v=27"></script>
-  <script src="js/estacoes.js?v=27"></script>
-  <script src="js/vinha.js?v=27"></script>
-  <script src="js/explorar.js?v=27"></script>
-  <script src="js/proteger.js?v=27"></script>
-  <script src="js/garrafa.js?v=27"></script>
-  <script src="js/perfil.js?v=27"></script>
-  <script src="js/main.js?v=27"></script>
+  <script src="js/state.js?v=28"></script>
+  <script src="js/i18n.js?v=28"></script>
+  <script src="js/estacoes.js?v=28"></script>
+  <script src="js/tempo.js?v=28"></script>
+  <script src="js/vinha.js?v=28"></script>
+  <script src="js/explorar.js?v=28"></script>
+  <script src="js/proteger.js?v=28"></script>
+  <script src="js/garrafa.js?v=28"></script>
+  <script src="js/perfil.js?v=28"></script>
+  <script src="js/main.js?v=28"></script>
 </body>
 </html>

@@ -45,7 +45,9 @@ const VINHA_FOTOS = {
   adubar: 'assets/vinha/adubar_2.jpg',
   compostagem: 'assets/vinha/compostagem_1.jpg',
   colher: 'assets/vinha/colher.jpg',
-  podar: 'assets/ecras/inverno_poda.jpg'
+  podar: 'assets/ecras/inverno_poda.jpg',
+  repararEstacas: TEMPO_CONFIG.imagens.repararEstacas,
+  protegerFrio: TEMPO_CONFIG.imagens.protegerFrio
 };
 
 // Fundo quando ainda não se fez nenhuma ação: depende da fase da vinha.
@@ -126,6 +128,51 @@ function jaPodouEsteInverno() {
   return state.vinha.invernoPodado === idInvernoAtual();
 }
 
+// -----------------------------------------------------------------
+// TEMPO REAL DE SETÚBAL (ver js/tempo.js) — vantagens e tarefas extra
+// suaves, nunca bloqueiam nada nem tiram nada a quem não as fizer.
+// Os números (limites, percentagens, imagens) estão todos em
+// TEMPO_CONFIG, em js/tempo.js.
+// -----------------------------------------------------------------
+
+function jaFezTarefaTempoHoje(campo) {
+  return state.tempo[campo] === diaLocalDeHoje();
+}
+
+function registarTarefaTempoHoje(campo) {
+  state.tempo[campo] = diaLocalDeHoje();
+}
+
+// Fundo da Vinha ligado ao tempo, quando ainda não há foto de nenhuma
+// ação (ver renderVinha). Ordem de prioridade: as condições mais raras
+// primeiro, para não ficarem escondidas por um "sol" comum.
+function fundoTempoVinha() {
+  const tempo = tempoAtual();
+  if (!tempo.disponivel) return null;
+  if (tempo.ceu === 'trovoada') return TEMPO_CONFIG.imagens.trovoada;
+  if (tempo.ceu === 'nevoeiro') return TEMPO_CONFIG.imagens.nevoeiro;
+  if (tempo.ventoForte) return TEMPO_CONFIG.imagens.vento;
+  if (tempo.calorForte) return TEMPO_CONFIG.imagens.calor;
+  if (tempo.ceu === 'chuva') return TEMPO_CONFIG.imagens.chuva;
+  return null;
+}
+
+// Chuva: uma vez por dia, com chuva real em Setúbal, a vinha ganha
+// cuidado sozinha (sem gastar o Regar), só enquanto está a crescer.
+function aplicarChuvaAutomatica() {
+  const tempo = tempoAtual();
+  const v = state.vinha;
+  if (tempo.ceu !== 'chuva' || v.fase !== 'crescendo' || jaFezTarefaTempoHoje('chuvaRegouDia')) return;
+
+  registarTarefaTempoHoje('chuvaRegouDia');
+  v.pontosCuidado += 1;
+  if (v.pontosCuidado >= PONTOS_CUIDADO_NECESSARIOS) v.fase = 'pronta';
+  vinhaMensagemAtual = t('tempo.msgChuvaRegou');
+  vinhaFotoAtual = TEMPO_CONFIG.imagens.chuva;
+  saveState(state);
+  updateStatsDisplays();
+}
+
 let vinhaMensagemAtual = '';
 let vinhaNovaEntradaHtml = '';
 let vinhaFotoAtual = null;
@@ -158,6 +205,7 @@ function enterVinha() {
   vinhaMensagemAtual = '';
   vinhaNovaEntradaHtml = '';
   vinhaFotoAtual = null;
+  aplicarChuvaAutomatica();
   renderVinha();
 }
 
@@ -168,7 +216,8 @@ function botaoVinha(actionKey, i18nKey, bloqueadoExtra, sufixoBloqueado) {
   const bloqueado = restante > 0 || !!bloqueadoExtra;
   const sufixo = restante > 0 ? (' (' + formatarTempoVinha(restante) + ')') :
     (bloqueadoExtra && sufixoBloqueado ? (' (' + sufixoBloqueado + ')') : '');
-  const bonusHtml = acaoTemBonusEstacao(actionKey)
+  const temBonusTempo = actionKey === 'regar' && tempoAtual().calorForte;
+  const bonusHtml = (acaoTemBonusEstacao(actionKey) || temBonusTempo)
     ? ' <span class="bonus-suffix">' + t(VINHA_BONUS_LABEL_KEY[actionKey]) + '</span>'
     : '';
   if (!bloqueado) preCarregarFotoVinha(actionKey);
@@ -207,6 +256,16 @@ function renderVinha() {
     botoesHtml += botaoVinha('podar', 'vinha.btnPodar', jaPodouEsteInverno(), t('vinha.podaJaFeita'));
   }
 
+  // Tarefas extra do tempo real de Setúbal: só aparecem quando o tempo
+  // está mesmo assim (vento forte / frio forte), uma vez por dia.
+  const tempo = tempoAtual();
+  if (tempo.ventoForte) {
+    botoesHtml += botaoVinha('repararEstacas', 'vinha.btnRepararEstacas', jaFezTarefaTempoHoje('estacasDia'), t('vinha.tarefaFeitaHoje'));
+  }
+  if (tempo.frioForte) {
+    botoesHtml += botaoVinha('protegerFrio', 'vinha.btnProtegerFrio', jaFezTarefaTempoHoje('frioDia'), t('vinha.tarefaFeitaHoje'));
+  }
+
   const progressoHtml = (v.fase === 'crescendo' || v.fase === 'pronta')
     ? '<p class="phase-progress"><span data-i18n="vinha.cuidadoLabel"></span>: ' + v.pontosCuidado + ' / ' + PONTOS_CUIDADO_NECESSARIOS + '</p>'
     : '';
@@ -234,7 +293,7 @@ function renderVinha() {
     vinhaNovaEntradaHtml +
     '<div class="action-list">' + botoesHtml + '</div>';
 
-  definirFundo('foto', vinhaFotoAtual || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]]);
+  definirFundo('foto', vinhaFotoAtual || fundoTempoVinha() || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]]);
 
   applyTranslations();
 }
@@ -265,7 +324,10 @@ function executarAcaoVinha(actionKey) {
     v.residuos += randInt(1, 3);
   } else if (actionKey === 'regar') {
     if (v.fase !== 'crescendo') return;
-    v.pontosCuidado += acaoTemBonusEstacao('regar') ? 2 : 1;
+    const cuidadoBaseRegar = acaoTemBonusEstacao('regar') ? 2 : 1;
+    v.pontosCuidado += tempoAtual().calorForte
+      ? Math.round(cuidadoBaseRegar * TEMPO_CONFIG.vantagens.calorMultiplicadorRegar)
+      : cuidadoBaseRegar;
   } else if (actionKey === 'adubar') {
     if (v.fase !== 'crescendo') return;
     if (v.adubo < 1) {
@@ -322,6 +384,30 @@ function executarAcaoVinha(actionKey) {
     vinhaMensagemAtual = t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100));
     vinhaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('poda'));
     vinhaFotoAtual = VINHA_FOTOS.podar;
+    saveState(state);
+    updateStatsDisplays();
+    renderVinha();
+    return;
+  } else if (actionKey === 'repararEstacas' || actionKey === 'protegerFrio') {
+    const ehEstacas = actionKey === 'repararEstacas';
+    const tempo = tempoAtual();
+    const campoDia = ehEstacas ? 'estacasDia' : 'frioDia';
+    if (!(ehEstacas ? tempo.ventoForte : tempo.frioForte) || jaFezTarefaTempoHoje(campoDia)) return;
+
+    registarTarefaTempoHoje(campoDia);
+    const repGanha = randInt(1, 3);
+    let cuidadoGanho = 0;
+    if (v.fase === 'crescendo') {
+      cuidadoGanho = 1;
+      v.pontosCuidado += cuidadoGanho;
+      if (v.pontosCuidado >= PONTOS_CUIDADO_NECESSARIOS) v.fase = 'pronta';
+    }
+    state.reputacao += repGanha;
+    let sufixoTarefaTempo = ' (+' + repGanha + ' ' + t('stat.reputacao');
+    if (cuidadoGanho > 0) sufixoTarefaTempo += ', +' + cuidadoGanho + ' ' + t('vinha.cuidadoLabel');
+    sufixoTarefaTempo += ')';
+    vinhaMensagemAtual = t(ehEstacas ? 'vinha.msgRepararEstacas' : 'vinha.msgProtegerFrio') + sufixoTarefaTempo;
+    vinhaFotoAtual = VINHA_FOTOS[actionKey];
     saveState(state);
     updateStatsDisplays();
     renderVinha();

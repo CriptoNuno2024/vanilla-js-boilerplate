@@ -46,6 +46,14 @@ function defaultState() {
       cooldowns: {},
       lote: null,       // { iniciadoEm: <timestamp> } enquanto um lote descansa na Cave, ou null
       historico: []     // uma entrada por garrafa: { data, estacao, diasDescanso }
+    },
+    // Tempo real de Setúbal (ver js/tempo.js). Guarda só o dia local
+    // (ex: "2026-01-15") em que cada tarefa/efeito ligado ao tempo já
+    // aconteceu, para as tarefas extra ficarem "uma vez por dia".
+    tempo: {
+      chuvaRegouDia: null,
+      estacasDia: null,
+      frioDia: null
     }
   };
 }

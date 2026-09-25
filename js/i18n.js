@@ -63,6 +63,15 @@ const TRANSLATIONS = {
     'vinha.msgPodaPrecisaPlantada': 'Ainda não há nada plantado para podar. Planta primeiro a vinha.',
     'vinha.bonusPodaAtivo': 'Vinha podada: próxima vindima +{pct}% uvas',
 
+    // Tarefas extra do tempo real (tarefa extra, só quando o tempo em
+    // Setúbal está favorável — ver js/tempo.js). Nunca castigam: se não
+    // forem feitas, não há perda nenhuma.
+    'vinha.btnRepararEstacas': 'Reparar as Estacas',
+    'vinha.btnProtegerFrio': 'Proteger do Frio',
+    'vinha.tarefaFeitaHoje': 'já feita hoje',
+    'vinha.msgRepararEstacas': 'O vento forte soltou algumas estacas da vinha — foram reparadas a tempo.',
+    'vinha.msgProtegerFrio': 'As videiras foram protegidas do frio intenso desta noite.',
+
     // Estações do ano — vantagens junto aos botões (Parte A)
     'vinha.bonusCuidado': '(+50% cuidado)',
     'vinha.bonusAdubo': '(+50% adubo)',
@@ -98,6 +107,17 @@ const TRANSLATIONS = {
     'estacao.frase.primavera': 'a vinha desperta',
     'estacao.frase.verao': 'os bagos ganham cor',
     'estacao.frase.outono': 'época de vindima',
+
+    // Tempo real de Setúbal (Open-Meteo, ver js/tempo.js). Para testar:
+    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio
+    'tempo.agoraLabel': 'Setúbal agora:',
+    'tempo.ceu.sol': 'Sol',
+    'tempo.ceu.chuva': 'Chuva',
+    'tempo.ceu.nevoeiro': 'Nevoeiro',
+    'tempo.ceu.trovoada': 'Trovoada',
+    'tempo.msgChuvaRegou': 'A chuva regou por ti.',
+    'tempo.avisoTrovoadaProteger': 'O Chizo escondeu-se com medo dos trovões.',
+    'tempo.avisoNevoeiroProteger': 'O nevoeiro esconde os porcos — aparecem mais vezes.',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': 'Nova entrada desbloqueada!',
@@ -206,6 +226,15 @@ const TRANSLATIONS = {
     'vinha.msgPodaPrecisaPlantada': "There's nothing planted yet to prune. Plant the vineyard first.",
     'vinha.bonusPodaAtivo': 'Vineyard pruned: next harvest +{pct}% grapes',
 
+    // Real-weather extra tasks (extra task, only when Setúbal's weather
+    // is favorable — see js/tempo.js). Never punish: skipping one costs
+    // nothing.
+    'vinha.btnRepararEstacas': 'Repair the Stakes',
+    'vinha.btnProtegerFrio': 'Protect from the Cold',
+    'vinha.tarefaFeitaHoje': 'already done today',
+    'vinha.msgRepararEstacas': 'The strong wind loosened some of the vineyard stakes — they were repaired in time.',
+    'vinha.msgProtegerFrio': "The vines were protected from tonight's intense cold.",
+
     'vinha.bonusCuidado': '(+50% care)',
     'vinha.bonusAdubo': '(+50% compost)',
     'vinha.bonusColheita': '(+50% grapes and reputation)',
@@ -237,6 +266,17 @@ const TRANSLATIONS = {
     'estacao.frase.primavera': 'the vineyard awakens',
     'estacao.frase.verao': 'the berries take on colour',
     'estacao.frase.outono': 'harvest time',
+
+    // Real-time Setúbal weather (Open-Meteo, see js/tempo.js). To test:
+    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio
+    'tempo.agoraLabel': 'Setúbal now:',
+    'tempo.ceu.sol': 'Sunny',
+    'tempo.ceu.chuva': 'Rain',
+    'tempo.ceu.nevoeiro': 'Fog',
+    'tempo.ceu.trovoada': 'Thunderstorm',
+    'tempo.msgChuvaRegou': 'The rain watered it for you.',
+    'tempo.avisoTrovoadaProteger': 'Chizo hid, scared of the thunder.',
+    'tempo.avisoNevoeiroProteger': 'The fog hides the pigs — they show up more often.',
 
     'explorar.title': 'Explore',
     'explorar.subtitleNova': 'New entry unlocked!',
@@ -344,6 +384,15 @@ const TRANSLATIONS = {
     'vinha.msgPodaPrecisaPlantada': 'Todavía no hay nada plantado para podar. Planta primero el viñedo.',
     'vinha.bonusPodaAtivo': 'Viñedo podado: la próxima vendimia +{pct}% uvas',
 
+    // Tareas extra del tiempo real (tarea extra, solo cuando el tiempo
+    // en Setúbal es favorable — ver js/tempo.js). Nunca castigan: si no
+    // se hacen, no hay ninguna pérdida.
+    'vinha.btnRepararEstacas': 'Reparar las Estacas',
+    'vinha.btnProtegerFrio': 'Proteger del Frío',
+    'vinha.tarefaFeitaHoje': 'ya hecho hoy',
+    'vinha.msgRepararEstacas': 'El viento fuerte soltó algunas estacas del viñedo — se repararon a tiempo.',
+    'vinha.msgProtegerFrio': 'Las cepas fueron protegidas del frío intenso de esta noche.',
+
     'vinha.bonusCuidado': '(+50% cuidado)',
     'vinha.bonusAdubo': '(+50% abono)',
     'vinha.bonusColheita': '(+50% uvas y reputación)',
@@ -375,6 +424,17 @@ const TRANSLATIONS = {
     'estacao.frase.primavera': 'el viñedo despierta',
     'estacao.frase.verao': 'las bayas cogen color',
     'estacao.frase.outono': 'época de vendimia',
+
+    // Tiempo real de Setúbal (Open-Meteo, ver js/tempo.js). Para probar:
+    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio
+    'tempo.agoraLabel': 'Setúbal ahora:',
+    'tempo.ceu.sol': 'Sol',
+    'tempo.ceu.chuva': 'Lluvia',
+    'tempo.ceu.nevoeiro': 'Niebla',
+    'tempo.ceu.trovoada': 'Tormenta',
+    'tempo.msgChuvaRegou': 'La lluvia la regó por ti.',
+    'tempo.avisoTrovoadaProteger': 'El Chizo se escondió, asustado por los truenos.',
+    'tempo.avisoNevoeiroProteger': 'La niebla esconde a los cerdos — aparecen más veces.',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': '¡Nueva entrada desbloqueada!',

@@ -160,7 +160,40 @@ function escolherTipoProteger() {
   return entradas[entradas.length - 1];
 }
 
-function startProteger() {
+// -----------------------------------------------------------------
+// TEMPO REAL DE SETÚBAL (ver js/tempo.js): nevoeiro e trovoada tornam
+// os porcos mais atrevidos — aparecem mais vezes seguidas na mesma
+// visita ao Proteger, antes do ecrã de resultado final. Perder uma
+// ronda termina a sessão como já acontecia (nunca há perda extra); os
+// números ficam em TEMPO_CONFIG.vantagens.rondasExtraProteger.
+// -----------------------------------------------------------------
+let protegerRondaAtual = 1;
+let protegerRondasTotal = 1;
+let protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
+let protegerAvisoTempoHtml = '';
+
+function rondasProtegerPorTempo() {
+  const tempo = tempoAtual();
+  const extra = tempo.disponivel ? (TEMPO_CONFIG.vantagens.rondasExtraProteger[tempo.ceu] || 0) : 0;
+  return 1 + extra;
+}
+
+function avisoTempoProteger() {
+  const tempo = tempoAtual();
+  if (!tempo.disponivel) return '';
+  if (tempo.ceu === 'trovoada') return t('tempo.avisoTrovoadaProteger');
+  if (tempo.ceu === 'nevoeiro') return t('tempo.avisoNevoeiroProteger');
+  return '';
+}
+
+function startProteger(continuando) {
+  if (!continuando) {
+    protegerRondaAtual = 1;
+    protegerRondasTotal = rondasProtegerPorTempo();
+    protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
+    const aviso = avisoTempoProteger();
+    protegerAvisoTempoHtml = aviso ? '<p class="game-subtitle">' + aviso + '</p>' : '';
+  }
   const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
   else if (tipo === 'disfarces') renderDisfarces();
@@ -183,6 +216,7 @@ function renderFechadura() {
   const container = document.getElementById('proteger-container');
   container.innerHTML =
     '<h2>' + S.titulo + '</h2>' +
+    protegerAvisoTempoHtml +
     '<p class="game-subtitle">' + S.fechaduraSubtitulo + '</p>' +
     '<p class="game-question">' + cena.situacao + '</p>' +
     '<div class="choice-list">' +
@@ -218,6 +252,7 @@ function renderDisfarces() {
   const container = document.getElementById('proteger-container');
   container.innerHTML =
     '<h2>' + S.titulo + '</h2>' +
+    protegerAvisoTempoHtml +
     '<p class="game-subtitle">' + S.disfarcesSubtitulo + '</p>' +
     '<p class="game-question">' + S.disfarcesIntro + '</p>' +
     '<div class="options-grid">' +
@@ -283,6 +318,7 @@ function renderChizo() {
   const container = document.getElementById('proteger-container');
   container.innerHTML =
     '<h2>' + S.titulo + '</h2>' +
+    protegerAvisoTempoHtml +
     '<p class="game-subtitle">' + S.chizoSubtitulo + '</p>' +
     '<p class="game-question">' + S.chizoTurnos[chizoTurnoAtual] + '</p>' +
     '<button class="btn btn-primary" onclick="alertarChizo()">' + S.chizoBotao + '</button>';
@@ -321,7 +357,19 @@ function finishProteger(venceu, mensagem) {
     saveState(state);
     updateStatsDisplays();
 
-    showResultProteger(true, uvasGanhas, gotasGanhas, repGanha, mensagem);
+    protegerRecompensaAcumulada.uvas += uvasGanhas;
+    protegerRecompensaAcumulada.gotas += gotasGanhas;
+    protegerRecompensaAcumulada.rep += repGanha;
+
+    // Nevoeiro/trovoada: mais um porco aparece nesta mesma visita, sem
+    // passar pelo ecrã de resultado (ver rondasProtegerPorTempo acima).
+    if (protegerRondaAtual < protegerRondasTotal) {
+      protegerRondaAtual++;
+      startProteger(true);
+      return;
+    }
+
+    showResultProteger(true, protegerRecompensaAcumulada.uvas, protegerRecompensaAcumulada.gotas, protegerRecompensaAcumulada.rep, mensagem);
   } else {
     showResultProteger(false, 0, 0, 0, mensagem);
   }
