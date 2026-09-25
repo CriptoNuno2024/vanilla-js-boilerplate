@@ -114,15 +114,21 @@ function pStr() {
   return PROTEGER_STRINGS[currentLang] || PROTEGER_STRINGS.pt;
 }
 
-// Fundo de cada momento do Proteger. O "geral" serve também para o
-// estilo 3 (Chizo), que ainda não tem foto própria.
+// Fundo de cada momento do Proteger.
 const PROTEGER_FUNDOS = {
-  geral: { src: 'assets/ecras/cimo_da_colina_apontar.jpg', pos: 'left top' },
   disfarces: { src: 'assets/ecras/apontar_esquerda.jpg' },
-  fechadura: { src: 'assets/ecras/adega_juntos.jpg', pos: 'right top' }
+  fechadura: { src: 'assets/ecras/adega_juntos.jpg', pos: 'right top' },
+  chizo: { src: 'assets/ecras/chizo_vinha.jpg' }
 };
 const PROTEGER_FUNDO_VITORIA = 'assets/ecras/yoshi_cat_festejar_vitoria.jpg';
+// Derrota: cada estilo tem a sua própria imagem (o Chizo já tem imagem
+// própria; os outros 2 continuam a partilhar a mesma de sempre).
 const PROTEGER_FUNDO_DERROTA = 'assets/ecras/yoshi_cat_cruzados_derrota_3.jpg';
+const PROTEGER_FUNDO_DERROTA_CHIZO = 'assets/ecras/chizo_lenco.jpg';
+
+// Guarda qual foi o último estilo jogado, só para showResultProteger()
+// saber que imagem de derrota mostrar.
+let ultimoTipoProteger = null;
 
 // -----------------------------------------------------------------
 // ESTAÇÕES DO ANO (Parte C): não há um mecanismo de "hoje não há
@@ -169,6 +175,7 @@ function startProteger() {
 let currentFechaduraIndex = -1;
 
 function renderFechadura() {
+  ultimoTipoProteger = 'fechadura';
   const S = pStr();
   currentFechaduraIndex = randInt(0, S.fechadura.length - 1);
   const cena = S.fechadura[currentFechaduraIndex];
@@ -203,6 +210,7 @@ let currentDisfarceIndex = -1;
 let currentDisfarcePorco = 'Fygmo';
 
 function renderDisfarces() {
+  ultimoTipoProteger = 'disfarces';
   const S = pStr();
   currentDisfarceIndex = randInt(0, 3);
   currentDisfarcePorco = randInt(0, 1) === 0 ? 'Fygmo' : 'Fygmo2';
@@ -243,6 +251,7 @@ let chizoSessao = 0;
 let chizoResolvido = false;
 
 function iniciarChizo() {
+  ultimoTipoProteger = 'chizo';
   chizoSessao++;
   const minhaSessao = chizoSessao;
   chizoTurnoAtual = 0;
@@ -278,7 +287,7 @@ function renderChizo() {
     '<p class="game-question">' + S.chizoTurnos[chizoTurnoAtual] + '</p>' +
     '<button class="btn btn-primary" onclick="alertarChizo()">' + S.chizoBotao + '</button>';
 
-  definirFundo('foto', PROTEGER_FUNDOS.geral.src, PROTEGER_FUNDOS.geral.pos);
+  definirFundo('foto', PROTEGER_FUNDOS.chizo.src, PROTEGER_FUNDOS.chizo.pos);
 }
 
 function alertarChizo() {
@@ -327,5 +336,6 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem) {
     (venceu ? '<p class="game-result">+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao') + '</p>' : '') +
     '<button class="btn btn-primary" onclick="startProteger()">' + S.jogarNovamente + '</button>';
 
-  definirFundo('foto', venceu ? PROTEGER_FUNDO_VITORIA : PROTEGER_FUNDO_DERROTA);
+  const derrotaSrc = ultimoTipoProteger === 'chizo' ? PROTEGER_FUNDO_DERROTA_CHIZO : PROTEGER_FUNDO_DERROTA;
+  definirFundo('foto', venceu ? PROTEGER_FUNDO_VITORIA : derrotaSrc);
 }

@@ -448,6 +448,25 @@
     #screen-vinha .stat-icon { font-size: 16px; }
     #screen-vinha .game-result { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
 
+    /* Adega (dentro de "Criar Garrafa") no telemóvel: mesma compactação
+       da Vinha, e a notícia da Enciclopédia (.story-box) mais pequena,
+       porque aqui pode aparecer junto com o cartão da Cave e 3 botões */
+    #screen-garrafa h2 { font-size: 19px; margin-bottom: 6px; }
+    #screen-garrafa .phase-card { padding: 10px 12px; margin-bottom: 8px; }
+    #screen-garrafa .phase-nome { font-size: 15px; margin-bottom: 3px; }
+    #screen-garrafa .phase-desc { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
+    #screen-garrafa .phase-progress { font-size: 12px; }
+    /* 4 recursos nesta barra (Uvas, Gotas, Bagaço, Aguardente) — mantém a
+       disposição em coluna (ícone/valor/etiqueta), que já funciona bem
+       com 4 colunas estreitas no Menu da Quinta; só encolhe um pouco. */
+    #screen-garrafa .stats-bar { padding: 8px 4px; margin-bottom: 8px; }
+    #screen-garrafa .stat-icon { font-size: 15px; }
+    #screen-garrafa .stat-value { font-size: 14px; }
+    #screen-garrafa .stat-label { font-size: 9px; }
+    #screen-garrafa .game-result { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
+    #screen-garrafa .game-subtitle { font-size: 12px; margin-bottom: 4px; }
+    #screen-garrafa .story-box { padding: 10px 12px; margin-bottom: 8px; font-size: 13px; line-height: 1.35; }
+
     /* Perfil no telemóvel: 3 colunas de cartões mais compactos, para caber
        mesmo com a galeria de garrafas e o título especial */
     @media (max-width: 599px) {
@@ -722,14 +741,14 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=22"></script>
-  <script src="js/i18n.js?v=22"></script>
-  <script src="js/estacoes.js?v=22"></script>
-  <script src="js/vinha.js?v=22"></script>
-  <script src="js/explorar.js?v=22"></script>
-  <script src="js/proteger.js?v=22"></script>
-  <script src="js/garrafa.js?v=22"></script>
-  <script src="js/perfil.js?v=22"></script>
-  <script src="js/main.js?v=22"></script>
+  <script src="js/state.js?v=25"></script>
+  <script src="js/i18n.js?v=25"></script>
+  <script src="js/estacoes.js?v=25"></script>
+  <script src="js/vinha.js?v=25"></script>
+  <script src="js/explorar.js?v=25"></script>
+  <script src="js/proteger.js?v=25"></script>
+  <script src="js/garrafa.js?v=25"></script>
+  <script src="js/perfil.js?v=25"></script>
+  <script src="js/main.js?v=25"></script>
 </body>
 </html>

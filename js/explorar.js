@@ -24,7 +24,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'floracao', estacao: 'primavera', titulo: 'A Floração', texto: 'Em maio a videira dá flores pequenas e verdes, quase invisíveis. De cada flor que vinga nasce um bago de uva.' },
     { id: 'pintor', estacao: 'verao', titulo: 'O Pintor', texto: 'Em julho e agosto os bagos amolecem e mudam de cor. No Moscatel, passam de verde a dourado.' },
     { id: 'epocaVindima', estacao: 'outono', titulo: 'A Vindima', texto: 'É a colheita das uvas, feita quando estão doces no ponto certo. Na Península de Setúbal, o Moscatel colhe-se entre o fim do verão e setembro.' },
-    { id: 'quedaFolha', estacao: 'outono', titulo: 'A Queda da Folha', texto: 'Em novembro as folhas amarelam e caem, e a videira prepara-se para descansar.' }
+    { id: 'quedaFolha', estacao: 'outono', titulo: 'A Queda da Folha', texto: 'Em novembro as folhas amarelam e caem, e a videira prepara-se para descansar.' },
+    { id: 'bagacoAlambique', manual: true, titulo: 'O Bagaço e o Alambique', texto: 'Depois de prensar as uvas, sobra o bagaço: as cascas e as grainhas. Numa quinta tradicional, o bagaço vai ao alambique, uma caldeira de cobre, onde se destila e se faz aguardente. Nada se desperdiça.' },
+    { id: 'aguardenteAdega', manual: true, titulo: 'A Aguardente', texto: 'No Moscatel de Setúbal junta-se aguardente ao mosto para parar a fermentação. Assim o vinho guarda parte do açúcar natural da uva e fica doce e mais forte.' },
+    { id: 'curtimenta', manual: true, titulo: 'A Curtimenta', texto: 'Depois de fortificado, o Moscatel fica em contacto com as cascas das uvas durante meses. É esta curtimenta que lhe dá o seu aroma intenso.' }
   ],
   en: [
     { id: 'origem', titulo: 'The Origins of Moscatel', texto: 'The elders of the Farm say that Setúbal Moscatel was born more than 500 years ago, when the first Moscatel Graúdo vine cuttings arrived on the peninsula from distant lands.' },
@@ -42,7 +45,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'floracao', estacao: 'primavera', titulo: 'Flowering', texto: 'In May the vine produces tiny, greenish flowers, almost invisible. Each flower that sets becomes a grape berry.' },
     { id: 'pintor', estacao: 'verao', titulo: 'The Painter', texto: 'In July and August the berries soften and change colour. In Moscatel, they turn from green to gold.' },
     { id: 'epocaVindima', estacao: 'outono', titulo: 'The Harvest', texto: "This is when the grapes are picked, once they're perfectly sweet. In the Setúbal Peninsula, Moscatel is harvested from late summer into September." },
-    { id: 'quedaFolha', estacao: 'outono', titulo: 'Leaf Fall', texto: 'In November the leaves turn yellow and fall, and the vine prepares to rest.' }
+    { id: 'quedaFolha', estacao: 'outono', titulo: 'Leaf Fall', texto: 'In November the leaves turn yellow and fall, and the vine prepares to rest.' },
+    { id: 'bagacoAlambique', manual: true, titulo: 'The Pomace and the Still', texto: "After the grapes are pressed, the pomace is left over: the skins and seeds. On a traditional farm, the pomace goes to the still, a copper kettle, where it's distilled into grape spirit. Nothing goes to waste." },
+    { id: 'aguardenteAdega', manual: true, titulo: 'The Grape Spirit', texto: "In Setúbal Moscatel, grape spirit is added to the must to stop fermentation. This way the wine keeps part of the grape's natural sugar and turns out sweet and stronger." },
+    { id: 'curtimenta', manual: true, titulo: 'Skin Contact Ageing', texto: 'Once fortified, the Moscatel stays in contact with the grape skins for months. This skin contact is what gives it its intense aroma.' }
   ],
   es: [
     { id: 'origem', titulo: 'Los Orígenes del Moscatel', texto: 'Los más viejos de la Quinta cuentan que el Moscatel de Setúbal nació hace más de 500 años, cuando los primeros esquejes de Moscatel Graúdo llegaron a la península desde tierras lejanas.' },
@@ -60,7 +66,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'floracao', estacao: 'primavera', titulo: 'La Floración', texto: 'En mayo la vid da flores pequeñas y verdes, casi invisibles. De cada flor que cuaja nace una baya de uva.' },
     { id: 'pintor', estacao: 'verao', titulo: 'El Pintor', texto: 'En julio y agosto las bayas se ablandan y cambian de color. En el Moscatel, pasan de verde a dorado.' },
     { id: 'epocaVindima', estacao: 'outono', titulo: 'La Vendimia', texto: 'Es la recogida de las uvas, hecha cuando están dulces en su punto justo. En la Península de Setúbal, el Moscatel se vendimia entre el fin del verano y septiembre.' },
-    { id: 'quedaFolha', estacao: 'outono', titulo: 'La Caída de la Hoja', texto: 'En noviembre las hojas amarillean y caen, y la vid se prepara para descansar.' }
+    { id: 'quedaFolha', estacao: 'outono', titulo: 'La Caída de la Hoja', texto: 'En noviembre las hojas amarillean y caen, y la vid se prepara para descansar.' },
+    { id: 'bagacoAlambique', manual: true, titulo: 'El Orujo y el Alambique', texto: 'Después de prensar las uvas, sobra el orujo: las pieles y las pepitas. En una quinta tradicional, el orujo va al alambique, una caldera de cobre, donde se destila y se hace aguardiente. Nada se desperdicia.' },
+    { id: 'aguardenteAdega', manual: true, titulo: 'El Aguardiente', texto: 'En el Moscatel de Setúbal se añade aguardiente al mosto para detener la fermentación. Así el vino conserva parte del azúcar natural de la uva y queda dulce y más fuerte.' },
+    { id: 'curtimenta', manual: true, titulo: 'La Crianza con Hollejos', texto: 'Después de fortificado, el Moscatel permanece en contacto con los hollejos de la uva durante meses. Es esta crianza la que le da su aroma intenso.' }
   ]
 };
 
@@ -70,13 +79,16 @@ function encyclopediaEntries() {
   return ENCYCLOPEDIA_ENTRIES[currentLang] || ENCYCLOPEDIA_ENTRIES.pt;
 }
 
-// Entradas ainda por desbloquear E disponíveis AGORA (uma entrada com
-// estação própria só entra nesta lista durante a sua estação — ver
-// Parte D das estações do ano).
+// Entradas ainda por desbloquear E disponíveis AGORA pelo Explorar (uma
+// entrada com estação própria só entra nesta lista durante a sua
+// estação — ver Parte D das estações do ano; uma entrada "manual" nunca
+// entra aqui, só se desbloqueia por uma ação específica — ver a Adega
+// em js/garrafa.js).
 function entradasBloqueadas() {
   const estacao = estacaoAtual();
   return encyclopediaEntries().filter(function (e) {
     if (state.encyclopedia.unlocked.indexOf(e.id) !== -1) return false;
+    if (e.manual) return false;
     if (e.estacao && e.estacao !== estacao) return false;
     return true;
   });
@@ -84,6 +96,27 @@ function entradasBloqueadas() {
 
 function tituloEspecialDesbloqueado() {
   return state.encyclopedia.unlocked.length >= encyclopediaEntries().length;
+}
+
+// Desbloqueia uma entrada por uma ação do jogo (não pelo Explorar), ex:
+// usar o Alambique pela primeira vez. Não faz nada e devolve null se já
+// estava desbloqueada; caso contrário devolve a entrada (já no idioma
+// atual), para quem chamou poder mostrar uma pequena notícia.
+// NOTA: quem chamar isto ainda tem de fazer saveState(state) a seguir.
+function desbloquearEntradaEnciclopedia(id) {
+  if (state.encyclopedia.unlocked.indexOf(id) !== -1) return null;
+  state.encyclopedia.unlocked.push(id);
+  state.conhecimento += 1;
+  const entrada = encyclopediaEntries().filter(function (e) { return e.id === id; })[0];
+  return entrada || null;
+}
+
+// HTML da pequena notícia "nova entrada desbloqueada", igual à do
+// Explorar — usado pela Adega quando uma ação desbloqueia uma entrada.
+function encyclopediaUnlockHtml(entrada) {
+  if (!entrada) return '';
+  return '<p class="game-subtitle" data-i18n="explorar.subtitleNova"></p>' +
+    '<div class="story-box"><strong>' + entrada.titulo + '</strong><br><br>' + entrada.texto + '</div>';
 }
 
 function enterExplorar() {

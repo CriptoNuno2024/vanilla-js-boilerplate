@@ -31,6 +31,16 @@ function defaultState() {
       residuos: 0,
       adubo: 0,
       cooldowns: {}
+    },
+    // Capítulo da Adega (ver js/garrafa.js). Tudo novo, só acrescentado
+    // ao estado — nenhum campo antigo (uvas, gotas, garrafas,
+    // reputacao, ultimaGarrafaData, ...) foi tocado ou renomeado.
+    adega: {
+      bagaco: 0,
+      aguardente: 0,
+      cooldowns: {},
+      lote: null,       // { iniciadoEm: <timestamp> } enquanto um lote descansa na Cave, ou null
+      historico: []     // uma entrada por garrafa: { data, estacao, diasDescanso }
     }
   };
 }
