@@ -30,7 +30,12 @@ function defaultState() {
       pontosCuidado: 0,
       residuos: 0,
       adubo: 0,
-      cooldowns: {}
+      cooldowns: {},
+      // Poda (ver REGRAS_PODA em js/vinha.js): invernoPodado guarda o
+      // id do último inverno em que já se podou (ex: "2026-2027"), e
+      // bonusPoda fica true até ser gasto na próxima vindima.
+      invernoPodado: null,
+      bonusPoda: false
     },
     // Capítulo da Adega (ver js/garrafa.js). Tudo novo, só acrescentado
     // ao estado — nenhum campo antigo (uvas, gotas, garrafas,

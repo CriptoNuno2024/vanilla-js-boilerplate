@@ -57,6 +57,12 @@ const TRANSLATIONS = {
     'vinha.msgPrecisaAdubo': 'Precisas de Adubo Orgânico. Usa a Compostagem para o produzir.',
     'vinha.msgFaltamResiduos': 'Ainda não tens Resíduos Orgânicos suficientes.',
 
+    // Poda (tarefa extra, só no inverno — ver REGRAS_PODA em js/vinha.js)
+    'vinha.btnPodar': 'Podar',
+    'vinha.podaJaFeita': 'já feita',
+    'vinha.msgPodaPrecisaPlantada': 'Ainda não há nada plantado para podar. Planta primeiro a vinha.',
+    'vinha.bonusPodaAtivo': 'Vinha podada: próxima vindima +{pct}% uvas',
+
     // Estações do ano — vantagens junto aos botões (Parte A)
     'vinha.bonusCuidado': '(+50% cuidado)',
     'vinha.bonusAdubo': '(+50% adubo)',
@@ -195,6 +201,11 @@ const TRANSLATIONS = {
     'vinha.msgPrecisaAdubo': 'You need Compost. Use Composting to produce it.',
     'vinha.msgFaltamResiduos': "You don't have enough Organic Waste yet.",
 
+    'vinha.btnPodar': 'Prune',
+    'vinha.podaJaFeita': 'already done',
+    'vinha.msgPodaPrecisaPlantada': "There's nothing planted yet to prune. Plant the vineyard first.",
+    'vinha.bonusPodaAtivo': 'Vineyard pruned: next harvest +{pct}% grapes',
+
     'vinha.bonusCuidado': '(+50% care)',
     'vinha.bonusAdubo': '(+50% compost)',
     'vinha.bonusColheita': '(+50% grapes and reputation)',
@@ -327,6 +338,11 @@ const TRANSLATIONS = {
     'vinha.msgCooldown': 'Todavía no puedes hacer eso. Vuelve a intentarlo dentro de {tempo}.',
     'vinha.msgPrecisaAdubo': 'Necesitas Abono. Usa el Compostaje para producirlo.',
     'vinha.msgFaltamResiduos': 'Todavía no tienes suficientes Residuos.',
+
+    'vinha.btnPodar': 'Podar',
+    'vinha.podaJaFeita': 'ya hecha',
+    'vinha.msgPodaPrecisaPlantada': 'Todavía no hay nada plantado para podar. Planta primero el viñedo.',
+    'vinha.bonusPodaAtivo': 'Viñedo podado: la próxima vendimia +{pct}% uvas',
 
     'vinha.bonusCuidado': '(+50% cuidado)',
     'vinha.bonusAdubo': '(+50% abono)',

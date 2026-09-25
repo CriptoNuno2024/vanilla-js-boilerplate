@@ -44,7 +44,8 @@ const VINHA_FOTOS = {
   regar: 'assets/vinha/regar.jpg',
   adubar: 'assets/vinha/adubar_2.jpg',
   compostagem: 'assets/vinha/compostagem_1.jpg',
-  colher: 'assets/vinha/colher.jpg'
+  colher: 'assets/vinha/colher.jpg',
+  podar: 'assets/ecras/inverno_poda.jpg'
 };
 
 // Fundo quando ainda não se fez nenhuma ação: depende da fase da vinha.
@@ -99,7 +100,34 @@ function dicaVinha(actionKey) {
   return key ? t(key) : (VINHA_FLAVOR[actionKey] || '');
 }
 
+// ===================================================================
+// REGRAS DA PODA — tarefa extra, só no inverno, que nunca bloqueia as
+// outras tarefas da Vinha. Tudo o que a rege está só aqui: para mudar
+// a estação, a percentagem do bónus ou a regra de "uma vez por
+// inverno", muda só este bloco.
+// ===================================================================
+const REGRAS_PODA = {
+  estacao: 'inverno',
+  bonusVindima: 0.25 // +25% de uvas na PRÓXIMA vindima (Colher) depois de podar
+};
+
+// Identifica o inverno atual de forma que dezembro de um ano e
+// janeiro/fevereiro do ano seguinte contem como o MESMO inverno
+// (ex: "2026-2027"). Usa sempre o ano real do telemóvel, mesmo quando
+// a estação é forçada por ?estacao= para testar.
+function idInvernoAtual() {
+  const mes = mesAtual();
+  const ano = new Date().getFullYear();
+  const anoInicio = mes === 11 ? ano : ano - 1;
+  return anoInicio + '-' + (anoInicio + 1);
+}
+
+function jaPodouEsteInverno() {
+  return state.vinha.invernoPodado === idInvernoAtual();
+}
+
 let vinhaMensagemAtual = '';
+let vinhaNovaEntradaHtml = '';
 let vinhaFotoAtual = null;
 
 // Pré-carrega só a foto de uma ação que está visível, para não descarregar
@@ -128,14 +156,18 @@ function registarCooldownVinha(actionKey) {
 
 function enterVinha() {
   vinhaMensagemAtual = '';
+  vinhaNovaEntradaHtml = '';
   vinhaFotoAtual = null;
   renderVinha();
 }
 
-function botaoVinha(actionKey, i18nKey, bloqueadoExtra) {
+// sufixoBloqueado: texto a mostrar quando bloqueado por bloqueadoExtra
+// (sem cooldown), ex: "(já feita)" na Poda depois de usada.
+function botaoVinha(actionKey, i18nKey, bloqueadoExtra, sufixoBloqueado) {
   const restante = tempoRestanteVinha(actionKey);
   const bloqueado = restante > 0 || !!bloqueadoExtra;
-  const sufixo = restante > 0 ? (' (' + formatarTempoVinha(restante) + ')') : '';
+  const sufixo = restante > 0 ? (' (' + formatarTempoVinha(restante) + ')') :
+    (bloqueadoExtra && sufixoBloqueado ? (' (' + sufixoBloqueado + ')') : '');
   const bonusHtml = acaoTemBonusEstacao(actionKey)
     ? ' <span class="bonus-suffix">' + t(VINHA_BONUS_LABEL_KEY[actionKey]) + '</span>'
     : '';
@@ -168,8 +200,18 @@ function renderVinha() {
   // Compostagem: sempre disponível, independente da fase da vinha.
   botoesHtml += botaoVinha('compostagem', 'vinha.btnCompostar', v.residuos < RESIDUOS_POR_COMPOSTAGEM);
 
+  // Poda: tarefa extra, só aparece no inverno, uma vez por inverno (ver
+  // REGRAS_PODA). Fica ativa mesmo antes de a vinha estar plantada —
+  // se ainda não estiver, executarAcaoVinha mostra a mensagem a explicar.
+  if (estacaoAtual() === REGRAS_PODA.estacao) {
+    botoesHtml += botaoVinha('podar', 'vinha.btnPodar', jaPodouEsteInverno(), t('vinha.podaJaFeita'));
+  }
+
   const progressoHtml = (v.fase === 'crescendo' || v.fase === 'pronta')
     ? '<p class="phase-progress"><span data-i18n="vinha.cuidadoLabel"></span>: ' + v.pontosCuidado + ' / ' + PONTOS_CUIDADO_NECESSARIOS + '</p>'
+    : '';
+  const bonusPodaHtml = v.bonusPoda
+    ? '<p class="phase-progress">' + t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100)) + '</p>'
     : '';
 
   container.innerHTML =
@@ -178,6 +220,7 @@ function renderVinha() {
       '<p class="phase-nome" data-i18n="' + faseInfo.nomeKey + '"></p>' +
       '<p class="phase-desc" data-i18n="' + faseInfo.descKey + '"></p>' +
       progressoHtml +
+      bonusPodaHtml +
     '</div>' +
     '<div class="phase-card">' +
       '<p class="phase-nome" data-i18n="vinha.faseRealLabel"></p>' +
@@ -188,6 +231,7 @@ function renderVinha() {
       '<div class="stat-item"><span class="stat-icon">🌿</span><span class="stat-value">' + v.adubo + '</span><span class="stat-label" data-i18n="vinha.recursoAdubo"></span></div>' +
     '</div>' +
     '<p class="game-result">' + vinhaMensagemAtual + '</p>' +
+    vinhaNovaEntradaHtml +
     '<div class="action-list">' + botoesHtml + '</div>';
 
   definirFundo('foto', vinhaFotoAtual || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]]);
@@ -197,6 +241,7 @@ function renderVinha() {
 
 function executarAcaoVinha(actionKey) {
   vinhaFotoAtual = null;
+  vinhaNovaEntradaHtml = '';
 
   if (tempoRestanteVinha(actionKey) > 0) {
     vinhaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(tempoRestanteVinha(actionKey)));
@@ -240,21 +285,43 @@ function executarAcaoVinha(actionKey) {
     v.adubo += acaoTemBonusEstacao('compostagem') ? 2 : 1;
   } else if (actionKey === 'colher') {
     if (v.fase !== 'pronta') return;
-    const bonusColheita = acaoTemBonusEstacao('colher');
+    // O bónus do outono e o bónus da poda juntam-se (somam-se as
+    // percentagens): outono sozinho = 1.5x, poda sozinha = 1.25x,
+    // os dois juntos = 1.75x.
+    const bonusOutono = acaoTemBonusEstacao('colher') ? (VINHA_MULTIPLICADOR_BONUS - 1) : 0;
+    const bonusPoda = v.bonusPoda ? REGRAS_PODA.bonusVindima : 0;
+    const multiplicador = 1 + bonusOutono + bonusPoda;
     const uvasBase = Math.max(1, 12 + v.pontosCuidado * 4 + randInt(-2, 2));
-    const uvasGanhas = bonusColheita ? Math.round(uvasBase * VINHA_MULTIPLICADOR_BONUS) : uvasBase;
-    const repGanha = bonusColheita ? randInt(2, 5) : 0;
+    const uvasGanhas = Math.round(uvasBase * multiplicador);
+    const repGanha = bonusOutono > 0 ? randInt(2, 5) : 0;
     state.uvas += uvasGanhas;
     state.reputacao += repGanha;
     v.residuos += randInt(3, 5);
     v.fase = 'preparar';
     v.pontosCuidado = 0;
+    v.bonusPoda = false; // o bónus da poda gasta-se nesta vindima
     registarCooldownVinha(actionKey);
     let sufixoColheita = ' (+' + uvasGanhas + ' ' + t('stat.uvas');
     if (repGanha > 0) sufixoColheita += ', +' + repGanha + ' ' + t('stat.reputacao');
     sufixoColheita += ')';
     vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita;
     vinhaFotoAtual = VINHA_FOTOS.colher;
+    saveState(state);
+    updateStatsDisplays();
+    renderVinha();
+    return;
+  } else if (actionKey === 'podar') {
+    if (estacaoAtual() !== REGRAS_PODA.estacao || jaPodouEsteInverno()) return;
+    if (v.fase !== 'crescendo' && v.fase !== 'pronta') {
+      vinhaMensagemAtual = t('vinha.msgPodaPrecisaPlantada');
+      renderVinha();
+      return;
+    }
+    v.invernoPodado = idInvernoAtual();
+    v.bonusPoda = true;
+    vinhaMensagemAtual = t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100));
+    vinhaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('poda'));
+    vinhaFotoAtual = VINHA_FOTOS.podar;
     saveState(state);
     updateStatsDisplays();
     renderVinha();
