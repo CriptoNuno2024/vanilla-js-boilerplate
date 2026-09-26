@@ -1,0 +1,231 @@
+// ---------------------------------------------------------------------
+// GUARDAR O PROGRESSO NA CONTA DO TELEGRAM (CloudStorage)
+//
+// Até agora o progresso vivia só no localStorage do telemóvel: se o
+// jogador trocasse de aparelho, perdia tudo. Este ficheiro acrescenta
+// uma segunda cópia na nuvem do Telegram (tg.CloudStorage), sem nunca
+// deixar de escrever no localStorage:
+//
+//   - saveState() (js/state.js) continua a escrever sempre no
+//     localStorage, e agora também pede a este ficheiro para escrever
+//     na nuvem.
+//   - Ao abrir o jogo, nuvemSincronizarAoAbrir() (chamada no fim deste
+//     ficheiro) compara a data/hora da última gravação local com a da
+//     nuvem e fica com a mais recente. Se a nuvem estiver vazia mas o
+//     aparelho já tiver progresso, copia-o para a nuvem.
+//   - Se o CloudStorage não existir (jogo aberto num navegador normal,
+//     fora do Telegram) ou falhar por qualquer razão, o jogo continua a
+//     funcionar só com o localStorage, sem mostrar erros ao jogador.
+//
+// O CloudStorage do Telegram só guarda até 4096 caracteres por chave e
+// até 1024 chaves (ver documentação oficial do Telegram Web Apps) — por
+// isso o progresso é partido em pedaços mais pequenos (ver
+// NUVEM_TAMANHO_PARTE), com uma chave extra a dizer quantos pedaços há.
+//
+// PARA TESTAR EM LOCALHOST (onde não há Telegram a sério): acrescenta
+// ?nuvem=teste ao endereço. Isto troca o CloudStorage verdadeiro por uma
+// cópia de teste guardada num canto à parte do localStorage — nunca se
+// mistura com o progresso real nem com a nuvem verdadeira. Com
+// ?nuvem=teste dá para: jogar um pouco, fechar a aba, voltar a abrir com
+// o mesmo ?nuvem=teste, e confirmar que o progresso volta tal como
+// ficou (inclui apagar o localStorage a seguir a gravar, só para provar
+// que veio da "nuvem" de teste e não do localStorage).
+// ---------------------------------------------------------------------
+
+const NUVEM_CHAVE_META = 'yc_state_meta';
+const NUVEM_CHAVE_PREFIXO_PARTE = 'yc_state_parte_';
+const NUVEM_TAMANHO_PARTE = 3000; // margem de segurança abaixo do limite de 4096 do CloudStorage
+const NUVEM_MAX_PARTES = 20;      // até 60 000 caracteres de progresso — bem acima do que o jogo usa hoje
+const NUVEM_ATRASO_GRAVACAO_MS = 800; // agrupa gravações seguidas (ex: vários toques rápidos) numa só
+
+function nuvemModoTeste() {
+  return new URLSearchParams(location.search).get('nuvem') === 'teste';
+}
+
+// CloudStorage "de mentira" para testar em localhost: mesma forma do
+// CloudStorage verdadeiro (setItem/getItem/getItems/getKeys/removeItem/
+// removeItems, todos com callback(erro, resultado)), mas guardada à
+// parte no localStorage, com um prefixo próprio.
+const NUVEM_FAKE_PREFIXO = 'yc_cloud_teste_';
+
+const nuvemFalsa = {
+  setItem: function (chave, valor, cb) {
+    try { localStorage.setItem(NUVEM_FAKE_PREFIXO + chave, valor); if (cb) cb(null, true); }
+    catch (e) { if (cb) cb(e); }
+  },
+  getItem: function (chave, cb) {
+    try { const v = localStorage.getItem(NUVEM_FAKE_PREFIXO + chave); if (cb) cb(null, v === null ? '' : v); }
+    catch (e) { if (cb) cb(e); }
+  },
+  getItems: function (chaves, cb) {
+    try {
+      const valores = {};
+      chaves.forEach(function (c) {
+        const v = localStorage.getItem(NUVEM_FAKE_PREFIXO + c);
+        valores[c] = v === null ? '' : v;
+      });
+      if (cb) cb(null, valores);
+    } catch (e) { if (cb) cb(e); }
+  },
+  getKeys: function (cb) {
+    try {
+      const chaves = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf(NUVEM_FAKE_PREFIXO) === 0) chaves.push(k.slice(NUVEM_FAKE_PREFIXO.length));
+      }
+      if (cb) cb(null, chaves);
+    } catch (e) { if (cb) cb(e); }
+  },
+  removeItem: function (chave, cb) {
+    try { localStorage.removeItem(NUVEM_FAKE_PREFIXO + chave); if (cb) cb(null, true); }
+    catch (e) { if (cb) cb(e); }
+  },
+  removeItems: function (chaves, cb) {
+    try { chaves.forEach(function (c) { localStorage.removeItem(NUVEM_FAKE_PREFIXO + c); }); if (cb) cb(null, true); }
+    catch (e) { if (cb) cb(e); }
+  }
+};
+
+// Devolve o CloudStorage a usar, ou null se não houver nenhum disponível
+// (fora do Telegram e sem ?nuvem=teste) — nesse caso o jogo fica só com
+// o localStorage, tal como acontecia antes deste ficheiro existir.
+function nuvemStorage() {
+  if (nuvemModoTeste()) return nuvemFalsa;
+  const dentroDoTelegram = tg && tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
+  if (dentroDoTelegram && tg.CloudStorage) return tg.CloudStorage;
+  return null;
+}
+
+function nuvemPartirEmPedacos(texto) {
+  const pedacos = [];
+  for (let i = 0; i < texto.length; i += NUVEM_TAMANHO_PARTE) pedacos.push(texto.slice(i, i + NUVEM_TAMANHO_PARTE));
+  return pedacos.length ? pedacos : [''];
+}
+
+// Guarda o estado completo na nuvem, partido em pedaços. Nunca lança
+// erro para fora: se a nuvem falhar ou não existir, callback(false) —
+// o localStorage já foi gravado à parte, em saveState() (js/state.js).
+function nuvemGuardarEstado(s, callback) {
+  const storage = nuvemStorage();
+  if (!storage) { if (callback) callback(false); return; }
+
+  const texto = JSON.stringify(s);
+  const pedacos = nuvemPartirEmPedacos(texto);
+
+  if (pedacos.length > NUVEM_MAX_PARTES) {
+    // Progresso ficou grande demais para a nuvem — não arrisca gravar
+    // só metade; o localStorage continua a funcionar normalmente.
+    if (callback) callback(false);
+    return;
+  }
+
+  const meta = JSON.stringify({ partes: pedacos.length, atualizadoEm: s.ultimaGravacaoEm || Date.now() });
+
+  storage.setItem(NUVEM_CHAVE_META, meta, function (erroMeta) {
+    if (erroMeta) { if (callback) callback(false); return; }
+
+    let restantes = pedacos.length;
+    let falhou = false;
+    pedacos.forEach(function (pedaco, i) {
+      storage.setItem(NUVEM_CHAVE_PREFIXO_PARTE + i, pedaco, function (erroParte) {
+        if (erroParte) falhou = true;
+        restantes -= 1;
+        if (restantes === 0 && callback) callback(!falhou);
+      });
+    });
+  });
+}
+
+// Agrupa várias chamadas seguidas (ex: o jogador toca em vários botões
+// num segundo) numa só gravação na nuvem, para não pedir demasiadas
+// vezes seguidas ao CloudStorage do Telegram.
+let _nuvemTimerGravacao = null;
+function nuvemGuardarEstadoComAtraso(s) {
+  if (_nuvemTimerGravacao) clearTimeout(_nuvemTimerGravacao);
+  _nuvemTimerGravacao = setTimeout(function () {
+    _nuvemTimerGravacao = null;
+    nuvemGuardarEstado(s);
+  }, NUVEM_ATRASO_GRAVACAO_MS);
+}
+
+// Lê o estado guardado na nuvem. Chama callback(null) se não houver
+// nada (ou der erro), ou callback(estadoLido) com ultimaGravacaoEm já
+// incluído (vem da chave de metadados, não do próprio JSON do estado).
+function nuvemLerEstado(callback) {
+  const storage = nuvemStorage();
+  if (!storage) { callback(null); return; }
+
+  storage.getItem(NUVEM_CHAVE_META, function (erro, metaTexto) {
+    if (erro || !metaTexto) { callback(null); return; }
+
+    let meta;
+    try { meta = JSON.parse(metaTexto); } catch (e) { callback(null); return; }
+    if (!meta || !meta.partes) { callback(null); return; }
+
+    const chaves = [];
+    for (let i = 0; i < meta.partes; i++) chaves.push(NUVEM_CHAVE_PREFIXO_PARTE + i);
+
+    storage.getItems(chaves, function (erroPartes, valores) {
+      if (erroPartes || !valores) { callback(null); return; }
+      try {
+        const texto = chaves.map(function (c) { return valores[c] || ''; }).join('');
+        const estado = JSON.parse(texto);
+        estado.ultimaGravacaoEm = meta.atualizadoEm;
+        callback(estado);
+      } catch (e) {
+        callback(null);
+      }
+    });
+  });
+}
+
+// -----------------------------------------------------------------
+// SINCRONIZAÇÃO AO ABRIR O JOGO
+// -----------------------------------------------------------------
+
+// Refresca só o que pode ter mudado com a sincronização (pontos,
+// textos, faixas). Nunca chama goTo() nem funções "entrar no ecrã X",
+// para não reiniciar minijogos ou temporizadores que já estivessem a
+// decorrer no ecrã atual.
+function nuvemAtualizarEcraAposSync() {
+  updateStatsDisplays();
+  applyTranslations();
+  if (typeof atualizarLinhaEstacaoQuinta === 'function') atualizarLinhaEstacaoQuinta();
+  if (typeof atualizarLinhaTempoQuinta === 'function') atualizarLinhaTempoQuinta();
+  if (typeof atualizarFaixaFesta === 'function') atualizarFaixaFesta();
+  const ativo = document.querySelector('.screen.active');
+  if (!ativo) return;
+  if (ativo.id === 'screen-perfil' && typeof renderPerfil === 'function') renderPerfil();
+  if (ativo.id === 'screen-enciclopedia' && typeof renderEnciclopedia === 'function') renderEnciclopedia();
+}
+
+function nuvemSincronizarAoAbrir() {
+  if (!nuvemStorage()) return; // fora do Telegram (e sem ?nuvem=teste): só localStorage, como já era
+
+  nuvemLerEstado(function (estadoNuvem) {
+    if (!estadoNuvem) {
+      // Nuvem vazia: se este aparelho já tem progresso, copia-o agora
+      // para a nuvem, para os jogadores atuais não perderem nada.
+      if (state.ultimaGravacaoEm) nuvemGuardarEstado(state);
+      return;
+    }
+
+    const localEm = state.ultimaGravacaoEm || 0;
+    const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
+
+    if (localEm >= nuvemEm) {
+      if (localEm > nuvemEm) nuvemGuardarEstado(state); // alinha a nuvem com o local, que é mais recente
+      return;
+    }
+
+    // A nuvem tem progresso mais recente (ex: o jogador jogou noutro
+    // aparelho): usa-o, guarda-o também no localStorage deste aparelho,
+    // e refresca o ecrã atual com os novos valores.
+    state = mergeDeep(defaultState(), estadoNuvem);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    nuvemAtualizarEcraAposSync();
+  });
+}
+
+nuvemSincronizarAoAbrir();

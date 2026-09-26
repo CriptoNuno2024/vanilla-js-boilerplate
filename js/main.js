@@ -2,7 +2,8 @@
 // ARRANQUE + NAVEGAÇÃO ENTRE ECRÃS
 // ---------------------------------------------------------------------
 
-const tg = window.Telegram.WebApp;
+// tg (window.Telegram.WebApp) é criado em js/state.js, que carrega
+// primeiro — para js/nuvem.js também lhe poder aceder.
 tg.ready();
 tg.expand();
 

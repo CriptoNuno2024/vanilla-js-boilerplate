@@ -11,6 +11,11 @@
 // entre todos os jogadores.
 // ---------------------------------------------------------------------
 
+// Ligação ao Telegram — criada aqui (o primeiro ficheiro a carregar)
+// para que js/nuvem.js a possa usar já. tg.ready()/tg.expand() continuam
+// a ser chamados em js/main.js, como antes.
+const tg = window.Telegram.WebApp;
+
 const STORAGE_KEY = 'yoshicat_quinta_state_v2';
 
 function defaultState() {
@@ -22,6 +27,10 @@ function defaultState() {
     conhecimento: 0,
     lang: 'pt',
     ultimaGarrafaData: null,
+    // Data/hora (Date.now()) da última vez que o progresso foi gravado
+    // neste aparelho — usada por js/nuvem.js para saber se o localStorage
+    // ou o CloudStorage do Telegram têm a versão mais recente.
+    ultimaGravacaoEm: 0,
     encyclopedia: {
       unlocked: []
     },
@@ -93,8 +102,12 @@ function loadState() {
 }
 
 function saveState(s) {
+  s.ultimaGravacaoEm = Date.now();
   // FUTURO: substituir esta linha por uma chamada à API (ver nota acima).
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  // Guarda também na nuvem do Telegram (js/nuvem.js) — nunca substitui o
+  // localStorage acima, só acrescenta uma segunda cópia de segurança.
+  nuvemGuardarEstadoComAtraso(s);
 }
 
 let state = loadState();
