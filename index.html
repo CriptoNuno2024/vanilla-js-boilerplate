@@ -548,6 +548,24 @@
       display: none;
     }
 
+    /* Faixa da festa ativa (ver js/festas.js), no ecrã da Quinta.
+       Começa escondida; o JS mostra-a e preenche o texto só quando há
+       uma festa a decorrer. */
+    .festa-faixa {
+      display: none;
+      background: linear-gradient(135deg, #d4622a, #8a3b12);
+      color: #fff;
+      border: 1px solid rgba(255, 210, 160, 0.5);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+      cursor: pointer;
+    }
+
     /* Enciclopédia do Moscatel */
     .encyclopedia-grid {
       display: grid;
@@ -564,6 +582,15 @@
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 14px 16px;
+    }
+
+    /* Só algumas entradas (ex: o Magusto) têm foto própria — ver
+       "imagem" em ENCYCLOPEDIA_ENTRIES, js/explorar.js. */
+    .encyclopedia-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: block;
     }
 
     .encyclopedia-card h3 {
@@ -669,6 +696,7 @@
   <!-- ECRÃ HUB: A QUINTA -->
   <div id="screen-quinta" class="screen content">
     <h1 data-i18n="hub.title">A Quinta do Moscatel</h1>
+    <div id="festa-faixa" class="festa-faixa" onclick="goTo('festa')"></div>
     <p id="estacao-linha" class="estacao-linha"></p>
     <p id="tempo-linha" class="tempo-linha"></p>
 
@@ -727,6 +755,12 @@
     <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
+  <!-- ECRÃ: FESTA ATIVA (ver js/festas.js — São Martinho e futuras festas) -->
+  <div id="screen-festa" class="screen content">
+    <div id="festa-container"></div>
+    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
+  </div>
+
   <!-- ECRÃ: ENCICLOPÉDIA DO MOSCATEL (galeria de entradas desbloqueadas/bloqueadas) -->
   <div id="screen-enciclopedia" class="screen content">
     <div id="enciclopedia-container"></div>
@@ -758,15 +792,16 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=28"></script>
-  <script src="js/i18n.js?v=28"></script>
-  <script src="js/estacoes.js?v=28"></script>
-  <script src="js/tempo.js?v=28"></script>
-  <script src="js/vinha.js?v=28"></script>
-  <script src="js/explorar.js?v=28"></script>
-  <script src="js/proteger.js?v=28"></script>
-  <script src="js/garrafa.js?v=28"></script>
-  <script src="js/perfil.js?v=28"></script>
-  <script src="js/main.js?v=28"></script>
+  <script src="js/state.js?v=30"></script>
+  <script src="js/i18n.js?v=30"></script>
+  <script src="js/estacoes.js?v=30"></script>
+  <script src="js/tempo.js?v=30"></script>
+  <script src="js/festas.js?v=30"></script>
+  <script src="js/vinha.js?v=30"></script>
+  <script src="js/explorar.js?v=30"></script>
+  <script src="js/proteger.js?v=30"></script>
+  <script src="js/garrafa.js?v=30"></script>
+  <script src="js/perfil.js?v=30"></script>
+  <script src="js/main.js?v=30"></script>
 </body>
 </html>

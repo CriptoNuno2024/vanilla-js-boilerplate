@@ -54,6 +54,13 @@ function defaultState() {
       chuvaRegouDia: null,
       estacasDia: null,
       frioDia: null
+    },
+    // Festas (ver js/festas.js). tarefasDia guarda, por "idDaFesta_tarefa"
+    // (ex: "saomartinho_castanhas"), o dia local em que essa tarefa já foi
+    // feita — assim uma festa nova só precisa de ser acrescentada à lista
+    // FESTAS_CONFIG, sem mexer aqui.
+    festas: {
+      tarefasDia: {}
     }
   };
 }

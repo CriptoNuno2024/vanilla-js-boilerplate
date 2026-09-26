@@ -61,7 +61,11 @@ function goTo(screen) {
   applyTranslations();
   atualizarLinhaEstacaoQuinta();
   atualizarLinhaTempoQuinta();
-  if (screen === 'quinta') garantirTempoAtualizado().then(atualizarLinhaTempoQuinta);
+  atualizarFaixaFesta();
+  if (screen === 'quinta') garantirTempoAtualizado().then(function () {
+    atualizarLinhaTempoQuinta();
+    atualizarFaixaFesta();
+  });
 
   if (screen === 'vinha') enterVinha();
   if (screen === 'proteger') startProteger();
@@ -70,6 +74,7 @@ function goTo(screen) {
   if (screen === 'enciclopedia') renderEnciclopedia();
   if (screen === 'perfil') renderPerfil();
   if (screen === 'lingua') renderLinguaScreen();
+  if (screen === 'festa') enterFesta();
 }
 
 updateStatsDisplays();

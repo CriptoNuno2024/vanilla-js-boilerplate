@@ -27,7 +27,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'quedaFolha', estacao: 'outono', titulo: 'A Queda da Folha', texto: 'Em novembro as folhas amarelam e caem, e a videira prepara-se para descansar.' },
     { id: 'bagacoAlambique', manual: true, titulo: 'O Bagaço e o Alambique', texto: 'Depois de prensar as uvas, sobra o bagaço: as cascas e as grainhas. Numa quinta tradicional, o bagaço vai ao alambique, uma caldeira de cobre, onde se destila e se faz aguardente. Nada se desperdiça.' },
     { id: 'aguardenteAdega', manual: true, titulo: 'A Aguardente', texto: 'No Moscatel de Setúbal junta-se aguardente ao mosto para parar a fermentação. Assim o vinho guarda parte do açúcar natural da uva e fica doce e mais forte.' },
-    { id: 'curtimenta', manual: true, titulo: 'A Curtimenta', texto: 'Depois de fortificado, o Moscatel fica em contacto com as cascas das uvas durante meses. É esta curtimenta que lhe dá o seu aroma intenso.' }
+    { id: 'curtimenta', manual: true, titulo: 'A Curtimenta', texto: 'Depois de fortificado, o Moscatel fica em contacto com as cascas das uvas durante meses. É esta curtimenta que lhe dá o seu aroma intenso.' },
+    { id: 'lendaSaoMartinho', manual: true, titulo: 'A Lenda de São Martinho', texto: 'Contam que Martinho, um soldado romano, viajava num dia de frio cortante quando encontrou um pobre a tremer à beira do caminho. Sem hesitar, cortou a sua capa ao meio com a espada e deu-lhe metade. Nessa noite, diz a lenda, o tempo mudou: o sol voltou e os dias aqueceram por uns tempos — é o chamado "verão de São Martinho". O YoshiCat gosta de pensar que, algures naquela capa cortada, ainda havia lugar para uma castanha assada.' },
+    { id: 'jeropiga', manual: true, titulo: 'A Jeropiga', texto: 'A jeropiga é um licor doce e antigo, feito juntando aguardente ao mosto de uva ainda a fermentar — tal como no Moscatel fortificado, mas de forma mais rápida e caseira. É tradição em muitas quintas portuguesas fazê-la por esta altura do ano, a tempo do magusto de São Martinho.' },
+    { id: 'magusto', manual: true, imagem: 'assets/ecras/enciclopedia_magusto.jpg', titulo: 'O Magusto', texto: 'O magusto é a festa das castanhas assadas, celebrada por volta de São Martinho, a 11 de novembro. As famílias reúnem-se à volta da fogueira para assar castanhas e provar o vinho novo — e nem os porcos Fygmo e Fygmo2 resistem ao cheiro.' }
   ],
   en: [
     { id: 'origem', titulo: 'The Origins of Moscatel', texto: 'The elders of the Farm say that Setúbal Moscatel was born more than 500 years ago, when the first Moscatel Graúdo vine cuttings arrived on the peninsula from distant lands.' },
@@ -48,7 +51,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'quedaFolha', estacao: 'outono', titulo: 'Leaf Fall', texto: 'In November the leaves turn yellow and fall, and the vine prepares to rest.' },
     { id: 'bagacoAlambique', manual: true, titulo: 'The Pomace and the Still', texto: "After the grapes are pressed, the pomace is left over: the skins and seeds. On a traditional farm, the pomace goes to the still, a copper kettle, where it's distilled into grape spirit. Nothing goes to waste." },
     { id: 'aguardenteAdega', manual: true, titulo: 'The Grape Spirit', texto: "In Setúbal Moscatel, grape spirit is added to the must to stop fermentation. This way the wine keeps part of the grape's natural sugar and turns out sweet and stronger." },
-    { id: 'curtimenta', manual: true, titulo: 'Skin Contact Ageing', texto: 'Once fortified, the Moscatel stays in contact with the grape skins for months. This skin contact is what gives it its intense aroma.' }
+    { id: 'curtimenta', manual: true, titulo: 'Skin Contact Ageing', texto: 'Once fortified, the Moscatel stays in contact with the grape skins for months. This skin contact is what gives it its intense aroma.' },
+    { id: 'lendaSaoMartinho', manual: true, titulo: 'The Legend of St. Martin', texto: 'They say Martin, a Roman soldier, was travelling on a bitterly cold day when he found a poor man shivering by the roadside. Without hesitating, he cut his cloak in half with his sword and gave him one part. That night, legend says, the weather changed: the sun came back and the days warmed up for a while — the origin of "St. Martin\'s summer" (an Indian summer). YoshiCat likes to think that somewhere in that cut cloak, there was still room for a roasted chestnut.' },
+    { id: 'jeropiga', manual: true, titulo: 'Jeropiga', texto: 'Jeropiga is a sweet, old-fashioned liqueur made by adding grape spirit to grape must while it is still fermenting — much like fortified Moscatel, but quicker and more homemade. Many Portuguese farms make it around this time of year, in time for the St. Martin\'s chestnut roast.' },
+    { id: 'magusto', manual: true, imagem: 'assets/ecras/enciclopedia_magusto.jpg', titulo: 'The Magusto', texto: "The magusto is the chestnut-roasting feast celebrated around St. Martin's Day, on 11 November. Families gather round the bonfire to roast chestnuts and taste the new wine — not even Fygmo and Fygmo2 can resist the smell." }
   ],
   es: [
     { id: 'origem', titulo: 'Los Orígenes del Moscatel', texto: 'Los más viejos de la Quinta cuentan que el Moscatel de Setúbal nació hace más de 500 años, cuando los primeros esquejes de Moscatel Graúdo llegaron a la península desde tierras lejanas.' },
@@ -69,7 +75,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'quedaFolha', estacao: 'outono', titulo: 'La Caída de la Hoja', texto: 'En noviembre las hojas amarillean y caen, y la vid se prepara para descansar.' },
     { id: 'bagacoAlambique', manual: true, titulo: 'El Orujo y el Alambique', texto: 'Después de prensar las uvas, sobra el orujo: las pieles y las pepitas. En una quinta tradicional, el orujo va al alambique, una caldera de cobre, donde se destila y se hace aguardiente. Nada se desperdicia.' },
     { id: 'aguardenteAdega', manual: true, titulo: 'El Aguardiente', texto: 'En el Moscatel de Setúbal se añade aguardiente al mosto para detener la fermentación. Así el vino conserva parte del azúcar natural de la uva y queda dulce y más fuerte.' },
-    { id: 'curtimenta', manual: true, titulo: 'La Crianza con Hollejos', texto: 'Después de fortificado, el Moscatel permanece en contacto con los hollejos de la uva durante meses. Es esta crianza la que le da su aroma intenso.' }
+    { id: 'curtimenta', manual: true, titulo: 'La Crianza con Hollejos', texto: 'Después de fortificado, el Moscatel permanece en contacto con los hollejos de la uva durante meses. Es esta crianza la que le da su aroma intenso.' },
+    { id: 'lendaSaoMartinho', manual: true, titulo: 'La Leyenda de San Martín', texto: 'Cuentan que Martín, un soldado romano, viajaba en un día de frío cortante cuando encontró a un pobre temblando junto al camino. Sin dudarlo, cortó su capa por la mitad con la espada y le dio una parte. Esa noche, dice la leyenda, el tiempo cambió: volvió el sol y los días se calentaron durante unos días — es el llamado "veranillo de San Martín". Al YoshiCat le gusta pensar que, en algún lugar de aquella capa cortada, todavía cabía una castaña asada.' },
+    { id: 'jeropiga', manual: true, titulo: 'La Jeropiga', texto: 'La jeropiga es un licor dulce y antiguo, hecho añadiendo aguardiente al mosto de uva todavía en fermentación — igual que en el Moscatel fortificado, pero de forma más rápida y casera. Es tradición en muchas quintas portuguesas hacerla por esta época del año, a tiempo para el magosto de San Martín.' },
+    { id: 'magusto', manual: true, imagem: 'assets/ecras/enciclopedia_magusto.jpg', titulo: 'El Magosto', texto: 'El magosto es la fiesta de las castañas asadas, celebrada en torno a San Martín, el 11 de noviembre. Las familias se reúnen alrededor de la hoguera para asar castañas y probar el vino nuevo — y ni los cerdos Fygmo y Fygmo2 resisten el olor.' }
   ]
 };
 
@@ -167,7 +176,8 @@ function renderEnciclopedia() {
   const cardsHtml = entradas.map(function (e) {
     const desbloqueada = state.encyclopedia.unlocked.indexOf(e.id) !== -1;
     if (desbloqueada) {
-      return '<div class="encyclopedia-card"><h3>' + e.titulo + '</h3><p>' + e.texto + '</p></div>';
+      const imagemHtml = e.imagem ? '<img src="' + e.imagem + '" alt="">' : '';
+      return '<div class="encyclopedia-card">' + imagemHtml + '<h3>' + e.titulo + '</h3><p>' + e.texto + '</p></div>';
     }
     // Uma entrada de estação mostra qual é, em vez de "???", para o
     // jogador saber que tem de voltar ao Explorar nessa altura do ano.
