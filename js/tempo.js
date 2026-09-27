@@ -8,7 +8,8 @@
 // mostra erros ao jogador.
 //
 // Para testar: acrescenta ?tempo=sol (ou chuva / calor / nevoeiro /
-// trovoada / vento / frio) ao endereço. Funciona junto com ?estacao=.
+// trovoada / vento / frio / noite) ao endereço. Funciona junto com
+// ?estacao=.
 //
 // ===================================================================
 // TEMPO_CONFIG — tudo o que rege o tempo está só aqui: limites,
@@ -53,7 +54,7 @@ const TEMPO_FETCH_TIMEOUT_MS = 8000;
 
 // Códigos do tempo (WMO) devolvidos pela Open-Meteo, agrupados no céu
 // que nos interessa. Códigos não listados (ex: neve, rara em Setúbal)
-// caem em 'sol' por omissão.
+// caem em 'sol' (de dia) ou 'noite' (de noite) por omissão.
 const TEMPO_CEU_POR_WEATHERCODE = {
   45: 'nevoeiro', 48: 'nevoeiro',
   51: 'chuva', 53: 'chuva', 55: 'chuva', 56: 'chuva', 57: 'chuva',
@@ -62,8 +63,13 @@ const TEMPO_CEU_POR_WEATHERCODE = {
   95: 'trovoada', 96: 'trovoada', 99: 'trovoada'
 };
 
-function classificarCeu(weathercode) {
-  return TEMPO_CEU_POR_WEATHERCODE[weathercode] || 'sol';
+// isDay vem do campo is_day da Open-Meteo (1 = dia, 0 = noite). Só
+// distingue "noite" quando o código não é nenhum dos de cima (chuva,
+// nevoeiro, trovoada continuam iguais de dia ou de noite).
+function classificarCeu(weathercode, isDay) {
+  const ceu = TEMPO_CEU_POR_WEATHERCODE[weathercode];
+  if (ceu) return ceu;
+  return isDay === 0 ? 'noite' : 'sol';
 }
 
 // Dia local do jogador em "YYYY-MM-DD", só para guardar "já feito hoje"
@@ -85,7 +91,7 @@ function condicaoDeTeste(tempC, ventoKmh, ceu) {
   };
 }
 
-// ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio — só para testar.
+// ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio|noite — só para testar.
 const TEMPO_FORCADO_POR_PARAM = {
   sol: function () { return condicaoDeTeste(20, 10, 'sol'); },
   chuva: function () { return condicaoDeTeste(16, 15, 'chuva'); },
@@ -93,7 +99,8 @@ const TEMPO_FORCADO_POR_PARAM = {
   nevoeiro: function () { return condicaoDeTeste(14, 10, 'nevoeiro'); },
   trovoada: function () { return condicaoDeTeste(20, 20, 'trovoada'); },
   vento: function () { return condicaoDeTeste(18, 45, 'sol'); },
-  frio: function () { return condicaoDeTeste(1, 10, 'sol'); }
+  frio: function () { return condicaoDeTeste(1, 10, 'sol'); },
+  noite: function () { return condicaoDeTeste(14, 5, 'noite'); }
 };
 
 let _tempoForcadoCache; // undefined = ainda não calculado; null = sem forçar
@@ -153,14 +160,14 @@ async function garantirTempoAtualizado() {
     const timeoutId = setTimeout(function () { controlador.abort(); }, TEMPO_FETCH_TIMEOUT_MS);
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + TEMPO_CONFIG.latitude +
       '&longitude=' + TEMPO_CONFIG.longitude +
-      '&current=temperature_2m,wind_speed_10m,weather_code&timezone=Europe%2FLisbon';
+      '&current=temperature_2m,wind_speed_10m,weather_code,is_day&timezone=Europe%2FLisbon';
     const resposta = await fetch(url, { signal: controlador.signal });
     clearTimeout(timeoutId);
     if (!resposta.ok) throw new Error('resposta não ok');
     const dados = await resposta.json();
     const tempC = dados.current.temperature_2m;
     const ventoKmh = dados.current.wind_speed_10m;
-    const ceu = classificarCeu(dados.current.weather_code);
+    const ceu = classificarCeu(dados.current.weather_code, dados.current.is_day);
 
     _tempoAtual = condicaoDeTeste(tempC, ventoKmh, ceu);
     guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu });
@@ -176,7 +183,7 @@ function tempoAtual() {
   return tempoForcadoNoEndereco() || _tempoAtual;
 }
 
-const TEMPO_ICONE_POR_CEU = { sol: '☀️', chuva: '🌧️', nevoeiro: '🌫️', trovoada: '⛈️' };
+const TEMPO_ICONE_POR_CEU = { sol: '☀️', chuva: '🌧️', nevoeiro: '🌫️', trovoada: '⛈️', noite: '🌙' };
 
 // Linha do Menu da Quinta, ex: "Setúbal agora: 🌧️ Chuva, 16 °C".
 // Fica vazia (sem mostrar nada) se ainda não há dados disponíveis.

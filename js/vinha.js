@@ -19,16 +19,6 @@ const COOLDOWN_MS = {
   compostagem: 3 * 60 * 60 * 1000 // 3h
 };
 
-const VINHA_FLAVOR = {
-  cavar: 'Revolver a terra areja as raízes e prepara o solo para uma nova plantação.',
-  plantar: 'Os novos bacelos de Moscatel Graúdo são plantados com cuidado, em filas viradas a poente.',
-  ervas: 'As ervas daninhas competem pela água e pelos nutrientes que a videira precisa.',
-  regar: 'A vinha da Arrábida agradece a água nas tardes mais quentes de verão.',
-  adubar: 'O adubo orgânico devolve à terra o que a vinha consumiu na estação anterior.',
-  compostagem: 'Os resíduos da poda e das ervas arrancadas transformam-se, com tempo, em adubo rico para a vinha.',
-  colher: 'A vindima é feita à mão, cacho a cacho, para não danificar os bagos maduros de Moscatel.'
-};
-
 const VINHA_FASES = {
   preparar: { nomeKey: 'vinha.fase.preparar.nome', descKey: 'vinha.fase.preparar.desc' },
   preparada: { nomeKey: 'vinha.fase.preparada.nome', descKey: 'vinha.fase.preparada.desc' },
@@ -96,7 +86,7 @@ const VINHA_BONUS_LABEL_KEY = {
 
 // A "dica" (frase de sabor) de cada ação com bónus ganha uma versão
 // própria da estação; fora dessa estação mantém a frase de sempre
-// (essa continua só em português, como já era o caso).
+// (ver vinha.dica.* em js/i18n.js).
 const VINHA_DICA_SAZONAL_KEY = {
   primavera: { plantar: 'vinha.dica.plantar.primavera', ervas: 'vinha.dica.ervas.primavera' },
   verao: { regar: 'vinha.dica.regar.verao' },
@@ -107,7 +97,7 @@ const VINHA_DICA_SAZONAL_KEY = {
 function dicaVinha(actionKey) {
   const porEstacao = VINHA_DICA_SAZONAL_KEY[estacaoAtual()];
   const key = porEstacao && porEstacao[actionKey];
-  return key ? t(key) : (VINHA_FLAVOR[actionKey] || '');
+  return t(key || ('vinha.dica.' + actionKey));
 }
 
 // ===================================================================
@@ -218,6 +208,26 @@ function registarCooldownVinha(actionKey) {
   state.vinha.cooldowns[actionKey] = Date.now();
 }
 
+// Relógio dos botões da Vinha: enquanto o jogador está neste ecrã,
+// volta a desenhar a fila de botões a cada minuto, para os tempos de
+// espera ("3h 0m"...) descerem sozinhos e o botão ficar disponível
+// assim que chega a zero, sem ser preciso sair e voltar a entrar.
+// Pára sempre que se sai do ecrã (ver LIMPEZA_AO_SAIR_POR_ECRA, em
+// js/main.js) para nunca ficar a correr escondido.
+let vinhaTimerId = null;
+
+function pararRelogioVinha() {
+  if (vinhaTimerId) {
+    clearInterval(vinhaTimerId);
+    vinhaTimerId = null;
+  }
+}
+
+function iniciarRelogioVinha() {
+  pararRelogioVinha();
+  vinhaTimerId = setInterval(renderVinha, 60 * 1000);
+}
+
 function enterVinha() {
   vinhaMensagemAtual = '';
   vinhaNovaEntrada = null;
@@ -225,6 +235,7 @@ function enterVinha() {
   vinhaCartaoAberto = false;
   aplicarChuvaAutomatica();
   renderVinha();
+  iniciarRelogioVinha();
 }
 
 // sufixoBloqueado: texto a mostrar quando bloqueado por bloqueadoExtra

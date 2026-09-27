@@ -108,6 +108,9 @@ const NAV_ATIVO_POR_ECRA = {
 const LIMPEZA_AO_SAIR_POR_ECRA = {
   proteger: function () {
     if (typeof pararTemporizadorProteger === 'function') pararTemporizadorProteger();
+  },
+  vinha: function () {
+    if (typeof pararRelogioVinha === 'function') pararRelogioVinha();
   }
 };
 

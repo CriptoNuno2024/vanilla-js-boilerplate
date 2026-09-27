@@ -2,8 +2,9 @@
 // TRADUÇÃO DA INTERFACE (Português / English / Español)
 //
 // Só a estrutura principal do jogo é traduzida (títulos de ecrãs, nomes
-// de botões, nomes dos recursos). As histórias da Enciclopédia e as
-// frases de "flavor text" da Vinha mantêm-se em português.
+// de botões, nomes dos recursos, incluindo as frases de "flavor text"
+// da Vinha — ver vinha.dica.*). As histórias da Enciclopédia mantêm-se
+// em português.
 //
 // O "Proteger a Quinta" não é traduzido por pedido explícito de manter
 // esse ecrã exatamente como está (o seu conteúdo é gerado sem
@@ -21,7 +22,6 @@ const TRANSLATIONS = {
     'hub.btnVinha': '🌱 Tratar a Vinha',
     'hub.btnProteger': '🛡️ Proteger a Quinta',
     'hub.btnGarrafa': '🍾 Criar Garrafa',
-    'hub.btnExplorar': '📖 Explorar',
     'hub.btnPerfil': '👤 Perfil',
     'hub.btnSair': '⬅ Sair da Quinta',
 
@@ -107,6 +107,16 @@ const TRANSLATIONS = {
     'vinha.bonusAdubo': '(+50% adubo)',
     'vinha.bonusColheita': '(+50% uvas e reputação)',
 
+    // Frase de sabor mostrada no balão depois de cada ação da Vinha
+    // (ver VINHA_FLAVOR em js/vinha.js) — fora da estação de bónus.
+    'vinha.dica.cavar': 'Revolver a terra areja as raízes e prepara o solo para uma nova plantação.',
+    'vinha.dica.plantar': 'Os novos bacelos de Moscatel Graúdo são plantados com cuidado, em filas viradas a poente.',
+    'vinha.dica.ervas': 'As ervas daninhas competem pela água e pelos nutrientes que a videira precisa.',
+    'vinha.dica.regar': 'A vinha da Arrábida agradece a água nas tardes mais quentes de verão.',
+    'vinha.dica.adubar': 'O adubo orgânico devolve à terra o que a vinha consumiu na estação anterior.',
+    'vinha.dica.compostagem': 'Os resíduos da poda e das ervas arrancadas transformam-se, com tempo, em adubo rico para a vinha.',
+    'vinha.dica.colher': 'A vindima é feita à mão, cacho a cacho, para não danificar os bagos maduros de Moscatel.',
+
     // Estações do ano — dicas próprias de cada ação com vantagem
     'vinha.dica.plantar.primavera': 'É primavera, a altura certa para plantar: os novos bacelos de Moscatel Graúdo pegam com mais força nesta estação.',
     'vinha.dica.ervas.primavera': 'Na primavera as ervas daninhas crescem depressa — arrancá-las agora dá um impulso extra às videiras.',
@@ -139,9 +149,10 @@ const TRANSLATIONS = {
     'estacao.frase.outono': 'época de vindima',
 
     // Tempo real de Setúbal (Open-Meteo, ver js/tempo.js). Para testar:
-    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio
+    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio|noite
     'tempo.agoraLabel': 'Setúbal agora:',
     'tempo.ceu.sol': 'Sol',
+    'tempo.ceu.noite': 'Céu limpo',
     'tempo.ceu.chuva': 'Chuva',
     'tempo.ceu.nevoeiro': 'Nevoeiro',
     'tempo.ceu.trovoada': 'Trovoada',
@@ -219,7 +230,6 @@ const TRANSLATIONS = {
     'hub.btnVinha': '🌱 Tend the Vineyard',
     'hub.btnProteger': '🛡️ Protect the Farm',
     'hub.btnGarrafa': '🍾 Make a Bottle',
-    'hub.btnExplorar': '📖 Explore',
     'hub.btnPerfil': '👤 Profile',
     'hub.btnSair': '⬅ Leave the Farm',
 
@@ -299,6 +309,14 @@ const TRANSLATIONS = {
     'vinha.bonusAdubo': '(+50% compost)',
     'vinha.bonusColheita': '(+50% grapes and reputation)',
 
+    'vinha.dica.cavar': 'Turning the soil airs out the roots and readies the ground for a new planting.',
+    'vinha.dica.plantar': 'The new Moscatel Graúdo cuttings are planted with care, in rows facing west.',
+    'vinha.dica.ervas': 'Weeds compete for the water and nutrients the vine needs.',
+    'vinha.dica.regar': 'The Arrábida vineyard is grateful for the water on the hottest summer afternoons.',
+    'vinha.dica.adubar': 'The organic compost returns to the soil what the vineyard used up last season.',
+    'vinha.dica.compostagem': 'Pruning waste and pulled weeds turn, over time, into rich compost for the vineyard.',
+    'vinha.dica.colher': 'The harvest is done by hand, bunch by bunch, so the ripe Moscatel grapes are not damaged.',
+
     'vinha.dica.plantar.primavera': "It's spring, the right time to plant: young Moscatel Graúdo vine cuttings take root more easily this season.",
     'vinha.dica.ervas.primavera': 'In spring weeds grow fast — pulling them now gives the vines an extra boost.',
     'vinha.dica.regar.verao': 'In the summer heat, water is even more precious: the Arrábida vineyard is grateful for every watering.',
@@ -328,9 +346,10 @@ const TRANSLATIONS = {
     'estacao.frase.outono': 'harvest time',
 
     // Real-time Setúbal weather (Open-Meteo, see js/tempo.js). To test:
-    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio
+    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio|noite
     'tempo.agoraLabel': 'Setúbal now:',
     'tempo.ceu.sol': 'Sunny',
+    'tempo.ceu.noite': 'Clear sky',
     'tempo.ceu.chuva': 'Rain',
     'tempo.ceu.nevoeiro': 'Fog',
     'tempo.ceu.trovoada': 'Thunderstorm',
@@ -407,7 +426,6 @@ const TRANSLATIONS = {
     'hub.btnVinha': '🌱 Cuidar el Viñedo',
     'hub.btnProteger': '🛡️ Proteger la Quinta',
     'hub.btnGarrafa': '🍾 Crear Botella',
-    'hub.btnExplorar': '📖 Explorar',
     'hub.btnPerfil': '👤 Perfil',
     'hub.btnSair': '⬅ Salir de la Quinta',
 
@@ -437,7 +455,7 @@ const TRANSLATIONS = {
     'vinha.title': 'El Viñedo',
     'vinha.recursoResiduos': 'Residuos',
     'vinha.recursoAdubo': 'Abono',
-    'vinha.cuidadoLabel': 'Cuidado',
+    'vinha.cuidadoLabel': 'Cuidados',
     'vinha.btnCavar': 'Cavar la Tierra',
     'vinha.btnErvas': 'Eliminar Malas Hierbas',
     'vinha.btnPlantar': 'Plantar',
@@ -487,6 +505,14 @@ const TRANSLATIONS = {
     'vinha.bonusAdubo': '(+50% abono)',
     'vinha.bonusColheita': '(+50% uvas y reputación)',
 
+    'vinha.dica.cavar': 'Remover la tierra airea las raíces y prepara el suelo para una nueva plantación.',
+    'vinha.dica.plantar': 'Los nuevos esquejes de Moscatel Graúdo se plantan con cuidado, en filas orientadas al poniente.',
+    'vinha.dica.ervas': 'Las malas hierbas compiten por el agua y los nutrientes que necesita la vid.',
+    'vinha.dica.regar': 'El viñedo de Arrábida agradece el agua en las tardes más calurosas del verano.',
+    'vinha.dica.adubar': 'El abono orgánico devuelve a la tierra lo que el viñedo consumió en la estación anterior.',
+    'vinha.dica.compostagem': 'Los residuos de la poda y las malas hierbas arrancadas se convierten, con el tiempo, en abono rico para el viñedo.',
+    'vinha.dica.colher': 'La vendimia se hace a mano, racimo a racimo, para no dañar los granos maduros de Moscatel.',
+
     'vinha.dica.plantar.primavera': 'Es primavera, el momento adecuado para plantar: los nuevos esquejes de Moscatel Graúdo arraigan con más fuerza en esta estación.',
     'vinha.dica.ervas.primavera': 'En primavera las malas hierbas crecen deprisa: arrancarlas ahora da un impulso extra a las vides.',
     'vinha.dica.regar.verao': 'En el calor del verano, el agua es aún más preciosa: el viñedo de Arrábida agradece cada riego.',
@@ -516,9 +542,10 @@ const TRANSLATIONS = {
     'estacao.frase.outono': 'época de vendimia',
 
     // Tiempo real de Setúbal (Open-Meteo, ver js/tempo.js). Para probar:
-    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio
+    // ?tempo=sol|chuva|calor|nevoeiro|trovoada|vento|frio|noite
     'tempo.agoraLabel': 'Setúbal ahora:',
     'tempo.ceu.sol': 'Sol',
+    'tempo.ceu.noite': 'Cielo despejado',
     'tempo.ceu.chuva': 'Lluvia',
     'tempo.ceu.nevoeiro': 'Niebla',
     'tempo.ceu.trovoada': 'Tormenta',
