@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>YoshiCat e a Quinta do Moscatel</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -666,6 +669,768 @@
         padding: 16px;
       }
     }
+
+    /* ===================================================================
+       NOVO ASPETO — todos os ecrãs do jogo (topo, navegação, cartão do
+       canto, painel de ações, balão de fala). Liga-se com a classe
+       "jogo-cheio" no body (ver atualizarChromeNovoAspeto() em
+       js/main.js) — só a capa e a Escolher Língua ficam de fora.
+       =================================================================== */
+    :root {
+      --topo-offset: calc(10px + env(safe-area-inset-top, 0px) + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px));
+      --topo-altura: calc(44px + 16px + var(--topo-offset));
+      --nav-offset: calc(env(safe-area-inset-bottom, 0px) + var(--tg-safe-area-inset-bottom, 0px));
+      --nav-altura: calc(60px + var(--nav-offset));
+      --vinho-escuro: rgba(34, 16, 22, 0.62);
+      --vinho-escuro-forte: rgba(30, 12, 18, 0.72);
+      /* Mais opaco que --vinho-escuro de propósito: a barra de topo e o
+         botão do Perfil ficam por cima de qualquer imagem (céu claro,
+         nuvens, etc.) e precisam de contraste constante. */
+      --topo-fundo: rgba(34, 16, 22, 0.8);
+      --dourado: #E0B252;
+    }
+
+    /* "jogo-cheio" liga o novo aspeto (topo, navegação, fundo em ecrã
+       inteiro) em qualquer ecrã do jogo — todos menos a capa e a escolha
+       de língua (ver atualizarChromeNovoAspeto() em js/main.js). */
+    .app-chrome { display: none; }
+
+    body.jogo-cheio .app-chrome {
+      display: flex;
+    }
+
+    /* O balão de fala só aparece quando tem mensagem — isso é controlado
+       por [hidden] (ver atualizarDialogo() em js/main.js), por isso não
+       entra no toggle genérico ".app-chrome" de cima (que é sempre
+       "display:flex" em qualquer ecrã do jogo). */
+    #app-dialogue[hidden] { display: none; }
+
+    body.jogo-cheio {
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* --- Barra de topo: Perfil + recursos ------------------------------- */
+    #app-topbar {
+      position: fixed;
+      top: var(--topo-offset);
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      z-index: 20;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-btn {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--topo-fundo);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid var(--dourado);
+      color: #fff5df;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .resource-bar {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      height: 40px;
+      padding: 0 10px;
+      background: var(--topo-fundo);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 215, 110, 0.35);
+      border-radius: 20px;
+      min-width: 0;
+    }
+
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #f5d76e;
+      font-weight: 700;
+      font-size: 13px;
+      min-width: 0;
+    }
+
+    .resource-item svg { flex: 0 0 auto; opacity: 0.9; }
+
+    #tempo-linha { margin: 2px 0 0; text-shadow: none; }
+
+    /* --- Faixa da festa: dentro do cartão do topo, por baixo do resto -- */
+    #screen-quinta .festa-faixa {
+      margin: 6px 0 0;
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+
+    /* --- Cartão flutuante do canto superior esquerdo: encostado abaixo
+       do botão do Perfil, só com a largura necessária, e que abre/fecha
+       ao tocar. Genérico — usado pela Vinha agora, pronto para outros
+       ecrãs mais tarde (basta dar-lhe a classe "topcard"). ------------- */
+    .topcard {
+      position: fixed;
+      left: calc(50% - (var(--coluna) / 2));
+      top: calc(var(--topo-offset) + 44px + 8px);
+      width: fit-content;
+      max-width: calc(var(--coluna) * 0.6);
+      z-index: 18;
+      background: var(--vinho-escuro);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 215, 110, 0.35);
+      border-radius: 16px;
+      padding: 8px 10px;
+    }
+
+    /* Aberto, o cartão (cabeçalho + conteúdo) nunca passa do meio do ecrã. */
+    .topcard.aberto {
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .topcard-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      min-height: 44px;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .cartao-textos {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .topcard h1,
+    .topcard .mini-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #f5d76e;
+      text-shadow: none;
+    }
+
+    .topcard .mini-sub {
+      font-size: 12px;
+      color: #f0e6d8;
+    }
+
+    .cartao-seta {
+      flex: 0 0 auto;
+      margin-top: 4px;
+      color: #f5d76e;
+      transition: transform 0.15s ease;
+    }
+
+    .topcard.aberto .cartao-seta {
+      transform: rotate(180deg);
+    }
+
+    .cartao-corpo {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(245, 215, 110, 0.25);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    .cartao-corpo .phase-desc,
+    .cartao-corpo .phase-desc-real,
+    .cartao-corpo .phase-progress {
+      margin: 0 0 4px;
+    }
+
+    .cartao-corpo .phase-desc-real {
+      color: #d7c9b8;
+      font-style: italic;
+    }
+
+    .chrome-mini-stats {
+      display: flex;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .chrome-mini-stats .resource-item { color: #f0e6d8; font-weight: 600; font-size: 12.5px; }
+
+    /* Indicador de passos (ex: quão perto os porcos estão no "Não
+       acordes o Chizo", ver chizoIndicadorHtml() em js/proteger.js). */
+    .passos-indicador {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .passos-indicador .passo {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .passos-indicador .passo.ativo {
+      background: var(--dourado);
+    }
+
+    /* --- Botão-pastilha (trabalhos da Vinha) ---------------------------- */
+    .pill-scroll-wrap {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      bottom: calc(var(--nav-altura) + 8px);
+      z-index: 15;
+      display: flex;
+      align-items: center;
+    }
+
+    .pill-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 0;
+      scrollbar-width: none;
+      flex: 1 1 auto;
+      min-width: 0;
+      /* Margem em cada ponta da fila — pelo menos 12px sempre; quando a
+         seta desse lado está visível, js/main.js sobe isto para 56px
+         (44px da seta + folga), para o botão nunca ficar escondido por
+         baixo dela no fim do deslize. Ver atualizarSetasDaFila(). */
+      --pastilhas-margem-esq: 12px;
+      --pastilhas-margem-dir: 12px;
+    }
+
+    .pill-scroll::-webkit-scrollbar { display: none; }
+
+    /* Espaçadores reais (não padding) nas duas pontas: um scroll container
+       com overflow, em alguns motores, ignora padding no lado final —
+       um elemento a mais no fluxo é a forma fiável de reservar espaço. */
+    .pill-scroll::before {
+      content: '';
+      flex: 0 0 auto;
+      width: var(--pastilhas-margem-esq);
+    }
+
+    .pill-scroll::after {
+      content: '';
+      flex: 0 0 auto;
+      width: var(--pastilhas-margem-dir);
+    }
+
+    .btn-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(34, 16, 22, 0.85);
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 13.5px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .btn-pill.pill-main {
+      background: var(--dourado);
+      color: #2a1608;
+      border-color: transparent;
+    }
+
+    .btn-pill:disabled,
+    .btn-pill.pill-off {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-pill .cooldown-suffix {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      opacity: 0.9;
+      margin-left: 2px;
+    }
+
+    .btn-pill .pill-clock { flex: 0 0 auto; }
+
+    .btn-pill .bonus-suffix {
+      font-size: 11px;
+      margin-left: 2px;
+      color: #d7ffb8;
+    }
+
+    .btn-pill.pill-main .bonus-suffix { color: #2f6b1f; }
+
+    /* Esbatido dos dois lados da fila — genérico (.pill-fade-left /
+       .pill-fade-right), pronto para reutilizar noutros ecrãs. */
+    .pill-fade {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 64px;
+      pointer-events: none;
+    }
+
+    .pill-fade-right {
+      right: 0;
+      background: linear-gradient(to right, rgba(20, 8, 12, 0), rgba(20, 8, 12, 0.95) 60%, rgba(20, 8, 12, 0.95) 100%);
+    }
+
+    .pill-fade-left {
+      left: 0;
+      background: linear-gradient(to left, rgba(20, 8, 12, 0), rgba(20, 8, 12, 0.95) 60%, rgba(20, 8, 12, 0.95) 100%);
+    }
+
+    /* Setas redondas dos dois lados — genéricas, prontas para reutilizar
+       noutros ecrãs. Escondem-se (.oculto) quando não há mais para
+       deslizar desse lado (ver configurarFilaPastilhas() em js/main.js). */
+    .pill-arrow-btn {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid var(--dourado);
+      background: var(--vinho-escuro-forte);
+      color: #f5d76e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .pill-arrow-right { margin-left: -44px; }
+    .pill-arrow-left { margin-right: -44px; }
+
+    .oculto { display: none; }
+
+    /* --- Painel de ações genérico: fila de pastilhas, grelha, lista de
+       escolhas ou um único botão grande — sempre encostado por cima da
+       barra de navegação. Usado por todos os ecrãs do jogo. ------------ */
+    .action-panel {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      bottom: calc(var(--nav-altura) + 8px);
+      z-index: 15;
+      max-height: 42vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Grelha 2x2 (ex: os 4 Montes do Proteger) */
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-tile {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(34, 16, 22, 0.85);
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 14.5px;
+      cursor: pointer;
+    }
+
+    .btn-tile:active { transform: scale(0.97); }
+
+    /* Lista vertical de escolhas com frase completa (ex: a Fechadura) */
+    .choice-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-choice {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(34, 16, 22, 0.85);
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      font-size: 13.5px;
+      line-height: 1.3;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    /* Botão-pastilha grande, sozinho (ex: "Alertar o Chizo!", "Jogar
+       Novamente") — reaproveita .btn-pill, só muda a largura/altura. */
+    .btn-pill.pill-grande {
+      width: 100%;
+      min-height: 52px;
+      font-size: 16px;
+    }
+
+    /* Botão-fantasma pequeno, para uma ação secundária isolada (ex:
+       "Sair da Quinta"). */
+    .btn-ghost {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: #f0e6d8;
+      font-size: 13px;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+    }
+
+    /* Painel com scroll interno, no máximo metade do ecrã (ex: a
+       Enciclopédia, ou uma história comprida do Explorar). */
+    .scroll-panel {
+      max-height: 48vh;
+      overflow-y: auto;
+      background: var(--vinho-escuro);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(245, 215, 110, 0.3);
+      border-radius: 14px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    /* --- Balão de fala (personagem) -------------------------------------- */
+    .dialogue-bubble {
+      display: flex;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      /* Empilhado por cima do painel de ações e do cartão de "nova
+         entrada", se algum deles estiver visível — a altura exata é
+         medida e posta em --balao-extra por reposicionarFlutuantes(),
+         em js/main.js, porque cada ecrã tem alturas diferentes. */
+      bottom: calc(var(--nav-altura) + 8px + var(--balao-extra, 0px));
+      z-index: 17;
+      align-items: center;
+      gap: 10px;
+      background: var(--vinho-escuro-forte);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 215, 110, 0.35);
+      border-radius: 16px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .dialogue-avatar {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f5d76e, #d4a017);
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .dialogue-text { min-width: 0; text-align: left; }
+
+    .dialogue-name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f5d76e;
+      margin: 0 0 1px;
+    }
+
+    .dialogue-msg {
+      font-size: 12.5px;
+      line-height: 1.3;
+      color: #fff;
+      margin: 0;
+    }
+
+    /* Seta a piscar devagar — avisa que há mais mensagens na fila (ver
+       mostrarFalas()/avancarFala() em js/main.js). Some sozinha na
+       última mensagem. */
+    .dialogue-next {
+      flex: 0 0 auto;
+      color: #f5d76e;
+      animation: dialogoSetaPiscar 1.6s ease-in-out infinite;
+    }
+
+    @keyframes dialogoSetaPiscar {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 1; }
+    }
+
+    /* --- Cartão de "nova entrada desbloqueada" ---------------------------
+       Pequeno, só com a etiqueta + o título, e uma pastilha para ler a
+       entrada completa na Enciclopédia. Fica encostado por cima do
+       painel de ações (ver reposicionarFlutuantes() em js/main.js). */
+    .unlock-card {
+      display: flex;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      bottom: calc(var(--nav-altura) + 8px + var(--pilha-abaixo, 0px));
+      z-index: 16;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--vinho-escuro-forte);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 215, 110, 0.4);
+      border-radius: 16px;
+      padding: 8px 10px 8px 12px;
+      margin-bottom: 6px;
+    }
+
+    .unlock-card[hidden] { display: none; }
+
+    .unlock-textos { min-width: 0; text-align: left; }
+
+    .unlock-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #f5d76e;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+
+    .unlock-titulo {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 14px;
+      color: #fff;
+      margin: 2px 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .unlock-card .btn-pill {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding: 0 16px;
+    }
+
+    /* --- Barra de navegação de baixo ------------------------------------- */
+    #app-bottomnav {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      bottom: 0;
+      padding-bottom: var(--nav-offset);
+      z-index: 20;
+      background: var(--vinho-escuro-forte);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 215, 110, 0.3);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    .nav-btn {
+      flex: 1 1 0;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: none;
+      border: none;
+      color: #d8cfc2;
+      font-family: 'Nunito', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 6px 2px;
+    }
+
+    .nav-btn.active {
+      color: var(--dourado);
+    }
+
+    .nav-btn-home {
+      transform: translateY(-6px);
+    }
+
+    .nav-btn-home svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* --- Cartão/link de saída no Menu da Quinta -------------------------- */
+    .quinta-exit-link {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      color: #f0e6d8;
+      font-size: 13px;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      padding: 0 14px;
+      margin: 0 auto;
+    }
+
+    /* O conteúdo "clássico" (caixa opaca, centrado) desliga-se em
+       qualquer ecrã do jogo — tudo passa a viver em peças fixas (cartão
+       do topo, balão, painel de ações, painel com scroll), por isso o
+       próprio contentor do ecrã não precisa de fundo nem de padding.
+       Repetido por id (em vez de só ".screen.active") para ter
+       especificidade suficiente para ganhar a ".screen.content:not(
+       #screen-home)" mais acima, que tem um id lá dentro do :not(). */
+    body.jogo-cheio #screen-quinta.content,
+    body.jogo-cheio #screen-vinha.content,
+    body.jogo-cheio #screen-proteger.content,
+    body.jogo-cheio #screen-garrafa.content,
+    body.jogo-cheio #screen-explorar.content,
+    body.jogo-cheio #screen-enciclopedia.content,
+    body.jogo-cheio #screen-perfil.content,
+    body.jogo-cheio #screen-festa.content {
+      background: none;
+      border: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      padding: 0;
+      text-align: left;
+      max-height: none;
+      overflow: visible;
+    }
+
+    /* Painel com scroll interno (Enciclopédia, histórias compridas):
+       flutua entre o cartão do topo e o painel de ações. */
+    .scroll-panel {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      top: calc(var(--topo-altura) + 60px);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      z-index: 14;
+    }
+
+    /* Fundo em ecrã inteiro (cover), sem faixas escuras à volta — em
+       qualquer ecrã do jogo; a capa e a escolha de língua mantêm a
+       caixa de foto (com moldura desfocada) como já estava. */
+    body.jogo-cheio #fundo.modo-foto .fundo-nitido {
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      transform: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Em ecrãs mais largos do que altos (PC), a imagem nítida volta a
+       ficar só na coluna central de telemóvel (a mesma largura da
+       barra de topo, do cartão, etc. — ver --coluna), em vez de esticar
+       para a janela toda: era isso que cortava a cabeça das
+       personagens. Dos lados, quem preenche é a mesma foto desfocada e
+       escurecida (.fundo-desfocado, já em ecrã inteiro por omissão). */
+    @media (orientation: landscape) {
+      body.jogo-cheio #fundo.modo-foto .fundo-nitido {
+        left: 50%;
+        right: auto;
+        width: var(--coluna);
+        transform: translateX(-50%);
+      }
+    }
+
+    /* Algumas fotos têm céu claro no topo — sem nada a escurecer aí, a
+       barra de topo perde contraste em cima delas. Junta um leve
+       escurecimento também no topo (o de baixo, para a janela antiga,
+       mantém-se). */
+    body.jogo-cheio .overlay {
+      background:
+        linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0) 55%),
+        linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%);
+    }
+
+    /* --- Ecrã inicial e Escolher Língua: botões mais discretos, no
+       mesmo estilo geral (Nunito, dourado/vinho), sem caixa grande. --- */
+    body.tela-home .home-botoes .btn,
+    #screen-lingua .btn {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      border-radius: 12px;
+    }
+
+    body.tela-home .home-botoes .btn-primary {
+      background: var(--dourado);
+      color: #2a1608;
+    }
+
+    #screen-lingua .btn {
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 15px;
+      background: rgba(34, 16, 22, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
   </style>
 </head>
 <body class="tela-home">
@@ -674,7 +1439,88 @@
     <div class="fundo-desfocado"></div>
     <div class="fundo-nitido"></div>
   </div>
-  <div class="overlay"></div>
+  <!-- Tocar na imagem avança a fala do balão (ver avancarFala() em
+       js/main.js) — nunca nos botões, nem nas barras de cima/baixo,
+       que ficam por cima desta camada com o seu próprio onclick. -->
+  <div class="overlay" onclick="avancarFala()"></div>
+
+  <!-- Barra de topo: Perfil + recursos (visível em qualquer ecrã do
+       jogo, exceto a capa e a Escolher Língua — ver "app-chrome" no
+       <style> e atualizarChromeNovoAspeto() em js/main.js) -->
+  <header id="app-topbar" class="app-chrome">
+    <button type="button" class="profile-btn" onclick="goTo('perfil')" data-i18n-aria="topbar.perfil" aria-label="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path>
+      </svg>
+    </button>
+    <div class="resource-bar">
+      <div class="resource-item" data-i18n-title="stat.uvas" title="Uvas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="8" cy="15" r="2.6"></circle><circle cx="13" cy="17" r="2.6"></circle><circle cx="10" cy="10.5" r="2.6"></circle><circle cx="15" cy="11.5" r="2.6"></circle><path d="M11 5v3"></path><path d="M11 5c1.2-1.2 2.6-1.6 4-1.4"></path></svg>
+        <span class="val-uvas">0</span>
+      </div>
+      <div class="resource-item" data-i18n-title="stat.gotas" title="Gotas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 1 1-12 0c0-3.5 3-7 6-11z"></path></svg>
+        <span class="val-gotas">0</span>
+      </div>
+      <div class="resource-item" data-i18n-title="stat.reputacao" title="Reputação">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1 6.1L12 16.9 6.8 19.7l1-6.1L3.4 9.4l6-.8z"></path></svg>
+        <span class="val-reputacao">0</span>
+      </div>
+      <div class="resource-item" data-i18n-title="stat.garrafas" title="Garrafas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M10 2h4v3.5l1.6 2.4c.4.6.6 1.3.6 2V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.9c0-.7.2-1.4.6-2L10 5.5V2z"></path><path d="M10 11h4"></path></svg>
+        <span class="val-garrafas">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Balão de fala (personagem) — usado por todos os ecrãs do jogo;
+       escondido quando não há mensagem (ver mostrarFalas() em
+       js/main.js). Tocar no balão também avança a fala; a seta só
+       aparece quando há mais mensagens a seguir. -->
+  <div id="app-dialogue" class="dialogue-bubble" onclick="avancarFala()" hidden>
+    <div class="dialogue-avatar" id="dialogue-avatar"></div>
+    <div class="dialogue-text">
+      <p class="dialogue-name" id="dialogue-name"></p>
+      <p class="dialogue-msg" id="dialogue-msg"></p>
+    </div>
+    <svg id="dialogue-next" class="dialogue-next oculto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+  </div>
+
+  <!-- Cartão de "nova entrada desbloqueada" — usado por Explorar, Vinha,
+       Adega e Festa (ver mostrarNovaEntrada() em js/main.js); o texto
+       completo só aparece na Enciclopédia. -->
+  <div id="app-unlock" class="unlock-card" hidden>
+    <div class="unlock-textos">
+      <p class="unlock-label" data-i18n="explorar.novaEntradaCurta">Nova entrada!</p>
+      <p class="unlock-titulo" id="unlock-titulo"></p>
+    </div>
+    <button type="button" class="btn-pill pill-main" onclick="goTo('enciclopedia')" data-i18n="explorar.btnLer">Ler</button>
+  </div>
+
+  <!-- Barra de navegação (visível em qualquer ecrã do jogo) -->
+  <nav id="app-bottomnav" class="app-chrome">
+    <button type="button" class="nav-btn" data-screen="vinha" onclick="goTo('vinha')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 21V10"></path><path d="M12 10C12 6 9 4 6 4c0 4 2 6 6 6z"></path><path d="M12 13c0-3.5 2.5-5.5 6-5.5 0 3.5-2 5.5-6 5.5z"></path></svg>
+      <span data-i18n="nav.vinha">Vinha</span>
+    </button>
+    <button type="button" class="nav-btn" data-screen="proteger" onclick="goTo('proteger')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"></path></svg>
+      <span data-i18n="nav.proteger">Proteger</span>
+    </button>
+    <button type="button" class="nav-btn nav-btn-home" data-screen="quinta" onclick="goTo('quinta')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M4 11l8-7 8 7"></path><path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"></path><path d="M10 20v-5h4v5"></path></svg>
+      <span data-i18n="nav.quinta">Quinta</span>
+    </button>
+    <button type="button" class="nav-btn" data-screen="garrafa" onclick="goTo('garrafa')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M10 2h4v3.5l1.6 2.4c.4.6.6 1.3.6 2V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9.9c0-.7.2-1.4.6-2L10 5.5V2z"></path><path d="M10 11h4"></path></svg>
+      <span data-i18n="nav.adega">Adega</span>
+    </button>
+    <button type="button" class="nav-btn" data-screen="explorar" onclick="goTo('explorar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+      <span data-i18n="nav.explorar">Explorar</span>
+    </button>
+  </nav>
 
   <!-- ECRÃ INICIAL: a capa fica toda visível; o título já está no logótipo
        da capa, por isso fica só para leitores de ecrã -->
@@ -695,83 +1541,48 @@
 
   <!-- ECRÃ HUB: A QUINTA -->
   <div id="screen-quinta" class="screen content">
-    <h1 data-i18n="hub.title">A Quinta do Moscatel</h1>
-    <div id="festa-faixa" class="festa-faixa" onclick="goTo('festa')"></div>
-    <p id="estacao-linha" class="estacao-linha"></p>
-    <p id="tempo-linha" class="tempo-linha"></p>
-
-    <div class="stats-bar">
-      <div class="stat-item">
-        <span class="stat-icon">🍇</span>
-        <span class="stat-value val-uvas">0</span>
-        <span class="stat-label" data-i18n="stat.uvas">Uvas</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-icon">💧</span>
-        <span class="stat-value val-gotas">0</span>
-        <span class="stat-label" data-i18n="stat.gotas">Gotas</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-icon">⭐</span>
-        <span class="stat-value val-reputacao">0</span>
-        <span class="stat-label" data-i18n="stat.reputacao">Reputação</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-icon">🍾</span>
-        <span class="stat-value val-garrafas">0</span>
-        <span class="stat-label" data-i18n="stat.garrafas">Garrafas</span>
-      </div>
+    <div class="topcard">
+      <h1 class="mini-title" data-i18n="hub.title">A Quinta do Moscatel</h1>
+      <p id="estacao-linha" class="mini-sub"></p>
+      <p id="tempo-linha" class="mini-sub tempo-linha"></p>
+      <div id="festa-faixa" class="festa-faixa" onclick="goTo('festa')"></div>
     </div>
-
-    <button class="btn btn-primary" onclick="goTo('vinha')" data-i18n="hub.btnVinha">🌱 Tratar a Vinha</button>
-    <button class="btn btn-primary" onclick="goTo('proteger')" data-i18n="hub.btnProteger">🛡️ Proteger a Quinta</button>
-    <button class="btn btn-secondary" onclick="goTo('garrafa')" data-i18n="hub.btnGarrafa">🍾 Criar Garrafa</button>
-    <button class="btn btn-secondary" onclick="goTo('explorar')" data-i18n="hub.btnExplorar">📖 Explorar</button>
-    <button class="btn btn-secondary" onclick="goTo('perfil')" data-i18n="hub.btnPerfil">👤 Perfil</button>
-    <button class="btn btn-secondary" onclick="goTo('home')" data-i18n="hub.btnSair">⬅ Sair da Quinta</button>
   </div>
 
   <!-- ECRÃ: A VINHA (ciclo de trabalho agrícola) -->
   <div id="screen-vinha" class="screen content">
     <div id="vinha-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
-  <!-- ECRÃ: PROTEGER A QUINTA (mantido tal como estava; conteúdo gerado por JS) -->
+  <!-- ECRÃ: PROTEGER A QUINTA (3 minijogos escolhidos à sorte — conteúdo
+       gerado por JS, ver js/proteger.js) -->
   <div id="screen-proteger" class="screen content">
     <div id="proteger-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
-  <!-- ECRÃ: CRIAR GARRAFA (com pequena sequência narrativa) -->
+  <!-- ECRÃ: CRIAR GARRAFA / A ADEGA -->
   <div id="screen-garrafa" class="screen content">
     <div id="garrafa-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
   <!-- ECRÃ: EXPLORAR (desbloqueia uma entrada da Enciclopédia de cada vez) -->
   <div id="screen-explorar" class="screen content">
     <div id="explorar-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
   <!-- ECRÃ: FESTA ATIVA (ver js/festas.js — São Martinho e futuras festas) -->
   <div id="screen-festa" class="screen content">
     <div id="festa-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
   <!-- ECRÃ: ENCICLOPÉDIA DO MOSCATEL (galeria de entradas desbloqueadas/bloqueadas) -->
   <div id="screen-enciclopedia" class="screen content">
     <div id="enciclopedia-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
   <!-- ECRÃ: PERFIL -->
   <div id="screen-perfil" class="screen content">
-    <h2 data-i18n="perfil.title">Perfil</h2>
     <div id="perfil-container"></div>
-    <button class="btn btn-secondary" onclick="goTo('quinta')" data-i18n="nav.voltarQuinta">⬅ Voltar à Quinta</button>
   </div>
 
   <!-- ECRÃ: ESCOLHER LÍNGUA -->
@@ -792,17 +1603,17 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=31"></script>
-  <script src="js/nuvem.js?v=31"></script>
-  <script src="js/i18n.js?v=31"></script>
-  <script src="js/estacoes.js?v=31"></script>
-  <script src="js/tempo.js?v=31"></script>
-  <script src="js/festas.js?v=31"></script>
-  <script src="js/vinha.js?v=31"></script>
-  <script src="js/explorar.js?v=31"></script>
-  <script src="js/proteger.js?v=31"></script>
-  <script src="js/garrafa.js?v=31"></script>
-  <script src="js/perfil.js?v=31"></script>
-  <script src="js/main.js?v=31"></script>
+  <script src="js/state.js?v=41"></script>
+  <script src="js/nuvem.js?v=41"></script>
+  <script src="js/i18n.js?v=41"></script>
+  <script src="js/estacoes.js?v=41"></script>
+  <script src="js/tempo.js?v=41"></script>
+  <script src="js/festas.js?v=41"></script>
+  <script src="js/vinha.js?v=41"></script>
+  <script src="js/explorar.js?v=41"></script>
+  <script src="js/proteger.js?v=41"></script>
+  <script src="js/garrafa.js?v=41"></script>
+  <script src="js/perfil.js?v=41"></script>
+  <script src="js/main.js?v=41"></script>
 </body>
 </html>

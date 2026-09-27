@@ -28,11 +28,27 @@ const TRANSLATIONS = {
     'nav.voltarQuinta': '⬅ Voltar à Quinta',
     'nav.voltar': '⬅ Voltar',
 
+    // Barra de navegação de baixo (só na Quinta e na Vinha, por agora)
+    'topbar.perfil': 'Perfil',
+    'nav.vinha': 'Vinha',
+    'nav.proteger': 'Proteger',
+    'nav.quinta': 'Quinta',
+    'nav.adega': 'Adega',
+    'nav.explorar': 'Explorar',
+    'vinha.verMaisTarefas': 'Ver mais trabalhos',
+
     'stat.uvas': 'Uvas',
     'stat.gotas': 'Gotas',
     'stat.reputacao': 'Reputação',
     'stat.garrafas': 'Garrafas',
     'stat.conhecimento': 'Conhecimento',
+
+    // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
+    'vinha.faseLabel': 'Fase',
+    'vinha.faseCurta.preparar': 'Preparação',
+    'vinha.faseCurta.preparada': 'Plantação',
+    'vinha.faseCurta.crescendo': 'Crescimento',
+    'vinha.faseCurta.pronta': 'Vindima',
 
     'vinha.title': 'A Vinha',
     'vinha.recursoResiduos': 'Resíduos',
@@ -45,6 +61,20 @@ const TRANSLATIONS = {
     'vinha.btnAdubar': 'Adubar',
     'vinha.btnCompostar': 'Compostagem',
     'vinha.btnColher': 'Colher (Vindima)',
+
+    // Nomes curtos, só para caber nas pastilhas da Vinha (ver botaoVinha()
+    // em js/vinha.js) — o nome completo acima continua a existir e pode
+    // ser usado noutro sítio (ex: mensagens).
+    'vinha.pillCavar': 'Cavar',
+    'vinha.pillErvas': 'Ervas',
+    'vinha.pillPlantar': 'Plantar',
+    'vinha.pillRegar': 'Regar',
+    'vinha.pillAdubar': 'Adubar',
+    'vinha.pillCompostar': 'Compostar',
+    'vinha.pillColher': 'Colher',
+    'vinha.pillPodar': 'Podar',
+    'vinha.pillRepararEstacas': 'Estacas',
+    'vinha.pillProtegerFrio': 'Frio',
     'vinha.fase.preparar.nome': 'Terra por preparar',
     'vinha.fase.preparar.desc': 'A terra está em pousio, pronta a ser revolvida antes de uma nova plantação.',
     'vinha.fase.preparada.nome': 'Terra preparada',
@@ -121,6 +151,8 @@ const TRANSLATIONS = {
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': 'Nova entrada desbloqueada!',
+    'explorar.novaEntradaCurta': 'Nova entrada!',
+    'explorar.btnLer': 'Ler',
     'explorar.tudoDesbloqueado': 'Já desbloqueaste todo o conhecimento sobre o Moscatel de Setúbal!',
     'explorar.nadaNestaEstacao': 'Já sabes tudo o que esta estação tem para ensinar. Volta noutra altura do ano para descobrires mais.',
     'explorar.btnVerEnciclopedia': 'Ver Enciclopédia',
@@ -163,6 +195,8 @@ const TRANSLATIONS = {
     'perfil.title': 'Perfil',
     'perfil.galeriaTitulo': 'Garrafas de Moscatel',
     'perfil.btnEnciclopedia': 'Ver Enciclopédia',
+    'perfil.btnSairInicio': 'Sair para o Início',
+    'perfil.vibracao': 'Vibração',
     'perfil.titulo.guardiao': 'Guardião da História do Moscatel',
     'perfil.semGarrafas': 'Ainda não criaste nenhuma garrafa.',
     'perfil.ultimaLabel': 'última',
@@ -192,11 +226,25 @@ const TRANSLATIONS = {
     'nav.voltarQuinta': '⬅ Back to the Farm',
     'nav.voltar': '⬅ Back',
 
+    'topbar.perfil': 'Profile',
+    'nav.vinha': 'Vineyard',
+    'nav.proteger': 'Protect',
+    'nav.quinta': 'Farm',
+    'nav.adega': 'Winery',
+    'nav.explorar': 'Explore',
+    'vinha.verMaisTarefas': 'See more tasks',
+
     'stat.uvas': 'Grapes',
     'stat.gotas': 'Drops',
     'stat.reputacao': 'Reputation',
     'stat.garrafas': 'Bottles',
     'stat.conhecimento': 'Knowledge',
+
+    'vinha.faseLabel': 'Phase',
+    'vinha.faseCurta.preparar': 'Preparation',
+    'vinha.faseCurta.preparada': 'Planting',
+    'vinha.faseCurta.crescendo': 'Growing',
+    'vinha.faseCurta.pronta': 'Harvest',
 
     'vinha.title': 'The Vineyard',
     'vinha.recursoResiduos': 'Organic Waste',
@@ -209,6 +257,18 @@ const TRANSLATIONS = {
     'vinha.btnAdubar': 'Fertilize',
     'vinha.btnCompostar': 'Composting',
     'vinha.btnColher': 'Harvest',
+
+    'vinha.pillCavar': 'Till',
+    'vinha.pillErvas': 'Weeds',
+    'vinha.pillPlantar': 'Plant',
+    'vinha.pillRegar': 'Water',
+    'vinha.pillAdubar': 'Fertilize',
+    'vinha.pillCompostar': 'Compost',
+    'vinha.pillColher': 'Harvest',
+    'vinha.pillPodar': 'Prune',
+    'vinha.pillRepararEstacas': 'Stakes',
+    'vinha.pillProtegerFrio': 'Cold',
+
     'vinha.fase.preparar.nome': 'Soil not yet prepared',
     'vinha.fase.preparar.desc': 'The land lies fallow, ready to be tilled before a new planting.',
     'vinha.fase.preparada.nome': 'Soil prepared',
@@ -280,6 +340,8 @@ const TRANSLATIONS = {
 
     'explorar.title': 'Explore',
     'explorar.subtitleNova': 'New entry unlocked!',
+    'explorar.novaEntradaCurta': 'New entry!',
+    'explorar.btnLer': 'Read',
     'explorar.tudoDesbloqueado': "You've unlocked all the knowledge about Setúbal Moscatel!",
     'explorar.nadaNestaEstacao': "You already know everything this season has to teach. Come back at another time of year to discover more.",
     'explorar.btnVerEnciclopedia': 'View Encyclopedia',
@@ -321,6 +383,8 @@ const TRANSLATIONS = {
     'perfil.title': 'Profile',
     'perfil.galeriaTitulo': 'Moscatel Bottles',
     'perfil.btnEnciclopedia': 'View Encyclopedia',
+    'perfil.btnSairInicio': 'Exit to the Start Screen',
+    'perfil.vibracao': 'Vibration',
     'perfil.titulo.guardiao': 'Guardian of Moscatel History',
     'perfil.semGarrafas': "You haven't made any bottles yet.",
     'perfil.ultimaLabel': 'latest',
@@ -350,11 +414,25 @@ const TRANSLATIONS = {
     'nav.voltarQuinta': '⬅ Volver a la Quinta',
     'nav.voltar': '⬅ Volver',
 
+    'topbar.perfil': 'Perfil',
+    'nav.vinha': 'Viñedo',
+    'nav.proteger': 'Proteger',
+    'nav.quinta': 'Quinta',
+    'nav.adega': 'Bodega',
+    'nav.explorar': 'Explorar',
+    'vinha.verMaisTarefas': 'Ver más tareas',
+
     'stat.uvas': 'Uvas',
     'stat.gotas': 'Gotas',
     'stat.reputacao': 'Reputación',
     'stat.garrafas': 'Botellas',
     'stat.conhecimento': 'Conocimiento',
+
+    'vinha.faseLabel': 'Fase',
+    'vinha.faseCurta.preparar': 'Preparación',
+    'vinha.faseCurta.preparada': 'Plantación',
+    'vinha.faseCurta.crescendo': 'Crecimiento',
+    'vinha.faseCurta.pronta': 'Vendimia',
 
     'vinha.title': 'El Viñedo',
     'vinha.recursoResiduos': 'Residuos',
@@ -367,6 +445,18 @@ const TRANSLATIONS = {
     'vinha.btnAdubar': 'Abonar',
     'vinha.btnCompostar': 'Compostaje',
     'vinha.btnColher': 'Cosechar (Vendimia)',
+
+    'vinha.pillCavar': 'Cavar',
+    'vinha.pillErvas': 'Hierbas',
+    'vinha.pillPlantar': 'Plantar',
+    'vinha.pillRegar': 'Regar',
+    'vinha.pillAdubar': 'Abonar',
+    'vinha.pillCompostar': 'Compostar',
+    'vinha.pillColher': 'Cosechar',
+    'vinha.pillPodar': 'Podar',
+    'vinha.pillRepararEstacas': 'Estacas',
+    'vinha.pillProtegerFrio': 'Frío',
+
     'vinha.fase.preparar.nome': 'Tierra sin preparar',
     'vinha.fase.preparar.desc': 'La tierra está en barbecho, lista para ser removida antes de una nueva plantación.',
     'vinha.fase.preparada.nome': 'Tierra preparada',
@@ -438,6 +528,8 @@ const TRANSLATIONS = {
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': '¡Nueva entrada desbloqueada!',
+    'explorar.novaEntradaCurta': '¡Nueva entrada!',
+    'explorar.btnLer': 'Leer',
     'explorar.tudoDesbloqueado': '¡Ya has desbloqueado todo el conocimiento sobre el Moscatel de Setúbal!',
     'explorar.nadaNestaEstacao': 'Ya sabes todo lo que esta estación tiene para enseñar. Vuelve en otra época del año para descubrir más.',
     'explorar.btnVerEnciclopedia': 'Ver Enciclopedia',
@@ -479,6 +571,8 @@ const TRANSLATIONS = {
     'perfil.title': 'Perfil',
     'perfil.galeriaTitulo': 'Botellas de Moscatel',
     'perfil.btnEnciclopedia': 'Ver Enciclopedia',
+    'perfil.btnSairInicio': 'Salir al Inicio',
+    'perfil.vibracao': 'Vibración',
     'perfil.titulo.guardiao': 'Guardián de la Historia del Moscatel',
     'perfil.semGarrafas': 'Todavía no has creado ninguna botella.',
     'perfil.ultimaLabel': 'última',
@@ -503,6 +597,12 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(function (el) {
     el.textContent = t(el.getAttribute('data-i18n'));
   });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+    el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+    el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
+  });
 }
 
 const LOCALE_DO_IDIOMA = { pt: 'pt-PT', en: 'en-GB', es: 'es-ES' };
@@ -517,6 +617,9 @@ function setLanguage(lang) {
   state.lang = lang;
   saveState(state);
   applyTranslations();
+  // Nomes com tamanhos diferentes por língua podem mudar se uma fila de
+  // pastilhas (ver js/main.js) ainda cabe toda ou passa a precisar de setas.
+  if (typeof atualizarTodasAsFilasDePastilhas === 'function') atualizarTodasAsFilasDePastilhas();
 }
 
 function selecionarLingua(lang) {

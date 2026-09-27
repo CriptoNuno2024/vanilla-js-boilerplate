@@ -120,12 +120,8 @@ function desbloquearEntradaEnciclopedia(id) {
   return entrada || null;
 }
 
-// HTML da pequena notícia "nova entrada desbloqueada", igual à do
-// Explorar — usado pela Adega quando uma ação desbloqueia uma entrada.
-function encyclopediaUnlockHtml(entrada) {
-  if (!entrada) return '';
-  return '<p class="game-subtitle" data-i18n="explorar.subtitleNova"></p>' +
-    '<div class="story-box"><strong>' + entrada.titulo + '</strong><br><br>' + entrada.texto + '</div>';
+function explorarTopcardHtml() {
+  return '<div class="topcard"><p class="mini-title" data-i18n="explorar.title"></p></div>';
 }
 
 function enterExplorar() {
@@ -135,22 +131,20 @@ function enterExplorar() {
   // Já sabe tudo o que existe, para sempre (mesmo contando as entradas
   // de estação que só aparecem 3 meses por ano).
   if (state.encyclopedia.unlocked.length >= encyclopediaEntries().length) {
-    container.innerHTML =
-      '<h2 data-i18n="explorar.title"></h2>' +
-      '<div class="story-box" data-i18n="explorar.tudoDesbloqueado"></div>' +
-      '<button class="btn btn-primary" onclick="goTo(\'enciclopedia\')" data-i18n="explorar.btnVerEnciclopedia"></button>';
+    container.innerHTML = explorarTopcardHtml();
     applyTranslations();
+    mostrarNovaEntrada(null);
+    atualizarDialogo(t('explorar.tudoDesbloqueado'), 'YoshiCat');
     return;
   }
 
   // Ainda há entradas por descobrir, mas nenhuma disponível nesta
   // estação — voltam a aparecer quando a estação certa chegar.
   if (bloqueadas.length === 0) {
-    container.innerHTML =
-      '<h2 data-i18n="explorar.title"></h2>' +
-      '<div class="story-box" data-i18n="explorar.nadaNestaEstacao"></div>' +
-      '<button class="btn btn-primary" onclick="goTo(\'enciclopedia\')" data-i18n="explorar.btnVerEnciclopedia"></button>';
+    container.innerHTML = explorarTopcardHtml();
     applyTranslations();
+    mostrarNovaEntrada(null);
+    atualizarDialogo(t('explorar.nadaNestaEstacao'), 'YoshiCat');
     return;
   }
 
@@ -160,20 +154,26 @@ function enterExplorar() {
   saveState(state);
   updateStatsDisplays();
 
-  container.innerHTML =
-    '<h2 data-i18n="explorar.title"></h2>' +
-    '<p class="game-subtitle" data-i18n="explorar.subtitleNova"></p>' +
-    '<div class="story-box"><strong>' + nova.titulo + '</strong><br><br>' + nova.texto + '</div>' +
-    '<button class="btn btn-primary" onclick="goTo(\'enciclopedia\')" data-i18n="explorar.btnVerEnciclopedia"></button>';
-
+  container.innerHTML = explorarTopcardHtml();
   applyTranslations();
+  mostrarNovaEntrada(nova);
+  atualizarDialogo('', '');
 }
 
 function renderEnciclopedia() {
   const container = document.getElementById('enciclopedia-container');
   const entradas = encyclopediaEntries();
 
-  const cardsHtml = entradas.map(function (e) {
+  // Desbloqueadas primeiro, bloqueadas ("???") no fim — dentro de cada
+  // grupo mantém-se a ordem de sempre (sort é estável).
+  const entradasOrdenadas = entradas.slice().sort(function (a, b) {
+    const aDesbloqueada = state.encyclopedia.unlocked.indexOf(a.id) !== -1;
+    const bDesbloqueada = state.encyclopedia.unlocked.indexOf(b.id) !== -1;
+    if (aDesbloqueada === bDesbloqueada) return 0;
+    return aDesbloqueada ? -1 : 1;
+  });
+
+  const cardsHtml = entradasOrdenadas.map(function (e) {
     const desbloqueada = state.encyclopedia.unlocked.indexOf(e.id) !== -1;
     if (desbloqueada) {
       const imagemHtml = e.imagem ? '<img src="' + e.imagem + '" alt="">' : '';
@@ -186,9 +186,12 @@ function renderEnciclopedia() {
   }).join('');
 
   container.innerHTML =
-    '<h2 data-i18n="enciclopedia.title"></h2>' +
-    '<p class="info-text">' + state.encyclopedia.unlocked.length + ' / ' + entradas.length + '</p>' +
-    '<div class="encyclopedia-grid">' + cardsHtml + '</div>';
+    '<div class="topcard">' +
+      '<p class="mini-title" data-i18n="enciclopedia.title"></p>' +
+      '<p class="mini-sub">' + state.encyclopedia.unlocked.length + ' / ' + entradas.length + '</p>' +
+    '</div>' +
+    '<div class="scroll-panel encyclopedia-grid">' + cardsHtml + '</div>';
 
+  atualizarDialogo('', '');
   applyTranslations();
 }

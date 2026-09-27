@@ -26,6 +26,10 @@ function defaultState() {
     garrafas: 0,
     conhecimento: 0,
     lang: 'pt',
+    // Interruptor "Vibração" no Perfil (ver js/perfil.js) — ligado por
+    // omissão. Só controla se vibrar() (js/main.js) chega a chamar o
+    // HapticFeedback do Telegram; fora do Telegram não tem efeito nenhum.
+    vibracao: true,
     ultimaGarrafaData: null,
     // Data/hora (Date.now()) da última vez que o progresso foi gravado
     // neste aparelho — usada por js/nuvem.js para saber se o localStorage

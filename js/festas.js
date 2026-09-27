@@ -123,10 +123,10 @@ const FESTAS_STRINGS = {
       diaGrandeAviso: 'Hoje é o dia de São Martinho! Os prémios contam a dobrar.',
       veraoAviso: 'Está verão de São Martinho! ☀️',
       tarefaFeitaHoje: 'já feita hoje',
-      btnCastanhas: '🌰 Assar Castanhas',
-      btnJeropiga: '🍇 Fazer Jeropiga',
-      btnProva: '🍷 Provar o Vinho Novo',
-      btnVoltar: '⬅ Voltar',
+      btnCastanhas: 'Assar Castanhas',
+      btnJeropiga: 'Fazer Jeropiga',
+      btnProva: 'Provar o Vinho Novo',
+      btnVoltar: 'Voltar',
 
       castanhasTitulo: 'O Assador de Castanhas',
       castanhasSubtitulo: 'O Chizo ajuda-te a defender o assador',
@@ -157,10 +157,10 @@ const FESTAS_STRINGS = {
       diaGrandeAviso: "Today is St. Martin's Day! Prizes count double.",
       veraoAviso: "It's St. Martin's summer! ☀️",
       tarefaFeitaHoje: 'already done today',
-      btnCastanhas: '🌰 Roast Chestnuts',
-      btnJeropiga: '🍇 Make Jeropiga',
-      btnProva: '🍷 Taste the New Wine',
-      btnVoltar: '⬅ Back',
+      btnCastanhas: 'Roast Chestnuts',
+      btnJeropiga: 'Make Jeropiga',
+      btnProva: 'Taste the New Wine',
+      btnVoltar: 'Back',
 
       castanhasTitulo: 'The Chestnut Roaster',
       castanhasSubtitulo: 'Chizo helps you defend the roaster',
@@ -191,10 +191,10 @@ const FESTAS_STRINGS = {
       diaGrandeAviso: '¡Hoy es el día de San Martín! Los premios cuentan el doble.',
       veraoAviso: '¡Está el veranillo de San Martín! ☀️',
       tarefaFeitaHoje: 'ya hecha hoy',
-      btnCastanhas: '🌰 Asar Castañas',
-      btnJeropiga: '🍇 Hacer Jeropiga',
-      btnProva: '🍷 Probar el Vino Nuevo',
-      btnVoltar: '⬅ Volver',
+      btnCastanhas: 'Asar Castañas',
+      btnJeropiga: 'Hacer Jeropiga',
+      btnProva: 'Probar el Vino Nuevo',
+      btnVoltar: 'Volver',
 
       castanhasTitulo: 'El Asador de Castañas',
       castanhasSubtitulo: 'El Chizo te ayuda a defender el asador',
@@ -248,22 +248,28 @@ function atualizarFaixaFesta() {
 // -----------------------------------------------------------------
 
 let festaMensagemAtual = '';
-let festaNovaEntradaHtml = '';
+let festaNovaEntrada = null;
 
 function botaoFesta(tarefa, label, feita, sufixoFeita) {
-  return '<button class="btn btn-primary" ' + (feita ? 'disabled' : '') +
-    ' onclick="iniciarTarefaFesta(\'' + tarefa + '\')">' + label +
+  return '<button class="btn-pill" ' + (feita ? 'disabled' : '') +
+    ' onclick="iniciarTarefaFesta(\'' + tarefa + '\')"><span>' + label + '</span>' +
     (feita ? '<span class="cooldown-suffix"> (' + sufixoFeita + ')</span>' : '') +
     '</button>';
 }
 
+// Cartão pequeno do topo da Festa (título + subtítulo + avisos do
+// dia grande / verão da festa, se houver).
+function festaTopcardHtml(S, subtitulo, extraHtml) {
+  return '<div class="topcard"><p class="mini-title">' + S.titulo + '</p><p class="mini-sub">' + subtitulo + '</p>' + (extraHtml || '') + '</div>';
+}
+
 function enterFesta() {
   festaMensagemAtual = '';
-  festaNovaEntradaHtml = '';
+  festaNovaEntrada = null;
   const festa = festaAtual();
   if (festa) {
-    festaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('lendaSaoMartinho'));
-    if (festaNovaEntradaHtml) saveState(state);
+    festaNovaEntrada = desbloquearEntradaEnciclopedia('lendaSaoMartinho');
+    if (festaNovaEntrada) saveState(state);
   }
   renderFestaHub();
 }
@@ -285,8 +291,8 @@ function renderFestaHub() {
   const ehVerao = tempo.disponivel && tempo.ceu === 'sol';
 
   let avisos = '';
-  if (diaGrande) avisos += '<p class="game-subtitle">' + S.diaGrandeAviso + '</p>';
-  if (ehVerao) avisos += '<p class="game-subtitle">' + S.veraoAviso + '</p>';
+  if (diaGrande) avisos += '<p class="mini-sub">' + S.diaGrandeAviso + '</p>';
+  if (ehVerao) avisos += '<p class="mini-sub">' + S.veraoAviso + '</p>';
 
   const botoesHtml =
     botaoFesta('castanhas', S.btnCastanhas, festaJaFezTarefaHoje(festa.id, 'castanhas'), S.tarefaFeitaHoje) +
@@ -294,21 +300,22 @@ function renderFestaHub() {
     botaoFesta('prova', S.btnProva, festaJaFezTarefaHoje(festa.id, 'prova'), S.tarefaFeitaHoje);
 
   container.innerHTML =
-    '<h2>' + S.titulo + '</h2>' +
-    '<p class="game-subtitle">' + S.subtitulo + '</p>' +
-    avisos +
-    '<p class="game-result">' + festaMensagemAtual + '</p>' +
-    festaNovaEntradaHtml +
-    '<div class="action-list">' + botoesHtml + '</div>';
+    festaTopcardHtml(S, S.subtitulo, avisos) +
+    construirFilaPastilhas('festa-pill-scroll', botoesHtml, 'vinha.verMaisTarefas');
 
   definirFundo('foto', diaGrande ? festa.imagens.diaGrande : festa.imagens.faixa);
+
+  marcarPastilhaPrincipal(container);
+  configurarFilaPastilhas('festa-pill-scroll');
+  mostrarNovaEntrada(festaNovaEntrada);
+  atualizarDialogo(festaMensagemAtual, 'YoshiCat');
 }
 
 function iniciarTarefaFesta(tarefa) {
   const festa = festaAtual();
   if (!festa) return;
   festaMensagemAtual = '';
-  festaNovaEntradaHtml = '';
+  festaNovaEntrada = null;
   if (tarefa === 'castanhas') iniciarCastanhas(festa);
   else if (tarefa === 'jeropiga') fazerJeropiga(festa);
   else if (tarefa === 'prova') provarVinhoNovo(festa);
@@ -331,16 +338,15 @@ function iniciarCastanhas(festa) {
 
   const container = document.getElementById('festa-container');
   container.innerHTML =
-    '<h2>' + S.castanhasTitulo + '</h2>' +
-    '<p class="game-subtitle">' + S.castanhasSubtitulo + '</p>' +
-    '<p class="game-question">' + cena.situacao + '</p>' +
-    '<div class="choice-list">' +
+    '<div class="topcard"><p class="mini-title">' + S.castanhasTitulo + '</p><p class="mini-sub">' + S.castanhasSubtitulo + '</p></div>' +
+    '<div class="action-panel"><div class="choice-stack">' +
     cena.opcoes.map(function (op, i) {
-      return '<button class="btn btn-secondary" onclick="responderCastanha(' + i + ')">' + op + '</button>';
+      return '<button type="button" class="btn-choice" onclick="responderCastanha(' + i + ')">' + op + '</button>';
     }).join('') +
-    '</div>';
+    '</div></div>';
 
   definirFundo('foto', festa.imagens.castanhasRoubo);
+  atualizarDialogo(cena.situacao, 'YoshiCat');
 }
 
 function responderCastanha(i) {
@@ -398,11 +404,11 @@ function mostrarResultadoCastanhas(mensagem, foto, magustoDesbloqueado) {
   const container = document.getElementById('festa-container');
   const S = fStr(castanhasFestaAtual.id);
   container.innerHTML =
-    '<h2>' + S.castanhasTitulo + '</h2>' +
-    '<p class="game-question">' + mensagem + '</p>' +
-    encyclopediaUnlockHtml(magustoDesbloqueado) +
-    '<button class="btn btn-primary" onclick="renderFestaHub()">' + S.btnVoltar + '</button>';
+    '<div class="topcard"><p class="mini-title">' + S.castanhasTitulo + '</p></div>' +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="renderFestaHub()">' + S.btnVoltar + '</button></div>';
   definirFundo('foto', foto);
+  mostrarNovaEntrada(magustoDesbloqueado);
+  atualizarDialogo(mensagem, 'YoshiCat');
 }
 
 // -----------------------------------------------------------------
@@ -436,17 +442,17 @@ function fazerJeropiga(festa) {
   state.adega.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: 0, festa: festa.id });
   festaRegistarTarefaHoje(festa.id, 'jeropiga');
 
-  const novaEntrada = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('jeropiga'));
+  const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');
 
   saveState(state);
   updateStatsDisplays();
 
   container.innerHTML =
-    '<h2>' + S.jeropigaTitulo + '</h2>' +
-    '<p class="game-question">' + S.jeropigaSucesso + ' (+1 ' + t('stat.garrafas') + ', +' + repGanha + ' ' + t('stat.reputacao') + ')</p>' +
-    novaEntrada +
-    '<button class="btn btn-primary" onclick="renderFestaHub()">' + S.btnVoltar + '</button>';
+    '<div class="topcard"><p class="mini-title">' + S.jeropigaTitulo + '</p></div>' +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="renderFestaHub()">' + S.btnVoltar + '</button></div>';
   definirFundo('foto', festa.imagens.jeropiga);
+  mostrarNovaEntrada(novaEntrada);
+  atualizarDialogo(S.jeropigaSucesso + ' (+1 ' + t('stat.garrafas') + ', +' + repGanha + ' ' + t('stat.reputacao') + ')', 'YoshiCat');
 }
 
 // -----------------------------------------------------------------
@@ -478,8 +484,8 @@ function provarVinhoNovo(festa) {
   updateStatsDisplays();
 
   container.innerHTML =
-    '<h2>' + S.provaTitulo + '</h2>' +
-    '<p class="game-question">' + S.provaComVinho + ' (+' + repGanha + ' ' + t('stat.reputacao') + ')</p>' +
-    '<button class="btn btn-primary" onclick="renderFestaHub()">' + S.btnVoltar + '</button>';
+    '<div class="topcard"><p class="mini-title">' + S.provaTitulo + '</p></div>' +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="renderFestaHub()">' + S.btnVoltar + '</button></div>';
   definirFundo('foto', festa.imagens.prova);
+  atualizarDialogo(S.provaComVinho + ' (+' + repGanha + ' ' + t('stat.reputacao') + ')', 'YoshiCat');
 }

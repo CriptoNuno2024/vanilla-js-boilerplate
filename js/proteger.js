@@ -20,10 +20,13 @@ const PROTEGER_STRINGS = {
     disfarcesIntro: 'Um dos montes de uvas ali à frente... não parece bem certo.',
     monteLabel: 'Monte',
     chizoSubtitulo: 'Não acordes o Chizo',
-    chizoBotao: '🐶 Alertar o Chizo!',
+    chizoExplicacao: 'Os porcos aproximam-se sozinhos. Alerta o Chizo antes que cheguem à porta!',
+    chizoComecar: 'Começar',
+    chizoBotao: 'Alertar o Chizo!',
     protegida: 'A Quinta está protegida!',
     naoCorreuBem: 'Desta vez não correu bem...',
     jogarNovamente: 'Jogar Novamente',
+    tentarOutraVez: 'Tentar Outra Vez',
     fechadura: [
       { situacao: 'O Fygmo2 tira o monóculo e mede a fechadura da Reserva Especial milimetricamente, à procura do ponto fraco.', opcoes: ['Trocar a fechadura por um cadeado reforçado', 'Ir embora e voltar amanhã', 'Gritar "quem está aí?" às escuras'], correta: 0 },
       { situacao: 'Um barulho de metal ecoa na cave — o Fygmo2 está a testar picos diferentes na fechadura.', opcoes: ['Ir dormir, deve ser só o vento', 'Colocar uma tranca extra na porta', 'Abrir a porta para ver quem é'], correta: 1 },
@@ -52,10 +55,13 @@ const PROTEGER_STRINGS = {
     disfarcesIntro: "One of the grape piles up ahead... doesn't look quite right.",
     monteLabel: 'Pile',
     chizoSubtitulo: "Don't wake up Chizo",
-    chizoBotao: '🐶 Alert Chizo!',
+    chizoExplicacao: 'The pigs are creeping closer on their own. Alert Chizo before they reach the door!',
+    chizoComecar: 'Start',
+    chizoBotao: 'Alert Chizo!',
     protegida: 'The Farm is protected!',
     naoCorreuBem: "It didn't go well this time...",
     jogarNovamente: 'Play Again',
+    tentarOutraVez: 'Try Again',
     fechadura: [
       { situacao: 'Fygmo2 pulls out his monocle and measures the Special Reserve lock millimeter by millimeter, looking for a weak spot.', opcoes: ['Swap the lock for a reinforced padlock', 'Walk away and come back tomorrow', 'Shout "who\'s there?" into the dark'], correta: 0 },
       { situacao: 'A metallic clatter echoes through the cellar — Fygmo2 is trying different picks on the lock.', opcoes: ['Go back to sleep, it must be the wind', 'Add an extra bolt to the door', 'Open the door to see who it is'], correta: 1 },
@@ -84,10 +90,13 @@ const PROTEGER_STRINGS = {
     disfarcesIntro: 'Uno de los montones de uvas ahí delante... no parece muy normal.',
     monteLabel: 'Montón',
     chizoSubtitulo: 'No despiertes al Chizo',
-    chizoBotao: '🐶 ¡Alertar al Chizo!',
+    chizoExplicacao: 'Los cerdos se acercan solos. ¡Alerta al Chizo antes de que lleguen a la puerta!',
+    chizoComecar: 'Empezar',
+    chizoBotao: '¡Alertar al Chizo!',
     protegida: '¡La Quinta está protegida!',
     naoCorreuBem: 'Esta vez no salió bien...',
     jogarNovamente: 'Jugar de Nuevo',
+    tentarOutraVez: 'Intentar de Nuevo',
     fechadura: [
       { situacao: 'El Fygmo2 saca el monóculo y mide la cerradura de la Reserva Especial al milímetro, buscando el punto débil.', opcoes: ['Cambiar la cerradura por un candado reforzado', 'Irte y volver mañana', 'Gritar "¿quién anda ahí?" a oscuras'], correta: 0 },
       { situacao: 'Un ruido metálico resuena en la bodega — el Fygmo2 está probando ganzúas distintas en la cerradura.', opcoes: ['Irte a dormir, debe de ser el viento', 'Poner un cerrojo extra en la puerta', 'Abrir la puerta para ver quién es'], correta: 1 },
@@ -170,7 +179,7 @@ function escolherTipoProteger() {
 let protegerRondaAtual = 1;
 let protegerRondasTotal = 1;
 let protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
-let protegerAvisoTempoHtml = '';
+let protegerAvisoTexto = '';
 
 function rondasProtegerPorTempo() {
   const tempo = tempoAtual();
@@ -186,13 +195,24 @@ function avisoTempoProteger() {
   return '';
 }
 
+// Cartão pequeno do topo (título + subtítulo do estilo atual + aviso do
+// tempo, se houver, + um indicador extra opcional — ver
+// chizoIndicadorHtml()) — igual em qualquer um dos 3 estilos do Proteger.
+function protegerTopcardHtml(S, subtitulo, indicadorHtml) {
+  return '<div class="topcard">' +
+    '<p class="mini-title">' + S.titulo + '</p>' +
+    '<p class="mini-sub">' + subtitulo + '</p>' +
+    (protegerAvisoTexto ? '<p class="mini-sub">' + protegerAvisoTexto + '</p>' : '') +
+    (indicadorHtml || '') +
+  '</div>';
+}
+
 function startProteger(continuando) {
   if (!continuando) {
     protegerRondaAtual = 1;
     protegerRondasTotal = rondasProtegerPorTempo();
     protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
-    const aviso = avisoTempoProteger();
-    protegerAvisoTempoHtml = aviso ? '<p class="game-subtitle">' + aviso + '</p>' : '';
+    protegerAvisoTexto = avisoTempoProteger();
   }
   const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
@@ -215,17 +235,15 @@ function renderFechadura() {
 
   const container = document.getElementById('proteger-container');
   container.innerHTML =
-    '<h2>' + S.titulo + '</h2>' +
-    protegerAvisoTempoHtml +
-    '<p class="game-subtitle">' + S.fechaduraSubtitulo + '</p>' +
-    '<p class="game-question">' + cena.situacao + '</p>' +
-    '<div class="choice-list">' +
+    protegerTopcardHtml(S, S.fechaduraSubtitulo) +
+    '<div class="action-panel"><div class="choice-stack">' +
     cena.opcoes.map((op, i) =>
-      '<button class="btn btn-secondary" onclick="responderFechadura(' + i + ')">' + op + '</button>'
+      '<button type="button" class="btn-choice" onclick="responderFechadura(' + i + ')">' + op + '</button>'
     ).join('') +
-    '</div>';
+    '</div></div>';
 
   definirFundo('foto', PROTEGER_FUNDOS.fechadura.src, PROTEGER_FUNDOS.fechadura.pos);
+  atualizarDialogo(cena.situacao, 'YoshiCat');
 }
 
 function responderFechadura(i) {
@@ -243,6 +261,9 @@ function responderFechadura(i) {
 let currentDisfarceIndex = -1;
 let currentDisfarcePorco = 'Fygmo';
 
+// Ícone simples de traço para os montes de uvas (substitui o emoji 🍇).
+const PROTEGER_UVA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="8" cy="15" r="2.8"></circle><circle cx="14" cy="17" r="2.8"></circle><circle cx="10" cy="10" r="2.8"></circle><circle cx="16" cy="12" r="2.8"></circle><path d="M11 4v3"></path><path d="M11 4c1.3-1.3 2.8-1.7 4.3-1.5"></path></svg>';
+
 function renderDisfarces() {
   ultimoTipoProteger = 'disfarces';
   const S = pStr();
@@ -251,17 +272,15 @@ function renderDisfarces() {
 
   const container = document.getElementById('proteger-container');
   container.innerHTML =
-    '<h2>' + S.titulo + '</h2>' +
-    protegerAvisoTempoHtml +
-    '<p class="game-subtitle">' + S.disfarcesSubtitulo + '</p>' +
-    '<p class="game-question">' + S.disfarcesIntro + '</p>' +
-    '<div class="options-grid">' +
+    protegerTopcardHtml(S, S.disfarcesSubtitulo) +
+    '<div class="action-panel"><div class="grid-2x2">' +
     [0, 1, 2, 3].map(function (i) {
-      return '<div class="option-card" onclick="responderDisfarce(' + i + ')">🍇<div class="option-label">' + S.monteLabel + ' ' + (i + 1) + '</div></div>';
+      return '<button type="button" class="btn-tile" onclick="responderDisfarce(' + i + ')">' + PROTEGER_UVA_SVG + '<span>' + S.monteLabel + ' ' + (i + 1) + '</span></button>';
     }).join('') +
-    '</div>';
+    '</div></div>';
 
   definirFundo('foto', PROTEGER_FUNDOS.disfarces.src, PROTEGER_FUNDOS.disfarces.pos);
+  atualizarDialogo(S.disfarcesIntro, 'YoshiCat');
 }
 
 function responderDisfarce(i) {
@@ -285,13 +304,52 @@ let chizoTimerId = null;
 let chizoSessao = 0;
 let chizoResolvido = false;
 
+// Cancela qualquer relógio do Chizo a correr — chamado quando se
+// sai do Proteger pela barra de baixo a meio do minijogo (ver
+// LIMPEZA_AO_SAIR_POR_ECRA em js/main.js). Sair conta como desistir:
+// sem penalização, só pára o relógio.
+function pararTemporizadorProteger() {
+  if (chizoTimerId) { clearTimeout(chizoTimerId); chizoTimerId = null; }
+  chizoResolvido = true;
+  chizoSessao++;
+}
+
+// Ícone simples de traço para o Chizo (substitui o emoji 🐶).
+const PROTEGER_CAO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M4 10c0-2 1.5-3 3-3l1.5 2h7L17 7c1.5 0 3 1 3 3v4c0 3-2.5 5-5 5h-6c-2.5 0-5-2-5-5v-4z"></path><path d="M8 19v2"></path><path d="M16 19v2"></path></svg>';
+
+// Indicador pequeno no cartão do topo: quão perto os porcos estão (um
+// pontinho aceso por passo já andado, de CHIZO_TOTAL_TURNOS).
+function chizoIndicadorHtml(turno) {
+  let pontos = '';
+  for (let i = 0; i < CHIZO_TOTAL_TURNOS; i++) {
+    pontos += '<span class="passo' + (i <= turno ? ' ativo' : '') + '"></span>';
+  }
+  return '<div class="passos-indicador">' + pontos + '</div>';
+}
+
+// O minijogo não começa sozinho: primeiro explica o desafio no balão e
+// espera um toque em "Começar" (comecarChizo()) — só aí é que o
+// relógio arranca de facto.
 function iniciarChizo() {
   ultimoTipoProteger = 'chizo';
+  pararTemporizadorProteger();
+  chizoTurnoAtual = 0;
+
+  const S = pStr();
+  const container = document.getElementById('proteger-container');
+  container.innerHTML =
+    protegerTopcardHtml(S, S.chizoSubtitulo, chizoIndicadorHtml(-1)) +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="comecarChizo()">' + S.chizoComecar + '</button></div>';
+
+  definirFundo('foto', PROTEGER_FUNDOS.chizo.src, PROTEGER_FUNDOS.chizo.pos);
+  atualizarDialogo(S.chizoExplicacao, 'YoshiCat');
+}
+
+function comecarChizo() {
   chizoSessao++;
   const minhaSessao = chizoSessao;
   chizoTurnoAtual = 0;
   chizoResolvido = false;
-  if (chizoTimerId) clearTimeout(chizoTimerId);
 
   renderChizo();
   agendarProximoTurnoChizo(minhaSessao);
@@ -317,13 +375,14 @@ function renderChizo() {
   const S = pStr();
   const container = document.getElementById('proteger-container');
   container.innerHTML =
-    '<h2>' + S.titulo + '</h2>' +
-    protegerAvisoTempoHtml +
-    '<p class="game-subtitle">' + S.chizoSubtitulo + '</p>' +
-    '<p class="game-question">' + S.chizoTurnos[chizoTurnoAtual] + '</p>' +
-    '<button class="btn btn-primary" onclick="alertarChizo()">' + S.chizoBotao + '</button>';
+    protegerTopcardHtml(S, S.chizoSubtitulo, chizoIndicadorHtml(chizoTurnoAtual)) +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="alertarChizo()">' + PROTEGER_CAO_SVG + ' <span>' + S.chizoBotao + '</span></button></div>';
 
   definirFundo('foto', PROTEGER_FUNDOS.chizo.src, PROTEGER_FUNDOS.chizo.pos);
+  // Exceção às falas sem temporizador (ver mostrarFalas() em
+  // js/main.js): dentro do minijogo com tempo, cada passo substitui a
+  // mensagem na hora, sem esperar por nenhum toque.
+  atualizarDialogo(S.chizoTurnos[chizoTurnoAtual], 'YoshiCat');
 }
 
 function alertarChizo() {
@@ -376,14 +435,25 @@ function finishProteger(venceu, mensagem) {
 }
 
 function showResultProteger(venceu, uvas, gotas, rep, mensagem) {
+  vibrar(venceu ? 'sucesso' : 'erro');
+
   const S = pStr();
   const container = document.getElementById('proteger-container');
+
+  // Ganhou: fica só o resultado no balão (a história, depois a
+  // recompensa — toca para ver a segunda) e sai-se pela barra de
+  // baixo, sem botão nenhum. Perdeu: fica um botão para tentar outra
+  // vez, com nome próprio (já não "Jogar Novamente").
+  const falas = [mensagem];
+  if (venceu) {
+    falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
+  }
+
   container.innerHTML =
-    '<h2>' + (venceu ? S.protegida : S.naoCorreuBem) + '</h2>' +
-    '<p class="game-question">' + mensagem + '</p>' +
-    (venceu ? '<p class="game-result">+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao') + '</p>' : '') +
-    '<button class="btn btn-primary" onclick="startProteger()">' + S.jogarNovamente + '</button>';
+    protegerTopcardHtml(S, venceu ? S.protegida : S.naoCorreuBem) +
+    (venceu ? '' : '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="startProteger()">' + S.tentarOutraVez + '</button></div>');
 
   const derrotaSrc = ultimoTipoProteger === 'chizo' ? PROTEGER_FUNDO_DERROTA_CHIZO : PROTEGER_FUNDO_DERROTA;
   definirFundo('foto', venceu ? PROTEGER_FUNDO_VITORIA : derrotaSrc);
+  mostrarFalas(falas, 'YoshiCat');
 }

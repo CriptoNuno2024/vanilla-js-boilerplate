@@ -50,6 +50,14 @@ const VINHA_FOTOS = {
   protegerFrio: TEMPO_CONFIG.imagens.protegerFrio
 };
 
+// Ponto de foco (background-position) para as fotos onde o corte
+// automático ao centro tapava a cabeça do YoshiCat — só aspeto, a
+// foto em si não muda. As que não estão aqui continuam ao centro.
+const VINHA_FOTO_POS = {};
+VINHA_FOTO_POS[VINHA_FOTOS.plantar] = 'center 15%';
+VINHA_FOTO_POS[VINHA_FOTOS.regar] = 'center 15%';
+VINHA_FOTO_POS[TEMPO_CONFIG.imagens.calor] = 'center 10%';
+
 // Fundo quando ainda não se fez nenhuma ação: depende da fase da vinha.
 const VINHA_FUNDO_POR_FASE = {
   preparar: 'cavar',
@@ -174,8 +182,17 @@ function aplicarChuvaAutomatica() {
 }
 
 let vinhaMensagemAtual = '';
-let vinhaNovaEntradaHtml = '';
+let vinhaNovaEntrada = null;
 let vinhaFotoAtual = null;
+
+// Estado do cartão pequeno do topo (aberto/fechado) — só aspeto, ver
+// renderVinha() e alternarCartaoVinha() mais abaixo.
+let vinhaCartaoAberto = false;
+
+function alternarCartaoVinha() {
+  vinhaCartaoAberto = !vinhaCartaoAberto;
+  renderVinha();
+}
 
 // Pré-carrega só a foto de uma ação que está visível, para não descarregar
 // as 7 fotos de uma vez no telemóvel.
@@ -203,28 +220,49 @@ function registarCooldownVinha(actionKey) {
 
 function enterVinha() {
   vinhaMensagemAtual = '';
-  vinhaNovaEntradaHtml = '';
+  vinhaNovaEntrada = null;
   vinhaFotoAtual = null;
+  vinhaCartaoAberto = false;
   aplicarChuvaAutomatica();
   renderVinha();
 }
 
 // sufixoBloqueado: texto a mostrar quando bloqueado por bloqueadoExtra
 // (sem cooldown), ex: "(já feita)" na Poda depois de usada.
+// Aspeto: cada trabalho é agora um botão-pastilha (ver .btn-pill no
+// index.html); a classe pill-main/pill-off é decidida à parte, depois
+// de todos os botões estarem no DOM (ver marcarPastilhaPrincipal()).
+const RELOGIO_PASTILHA_SVG = '<svg class="pill-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>';
+
 function botaoVinha(actionKey, i18nKey, bloqueadoExtra, sufixoBloqueado) {
   const restante = tempoRestanteVinha(actionKey);
   const bloqueado = restante > 0 || !!bloqueadoExtra;
-  const sufixo = restante > 0 ? (' (' + formatarTempoVinha(restante) + ')') :
+  const sufixo = restante > 0 ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') :
     (bloqueadoExtra && sufixoBloqueado ? (' (' + sufixoBloqueado + ')') : '');
   const temBonusTempo = actionKey === 'regar' && tempoAtual().calorForte;
   const bonusHtml = (acaoTemBonusEstacao(actionKey) || temBonusTempo)
     ? ' <span class="bonus-suffix">' + t(VINHA_BONUS_LABEL_KEY[actionKey]) + '</span>'
     : '';
   if (!bloqueado) preCarregarFotoVinha(actionKey);
-  return '<button class="btn btn-primary" ' + (bloqueado ? 'disabled' : '') +
+  return '<button class="btn-pill" ' + (bloqueado ? 'disabled' : '') +
     ' onclick="executarAcaoVinha(\'' + actionKey + '\')">' +
     '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixo + '</span>' + bonusHtml +
     '</button>';
+}
+
+// O primeiro botão disponível (não bloqueado) da fila fica em destaque
+// a dourado (pill-main); os restantes, disponíveis ou não, ficam escuros.
+function marcarPastilhaPrincipal(container) {
+  const pastilhas = container.querySelectorAll('.pill-scroll .btn-pill');
+  let jaMarcou = false;
+  pastilhas.forEach(function (btn) {
+    if (!btn.disabled && !jaMarcou) {
+      btn.classList.add('pill-main');
+      jaMarcou = true;
+    } else if (btn.disabled) {
+      btn.classList.add('pill-off');
+    }
+  });
 }
 
 function renderVinha() {
@@ -234,73 +272,90 @@ function renderVinha() {
   let botoesHtml = '';
 
   if (v.fase === 'preparar') {
-    botoesHtml += botaoVinha('cavar', 'vinha.btnCavar');
+    botoesHtml += botaoVinha('cavar', 'vinha.pillCavar');
   } else if (v.fase === 'preparada') {
-    botoesHtml += botaoVinha('ervas', 'vinha.btnErvas');
-    botoesHtml += botaoVinha('plantar', 'vinha.btnPlantar');
+    botoesHtml += botaoVinha('ervas', 'vinha.pillErvas');
+    botoesHtml += botaoVinha('plantar', 'vinha.pillPlantar');
   } else if (v.fase === 'crescendo') {
-    botoesHtml += botaoVinha('regar', 'vinha.btnRegar');
-    botoesHtml += botaoVinha('adubar', 'vinha.btnAdubar', v.adubo < 1);
-    botoesHtml += botaoVinha('ervas', 'vinha.btnErvas');
+    botoesHtml += botaoVinha('regar', 'vinha.pillRegar');
+    botoesHtml += botaoVinha('adubar', 'vinha.pillAdubar', v.adubo < 1);
+    botoesHtml += botaoVinha('ervas', 'vinha.pillErvas');
   } else if (v.fase === 'pronta') {
-    botoesHtml += botaoVinha('colher', 'vinha.btnColher');
+    botoesHtml += botaoVinha('colher', 'vinha.pillColher');
   }
 
   // Compostagem: sempre disponível, independente da fase da vinha.
-  botoesHtml += botaoVinha('compostagem', 'vinha.btnCompostar', v.residuos < RESIDUOS_POR_COMPOSTAGEM);
+  botoesHtml += botaoVinha('compostagem', 'vinha.pillCompostar', v.residuos < RESIDUOS_POR_COMPOSTAGEM);
 
   // Poda: tarefa extra, só aparece no inverno, uma vez por inverno (ver
   // REGRAS_PODA). Fica ativa mesmo antes de a vinha estar plantada —
   // se ainda não estiver, executarAcaoVinha mostra a mensagem a explicar.
   if (estacaoAtual() === REGRAS_PODA.estacao) {
-    botoesHtml += botaoVinha('podar', 'vinha.btnPodar', jaPodouEsteInverno(), t('vinha.podaJaFeita'));
+    botoesHtml += botaoVinha('podar', 'vinha.pillPodar', jaPodouEsteInverno(), t('vinha.podaJaFeita'));
   }
 
   // Tarefas extra do tempo real de Setúbal: só aparecem quando o tempo
   // está mesmo assim (vento forte / frio forte), uma vez por dia.
   const tempo = tempoAtual();
   if (tempo.ventoForte) {
-    botoesHtml += botaoVinha('repararEstacas', 'vinha.btnRepararEstacas', jaFezTarefaTempoHoje('estacasDia'), t('vinha.tarefaFeitaHoje'));
+    botoesHtml += botaoVinha('repararEstacas', 'vinha.pillRepararEstacas', jaFezTarefaTempoHoje('estacasDia'), t('vinha.tarefaFeitaHoje'));
   }
   if (tempo.frioForte) {
-    botoesHtml += botaoVinha('protegerFrio', 'vinha.btnProtegerFrio', jaFezTarefaTempoHoje('frioDia'), t('vinha.tarefaFeitaHoje'));
+    botoesHtml += botaoVinha('protegerFrio', 'vinha.pillProtegerFrio', jaFezTarefaTempoHoje('frioDia'), t('vinha.tarefaFeitaHoje'));
   }
 
-  const progressoHtml = (v.fase === 'crescendo' || v.fase === 'pronta')
-    ? '<p class="phase-progress"><span data-i18n="vinha.cuidadoLabel"></span>: ' + v.pontosCuidado + ' / ' + PONTOS_CUIDADO_NECESSARIOS + '</p>'
+  const cuidadoHtml = (v.fase === 'crescendo' || v.fase === 'pronta')
+    ? '<span class="mini-sub"><span data-i18n="vinha.cuidadoLabel"></span>: ' + v.pontosCuidado + ' / ' + PONTOS_CUIDADO_NECESSARIOS + '</span>'
     : '';
   const bonusPodaHtml = v.bonusPoda
     ? '<p class="phase-progress">' + t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100)) + '</p>'
     : '';
 
+  // Cartão pequeno do topo, encostado ao canto superior esquerdo — só
+  // "A Vinha · Setembro", "Fase: X" e "Cuidado: n/5" ficam sempre
+  // visíveis; o resto (descrição, fase real, recursos) só aparece
+  // quando se toca no cartão (ver alternarCartaoVinha() e .topcard no
+  // index.html — é um componente genérico, não só da Vinha).
+  const corpoHtml = vinhaCartaoAberto
+    ? '<div class="cartao-corpo">' +
+        '<p class="phase-desc" data-i18n="' + faseInfo.descKey + '"></p>' +
+        bonusPodaHtml +
+        '<p class="phase-desc-real">' + t('vinha.faseRealLabel') + ' ' + t('vinha.faseReal.' + faseRealAtual()) + '</p>' +
+        '<div class="chrome-mini-stats">' +
+          '<div class="resource-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M4 20c8 0 15-6 15-15-9 0-15 7-15 15z"></path><path d="M9 15l7-7"></path></svg> ' + v.residuos + ' <span data-i18n="vinha.recursoResiduos"></span></div>' +
+          '<div class="resource-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 21c0-5 0-9 0-12"></path><path d="M12 9c0-3-2-5-5-5 0 3 2 5 5 5z"></path><path d="M12 13c0-3 2-5 5-5 0 3-2 5-5 5z"></path></svg> ' + v.adubo + ' <span data-i18n="vinha.recursoAdubo"></span></div>' +
+        '</div>' +
+      '</div>'
+    : '';
+
+  const miniCardHtml =
+    '<button type="button" class="topcard-header" onclick="alternarCartaoVinha()" aria-expanded="' + vinhaCartaoAberto + '">' +
+      '<span class="cartao-textos">' +
+        '<span class="mini-title"><span data-i18n="vinha.title"></span> · ' + nomeMesAtual() + '</span>' +
+        '<span class="mini-sub"><span data-i18n="vinha.faseLabel"></span>: ' + t('vinha.faseCurta.' + v.fase) + '</span>' +
+        cuidadoHtml +
+      '</span>' +
+      '<svg class="cartao-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 9l6 6 6-6"></path></svg>' +
+    '</button>' +
+    corpoHtml;
+
   container.innerHTML =
-    '<h2 data-i18n="vinha.title"></h2>' +
-    '<div class="phase-card">' +
-      '<p class="phase-nome" data-i18n="' + faseInfo.nomeKey + '"></p>' +
-      '<p class="phase-desc" data-i18n="' + faseInfo.descKey + '"></p>' +
-      progressoHtml +
-      bonusPodaHtml +
-    '</div>' +
-    '<div class="phase-card">' +
-      '<p class="phase-nome" data-i18n="vinha.faseRealLabel"></p>' +
-      '<p class="phase-desc">' + t('vinha.faseReal.' + faseRealAtual()) + '</p>' +
-    '</div>' +
-    '<div class="stats-bar">' +
-      '<div class="stat-item"><span class="stat-icon">🍂</span><span class="stat-value">' + v.residuos + '</span><span class="stat-label" data-i18n="vinha.recursoResiduos"></span></div>' +
-      '<div class="stat-item"><span class="stat-icon">🌿</span><span class="stat-value">' + v.adubo + '</span><span class="stat-label" data-i18n="vinha.recursoAdubo"></span></div>' +
-    '</div>' +
-    '<p class="game-result">' + vinhaMensagemAtual + '</p>' +
-    vinhaNovaEntradaHtml +
-    '<div class="action-list">' + botoesHtml + '</div>';
+    '<div class="topcard' + (vinhaCartaoAberto ? ' aberto' : '') + '">' + miniCardHtml + '</div>' +
+    construirFilaPastilhas('vinha-pill-scroll', botoesHtml, 'vinha.verMaisTarefas');
 
-  definirFundo('foto', vinhaFotoAtual || fundoTempoVinha() || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]]);
+  const fotoFundoVinha = vinhaFotoAtual || fundoTempoVinha() || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]];
+  definirFundo('foto', fotoFundoVinha, VINHA_FOTO_POS[fotoFundoVinha]);
 
+  marcarPastilhaPrincipal(container);
+  configurarFilaPastilhas('vinha-pill-scroll');
+  mostrarNovaEntrada(vinhaNovaEntrada);
+  atualizarDialogo(vinhaMensagemAtual, 'YoshiCat');
   applyTranslations();
 }
 
 function executarAcaoVinha(actionKey) {
   vinhaFotoAtual = null;
-  vinhaNovaEntradaHtml = '';
+  vinhaNovaEntrada = null;
 
   if (tempoRestanteVinha(actionKey) > 0) {
     vinhaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(tempoRestanteVinha(actionKey)));
@@ -382,7 +437,7 @@ function executarAcaoVinha(actionKey) {
     v.invernoPodado = idInvernoAtual();
     v.bonusPoda = true;
     vinhaMensagemAtual = t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100));
-    vinhaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('poda'));
+    vinhaNovaEntrada = desbloquearEntradaEnciclopedia('poda');
     vinhaFotoAtual = VINHA_FOTOS.podar;
     saveState(state);
     updateStatsDisplays();

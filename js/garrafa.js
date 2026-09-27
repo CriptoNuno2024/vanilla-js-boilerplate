@@ -53,9 +53,7 @@ const ADEGA_COOLDOWN_MS = {
   alambique: 3 * 60 * 60 * 1000  // 3h
 };
 
-// Fotos de fundo de cada passo. bagaco.jpg e cave_de_inverno.jpg são
-// fotos altas — o corte por omissão (centrado, ao cimo) já não corta
-// o chapéu do YoshiCat nelas, por isso não precisam de posição própria.
+// Fotos de fundo de cada passo.
 const ADEGA_FOTOS = {
   prensar: 'assets/vinha/prensar.jpg',
   alambique: 'assets/ecras/bagaco.jpg',
@@ -64,9 +62,30 @@ const ADEGA_FOTOS = {
   engarrafar: 'assets/vinha/engarrafar.jpg'
 };
 
+// Ponto de foco (background-position) para as fotos onde o corte
+// automático ao centro tapava a cabeça do YoshiCat — só aspeto, a
+// foto em si não muda. As que não estão aqui continuam ao centro.
+const ADEGA_FOTO_POS = {};
+ADEGA_FOTO_POS[ADEGA_FOTOS.prensar] = 'center 15%';
+ADEGA_FOTO_POS[ADEGA_FOTOS.alambique] = 'center 10%';
+
 let adegaMensagemAtual = '';
-let adegaNovaEntradaHtml = '';
+let adegaNovaEntrada = null;
 let adegaFotoAtual = null;
+
+// Estado do cartão pequeno do topo (aberto/fechado) — só aspeto, mesmo
+// padrão da Vinha (ver alternarCartaoVinha() em js/vinha.js).
+let adegaCartaoAberto = false;
+
+function alternarCartaoAdega() {
+  adegaCartaoAberto = !adegaCartaoAberto;
+  renderAdega();
+}
+
+// Ícones simples de traço para o Bagaço e a Aguardente (substituem os
+// emojis 🟤 e 🥃).
+const ADEGA_BAGACO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="9" cy="10" r="2.2"></circle><circle cx="15" cy="10" r="2.2"></circle><circle cx="12" cy="15.5" r="2.2"></circle></svg>';
+const ADEGA_AGUARDENTE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M9.5 3h5"></path><path d="M10.5 3v6.5L5.8 18a2 2 0 0 0 1.7 3h9a2 2 0 0 0 1.7-3l-4.7-8.5V3"></path></svg>';
 
 function preCarregarFotoAdega(chave) {
   if (ADEGA_FOTOS[chave]) new Image().src = ADEGA_FOTOS[chave];
@@ -112,8 +131,9 @@ function registarCooldownAdega(acao) {
 
 function renderGarrafaScreen() {
   adegaMensagemAtual = '';
-  adegaNovaEntradaHtml = '';
+  adegaNovaEntrada = null;
   adegaFotoAtual = null;
+  adegaCartaoAberto = false;
   preCarregarFotoAdega('prensar');
   preCarregarFotoAdega('alambique');
   renderAdega();
@@ -123,9 +143,9 @@ function botaoAdega(acao, i18nKey, bloqueado, sufixoExtra) {
   const restante = tempoRestanteAdega(acao);
   const emCooldown = restante > 0;
   const desabilitado = emCooldown || !!bloqueado;
-  const sufixoCooldown = emCooldown ? (' (' + formatarTempoVinha(restante) + ')') : (sufixoExtra || '');
+  const sufixoCooldown = emCooldown ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') : (sufixoExtra || '');
   if (!desabilitado) preCarregarFotoAdega(acao);
-  return '<button class="btn btn-primary" ' + (desabilitado ? 'disabled' : '') +
+  return '<button class="btn-pill" ' + (desabilitado ? 'disabled' : '') +
     ' onclick="executarAcaoAdega(\'' + acao + '\')">' +
     '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixoCooldown + '</span>' +
     '</button>';
@@ -140,7 +160,7 @@ function renderAdega() {
   botoesHtml += botaoAdega('prensar', 'adega.btnPrensar', state.uvas < ADEGA_CUSTO_UVAS_PRENSAR);
   botoesHtml += botaoAdega('alambique', 'adega.btnAlambique', a.bagaco < ADEGA_CUSTO_BAGACO_ALAMBIQUE);
 
-  let caveHtml = '';
+  let corpoHtml = '';
   if (temLote) {
     const dias = diasDescansadosNaCave();
     const diasCompletos = Math.floor(dias);
@@ -148,39 +168,54 @@ function renderAdega() {
     const repPrevista = reputacaoDaCave(diasCompletos);
     const sufixoEngarrafar = pronto ? '' : (' (' + formatarDiasAdega(REGRAS_DESCANSO_CAVE.diasMinimos - dias) + ')');
 
-    caveHtml =
-      '<div class="phase-card">' +
-        '<p class="phase-nome" data-i18n="adega.caveTitulo"></p>' +
+    if (adegaCartaoAberto) {
+      corpoHtml = '<div class="cartao-corpo">' +
         '<p class="phase-desc" data-i18n="garrafa.passo3"></p>' +
         '<p class="phase-progress">' + t('adega.caveDescansado').replace('{tempo}', formatarDiasAdega(dias)) + '</p>' +
         '<p class="phase-progress">' + t('adega.caveReputacaoPrevista').replace('{valor}', repPrevista) + '</p>' +
       '</div>';
+    }
     botoesHtml += botaoAdega('engarrafar', 'adega.btnEngarrafar', !pronto, sufixoEngarrafar);
   } else {
+    if (adegaCartaoAberto) {
+      corpoHtml = '<div class="cartao-corpo"><p class="phase-desc" data-i18n="garrafa.descricao"></p></div>';
+    }
     botoesHtml += botaoAdega('fortificar', 'adega.btnFortificar',
       state.gotas < ADEGA_CUSTO_GOTAS_FORTIFICAR || a.aguardente < ADEGA_CUSTO_AGUARDENTE_FORTIFICAR);
   }
 
-  container.innerHTML =
-    '<h2 data-i18n="garrafa.title"></h2>' +
-    '<div class="stats-bar">' +
-      '<div class="stat-item"><span class="stat-icon">🍇</span><span class="stat-value">' + state.uvas + '</span><span class="stat-label" data-i18n="stat.uvas"></span></div>' +
-      '<div class="stat-item"><span class="stat-icon">💧</span><span class="stat-value">' + state.gotas + '</span><span class="stat-label" data-i18n="stat.gotas"></span></div>' +
-      '<div class="stat-item"><span class="stat-icon">🟤</span><span class="stat-value">' + a.bagaco + '</span><span class="stat-label" data-i18n="adega.recursoBagaco"></span></div>' +
-      '<div class="stat-item"><span class="stat-icon">🥃</span><span class="stat-value">' + a.aguardente + '</span><span class="stat-label" data-i18n="adega.recursoAguardente"></span></div>' +
-    '</div>' +
-    caveHtml +
-    '<p class="game-result">' + adegaMensagemAtual + '</p>' +
-    adegaNovaEntradaHtml +
-    '<div class="action-list">' + botoesHtml + '</div>';
+  const cartaoHtml =
+    '<div class="topcard' + (adegaCartaoAberto ? ' aberto' : '') + '">' +
+      '<button type="button" class="topcard-header" onclick="alternarCartaoAdega()" aria-expanded="' + adegaCartaoAberto + '">' +
+        '<span class="cartao-textos">' +
+          '<span class="mini-title" data-i18n="garrafa.title"></span>' +
+          '<span class="chrome-mini-stats">' +
+            '<span class="resource-item">' + ADEGA_BAGACO_SVG + ' <span data-i18n="adega.recursoBagaco"></span> ' + a.bagaco + '</span>' +
+            '<span class="resource-item">' + ADEGA_AGUARDENTE_SVG + ' <span data-i18n="adega.recursoAguardente"></span> ' + a.aguardente + '</span>' +
+          '</span>' +
+        '</span>' +
+        '<svg class="cartao-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 9l6 6 6-6"></path></svg>' +
+      '</button>' +
+      corpoHtml +
+    '</div>';
 
-  definirFundo('foto', adegaFotoAtual || (temLote ? ADEGA_FOTOS.cave : ADEGA_FOTOS.prensar));
+  container.innerHTML =
+    cartaoHtml +
+    construirFilaPastilhas('adega-pill-scroll', botoesHtml, 'vinha.verMaisTarefas');
+
+  const fotoFundoAdega = adegaFotoAtual || (temLote ? ADEGA_FOTOS.cave : ADEGA_FOTOS.prensar);
+  definirFundo('foto', fotoFundoAdega, ADEGA_FOTO_POS[fotoFundoAdega]);
+
+  marcarPastilhaPrincipal(container);
+  configurarFilaPastilhas('adega-pill-scroll');
+  mostrarNovaEntrada(adegaNovaEntrada);
+  atualizarDialogo(adegaMensagemAtual, 'YoshiCat');
   applyTranslations();
 }
 
 function executarAcaoAdega(acao) {
   adegaFotoAtual = null;
-  adegaNovaEntradaHtml = '';
+  adegaNovaEntrada = null;
   const a = state.adega;
 
   if (tempoRestanteAdega(acao) > 0) {
@@ -214,7 +249,7 @@ function executarAcaoAdega(acao) {
     a.aguardente += 1;
     registarCooldownAdega('alambique');
     adegaMensagemAtual = t('adega.flavorAlambique') + ' ' + t('adega.resultadoAlambique');
-    adegaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('bagacoAlambique'));
+    adegaNovaEntrada = desbloquearEntradaEnciclopedia('bagacoAlambique');
     adegaFotoAtual = ADEGA_FOTOS.alambique;
   } else if (acao === 'fortificar') {
     if (a.lote) {
@@ -231,7 +266,7 @@ function executarAcaoAdega(acao) {
     a.aguardente -= ADEGA_CUSTO_AGUARDENTE_FORTIFICAR;
     a.lote = { iniciadoEm: Date.now() };
     adegaMensagemAtual = t('garrafa.passo2') + ' ' + t('adega.resultadoFortificar');
-    adegaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('aguardenteAdega'));
+    adegaNovaEntrada = desbloquearEntradaEnciclopedia('aguardenteAdega');
     adegaFotoAtual = ADEGA_FOTOS.fortificar;
   } else if (acao === 'engarrafar') {
     if (!a.lote) return;
@@ -248,7 +283,7 @@ function executarAcaoAdega(acao) {
     a.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: diasCompletos });
     a.lote = null;
     adegaMensagemAtual = t('garrafa.passo4') + ' ' + t('adega.resultadoEngarrafar').replace('{rep}', repGanha);
-    adegaNovaEntradaHtml = encyclopediaUnlockHtml(desbloquearEntradaEnciclopedia('curtimenta'));
+    adegaNovaEntrada = desbloquearEntradaEnciclopedia('curtimenta');
     adegaFotoAtual = ADEGA_FOTOS.engarrafar;
   } else {
     return;
