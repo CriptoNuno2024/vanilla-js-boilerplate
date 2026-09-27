@@ -19,10 +19,10 @@ const PROTEGER_STRINGS = {
     disfarcesSubtitulo: 'Onde se escondem os disfarces de uva?',
     disfarcesIntro: 'Um dos montes de uvas ali à frente... não parece bem certo.',
     monteLabel: 'Monte',
-    chizoSubtitulo: 'Não acordes o Chizo',
-    chizoExplicacao: 'Os porcos aproximam-se sozinhos. Alerta o Chizo antes que cheguem à porta!',
+    chizoSubtitulo: 'Acorda o Chizo a tempo',
+    chizoExplicacao: 'Os porcos aproximam-se sozinhos. Acorda o Chizo no momento certo: nem cedo demais, nem tarde demais!',
     chizoComecar: 'Começar',
-    chizoBotao: 'Alertar o Chizo!',
+    chizoBotao: 'Acordar o Chizo!',
     protegida: 'A Quinta está protegida!',
     naoCorreuBem: 'Desta vez não correu bem...',
     jogarNovamente: 'Jogar Novamente',
@@ -40,11 +40,11 @@ const PROTEGER_STRINGS = {
     chizoTurnos: [
       'O Fygmo e o Fygmo2 aproximam-se devagar da adega, escondidos entre as sombras...',
       'O Fygmo faz sinal ao Fygmo2 para avançarem mais um pouco...',
-      'Estão quase a meio caminho da porta da adega...',
-      'Só mais um passo e chegam à porta!'
+      'Já se ouvem os passos deles junto à porta da adega...',
+      'O Fygmo já está a abrir a porta da adega!'
     ],
     chizoVitoria: 'O Chizo acorda a tempo e ladra! O Fygmo e o Fygmo2 fogem a correr, de mãos a abanar.',
-    chizoCedo: 'Falso alarme — o Chizo mal abre um olho e volta a adormecer. O Fygmo e o Fygmo2 continuam a aproximar-se.',
+    chizoCedo: 'Falso alarme — o Chizo mal abre um olho e volta a adormecer. Os porcos esperam que ele ressone e fogem com parte da colheita.',
     chizoTarde: 'Tarde demais... o Fygmo e o Fygmo2 já fugiram com parte da colheita.'
   },
 
@@ -54,10 +54,10 @@ const PROTEGER_STRINGS = {
     disfarcesSubtitulo: 'Where are the grape disguises hiding?',
     disfarcesIntro: "One of the grape piles up ahead... doesn't look quite right.",
     monteLabel: 'Pile',
-    chizoSubtitulo: "Don't wake up Chizo",
-    chizoExplicacao: 'The pigs are creeping closer on their own. Alert Chizo before they reach the door!',
+    chizoSubtitulo: 'Wake Chizo in time',
+    chizoExplicacao: 'The pigs are creeping closer on their own. Wake Chizo at the right moment: not too early, not too late!',
     chizoComecar: 'Start',
-    chizoBotao: 'Alert Chizo!',
+    chizoBotao: 'Wake Chizo!',
     protegida: 'The Farm is protected!',
     naoCorreuBem: "It didn't go well this time...",
     jogarNovamente: 'Play Again',
@@ -75,11 +75,11 @@ const PROTEGER_STRINGS = {
     chizoTurnos: [
       'Fygmo and Fygmo2 creep slowly toward the cellar, hidden among the shadows...',
       'Fygmo signals Fygmo2 to move forward a little more...',
-      "They're almost halfway to the cellar door...",
-      'Just one more step and they reach the door!'
+      'You can already hear their footsteps by the cellar door...',
+      'Fygmo is already opening the cellar door!'
     ],
     chizoVitoria: 'Chizo wakes up just in time and barks! Fygmo and Fygmo2 run off empty-handed.',
-    chizoCedo: 'False alarm — Chizo barely opens one eye and falls back asleep. Fygmo and Fygmo2 keep creeping closer.',
+    chizoCedo: 'False alarm — Chizo barely opens one eye and falls back asleep. The pigs wait for him to snore and run off with part of the harvest.',
     chizoTarde: 'Too late... Fygmo and Fygmo2 have already fled with part of the harvest.'
   },
 
@@ -89,10 +89,10 @@ const PROTEGER_STRINGS = {
     disfarcesSubtitulo: '¿Dónde se esconden los disfraces de uva?',
     disfarcesIntro: 'Uno de los montones de uvas ahí delante... no parece muy normal.',
     monteLabel: 'Montón',
-    chizoSubtitulo: 'No despiertes al Chizo',
-    chizoExplicacao: 'Los cerdos se acercan solos. ¡Alerta al Chizo antes de que lleguen a la puerta!',
+    chizoSubtitulo: 'Despierta a Chizo a tiempo',
+    chizoExplicacao: 'Los cerdos se acercan solos. Despierta a Chizo en el momento justo: ¡ni demasiado pronto, ni demasiado tarde!',
     chizoComecar: 'Empezar',
-    chizoBotao: '¡Alertar al Chizo!',
+    chizoBotao: '¡Despertar a Chizo!',
     protegida: '¡La Quinta está protegida!',
     naoCorreuBem: 'Esta vez no salió bien...',
     jogarNovamente: 'Jugar de Nuevo',
@@ -108,14 +108,14 @@ const PROTEGER_STRINGS = {
     disfarceVitoria: function (porco) { return '¡Debajo de las hojas estaba el ' + porco + ', atrapado con las manos en la masa intentando huir con la cosecha!'; },
     disfarceDerrota: function (porco) { return 'Era solo uva de verdad... mientras tanto, el ' + porco + ' escapa con un cesto lleno.'; },
     chizoTurnos: [
-      'El Fygmo y el Fygmo2 se acercan despacio a la bodega, escondidos entre las sombras...',
-      'El Fygmo le hace una señal al Fygmo2 para que avance un poco más...',
-      'Ya están casi a mitad de camino de la puerta de la bodega...',
-      '¡Un paso más y llegan a la puerta!'
+      'Fygmo y Fygmo2 se acercan despacio a la bodega, escondidos entre las sombras...',
+      'Fygmo le hace una señal a Fygmo2 para que avance un poco más...',
+      'Ya se oyen sus pasos junto a la puerta de la bodega...',
+      '¡Fygmo ya está abriendo la puerta de la bodega!'
     ],
-    chizoVitoria: '¡El Chizo se despierta a tiempo y ladra! El Fygmo y el Fygmo2 huyen corriendo con las manos vacías.',
-    chizoCedo: 'Falsa alarma — el Chizo apenas abre un ojo y vuelve a dormirse. El Fygmo y el Fygmo2 siguen acercándose.',
-    chizoTarde: 'Demasiado tarde... el Fygmo y el Fygmo2 ya han huido con parte de la cosecha.'
+    chizoVitoria: '¡Chizo se despierta a tiempo y ladra! Fygmo y Fygmo2 huyen corriendo con las manos vacías.',
+    chizoCedo: 'Falsa alarma — Chizo apenas abre un ojo y vuelve a dormirse. Los cerdos esperan a que ronque y huyen con parte de la cosecha.',
+    chizoTarde: 'Demasiado tarde... Fygmo y Fygmo2 ya han huido con parte de la cosecha.'
   }
 };
 
