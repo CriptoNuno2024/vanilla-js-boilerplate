@@ -215,4 +215,38 @@ function atualizarLinhaTempoQuinta() {
   el.textContent = t('tempo.agoraLabel') + ' ' + icone + ' ' + t('tempo.ceu.' + tempo.ceu) + ', ' + Math.round(tempo.tempC) + ' °C';
 }
 
+// ---------------------------------------------------------------------
+// SOM DO TEMPO (ver js/som.js) — chuva de ambiente na Quinta e na Vinha
+// (ver goTo() em js/main.js e enterVinha() em js/vinha.js), e um trovão
+// ao entrar num desses dois ecrãs quando o tempo real for trovoada.
+// Nunca toca nada se "Som" estiver desligado (ver somPodeTocar() em
+// js/som.js) — essas funções já ficam mudas sozinhas nesse caso.
+// ---------------------------------------------------------------------
+const SOM_TEMPO_CHUVA_NORMAL = 'assets/sons/chuva.mp3';
+const SOM_TEMPO_CHUVA_FORTE = 'assets/sons/chuva_sempreritmo.mp3';
+const SOM_TEMPO_TROVOES = ['assets/sons/trovao_1.mp3', 'assets/sons/trovao_2_forte.mp3'];
+
+// Liga ou desliga o ambiente de chuva consoante o tempo real: chuva
+// forte/tempestade em trovoada, chuva normal em chuva, nada nos outros
+// tempos (ver pararSomAmbiente()).
+function atualizarAmbienteChuva() {
+  const tempo = tempoAtual();
+  if (tempo.disponivel && tempo.ceu === 'trovoada') {
+    iniciarSomAmbiente(SOM_TEMPO_CHUVA_FORTE, 0.18);
+  } else if (tempo.disponivel && tempo.ceu === 'chuva') {
+    iniciarSomAmbiente(SOM_TEMPO_CHUVA_NORMAL, 0.12);
+  } else {
+    pararSomAmbiente();
+  }
+}
+
+// Só chamada ao entrar na Quinta/Vinha (nunca num refresco periódico) —
+// toca um dos dois trovões, escolhido ao calhas, uma única vez.
+function tocarTrovaoSeTrovoada() {
+  const tempo = tempoAtual();
+  if (!tempo.disponivel || tempo.ceu !== 'trovoada') return;
+  const escolhido = SOM_TEMPO_TROVOES[randInt(0, SOM_TEMPO_TROVOES.length - 1)];
+  tocarSomFicheiro(escolhido, 0.6);
+}
+
 garantirTempoAtualizado().then(atualizarLinhaTempoQuinta);

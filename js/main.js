@@ -216,6 +216,11 @@ function mostrarFalaAtual() {
   if (entrada && typeof entrada === 'object' && entrada.foto) {
     definirFundo('foto', entrada.foto, entrada.pos);
   }
+  // Som ligado a uma fala em concreto (ver js/som.js e js/historia.js,
+  // ex.: o Chizo a ladrar quando aparece à porta na história do Nível 2).
+  if (entrada && typeof entrada === 'object' && entrada.som) {
+    tocarSomFicheiro(entrada.som);
+  }
 
   nomeEl.textContent = dialogoNomeAtual;
   msgEl.textContent = textoDaFala(entrada);
@@ -511,6 +516,8 @@ function goTo(screen, opcoes) {
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();
       atualizarFaixaFesta();
+      atualizarAmbienteChuva();
+      tocarTrovaoSeTrovoada();
     });
   }
 

@@ -237,6 +237,10 @@ function enterVinha() {
   aplicarChuvaAutomatica();
   renderVinha();
   iniciarRelogioVinha();
+  garantirTempoAtualizado().then(function () {
+    atualizarAmbienteChuva();
+    tocarTrovaoSeTrovoada();
+  });
 }
 
 // sufixoBloqueado: texto a mostrar quando bloqueado por bloqueadoExtra
