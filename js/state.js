@@ -30,6 +30,10 @@ function defaultState() {
     // omissão. Só controla se vibrar() (js/main.js) chega a chamar o
     // HapticFeedback do Telegram; fora do Telegram não tem efeito nenhum.
     vibracao: true,
+    // Interruptor "Som" no Perfil (ver js/perfil.js e js/som.js) — ligado
+    // por omissão, tal como a Vibração. Só controla os efeitos sonoros
+    // (nunca música); se estiver desligado, js/som.js não toca nada.
+    som: true,
     ultimaGarrafaData: null,
     // Data/hora (Date.now()) da última vez que o progresso foi gravado
     // neste aparelho — usada por js/nuvem.js para saber se o localStorage
