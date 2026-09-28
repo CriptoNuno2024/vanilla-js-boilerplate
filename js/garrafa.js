@@ -289,6 +289,7 @@ function executarAcaoAdega(acao) {
     return;
   }
 
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('adega_' + acao);
   saveState(state);
   updateStatsDisplays();
   renderAdega();

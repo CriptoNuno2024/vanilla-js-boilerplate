@@ -356,6 +356,7 @@ function responderCastanha(i) {
   const venceu = i === cena.correta;
 
   festaRegistarTarefaHoje(festa.id, 'castanhas');
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
 
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const tempo = tempoAtual();
@@ -441,6 +442,7 @@ function fazerJeropiga(festa) {
   state.ultimaGarrafaData = new Date().toLocaleDateString(localeAtual());
   state.adega.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: 0, festa: festa.id });
   festaRegistarTarefaHoje(festa.id, 'jeropiga');
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
 
   const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');
 
@@ -476,6 +478,7 @@ function provarVinhoNovo(festa) {
   }
 
   festaRegistarTarefaHoje(festa.id, 'prova');
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const repGanha = festa.recompensas.prova.reputacao * (diaGrande ? festa.recompensas.multiplicadorDiaGrande : 1);
   state.reputacao += repGanha;

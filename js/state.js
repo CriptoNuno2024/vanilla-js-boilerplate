@@ -74,6 +74,30 @@ function defaultState() {
     // FESTAS_CONFIG, sem mexer aqui.
     festas: {
       tarefasDia: {}
+    },
+    // Limite diário de vitórias com prémio no Proteger (ver js/proteger.js
+    // e diaLisboaDeHoje() em js/tempo.js — usa sempre o dia em Lisboa,
+    // independente do fuso do jogador).
+    proteger: {
+      diaVitoriasLisboa: null,
+      vitoriasComPremioHoje: 0
+    },
+    // Níveis da Quinta (ver js/niveis.js), calculados a partir da
+    // Reputação total. nivelMostrado: null significa "ainda por decidir" —
+    // a primeira vez que o jogo corre (mesmo para quem já tinha
+    // progresso), calcula-se o nível real e guarda-se aqui sem mostrar
+    // nenhum balão, para nunca "spammar" subidas de nível antigas.
+    niveis: {
+      nivelMostrado: null
+    },
+    // Objetivos diários "Hoje na Quinta" (ver js/objetivos.js). dia usa
+    // sempre o dia em Lisboa. selosTotal nunca desce, mesmo que um dia
+    // fique incompleto.
+    objetivos: {
+      dia: null,
+      lista: [],
+      bonusDiaDado: false,
+      selosTotal: 0
     }
   };
 }

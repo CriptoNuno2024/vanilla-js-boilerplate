@@ -151,6 +151,7 @@ function enterExplorar() {
   const nova = bloqueadas[randInt(0, bloqueadas.length - 1)];
   state.encyclopedia.unlocked.push(nova.id);
   state.conhecimento += 1;
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('explorar_descobrir');
   saveState(state);
   updateStatsDisplays();
 
