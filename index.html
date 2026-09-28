@@ -78,7 +78,15 @@
     #fundo.modo-capa .fundo-nitido {
       background-image: url('Yoshi_Cat.jpg');
       background-size: cover;
-      background-position: center bottom;
+      /* "bottom -12px": a própria Yoshi_Cat.jpg tem uma faixa quase
+         branca nas últimas ~10 linhas de píxeis (canto de exportação da
+         foto) — sem este afastamento, "bottom" sozinho encostava essa
+         faixa exatamente à borda de baixo, mostrando-a como uma risca
+         clara entre a foto e a barra de botões. O deslocamento esconde
+         essa faixa (fica fora da caixa) sem tocar no ficheiro da foto.
+         Não confundir com o "pos" que definirFundo() (js/main.js) passa
+         por parâmetro — este é sempre fixo, só para a capa. */
+      background-position: center bottom -12px;
       bottom: var(--barra-home);
     }
 
