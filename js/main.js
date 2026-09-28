@@ -53,17 +53,25 @@ function showMessage(msg) {
 //                (pos) é opcional e diz que parte da foto mostrar quando
 //                é preciso cortar (ex: 'right top' põe o corte à
 //                direita); sem ele, corta ao centro.
-function definirFundo(modo, src, pos) {
+// size (opcional): normalmente cada foto preenche a caixa toda,
+// cortando o que sobra ("cover" — ver CSS). Só a imagem dos "disfarces
+// de uva" no Proteger (ver PROTEGER_FUNDOS em js/proteger.js) usa
+// size: 'contain', porque o YoshiCat e o porco ficam demasiado perto
+// das pontas para um corte ao centro os mostrar aos dois — a foto
+// desfocada por trás (a mesma imagem) preenche o que sobra dos lados.
+function definirFundo(modo, src, pos, size) {
   const fundo = document.getElementById('fundo');
   const imagem = (modo === 'foto' && src) ? 'url("' + src + '")' : '';
   const nitido = fundo.querySelector('.fundo-nitido');
   const posicao = (modo === 'foto' && pos) ? pos : '';
+  const tamanho = (modo === 'foto' && size) ? size : '';
 
   fundo.className = 'modo-' + modo;
   fundo.querySelectorAll('div').forEach(function (camada) {
     if (camada.style.backgroundImage !== imagem) camada.style.backgroundImage = imagem;
   });
   if (nitido.style.backgroundPosition !== posicao) nitido.style.backgroundPosition = posicao;
+  if (nitido.style.backgroundSize !== tamanho) nitido.style.backgroundSize = tamanho;
 }
 
 // Foto de fundo de cada ecrã. null = ainda sem foto própria, usa a
@@ -371,6 +379,30 @@ const ECRAS_PRINCIPAIS_BARRA = ['vinha', 'proteger', 'quinta', 'garrafa', 'explo
 // como qualquer outra navegação, sem regra especial nenhuma.
 let historicoEcras = [];
 
+// Cartão do topo da Quinta: encolhe/estica como o da Vinha/Adega (ver
+// alternarCartaoVinha() em js/vinha.js), só que aqui o corpo fica
+// sempre no HTML (ver #screen-quinta em index.html) e é uma classe CSS
+// (".topcard.aberto", ver index.html) que o mostra ou esconde — porque
+// o corpo é preenchido por vários ficheiros diferentes (estação, tempo,
+// festa, nível, objetivos), não por um render único como na Vinha.
+// Começa sempre encolhido (ver goTo() acima, que repõe isto a cada
+// entrada na Quinta).
+let quintaCartaoAberto = false;
+
+function alternarCartaoQuinta() {
+  quintaCartaoAberto = !quintaCartaoAberto;
+  atualizarAspetoCartaoQuinta();
+}
+
+function atualizarAspetoCartaoQuinta() {
+  const topcard = document.getElementById('quinta-topcard');
+  if (!topcard) return;
+  topcard.classList.toggle('aberto', quintaCartaoAberto);
+  const header = topcard.querySelector('.topcard-header');
+  if (header) header.setAttribute('aria-expanded', quintaCartaoAberto);
+  if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+}
+
 function goTo(screen, opcoes) {
   opcoes = opcoes || {};
   // Ecrã de onde se está a sair — antes de trocar nada, cancela
@@ -403,8 +435,11 @@ function goTo(screen, opcoes) {
   atualizarLinhaTempoQuinta();
   atualizarFaixaFesta();
   if (screen === 'quinta') {
+    quintaCartaoAberto = false;
     if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
+    if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+    atualizarAspetoCartaoQuinta();
     if (typeof verificarSubidaNivel === 'function') verificarSubidaNivel();
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();

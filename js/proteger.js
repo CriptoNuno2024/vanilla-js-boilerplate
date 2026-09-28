@@ -125,7 +125,10 @@ function pStr() {
 
 // Fundo de cada momento do Proteger.
 const PROTEGER_FUNDOS = {
-  disfarces: { src: 'assets/ecras/apontar_esquerda.jpg' },
+  // 'contain' em vez do corte normal ao centro: nesta foto o YoshiCat e
+  // o porco ficam nas pontas, e um corte ao centro quase não os mostra
+  // (ver definirFundo() em js/main.js). Já era assim antes do Bocado 1.
+  disfarces: { src: 'assets/ecras/apontar_esquerda.jpg', size: 'contain' },
   fechadura: { src: 'assets/ecras/adega_juntos.jpg', pos: 'right top' },
   chizo: { src: 'assets/ecras/chizo_vinha.jpg' }
 };
@@ -303,7 +306,7 @@ function renderDisfarces() {
     }).join('') +
     '</div></div>';
 
-  definirFundo('foto', PROTEGER_FUNDOS.disfarces.src, PROTEGER_FUNDOS.disfarces.pos);
+  definirFundo('foto', PROTEGER_FUNDOS.disfarces.src, PROTEGER_FUNDOS.disfarces.pos, PROTEGER_FUNDOS.disfarces.size);
   atualizarDialogo(S.disfarcesIntro, 'YoshiCat');
 }
 
