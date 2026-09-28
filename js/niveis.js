@@ -9,11 +9,11 @@
 
 const NIVEIS_CONFIG = [
   { min: 0, nomeKey: 'nivel.nome.1' },
-  { min: 10, nomeKey: 'nivel.nome.2' },
-  { min: 30, nomeKey: 'nivel.nome.3' },
-  { min: 60, nomeKey: 'nivel.nome.4' },
-  { min: 120, nomeKey: 'nivel.nome.5' },
-  { min: 250, nomeKey: 'nivel.nome.6' }
+  { min: 15, nomeKey: 'nivel.nome.2' },
+  { min: 50, nomeKey: 'nivel.nome.3' },
+  { min: 120, nomeKey: 'nivel.nome.4' },
+  { min: 300, nomeKey: 'nivel.nome.5' },
+  { min: 600, nomeKey: 'nivel.nome.6' }
 ];
 
 // Índice 1-based (nível 1 a 6) — o último cujo limiar já foi atingido.
