@@ -69,17 +69,61 @@ function atualizarCartaoNivelQuinta() {
 }
 
 // Chamada só quando se entra na Quinta (ver goTo() em js/main.js) — se o
-// nível calculado agora for maior do que o último mostrado, avisa com
-// um balão (usa o nome final, mesmo que se tenha subido mais do que um
-// nível de uma vez) e vibra.
+// nível calculado agora for maior do que o último mostrado, mostra a
+// história desse(s) nível(eis) (ver mostrarHistoriaSubidaNivel() em
+// js/historia.js — junta a história de TODOS os níveis passados, por
+// ordem, se se tiver subido mais do que um de uma vez) e vibra.
 function verificarSubidaNivel() {
+  const nivelAntigo = state.niveis.nivelMostrado;
   const nivelAtual = nivelPelaReputacao(state.reputacao);
-  if (nivelAtual <= state.niveis.nivelMostrado) return;
+  if (nivelAtual <= nivelAntigo) return;
 
   state.niveis.nivelMostrado = nivelAtual;
   saveState(state);
 
-  const info = NIVEIS_CONFIG[nivelAtual - 1];
-  mostrarFalas(t('nivel.subiuMsg').replace('{n}', nivelAtual).replace('{nome}', t(info.nomeKey)), 'YoshiCat');
+  if (typeof mostrarHistoriaSubidaNivel === 'function') {
+    mostrarHistoriaSubidaNivel(nivelAntigo, nivelAtual);
+  } else {
+    const info = NIVEIS_CONFIG[nivelAtual - 1];
+    mostrarFalas(t('nivel.subiuMsg').replace('{n}', nivelAtual).replace('{nome}', t(info.nomeKey)), 'YoshiCat');
+  }
   vibrar('sucesso');
+}
+
+// ---------------------------------------------------------------------
+// ÁREAS POR NÍVEL — a Vinha e a Quinta (o hub) estão sempre abertas;
+// estes são os outros ecrãs, e o nível mínimo para cada um. Um jogador
+// ANTIGO (ver state.acesso.jogadorAntigo, js/state.js) ignora sempre
+// esta tabela — nunca perde acesso ao que já tinha.
+// ---------------------------------------------------------------------
+const NIVEL_NECESSARIO_POR_ECRA = {
+  proteger: 2,
+  garrafa: 3,
+  explorar: 4,
+  enciclopedia: 4,
+  festa: 4
+};
+
+function ecraDesbloqueado(screen) {
+  if (state.acesso.jogadorAntigo) return true;
+  const nivelPreciso = NIVEL_NECESSARIO_POR_ECRA[screen];
+  if (!nivelPreciso) return true; // ecrã sem tranca (Vinha, Quinta, Perfil, Língua, Capa)
+  return nivelPelaReputacao(state.reputacao) >= nivelPreciso;
+}
+
+// Mensagem ao tocar num ecrã ainda trancado (ver goTo() em js/main.js),
+// ex.: "Abre no Nível 3 · Quinta Produtora — faltam 12 de Reputação."
+function mostrarMensagemTrancada(screen) {
+  const nivelPreciso = NIVEL_NECESSARIO_POR_ECRA[screen];
+  if (!nivelPreciso) return;
+  const info = NIVEIS_CONFIG[nivelPreciso - 1];
+  const faltam = Math.max(0, info.min - state.reputacao);
+  mostrarFalas(
+    t('acesso.trancado')
+      .replace('{n}', nivelPreciso)
+      .replace('{nome}', t(info.nomeKey))
+      .replace('{faltam}', faltam),
+    'YoshiCat'
+  );
+  vibrar('leve');
 }

@@ -185,6 +185,19 @@ function reposicionarFlutuantes() {
 let dialogoFila = [];
 let dialogoIndice = 0;
 let dialogoNomeAtual = 'YoshiCat';
+// true quando a fila atual é uma história com foto própria (ver
+// js/historia.js) — nesse caso, ao tocar depois da última fala, o fundo
+// volta ao normal do ecrã atual (ver avancarFala() e
+// restaurarFundoDoEcraAtual() abaixo) em vez de ficar preso na foto.
+let dialogoComFotoPropria = false;
+
+// Cada entrada da fila pode ser só texto (como sempre foi) ou um objeto
+// { texto, foto, pos } — usado pela história (ver js/historia.js) para
+// trocar a foto de fundo em falas certas, sem afetar nenhuma das
+// chamadas antigas, que continuam a passar só texto.
+function textoDaFala(entrada) {
+  return (entrada && typeof entrada === 'object') ? entrada.texto : entrada;
+}
 
 function mostrarFalaAtual() {
   const bolha = document.getElementById('app-dialogue');
@@ -199,8 +212,13 @@ function mostrarFalaAtual() {
     return;
   }
 
+  const entrada = dialogoFila[dialogoIndice];
+  if (entrada && typeof entrada === 'object' && entrada.foto) {
+    definirFundo('foto', entrada.foto, entrada.pos);
+  }
+
   nomeEl.textContent = dialogoNomeAtual;
-  msgEl.textContent = dialogoFila[dialogoIndice];
+  msgEl.textContent = textoDaFala(entrada);
   bolha.hidden = false;
   if (setaEl) setaEl.classList.toggle('oculto', dialogoIndice >= dialogoFila.length - 1);
   reposicionarFlutuantes();
@@ -214,17 +232,27 @@ function avancarFala() {
   if (dialogoIndice < dialogoFila.length - 1) {
     dialogoIndice++;
     mostrarFalaAtual();
+    return;
+  }
+  // Já estava na última fala: se era uma história com foto própria,
+  // este toque fecha-a e devolve o fundo ao normal do ecrã atual.
+  if (dialogoComFotoPropria) {
+    dialogoComFotoPropria = false;
+    restaurarFundoDoEcraAtual();
+    mostrarFalas([]);
   }
 }
 
-// mensagens pode ser uma frase só ou uma lista de frases (a fila).
+// mensagens pode ser uma frase só, uma lista de frases, ou (só a
+// história, ver js/historia.js) uma lista de { texto, foto, pos }.
 // Entradas vazias são ignoradas. Chamar sem mensagens (ou só com
 // vazias) esconde o balão.
 function mostrarFalas(mensagens, nome) {
-  const lista = (Array.isArray(mensagens) ? mensagens : [mensagens]).filter(function (m) { return !!m; });
+  const lista = (Array.isArray(mensagens) ? mensagens : [mensagens]).filter(function (m) { return !!textoDaFala(m); });
   dialogoFila = lista;
   dialogoIndice = 0;
   dialogoNomeAtual = nome || 'YoshiCat';
+  dialogoComFotoPropria = lista.some(function (m) { return m && typeof m === 'object' && m.foto; });
   mostrarFalaAtual();
 }
 
@@ -403,8 +431,44 @@ function atualizarAspetoCartaoQuinta() {
   if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
 }
 
+// Aplica o fundo "normal" do ecrã atualmente ativo — usado por goTo() ao
+// mudar de ecrã, e também por avancarFala() (ver acima) para devolver o
+// fundo ao normal depois de uma história com foto própria terminar. Não
+// cobre os ecrãs com fundo dinâmico próprio (Vinha, Adega, Proteger) —
+// esses já tratam do seu fundo sempre que renderizam, e a história nunca
+// corre lá (só na Quinta, por agora).
+function restaurarFundoDoEcraAtual() {
+  const ativo = document.querySelector('.screen.active');
+  const screen = ativo ? ativo.id.replace(/^screen-/, '') : null;
+  const fundoEcra = FUNDO_DOS_ECRAS[screen];
+  if (screen === 'home') definirFundo('capa');
+  else if (fundoEcra) definirFundo('foto', fundoEcra.src, fundoEcra.pos);
+  else if (screen in FUNDO_DOS_ECRAS) definirFundo('paisagem');
+}
+
+// Cadeado na barra de baixo: acrescenta a classe "trancado" aos botões
+// cujo ecrã ainda não está aberto (ver ecraDesbloqueado() em
+// js/niveis.js) — só se atualiza ao mudar de ecrã, tal como o resto do
+// cartão da Quinta (estação, tempo, ...).
+function atualizarNavBloqueios() {
+  if (typeof ecraDesbloqueado !== 'function') return;
+  document.querySelectorAll('#app-bottomnav .nav-btn').forEach(function (btn) {
+    const screen = btn.dataset.screen;
+    btn.classList.toggle('trancado', !ecraDesbloqueado(screen));
+  });
+}
+
 function goTo(screen, opcoes) {
   opcoes = opcoes || {};
+
+  // Ecrã ainda trancado (ver ecraDesbloqueado() em js/niveis.js): mostra
+  // a mensagem no balão do ecrã atual e não navega — jogadores antigos
+  // (ver state.acesso.jogadorAntigo) nunca caem aqui.
+  if (typeof ecraDesbloqueado === 'function' && !ecraDesbloqueado(screen)) {
+    if (typeof mostrarMensagemTrancada === 'function') mostrarMensagemTrancada(screen);
+    return;
+  }
+
   // Ecrã de onde se está a sair — antes de trocar nada, cancela
   // qualquer temporizador de minijogo que esse ecrã tenha registado
   // (ver registarLimpezaAoSair()). Sair a meio de um minijogo conta
@@ -425,10 +489,7 @@ function goTo(screen, opcoes) {
   document.getElementById('screen-' + screen).classList.add('active');
   document.body.classList.toggle('tela-home', screen === 'home');
   atualizarChromeNovoAspeto(screen);
-  const fundoEcra = FUNDO_DOS_ECRAS[screen];
-  if (screen === 'home') definirFundo('capa');
-  else if (fundoEcra) definirFundo('foto', fundoEcra.src, fundoEcra.pos);
-  else if (screen in FUNDO_DOS_ECRAS) definirFundo('paisagem');
+  restaurarFundoDoEcraAtual();
   updateStatsDisplays();
   applyTranslations();
   atualizarLinhaEstacaoQuinta();
@@ -440,6 +501,7 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
+    if (typeof mostrarHistoriaIntro === 'function') mostrarHistoriaIntro();
     if (typeof verificarSubidaNivel === 'function') verificarSubidaNivel();
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();
@@ -456,6 +518,7 @@ function goTo(screen, opcoes) {
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
 
+  atualizarNavBloqueios();
   atualizarBotaoVoltarTelegram();
 }
 

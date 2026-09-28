@@ -224,6 +224,13 @@ function nuvemSincronizarAoAbrir() {
     // e refresca o ecrã atual com os novos valores.
     state = mergeDeep(defaultState(), estadoNuvem);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Só agora (progresso local + nuvem já juntos) é que se pode
+    // confirmar com segurança se é um jogador antigo — ver
+    // avaliarJogadorAntigo() em js/state.js. Sem isto, um veterano num
+    // aparelho novo (ou com a memória limpa) só teria o seu progresso de
+    // volta neste momento, e sem este novo despiste ficaria trancado como
+    // se fosse um jogador novo.
+    if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
     nuvemAtualizarEcraAposSync();
   });
 }

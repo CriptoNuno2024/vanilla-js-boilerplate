@@ -365,7 +365,32 @@ function renderVinha() {
   applyTranslations();
 }
 
+// "Primeiros Passos" — a primeira vez de sempre que cada ação da Vinha
+// tem sucesso dá um pequeno prémio extra de Reputação, para um jogador
+// novo chegar cedo aos primeiros níveis (ver Áreas por Nível em
+// js/niveis.js). +4 (não +3): garante o Nível 2 (15) já na primeira
+// visita com as 4 ações sempre possíveis nessa altura (Cavar, Plantar,
+// Ervas, Regar — 4×4=16), sem depender de sorte nos Resíduos da ação
+// "Ervas". Cada ação só dá este prémio uma vez, para sempre.
+const VINHA_PRIMEIRO_PASSO_PONTOS = 4;
+
+function premiarPrimeiroPasso(actionKey) {
+  if (state.vinha.primeirosPassos[actionKey]) return '';
+  state.vinha.primeirosPassos[actionKey] = true;
+  state.reputacao += VINHA_PRIMEIRO_PASSO_PONTOS;
+  return ' ' + t('vinha.primeiroPassoMsg').replace('{n}', VINHA_PRIMEIRO_PASSO_PONTOS);
+}
+
+// Se esta ação fez o jogador subir de nível, junta um aviso curto a
+// dizer para voltar à Quinta ver a história (ver js/historia.js) — sem
+// isto, quem nunca voltasse à Quinta nunca chegaria a ver essa história.
+function sufixoSeSubiuNivel(nivelAntes) {
+  if (typeof nivelPelaReputacao !== 'function') return '';
+  return nivelPelaReputacao(state.reputacao) > nivelAntes ? ' ' + t('vinha.subiuNivelAviso') : '';
+}
+
 function executarAcaoVinha(actionKey) {
+  const nivelAntes = typeof nivelPelaReputacao === 'function' ? nivelPelaReputacao(state.reputacao) : 0;
   vinhaFotoAtual = null;
   vinhaNovaEntrada = null;
 
@@ -433,9 +458,9 @@ function executarAcaoVinha(actionKey) {
     let sufixoColheita = ' (+' + uvasGanhas + ' ' + t('stat.uvas');
     if (repGanha > 0) sufixoColheita += ', +' + repGanha + ' ' + t('stat.reputacao');
     sufixoColheita += ')';
-    vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita;
-    vinhaFotoAtual = VINHA_FOTOS.colher;
     if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_colher');
+    vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita + premiarPrimeiroPasso('colher') + sufixoSeSubiuNivel(nivelAntes);
+    vinhaFotoAtual = VINHA_FOTOS.colher;
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -474,9 +499,9 @@ function executarAcaoVinha(actionKey) {
     let sufixoTarefaTempo = ' (+' + repGanha + ' ' + t('stat.reputacao');
     if (cuidadoGanho > 0) sufixoTarefaTempo += ', +' + cuidadoGanho + ' ' + t('vinha.cuidadoLabel');
     sufixoTarefaTempo += ')';
-    vinhaMensagemAtual = t(ehEstacas ? 'vinha.msgRepararEstacas' : 'vinha.msgProtegerFrio') + sufixoTarefaTempo;
-    vinhaFotoAtual = VINHA_FOTOS[actionKey];
     if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido(ehEstacas ? 'tempo_vento' : 'tempo_frio');
+    vinhaMensagemAtual = t(ehEstacas ? 'vinha.msgRepararEstacas' : 'vinha.msgProtegerFrio') + sufixoTarefaTempo + sufixoSeSubiuNivel(nivelAntes);
+    vinhaFotoAtual = VINHA_FOTOS[actionKey];
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -490,9 +515,9 @@ function executarAcaoVinha(actionKey) {
   }
 
   registarCooldownVinha(actionKey);
-  vinhaMensagemAtual = dicaVinha(actionKey);
-  vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
   if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_' + actionKey);
+  vinhaMensagemAtual = dicaVinha(actionKey) + premiarPrimeiroPasso(actionKey) + sufixoSeSubiuNivel(nivelAntes);
+  vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
   saveState(state);
   updateStatsDisplays();
   renderVinha();

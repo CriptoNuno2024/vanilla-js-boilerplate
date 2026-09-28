@@ -48,7 +48,11 @@ function defaultState() {
       // id do último inverno em que já se podou (ex: "2026-2027"), e
       // bonusPoda fica true até ser gasto na próxima vindima.
       invernoPodado: null,
-      bonusPoda: false
+      bonusPoda: false,
+      // "Primeiros passos" (ver premiarPrimeiroPasso() em js/vinha.js):
+      // cada ação da Vinha só dá o prémio de estreia uma vez, para
+      // sempre — ex.: { cavar: true, regar: true, ... }.
+      primeirosPassos: {}
     },
     // Capítulo da Adega (ver js/garrafa.js). Tudo novo, só acrescentado
     // ao estado — nenhum campo antigo (uvas, gotas, garrafas,
@@ -98,6 +102,15 @@ function defaultState() {
       lista: [],
       bonusDiaDado: false,
       selosTotal: 0
+    },
+    // Áreas por nível (ver js/niveis.js). jogadorAntigo: null = ainda por
+    // decidir; vira true/false na primeira vez que corre este código (ver
+    // avaliarJogadorAntigo() abaixo) e, uma vez true, nunca mais volta a
+    // false — um jogador antigo nunca perde acesso ao que já tinha.
+    // introMostrada impede repetir a história de abertura (só jogador novo).
+    acesso: {
+      jogadorAntigo: null,
+      introMostrada: false
     }
   };
 }
@@ -139,6 +152,48 @@ function saveState(s) {
 }
 
 let state = loadState();
+
+// ---------------------------------------------------------------------
+// JOGADOR ANTIGO vs JOGADOR NOVO (ver Áreas por Nível em js/niveis.js)
+//
+// Um jogador antigo (já jogava antes desta atualização) fica com tudo
+// aberto, para nunca perder acesso ao que já tinha; as trancas por nível
+// só valem para quem começa do zero a partir de agora.
+//
+// Não basta olhar para o campo "acesso" existir ou não — ele É novo,
+// por isso um jogador antigo (que ainda não tem esse campo) e alguém
+// mesmo a abrir o jogo por instantes antes da 1ª gravação ficam com o
+// mesmo aspeto depois de mergeDeep() preencher os valores por omissão.
+// Por isso decide-se pelo PROGRESSO em si: se já existir qualquer sinal
+// de jogo (Reputação, Uvas, Gotas, Garrafas, alguma entrada da
+// Enciclopédia, ou a Vinha fora da fase inicial), é um jogador antigo.
+//
+// Isto corre logo aqui (cobre quem não usa CloudStorage) E outra vez
+// depois de js/nuvem.js juntar o progresso da nuvem do Telegram (ver
+// nuvemSincronizarAoAbrir() em js/nuvem.js) — um veterano num aparelho
+// novo, ou com a memória do telemóvel limpa, só tem o progresso dele de
+// volta depois dessa sincronização, por isso não pode ficar decidido
+// "novo" para sempre antes disso acontecer.
+// ---------------------------------------------------------------------
+function temProgressoExistente() {
+  return state.reputacao > 0 || state.uvas > 0 || state.gotas > 0 || state.garrafas > 0 ||
+    state.encyclopedia.unlocked.length > 0 || state.vinha.fase !== 'preparar';
+}
+
+function avaliarJogadorAntigo() {
+  if (state.acesso.jogadorAntigo === true) return; // decidido "antigo": nunca volta a "novo"
+  const antigo = temProgressoExistente();
+  if (antigo !== state.acesso.jogadorAntigo) {
+    state.acesso.jogadorAntigo = antigo;
+    // Grava só no localStorage (não saveState()): esta primeira chamada
+    // corre ainda dentro deste ficheiro, antes de js/nuvem.js carregar —
+    // nuvemGuardarEstadoComAtraso() ainda não existe. A 2ª chamada (ver
+    // nuvemSincronizarAoAbrir() em js/nuvem.js) já corre depois de tudo
+    // carregado e usa saveState() normalmente.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+}
+avaliarJogadorAntigo();
 
 function updateStatsDisplays() {
   document.querySelectorAll('.val-uvas').forEach(function (el) { el.textContent = state.uvas; });
