@@ -241,6 +241,7 @@ function startProteger(continuando) {
       protegerAvisoTexto = protegerAvisoTexto ? (protegerAvisoTexto + ' ' + t('proteger.modoTreino')) : t('proteger.modoTreino');
     }
   }
+  tocarSomFicheiro('assets/sons/porco_grunhir.mp3', 0.7);
   const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
   else if (tipo === 'disfarces') renderDisfarces();
@@ -419,6 +420,7 @@ function alertarChizo() {
 
   const S = pStr();
   if (chizoTurnoAtual === CHIZO_TURNO_CORRETO) {
+    tocarSomFicheiro('assets/sons/chizo_ladrar.mp3', 0.7);
     finishProteger(true, S.chizoVitoria);
   } else if (chizoTurnoAtual < CHIZO_TURNO_CORRETO) {
     finishProteger(false, S.chizoCedo);

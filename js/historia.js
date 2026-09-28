@@ -25,7 +25,7 @@ const HISTORIA_INTRO = [
 // não tiver "foto" mantém a última que já estava a mostrar-se.
 const HISTORIA_NIVEIS = {
   2: [
-    { chave: 'historia.nivel2.1', foto: 'assets/ecras/chizo_porta_casa.jpg' },
+    { chave: 'historia.nivel2.1', foto: 'assets/ecras/chizo_porta_casa.jpg', som: 'assets/sons/chizo_ladrar.mp3' },
     { chave: 'historia.nivel2.2' },
     { chave: 'historia.nivel2.3' }
   ],
@@ -55,7 +55,7 @@ const HISTORIA_NIVEIS = {
 // pronta para mostrarFalas() (ver js/main.js).
 function traduzirFalasHistoria(lista) {
   return lista.map(function (f) {
-    return { texto: t(f.chave), foto: f.foto, pos: f.pos };
+    return { texto: t(f.chave), foto: f.foto, pos: f.pos, som: f.som };
   });
 }
 
