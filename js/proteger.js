@@ -181,6 +181,27 @@ let protegerRondasTotal = 1;
 let protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
 let protegerAvisoTexto = '';
 
+// -----------------------------------------------------------------
+// LIMITE DIÁRIO DE PRÉMIOS — só as 2 primeiras vitórias de cada dia
+// (dia em Lisboa, ver diaLisboaDeHoje() em js/tempo.js) dão Uvas, Gotas
+// e Reputação. Depois disso o jogador pode continuar a jogar em "modo
+// treino": ganha ou perde à mesma, só sem prémio nenhum.
+// -----------------------------------------------------------------
+const PROTEGER_VITORIAS_COM_PREMIO_POR_DIA = 2;
+
+function garantirDiaProtegerAtualizado() {
+  const hoje = diaLisboaDeHoje();
+  if (state.proteger.diaVitoriasLisboa !== hoje) {
+    state.proteger.diaVitoriasLisboa = hoje;
+    state.proteger.vitoriasComPremioHoje = 0;
+  }
+}
+
+function vitoriasProtegerComPremioRestantesHoje() {
+  garantirDiaProtegerAtualizado();
+  return Math.max(0, PROTEGER_VITORIAS_COM_PREMIO_POR_DIA - state.proteger.vitoriasComPremioHoje);
+}
+
 function rondasProtegerPorTempo() {
   const tempo = tempoAtual();
   const extra = tempo.disponivel ? (TEMPO_CONFIG.vantagens.rondasExtraProteger[tempo.ceu] || 0) : 0;
@@ -213,6 +234,9 @@ function startProteger(continuando) {
     protegerRondasTotal = rondasProtegerPorTempo();
     protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
     protegerAvisoTexto = avisoTempoProteger();
+    if (vitoriasProtegerComPremioRestantesHoje() === 0) {
+      protegerAvisoTexto = protegerAvisoTexto ? (protegerAvisoTexto + ' ' + t('proteger.modoTreino')) : t('proteger.modoTreino');
+    }
   }
   const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
@@ -406,13 +430,20 @@ function alertarChizo() {
 
 function finishProteger(venceu, mensagem) {
   if (venceu) {
-    const uvasGanhas = randInt(6, 12);
-    const gotasGanhas = randInt(6, 12);
-    const repGanha = randInt(2, 5);
+    const ganhaPremio = vitoriasProtegerComPremioRestantesHoje() > 0;
+    let uvasGanhas = 0, gotasGanhas = 0, repGanha = 0;
 
-    state.uvas += uvasGanhas;
-    state.gotas += gotasGanhas;
-    state.reputacao += repGanha;
+    if (ganhaPremio) {
+      uvasGanhas = randInt(6, 12);
+      gotasGanhas = randInt(6, 12);
+      repGanha = randInt(2, 5);
+
+      state.uvas += uvasGanhas;
+      state.gotas += gotasGanhas;
+      state.reputacao += repGanha;
+      state.proteger.vitoriasComPremioHoje += 1;
+      if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('proteger_vencer');
+    }
     saveState(state);
     updateStatsDisplays();
 
@@ -428,13 +459,13 @@ function finishProteger(venceu, mensagem) {
       return;
     }
 
-    showResultProteger(true, protegerRecompensaAcumulada.uvas, protegerRecompensaAcumulada.gotas, protegerRecompensaAcumulada.rep, mensagem);
+    showResultProteger(true, protegerRecompensaAcumulada.uvas, protegerRecompensaAcumulada.gotas, protegerRecompensaAcumulada.rep, mensagem, ganhaPremio);
   } else {
     showResultProteger(false, 0, 0, 0, mensagem);
   }
 }
 
-function showResultProteger(venceu, uvas, gotas, rep, mensagem) {
+function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   vibrar(venceu ? 'sucesso' : 'erro');
 
   const S = pStr();
@@ -445,8 +476,10 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem) {
   // baixo, sem botão nenhum. Perdeu: fica um botão para tentar outra
   // vez, com nome próprio (já não "Jogar Novamente").
   const falas = [mensagem];
-  if (venceu) {
+  if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
+  } else if (venceu && !ganhaPremio) {
+    falas.push(t('proteger.modoTreinoResultado'));
   }
 
   container.innerHTML =

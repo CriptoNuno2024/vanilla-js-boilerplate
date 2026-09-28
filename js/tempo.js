@@ -79,6 +79,22 @@ function diaLocalDeHoje() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+// Dia em Lisboa (fuso Europe/Lisbon) em "YYYY-MM-DD", independente do
+// fuso horário do telemóvel do jogador — usado só pelos objetivos
+// diários "Hoje na Quinta" (ver js/objetivos.js) e pelo limite diário
+// de vitórias com prémio no Proteger (ver js/proteger.js). É de
+// propósito diferente de diaLocalDeHoje() acima (essa usa o dia do
+// próprio telemóvel) — os dois "dias" podem virar a horas diferentes
+// para um jogador fora de Portugal, e não há problema nenhum nisso.
+function diaLisboaDeHoje() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Lisbon',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+}
+
 function condicaoDeTeste(tempC, ventoKmh, ceu) {
   return {
     ceu: ceu,

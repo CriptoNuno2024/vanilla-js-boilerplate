@@ -402,10 +402,15 @@ function goTo(screen, opcoes) {
   atualizarLinhaEstacaoQuinta();
   atualizarLinhaTempoQuinta();
   atualizarFaixaFesta();
-  if (screen === 'quinta') garantirTempoAtualizado().then(function () {
-    atualizarLinhaTempoQuinta();
-    atualizarFaixaFesta();
-  });
+  if (screen === 'quinta') {
+    if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
+    if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
+    if (typeof verificarSubidaNivel === 'function') verificarSubidaNivel();
+    garantirTempoAtualizado().then(function () {
+      atualizarLinhaTempoQuinta();
+      atualizarFaixaFesta();
+    });
+  }
 
   if (screen === 'vinha') enterVinha();
   if (screen === 'proteger') startProteger();

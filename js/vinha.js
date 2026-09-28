@@ -167,6 +167,7 @@ function aplicarChuvaAutomatica() {
   if (v.pontosCuidado >= PONTOS_CUIDADO_NECESSARIOS) v.fase = 'pronta';
   vinhaMensagemAtual = t('tempo.msgChuvaRegou');
   vinhaFotoAtual = TEMPO_CONFIG.imagens.chuva;
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('tempo_chuva');
   saveState(state);
   updateStatsDisplays();
 }
@@ -434,6 +435,7 @@ function executarAcaoVinha(actionKey) {
     sufixoColheita += ')';
     vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita;
     vinhaFotoAtual = VINHA_FOTOS.colher;
+    if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_colher');
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -474,6 +476,7 @@ function executarAcaoVinha(actionKey) {
     sufixoTarefaTempo += ')';
     vinhaMensagemAtual = t(ehEstacas ? 'vinha.msgRepararEstacas' : 'vinha.msgProtegerFrio') + sufixoTarefaTempo;
     vinhaFotoAtual = VINHA_FOTOS[actionKey];
+    if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido(ehEstacas ? 'tempo_vento' : 'tempo_frio');
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -489,6 +492,7 @@ function executarAcaoVinha(actionKey) {
   registarCooldownVinha(actionKey);
   vinhaMensagemAtual = dicaVinha(actionKey);
   vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_' + actionKey);
   saveState(state);
   updateStatsDisplays();
   renderVinha();
