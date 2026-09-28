@@ -83,6 +83,32 @@ const TRANSLATIONS = {
     'proteger.modoTreino': 'O Chizo já está de guarda. Volta amanhã para mais prémios!',
     'proteger.modoTreinoResultado': 'Sem prémio — modo treino.',
 
+    // Áreas por Nível (ver js/niveis.js) e "Primeiros Passos" na Vinha
+    // (ver js/vinha.js).
+    'acesso.trancado': 'Abre no Nível {n} · {nome} — faltam {faltam} de Reputação.',
+    'vinha.primeiroPassoMsg': 'Primeiros passos na Vinha! (+{n} Reputação)',
+    'vinha.subiuNivelAviso': 'A Quinta subiu de nível! Volta à Quinta.',
+
+    // A história da Quinta (ver js/historia.js) — contada nos balões à
+    // medida que se sobe de nível. Só jogadores novos a veem "ao vivo".
+    'historia.intro.1': 'A Quinta do Moscatel está esquecida há muitos anos. O mato tomou conta dos caminhos e as videiras crescem sozinhas.',
+    'historia.intro.2': 'Sou o YoshiCat. Vim devolver a vida a esta Quinta. Vou começar pela Vinha.',
+    'historia.nivel2.1': 'Esta noite ouviram-se grunhidos entre as videiras… O Fygmo e o Fygmo2 descobriram que a Quinta voltou a ter uvas.',
+    'historia.nivel2.2': 'Mas de manhã alguém estava à porta: um Rafeiro do Alentejo, de lenço vermelho. Chama-se Chizo, e decidiu ficar.',
+    'historia.nivel2.3': 'Abriu: Proteger a Quinta.',
+    'historia.nivel3.1': 'As primeiras uvas já enchem os cestos. Na velha adega, a prensa ainda range… mas funciona.',
+    'historia.nivel3.2': 'Está na hora de fazer o primeiro Moscatel de Setúbal da Quinta.',
+    'historia.nivel3.3': 'Abriu: a Adega.',
+    'historia.nivel4.1': 'Já se fala da Quinta na vila. O YoshiCat sobe à colina e olha em volta: a Arrábida, o Sado, vinhas até perder de vista.',
+    'historia.nivel4.2': 'Há tanto para descobrir nesta terra… e chegou o primeiro convite para as festas!',
+    'historia.nivel4.3': 'Abriu: Explorar, a Enciclopédia e as Festas.',
+    'historia.nivel5.1': 'O nosso Moscatel já corre de mesa em mesa. Os mais velhos da terra dizem que o melhor é o que descansa mais tempo na cave…',
+    'historia.nivel5.2': '…mas os porcos também sabem disso.',
+    'historia.nivel5.3': 'Em breve: a Cave de Reserva.',
+    'historia.nivel6.1': 'Já ninguém lhe chama Quinta Esquecida. Agora é a Casa do Moscatel.',
+    'historia.nivel6.2': 'Mas o YoshiCat sabe que esta terra guarda histórias muito mais antigas… e esta foi só a primeira.',
+    'historia.nivel6.3': 'Em breve: as Garrafas de Coleção.',
+
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparação',
@@ -326,6 +352,28 @@ const TRANSLATIONS = {
     'proteger.modoTreino': 'Chizo is already on guard. Come back tomorrow for more prizes!',
     'proteger.modoTreinoResultado': 'No prize — training mode.',
 
+    'acesso.trancado': 'Unlocks at Level {n} · {nome} — {faltam} more Reputation needed.',
+    'vinha.primeiroPassoMsg': 'First steps in the Vineyard! (+{n} Reputation)',
+    'vinha.subiuNivelAviso': 'The Farm leveled up! Head back to the Farm.',
+
+    'historia.intro.1': 'The Moscatel Farm has been forgotten for many years. Weeds have taken over the paths, and the vines grow wild on their own.',
+    'historia.intro.2': "I'm YoshiCat. I came to bring this Farm back to life. I'll start with the Vineyard.",
+    'historia.nivel2.1': 'Grunts were heard among the vines last night... Fygmo and Fygmo2 found out the Farm has grapes again.',
+    'historia.nivel2.2': "But by morning, someone was at the door: an Alentejo Mastiff with a red bandana. His name is Chizo, and he's decided to stay.",
+    'historia.nivel2.3': 'Unlocked: Protect the Farm.',
+    'historia.nivel3.1': 'The first grapes already fill the baskets. In the old winery, the press still creaks... but it works.',
+    'historia.nivel3.2': "It's time to make the Farm's first Setúbal Moscatel.",
+    'historia.nivel3.3': 'Unlocked: the Winery.',
+    'historia.nivel4.1': 'Word of the Farm is spreading in the village. YoshiCat climbs the hill and looks around: the Arrábida, the Sado, vineyards as far as the eye can see.',
+    'historia.nivel4.2': "There's so much to discover in this land... and the first invitation to the festivals has arrived!",
+    'historia.nivel4.3': 'Unlocked: Explore, the Encyclopedia and the Festivals.',
+    'historia.nivel5.1': 'Our Moscatel is already going from table to table. The old-timers say the best is the one that rests longest in the cellar...',
+    'historia.nivel5.2': '...but the pigs know that too.',
+    'historia.nivel5.3': 'Coming soon: the Reserve Cellar.',
+    'historia.nivel6.1': 'No one calls it the Forgotten Farm anymore. Now it\'s the House of Moscatel.',
+    'historia.nivel6.2': 'But YoshiCat knows this land holds much older stories... and this was only the first.',
+    'historia.nivel6.3': "Coming soon: the Collector's Bottles.",
+
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
     'vinha.faseCurta.preparada': 'Planting',
@@ -557,6 +605,28 @@ const TRANSLATIONS = {
 
     'proteger.modoTreino': 'El Chizo ya está de guardia. ¡Vuelve mañana para más premios!',
     'proteger.modoTreinoResultado': 'Sin premio — modo entrenamiento.',
+
+    'acesso.trancado': 'Se abre en el Nivel {n} · {nome} — faltan {faltam} de Reputación.',
+    'vinha.primeiroPassoMsg': '¡Primeros pasos en el Viñedo! (+{n} Reputación)',
+    'vinha.subiuNivelAviso': '¡La Quinta subió de nivel! Vuelve a la Quinta.',
+
+    'historia.intro.1': 'La Quinta del Moscatel lleva muchos años olvidada. La maleza se ha apoderado de los caminos y las vides crecen solas.',
+    'historia.intro.2': 'Soy el YoshiCat. Vine a devolverle la vida a esta Quinta. Voy a empezar por el Viñedo.',
+    'historia.nivel2.1': 'Esta noche se oyeron gruñidos entre las vides… El Fygmo y el Fygmo2 descubrieron que la Quinta volvió a tener uvas.',
+    'historia.nivel2.2': 'Pero por la mañana había alguien en la puerta: un Mastín del Alentejo, con un pañuelo rojo. Se llama Chizo, y decidió quedarse.',
+    'historia.nivel2.3': 'Se abrió: Proteger la Quinta.',
+    'historia.nivel3.1': 'Las primeras uvas ya llenan los cestos. En la vieja bodega, la prensa todavía cruje… pero funciona.',
+    'historia.nivel3.2': 'Es hora de hacer el primer Moscatel de Setúbal de la Quinta.',
+    'historia.nivel3.3': 'Se abrió: la Bodega.',
+    'historia.nivel4.1': 'Ya se habla de la Quinta en el pueblo. El YoshiCat sube a la colina y mira alrededor: la Arrábida, el Sado, viñedos hasta donde alcanza la vista.',
+    'historia.nivel4.2': 'Hay tanto por descubrir en esta tierra… ¡y llegó la primera invitación para las fiestas!',
+    'historia.nivel4.3': 'Se abrió: Explorar, la Enciclopedia y las Fiestas.',
+    'historia.nivel5.1': 'Nuestro Moscatel ya corre de mesa en mesa. Los más viejos de la tierra dicen que el mejor es el que reposa más tiempo en la bodega…',
+    'historia.nivel5.2': '…pero los cerdos también lo saben.',
+    'historia.nivel5.3': 'Próximamente: la Bodega de Reserva.',
+    'historia.nivel6.1': 'Ya nadie la llama Quinta Olvidada. Ahora es la Casa del Moscatel.',
+    'historia.nivel6.2': 'Pero el YoshiCat sabe que esta tierra guarda historias mucho más antiguas… y esta fue solo la primera.',
+    'historia.nivel6.3': 'Próximamente: las Botellas de Colección.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',

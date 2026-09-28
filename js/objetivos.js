@@ -29,26 +29,28 @@ const OBJETIVOS_POOL_A = [
   { id: 'vinha_adubar', elegivel: function () { return state.vinha.fase === 'crescendo' && state.vinha.adubo >= 1; } },
   { id: 'vinha_compostagem', elegivel: function () { return state.vinha.residuos >= RESIDUOS_POR_COMPOSTAGEM; } },
   { id: 'vinha_colher', elegivel: function () { return state.vinha.fase === 'pronta'; } },
-  { id: 'adega_prensar', elegivel: function () { return state.uvas >= ADEGA_CUSTO_UVAS_PRENSAR; } },
-  { id: 'adega_alambique', elegivel: function () { return state.adega.bagaco >= ADEGA_CUSTO_BAGACO_ALAMBIQUE; } },
+  { id: 'adega_prensar', elegivel: function () { return ecraDesbloqueado('garrafa') && state.uvas >= ADEGA_CUSTO_UVAS_PRENSAR; } },
+  { id: 'adega_alambique', elegivel: function () { return ecraDesbloqueado('garrafa') && state.adega.bagaco >= ADEGA_CUSTO_BAGACO_ALAMBIQUE; } },
   {
     id: 'adega_fortificar',
     elegivel: function () {
-      return !state.adega.lote && state.gotas >= ADEGA_CUSTO_GOTAS_FORTIFICAR && state.adega.aguardente >= ADEGA_CUSTO_AGUARDENTE_FORTIFICAR;
+      return ecraDesbloqueado('garrafa') && !state.adega.lote && state.gotas >= ADEGA_CUSTO_GOTAS_FORTIFICAR && state.adega.aguardente >= ADEGA_CUSTO_AGUARDENTE_FORTIFICAR;
     }
   },
   {
     id: 'adega_engarrafar',
     elegivel: function () {
-      return !!state.adega.lote && Math.floor(diasDescansadosNaCave()) >= REGRAS_DESCANSO_CAVE.diasMinimos;
+      return ecraDesbloqueado('garrafa') && !!state.adega.lote && Math.floor(diasDescansadosNaCave()) >= REGRAS_DESCANSO_CAVE.diasMinimos;
     }
   }
 ];
 
 // --- GRUPO B — Ação (Objetivo 2) ---------------------------------------
+// (ecraDesbloqueado() ver js/niveis.js — jogadores antigos ignoram-no
+// sempre, ver state.acesso.jogadorAntigo em js/state.js)
 const OBJETIVOS_POOL_B = [
-  { id: 'proteger_vencer', elegivel: function () { return vitoriasProtegerComPremioRestantesHoje() > 0; } },
-  { id: 'explorar_descobrir', elegivel: function () { return entradasBloqueadas().length > 0; } }
+  { id: 'proteger_vencer', elegivel: function () { return ecraDesbloqueado('proteger') && vitoriasProtegerComPremioRestantesHoje() > 0; } },
+  { id: 'explorar_descobrir', elegivel: function () { return ecraDesbloqueado('explorar') && entradasBloqueadas().length > 0; } }
 ];
 
 // --- GRUPO C — "Do dia": festa > tempo real > bónus de estação --------
@@ -60,7 +62,7 @@ function candidatosGrupoC() {
   const lista = [];
 
   const festa = festaAtual();
-  if (festa && (
+  if (festa && ecraDesbloqueado('festa') && (
     !festaJaFezTarefaHoje(festa.id, 'castanhas') ||
     !festaJaFezTarefaHoje(festa.id, 'jeropiga') ||
     !festaJaFezTarefaHoje(festa.id, 'prova')
@@ -93,38 +95,50 @@ function candidatosGrupoC() {
 
 // --- ESCOLHA DOS 3 OBJETIVOS DO DIA -------------------------------------
 
+// Escolhe até 3 objetivos SEM REPETIR nenhum id — um jogador ainda com
+// pouca coisa aberta (ver Áreas por Nível em js/niveis.js) pode ter uma
+// bolsa elegível muito pequena (ex.: Nível 1 só tem a Vinha); nesse caso
+// fica só com 1 ou 2 objetivos nesse dia, em vez de mostrar a mesma
+// ação repetida 2 ou 3 vezes no cartão "Hoje na Quinta".
 function gerarObjetivosDoDia() {
-  const usados = [];
+  const escolhidos = [];
+  function adicionar(id) {
+    if (id && escolhidos.indexOf(id) === -1) escolhidos.push(id);
+  }
 
   const elegiveisA = OBJETIVOS_POOL_A.filter(function (o) { return o.elegivel(); }).map(function (o) { return o.id; });
   const elegiveisB = OBJETIVOS_POOL_B.filter(function (o) { return o.elegivel(); }).map(function (o) { return o.id; });
 
-  // Objetivo 1 — Vinha ou Adega. elegiveisA nunca devia ficar vazio (ver
-  // nota no topo do ficheiro), mas por segurança há sempre um fallback.
-  const id1 = elegiveisA.length > 0 ? elegiveisA[randInt(0, elegiveisA.length - 1)] : 'vinha_compostagem';
-  usados.push(id1);
+  // Objetivo 1 — Vinha ou Adega.
+  if (elegiveisA.length > 0) adicionar(elegiveisA[randInt(0, elegiveisA.length - 1)]);
 
-  // Objetivo 2 — Ação (Proteger ou Explorar), sem repetir o Objetivo 1.
-  const candidatosB = elegiveisB.filter(function (id) { return usados.indexOf(id) === -1; });
-  let id2 = candidatosB.length > 0 ? candidatosB[randInt(0, candidatosB.length - 1)] : null;
-  if (!id2) {
-    const alt = elegiveisA.filter(function (id) { return usados.indexOf(id) === -1; });
-    id2 = alt.length > 0 ? alt[randInt(0, alt.length - 1)] : id1;
+  // Objetivo 2 — Ação (Proteger ou Explorar), sem repetir o Objetivo 1;
+  // sem nenhuma disponível, tenta outra da Vinha/Adega ainda não usada.
+  const candidatosB = elegiveisB.filter(function (id) { return escolhidos.indexOf(id) === -1; });
+  if (candidatosB.length > 0) {
+    adicionar(candidatosB[randInt(0, candidatosB.length - 1)]);
+  } else {
+    const alt = elegiveisA.filter(function (id) { return escolhidos.indexOf(id) === -1; });
+    if (alt.length > 0) adicionar(alt[randInt(0, alt.length - 1)]);
   }
-  usados.push(id2);
 
   // Objetivo 3 — "Do dia" (festa > tempo real > bónus de estação), sem
-  // repetir os dois já escolhidos.
-  const candidatosC = candidatosGrupoC().filter(function (id) { return usados.indexOf(id) === -1; });
-  let id3 = candidatosC.length > 0 ? candidatosC[0] : null;
-  if (!id3) {
-    const alt = elegiveisA.concat(elegiveisB).filter(function (id) { return usados.indexOf(id) === -1; });
-    id3 = alt.length > 0 ? alt[randInt(0, alt.length - 1)] : id1;
+  // repetir os já escolhidos; sem nenhum candidato, tenta qualquer outro
+  // dos Grupos A/B ainda não usado.
+  const candidatosC = candidatosGrupoC().filter(function (id) { return escolhidos.indexOf(id) === -1; });
+  if (candidatosC.length > 0) {
+    adicionar(candidatosC[0]);
+  } else {
+    const alt = elegiveisA.concat(elegiveisB).filter(function (id) { return escolhidos.indexOf(id) === -1; });
+    if (alt.length > 0) adicionar(alt[randInt(0, alt.length - 1)]);
   }
-  usados.push(id3);
+
+  // Fallback de segurança: nunca fica sem nenhum objetivo (a Vinha nunca
+  // está trancada, e "Compostagem" está sempre disponível como ação).
+  if (escolhidos.length === 0) escolhidos.push('vinha_compostagem');
 
   state.objetivos.dia = diaLisboaDeHoje();
-  state.objetivos.lista = usados.map(function (id) { return { id: id, cumprido: false }; });
+  state.objetivos.lista = escolhidos.map(function (id) { return { id: id, cumprido: false }; });
   state.objetivos.bonusDiaDado = false;
   saveState(state);
 }

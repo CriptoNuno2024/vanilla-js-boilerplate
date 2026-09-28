@@ -234,7 +234,10 @@ function atualizarFaixaFesta() {
   const el = document.getElementById('festa-faixa');
   if (!el) return;
   const festa = festaAtual();
-  if (!festa) {
+  // A faixa só aparece a partir do Nível 4 para jogadores novos (ver
+  // ecraDesbloqueado() em js/niveis.js); jogadores antigos (ver
+  // state.acesso.jogadorAntigo em js/state.js) veem-na sempre.
+  if (!festa || (typeof ecraDesbloqueado === 'function' && !ecraDesbloqueado('festa'))) {
     el.style.display = 'none';
     el.textContent = '';
     return;
