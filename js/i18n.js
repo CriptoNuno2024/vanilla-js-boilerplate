@@ -58,6 +58,8 @@ const TRANSLATIONS = {
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
+    'objetivos.resumoLabel': 'Hoje',
+    'objetivos.bonusLinha': 'Completar os 3 dá +{bonus} Reputação e +1 selo do dia.',
     'objetivos.selosLabel': 'Selos:',
     'objetivo.vinha_cavar': 'Cava a terra da Vinha.',
     'objetivo.vinha_plantar': 'Planta novos bacelos na Vinha.',
@@ -300,6 +302,8 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'House of Moscatel',
 
     'objetivos.titulo': 'Today on the Farm',
+    'objetivos.resumoLabel': 'Today',
+    'objetivos.bonusLinha': 'Completing all 3 gives +{bonus} Reputation and +1 daily seal.',
     'objetivos.selosLabel': 'Seals:',
     'objetivo.vinha_cavar': "Dig the Vineyard's soil.",
     'objetivo.vinha_plantar': 'Plant new vines in the Vineyard.',
@@ -530,6 +534,8 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'Casa del Moscatel',
 
     'objetivos.titulo': 'Hoy en la Quinta',
+    'objetivos.resumoLabel': 'Hoy',
+    'objetivos.bonusLinha': 'Completar los 3 da +{bonus} Reputación y +1 sello del día.',
     'objetivos.selosLabel': 'Sellos:',
     'objetivo.vinha_cavar': 'Cava la tierra del Viñedo.',
     'objetivo.vinha_plantar': 'Planta nuevos esquejes en el Viñedo.',

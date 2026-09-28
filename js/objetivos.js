@@ -15,6 +15,11 @@
 // mesmo dia.
 // ---------------------------------------------------------------------
 
+// Recompensas fixas — usadas tanto para somar a Reputação como para
+// mostrar "+2"/o texto do bónus no cartão (ver atualizarCartaoObjetivosQuinta()).
+const OBJETIVO_RECOMPENSA_PONTOS = 2;
+const OBJETIVO_BONUS_TRIO_PONTOS = 5;
+
 // --- GRUPO A — Vinha ou Adega (Objetivo 1) -----------------------------
 const OBJETIVOS_POOL_A = [
   { id: 'vinha_cavar', elegivel: function () { return state.vinha.fase === 'preparar'; } },
@@ -145,7 +150,7 @@ function marcarObjetivoCumprido(id) {
   for (let i = 0; i < lista.length; i++) {
     if (lista[i].id === id && !lista[i].cumprido) {
       lista[i].cumprido = true;
-      state.reputacao += 2;
+      state.reputacao += OBJETIVO_RECOMPENSA_PONTOS;
       mudouAlgo = true;
     }
   }
@@ -154,7 +159,7 @@ function marcarObjetivoCumprido(id) {
   const todosCumpridos = lista.every(function (o) { return o.cumprido; });
   if (todosCumpridos && !state.objetivos.bonusDiaDado) {
     state.objetivos.bonusDiaDado = true;
-    state.reputacao += 5;
+    state.reputacao += OBJETIVO_BONUS_TRIO_PONTOS;
     state.objetivos.selosTotal += 1;
   }
 
@@ -162,6 +167,7 @@ function marcarObjetivoCumprido(id) {
   saveState(state);
   updateStatsDisplays();
   atualizarCartaoObjetivosQuinta();
+  if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
 }
 
 // Cartão "Hoje na Quinta", dentro do topcard da Quinta (ver
@@ -174,6 +180,7 @@ function atualizarCartaoObjetivosQuinta() {
   const linhasHtml = state.objetivos.lista.map(function (o) {
     return '<p class="objetivo-linha' + (o.cumprido ? ' feito' : '') + '">' +
       (o.cumprido ? '✓ ' : '· ') + t('objetivo.' + o.id) +
+      ' <span class="objetivo-premio">(+' + OBJETIVO_RECOMPENSA_PONTOS + ')</span>' +
     '</p>';
   }).join('');
 
@@ -181,8 +188,24 @@ function atualizarCartaoObjetivosQuinta() {
     '<div class="mini-bloco">' +
       '<p class="mini-bloco-titulo">' + t('objetivos.titulo') + '</p>' +
       linhasHtml +
+      '<p class="mini-sub objetivo-bonus-linha">' +
+        t('objetivos.bonusLinha').replace('{bonus}', OBJETIVO_BONUS_TRIO_PONTOS) +
+      '</p>' +
       '<p class="mini-sub">' + t('objetivos.selosLabel') + ' ' + state.objetivos.selosTotal + '</p>' +
     '</div>';
+}
+
+// Linha do cartão do topo da Quinta ENCOLHIDO, ex: "Nível 2 · Hoje 1/3"
+// (ver #quinta-resumo-linha em index.html e alternarCartaoQuinta() em
+// js/main.js) — combina o nível (js/niveis.js) com os objetivos.
+function atualizarResumoQuinta() {
+  const el = document.getElementById('quinta-resumo-linha');
+  if (!el) return;
+  garantirObjetivosDoDia();
+  const nivelAtual = nivelPelaReputacao(state.reputacao);
+  const feitos = state.objetivos.lista.filter(function (o) { return o.cumprido; }).length;
+  el.textContent = t('nivel.label') + ' ' + nivelAtual + ' · ' +
+    t('objetivos.resumoLabel') + ' ' + feitos + '/' + state.objetivos.lista.length;
 }
 
 // Gera os objetivos do dia logo ao abrir o jogo (não só ao entrar na
