@@ -178,6 +178,7 @@ function marcarObjetivoCumprido(id) {
   }
 
   vibrar('sucesso');
+  tocarSom('objetivoCumprido');
   saveState(state);
   updateStatsDisplays();
   atualizarCartaoObjetivosQuinta();

@@ -88,6 +88,7 @@ function verificarSubidaNivel() {
     mostrarFalas(t('nivel.subiuMsg').replace('{n}', nivelAtual).replace('{nome}', t(info.nomeKey)), 'YoshiCat');
   }
   vibrar('sucesso');
+  tocarSom('subiuNivel');
 }
 
 // ---------------------------------------------------------------------
@@ -126,4 +127,5 @@ function mostrarMensagemTrancada(screen) {
     'YoshiCat'
   );
   vibrar('leve');
+  tocarSom('ecraTrancado');
 }

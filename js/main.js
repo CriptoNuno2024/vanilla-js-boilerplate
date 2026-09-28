@@ -479,6 +479,11 @@ function goTo(screen, opcoes) {
     LIMPEZA_AO_SAIR_POR_ECRA[idAnterior]();
   }
 
+  // Som de ambiente em ciclo (ex.: chuva — ver js/som.js): para sempre
+  // ao mudar de ecrã; se o próximo ecrã precisar de ambiente, é ele que
+  // o volta a ligar.
+  if (idAnterior && idAnterior !== screen) pararSomAmbiente();
+
   if (ECRAS_PRINCIPAIS_BARRA.indexOf(screen) !== -1 || ECRAS_SEM_CHROME.indexOf(screen) !== -1) {
     historicoEcras = [];
   } else if (!opcoes.semHistorico && idAnterior && idAnterior !== screen) {

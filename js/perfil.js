@@ -57,6 +57,10 @@ function renderPerfil() {
         '<label><input type="checkbox" id="perfil-vibracao-check" onchange="alternarVibracao(this.checked)"> ' +
         '<span data-i18n="perfil.vibracao"></span></label>' +
       '</p>' +
+      '<p class="info-text">' +
+        '<label><input type="checkbox" id="perfil-som-check" onchange="alternarSom(this.checked)"> ' +
+        '<span data-i18n="perfil.som"></span></label>' +
+      '</p>' +
     '</div>' +
     '<div class="action-panel">' +
       '<button type="button" class="btn-pill pill-main pill-grande" onclick="goTo(\'enciclopedia\')" data-i18n="perfil.btnEnciclopedia"></button>' +
@@ -65,6 +69,8 @@ function renderPerfil() {
 
   const checkVibracao = document.getElementById('perfil-vibracao-check');
   if (checkVibracao) checkVibracao.checked = state.vibracao;
+  const checkSom = document.getElementById('perfil-som-check');
+  if (checkSom) checkSom.checked = state.som;
 
   atualizarDialogo('', '');
   applyTranslations();
@@ -73,4 +79,10 @@ function renderPerfil() {
 function alternarVibracao(ligada) {
   state.vibracao = ligada;
   saveState(state);
+}
+
+function alternarSom(ligada) {
+  state.som = ligada;
+  saveState(state);
+  somAplicarInterruptor(ligada);
 }

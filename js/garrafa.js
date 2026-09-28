@@ -285,6 +285,7 @@ function executarAcaoAdega(acao) {
     adegaMensagemAtual = t('garrafa.passo4') + ' ' + t('adega.resultadoEngarrafar').replace('{rep}', repGanha);
     adegaNovaEntrada = desbloquearEntradaEnciclopedia('curtimenta');
     adegaFotoAtual = ADEGA_FOTOS.engarrafar;
+    tocarSom('engarrafarPop');
   } else {
     return;
   }

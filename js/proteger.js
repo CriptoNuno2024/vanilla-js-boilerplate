@@ -470,6 +470,7 @@ function finishProteger(venceu, mensagem) {
 
 function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   vibrar(venceu ? 'sucesso' : 'erro');
+  tocarSom(venceu ? 'protegerVitoria' : 'protegerDerrota');
 
   const S = pStr();
   const container = document.getElementById('proteger-container');
