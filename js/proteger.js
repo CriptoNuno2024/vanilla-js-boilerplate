@@ -341,6 +341,12 @@ let chizoTurnoAtual = 0;
 let chizoTimerId = null;
 let chizoSessao = 0;
 let chizoResolvido = false;
+// Id só da RONDA de Chizo (distinto de chizoSessao, que também sobe ao
+// sair do ecrã Proteger — ver pararTemporizadorProteger() abaixo). Sobe
+// só em comecarChizo(), quando uma ronda nova arranca a sério, para o
+// ladrar atrasado (ver alertarChizo() abaixo) não ser cancelado só por
+// se ter saído do ecrã Proteger depois de já ter ganho.
+let chizoRondaId = 0;
 
 // Cancela qualquer relógio do Chizo a correr — chamado quando se
 // sai do Proteger pela barra de baixo a meio do minijogo (ver
@@ -385,6 +391,7 @@ function iniciarChizo() {
 
 function comecarChizo() {
   chizoSessao++;
+  chizoRondaId++;
   const minhaSessao = chizoSessao;
   chizoTurnoAtual = 0;
   chizoResolvido = false;
@@ -433,9 +440,13 @@ function alertarChizo() {
     // O grunhido do porco da ronda seguinte pode arrancar já a seguir
     // (ver finishProteger() -> startProteger() abaixo) — só se ouve bem
     // se o ladrar esperar que esse grunhido acabe (ver constantes acima).
-    const minhaSessao = chizoSessao;
+    // Usa chizoRondaId (só sobe em comecarChizo(), não ao sair do ecrã
+    // Proteger) para só cancelar este ladrar se entretanto arrancou
+    // mesmo uma ronda nova de Chizo — nunca só por se ter saído do
+    // ecrã depois de já ter ganho.
+    const minhaRonda = chizoRondaId;
     setTimeout(function () {
-      if (minhaSessao !== chizoSessao) return; // o jogador já saiu do Proteger
+      if (minhaRonda !== chizoRondaId) return; // já começou uma ronda nova de Chizo
       tocarSomFicheiro('assets/sons/chizo_ladrar.mp3', 0.7);
     }, SOM_DURACAO_PORCO_GRUNHIR_MS + SOM_ATRASO_CAO_MS);
     finishProteger(true, S.chizoVitoria);
