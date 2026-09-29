@@ -2,5 +2,13 @@
   // Configuração do Worker do bot do Telegram (Cloudflare Workers)
   "name": "yoshicat-bot",
   "main": "src/index.js",
-  "compatibility_date": "2026-09-28"
+  "compatibility_date": "2026-09-28",
+  // Base de dados D1 (a tabela está descrita em schema.sql)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "yoshicat-db",
+      "database_id": "d76a922e-af3e-4125-a8d7-ddace1b01fa1"
+    }
+  ]
 }
