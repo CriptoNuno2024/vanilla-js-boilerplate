@@ -10,5 +10,9 @@
       "database_name": "yoshicat-db",
       "database_id": "d76a922e-af3e-4125-a8d7-ddace1b01fa1"
     }
-  ]
+  ],
+  // Despertador: acorda de hora a hora (hora UTC); o código só envia quando são 10h em Lisboa
+  "triggers": {
+    "crons": ["0 * * * *"]
+  }
 }
