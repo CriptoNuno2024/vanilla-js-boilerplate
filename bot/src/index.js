@@ -1,20 +1,20 @@
 // Worker do bot do Telegram do YoshiCat.
-// Etapa 2: regista quem fala com o bot (D1) e permite ligar/desligar os avisos.
-// Etapa 3: despertador (Cron) que envia um aviso diário às 10h de Lisboa.
+// Só fica registado quem escrever /ligar (chat_id + avisos_ligados na D1).
+// /parar e /apagar apagam o registo. O despertador (Cron) envia um aviso diário às 10h de Lisboa.
 
 const MSG_ERRO = "Tive um problema, tenta daqui a pouco.";
 const MSG_AJUDA =
-  "Olá, guardião! 🐱🍇\nUsa /parar para desligar os avisos e /ligar para os voltar a ligar.";
+  "Olá, guardião! 🐱🍇\nUsa /ligar para receber um aviso diário da Quinta e /parar para o desligar. /estado mostra como estão os avisos. /apagar remove o teu registo.";
 
 // Textos do aviso diário: segunda-feira = 1.º ... domingo = 7.º.
 const TEXTOS_AVISO = [
-  "Bom dia! 🍇 A Quinta do Moscatel já acordou. O YoshiCat está à tua espera!",
-  "O Chizo já andou a ladrar pela vinha. Vens ver se está tudo em ordem? 🐶",
-  "Pausa das 10h? Uma voltinha pela Quinta faz bem. 🌿",
-  "As videiras têm sede! Vem ver como vai a Quinta. 💧",
-  "O YoshiCat deixou-te um recado na Quinta. Passa por lá! 🐱",
-  "O sol está bom para as uvas hoje. ☀️ Vem espreitar!",
-  "Um cafezinho e cinco minutos na Quinta? 🍇",
+  "Bom dia! 🍇 A Quinta do Moscatel já acordou. O YoshiCat está à tua espera!\nPara parar: /parar",
+  "O Chizo já andou a ladrar pela vinha. Vens ver se está tudo em ordem? 🐶\nPara parar: /parar",
+  "Pausa das 10h? Uma voltinha pela Quinta faz bem. 🌿\nPara parar: /parar",
+  "As videiras têm sede! Vem ver como vai a Quinta. 💧\nPara parar: /parar",
+  "O YoshiCat deixou-te um recado na Quinta. Passa por lá! 🐱\nPara parar: /parar",
+  "O sol está bom para as uvas hoje. ☀️ Vem espreitar!\nPara parar: /parar",
+  "Um cafezinho e cinco minutos na Quinta? 🍇\nPara parar: /parar",
 ];
 
 const DIAS_SEMANA = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
@@ -37,8 +37,19 @@ function textoDoDia(diaSemana) {
   return TEXTOS_AVISO[diaSemana - 1] ?? TEXTOS_AVISO[0];
 }
 
+// Compara o segredo recebido com o esperado em tempo constante:
+// faz o hash SHA-256 de ambos (tamanho fixo) e compara com timingSafeEqual.
+async function segredoValido(recebido, esperado) {
+  const codificador = new TextEncoder();
+  const [a, b] = await Promise.all([
+    crypto.subtle.digest("SHA-256", codificador.encode(recebido ?? "")),
+    crypto.subtle.digest("SHA-256", codificador.encode(esperado)),
+  ]);
+  return crypto.subtle.timingSafeEqual(a, b);
+}
+
 // Envia um aviso e verifica a resposta do Telegram.
-// Se responder 403 (a pessoa bloqueou o bot), desliga os avisos dessa pessoa.
+// Se responder 403 (a pessoa bloqueou o bot), apaga o registo dessa pessoa.
 async function enviarAviso(env, chatId, texto) {
   try {
     const resposta = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
@@ -48,7 +59,7 @@ async function enviarAviso(env, chatId, texto) {
     });
     if (resposta.status === 403) {
       await env.DB.prepare(
-        "UPDATE utilizadores SET avisos_ligados = 0, atualizado_em = datetime('now') WHERE chat_id = ?"
+        "DELETE FROM utilizadores WHERE chat_id = ?"
       )
         .bind(chatId)
         .run();
@@ -84,43 +95,37 @@ async function tratarMensagem(env, mensagem) {
   let resposta;
 
   try {
-    // Regista o utilizador; se já existe, não mexe em avisos_ligados.
-    await env.DB.prepare(
-      "INSERT INTO utilizadores (chat_id) VALUES (?) ON CONFLICT(chat_id) DO UPDATE SET atualizado_em = datetime('now')"
-    )
-      .bind(chatId)
-      .run();
-
+    // Todas as queries usam sempre o chat_id de quem enviou a mensagem (nunca um valor do texto).
     const comando = lerComando(mensagem.text);
 
-    if (comando === "/parar") {
+    if (comando === "/ligar") {
+      // Único ponto onde alguém fica registado.
       await env.DB.prepare(
-        "UPDATE utilizadores SET avisos_ligados = 0, atualizado_em = datetime('now') WHERE chat_id = ?"
+        "INSERT INTO utilizadores (chat_id, avisos_ligados) VALUES (?, 1) ON CONFLICT(chat_id) DO UPDATE SET avisos_ligados = 1, atualizado_em = datetime('now')"
       )
         .bind(chatId)
         .run();
-      resposta = "Feito! Os avisos ficaram desligados. Para os voltar a ligar, usa /ligar.";
-    } else if (comando === "/ligar") {
-      await env.DB.prepare(
-        "UPDATE utilizadores SET avisos_ligados = 1, atualizado_em = datetime('now') WHERE chat_id = ?"
-      )
-        .bind(chatId)
-        .run();
-      resposta = "Feito! Os avisos ficaram ligados. Para os desligar, usa /parar.";
+      resposta =
+        "Feito! Os avisos ficaram ligados. Vais receber um aviso por dia, por volta das 10h. Para os desligar, usa /parar.";
+    } else if (comando === "/parar") {
+      await env.DB.prepare("DELETE FROM utilizadores WHERE chat_id = ?").bind(chatId).run();
+      resposta =
+        "Feito! Os avisos ficaram desligados e o teu registo foi apagado. Para os voltar a ligar, usa /ligar.";
+    } else if (comando === "/apagar") {
+      await env.DB.prepare("DELETE FROM utilizadores WHERE chat_id = ?").bind(chatId).run();
+      resposta =
+        "Feito! Apaguei o teu registo do nosso servidor. O progresso do jogo fica só no teu telemóvel e na tua conta do Telegram. Para receber avisos outra vez, usa /ligar.";
     } else if (comando === "/estado") {
+      // Só lê; não grava nada.
       const linha = await env.DB.prepare(
         "SELECT avisos_ligados FROM utilizadores WHERE chat_id = ?"
       )
         .bind(chatId)
         .first();
       resposta =
-        linha && linha.avisos_ligados === 0
-          ? "Os avisos estão desligados. Usa /ligar para os ligar."
-          : "Os avisos estão ligados. Usa /parar para os desligar.";
-    } else if (comando === "/testeaviso") {
-      // TESTE: remover ou proteger antes de abrir a outras pessoas.
-      // Envia o texto do dia só a quem escreveu o comando, sem verificar a hora.
-      resposta = textoDoDia(horaELisboa(new Date()).diaSemana);
+        linha && linha.avisos_ligados === 1
+          ? "Os avisos estão ligados. Usa /parar para os desligar."
+          : "Os avisos estão desligados. Usa /ligar para os ligar.";
     } else {
       resposta = MSG_AJUDA;
     }
@@ -174,7 +179,7 @@ export default {
     if (request.method === "POST") {
       // O Telegram envia este cabeçalho com o segredo do webhook; se não bater certo, rejeitamos o pedido.
       const secretRecebido = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
-      if (secretRecebido !== env.WEBHOOK_SECRET) {
+      if (!(await segredoValido(secretRecebido, env.WEBHOOK_SECRET))) {
         return new Response("Acesso negado", { status: 403 });
       }
 
