@@ -22,7 +22,7 @@ const DIAS_SEMANA = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
 // Hora (0-23) e dia da semana (segunda = 1 ... domingo = 7) em Lisboa.
 // Usa o fuso "Europe/Lisbon", por isso a mudança de hora é tratada sozinha.
 function horaELisboa(data) {
-  const partes = new Intl.DateTimeFormat("en-GB", {
+  const partes = new Intl.DateTimeFormat("en-US", {
     timeZone: "Europe/Lisbon",
     hour: "2-digit",
     hourCycle: "h23",
@@ -34,7 +34,7 @@ function horaELisboa(data) {
 }
 
 function textoDoDia(diaSemana) {
-  return TEXTOS_AVISO[diaSemana - 1];
+  return TEXTOS_AVISO[diaSemana - 1] ?? TEXTOS_AVISO[0];
 }
 
 // Envia um aviso e verifica a resposta do Telegram.
