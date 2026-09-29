@@ -327,6 +327,16 @@ const CHIZO_TOTAL_TURNOS = 4;
 const CHIZO_TURNO_CORRETO = CHIZO_TOTAL_TURNOS - 2; // penúltimo turno
 const CHIZO_DURACAO_TURNO_MS = 2200;
 
+// Duração real de assets/sons/porco_grunhir.mp3 (medida no ficheiro,
+// ~1489ms) — quando há mais do que uma ronda na mesma visita (nevoeiro/
+// trovoada), o grunhido do porco da ronda seguinte começa mesmo a seguir
+// ao ladrar do Chizo desta ronda (ver finishProteger() -> startProteger()
+// abaixo), por isso o ladrar tem de esperar que o grunhido acabe.
+const SOM_DURACAO_PORCO_GRUNHIR_MS = 1490;
+// Pausa curta entre o grunhido do porco acabar e o Chizo começar a
+// ladrar, para os dois sons não se sobreporem e o jogador ouvir os dois.
+const SOM_ATRASO_CAO_MS = 300;
+
 let chizoTurnoAtual = 0;
 let chizoTimerId = null;
 let chizoSessao = 0;
@@ -420,7 +430,14 @@ function alertarChizo() {
 
   const S = pStr();
   if (chizoTurnoAtual === CHIZO_TURNO_CORRETO) {
-    tocarSomFicheiro('assets/sons/chizo_ladrar.mp3', 0.7);
+    // O grunhido do porco da ronda seguinte pode arrancar já a seguir
+    // (ver finishProteger() -> startProteger() abaixo) — só se ouve bem
+    // se o ladrar esperar que esse grunhido acabe (ver constantes acima).
+    const minhaSessao = chizoSessao;
+    setTimeout(function () {
+      if (minhaSessao !== chizoSessao) return; // o jogador já saiu do Proteger
+      tocarSomFicheiro('assets/sons/chizo_ladrar.mp3', 0.7);
+    }, SOM_DURACAO_PORCO_GRUNHIR_MS + SOM_ATRASO_CAO_MS);
     finishProteger(true, S.chizoVitoria);
   } else if (chizoTurnoAtual < CHIZO_TURNO_CORRETO) {
     finishProteger(false, S.chizoCedo);
