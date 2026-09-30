@@ -254,6 +254,7 @@ function nuvemSincronizarAoAbrir() {
     // volta neste momento, e sem este novo despiste ficaria trancado como
     // se fosse um jogador novo.
     if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
+    if (typeof capitulosAvaliarEmSilencio === 'function') capitulosAvaliarEmSilencio();
     nuvemAtualizarEcraAposSync();
   });
 }

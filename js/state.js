@@ -119,6 +119,14 @@ function defaultState() {
     acesso: {
       jogadorAntigo: null,
       introMostrada: false
+    },
+    // Capítulos da Quinta (ver js/capitulos.js). concluidos: { idDoCapitulo:
+    // true } — só sobe, nunca desce. iniciado: false até à primeira
+    // avaliação (ver capitulosAvaliarEmSilencio()), que marca em silêncio o
+    // que já estiver cumprido.
+    capitulos: {
+      iniciado: false,
+      concluidos: {}
     }
   };
 }
