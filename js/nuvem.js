@@ -222,6 +222,20 @@ function nuvemAtualizarEcraAposSync() {
   if (ativo.id === 'screen-enciclopedia' && typeof renderEnciclopedia === 'function') renderEnciclopedia();
 }
 
+// Junta state.capitulos de dois estados por UNIÃO: concluidos e celebrados
+// só sobem (chave a chave); iniciado e celebradosMigrado ficam true se
+// algum dos lados for true. Devolve um objeto novo.
+function nuvemJuntarCapitulos(a, b) {
+  const x = (a && typeof a === 'object') ? a : {};
+  const y = (b && typeof b === 'object') ? b : {};
+  return {
+    iniciado: x.iniciado === true || y.iniciado === true,
+    concluidos: Object.assign({}, x.concluidos, y.concluidos),
+    celebrados: Object.assign({}, x.celebrados, y.celebrados),
+    celebradosMigrado: x.celebradosMigrado === true || y.celebradosMigrado === true
+  };
+}
+
 function nuvemSincronizarAoAbrir() {
   if (!nuvemStorage()) return; // fora do Telegram (e sem ?nuvem=teste): só localStorage, como já era
 
@@ -238,14 +252,20 @@ function nuvemSincronizarAoAbrir() {
     const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
 
     if (localEm >= nuvemEm) {
-      if (localEm > nuvemEm) nuvemGuardarEstado(state); // alinha a nuvem com o local, que é mais recente
+      // Capítulos: o que a nuvem tiver a mais (outro aparelho) entra por união.
+      const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
+      const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos);
+      if (mudou) state.capitulos = juntos;
+      if (localEm > nuvemEm || mudou) nuvemGuardarEstado(state); // alinha a nuvem com o local, que é mais recente
       return;
     }
 
     // A nuvem tem progresso mais recente (ex: o jogador jogou noutro
     // aparelho): usa-o, guarda-o também no localStorage deste aparelho,
     // e refresca o ecrã atual com os novos valores.
+    const capitulosLocais = state.capitulos;
     state = mergeDeep(defaultState(), estadoNuvem);
+    state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     // Só agora (progresso local + nuvem já juntos) é que se pode
     // confirmar com segurança se é um jogador antigo — ver
