@@ -508,6 +508,7 @@ function goTo(screen, opcoes) {
   if (screen === 'quinta') {
     quintaCartaoAberto = false;
     if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
+    if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
