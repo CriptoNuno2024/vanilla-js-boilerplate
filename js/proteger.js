@@ -20,7 +20,7 @@ const PROTEGER_STRINGS = {
     disfarcesIntro: 'Um dos montes de uvas ali à frente... não parece bem certo.',
     monteLabel: 'Monte',
     chizoSubtitulo: 'Acorda o Chizo a tempo',
-    chizoExplicacao: 'Os porcos aproximam-se sozinhos. Acorda o Chizo no momento certo: nem cedo demais, nem tarde demais!',
+    chizoExplicacao: 'Os porcos aproximam-se sozinhos. Acorda o Chizo no momento certo: nem cedo demais, nem tarde demais! Toca quando ouvires os passos junto à porta.',
     chizoComecar: 'Começar',
     chizoBotao: 'Acordar o Chizo!',
     protegida: 'A Quinta está protegida!',
@@ -55,7 +55,7 @@ const PROTEGER_STRINGS = {
     disfarcesIntro: "One of the grape piles up ahead... doesn't look quite right.",
     monteLabel: 'Pile',
     chizoSubtitulo: 'Wake Chizo in time',
-    chizoExplicacao: 'The pigs are creeping closer on their own. Wake Chizo at the right moment: not too early, not too late!',
+    chizoExplicacao: 'The pigs are creeping closer on their own. Wake Chizo at the right moment: not too early, not too late! Tap when you hear the footsteps by the door.',
     chizoComecar: 'Start',
     chizoBotao: 'Wake Chizo!',
     protegida: 'The Farm is protected!',
@@ -90,7 +90,7 @@ const PROTEGER_STRINGS = {
     disfarcesIntro: 'Uno de los montones de uvas ahí delante... no parece muy normal.',
     monteLabel: 'Montón',
     chizoSubtitulo: 'Despierta a Chizo a tiempo',
-    chizoExplicacao: 'Los cerdos se acercan solos. Despierta a Chizo en el momento justo: ¡ni demasiado pronto, ni demasiado tarde!',
+    chizoExplicacao: 'Los cerdos se acercan solos. Despierta a Chizo en el momento justo: ¡ni demasiado pronto, ni demasiado tarde! Toca cuando oigas los pasos junto a la puerta.',
     chizoComecar: 'Empezar',
     chizoBotao: '¡Despertar a Chizo!',
     protegida: '¡La Quinta está protegida!',
@@ -361,12 +361,12 @@ function pararTemporizadorProteger() {
 // Ícone simples de traço para o Chizo (substitui o emoji 🐶).
 const PROTEGER_CAO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M4 10c0-2 1.5-3 3-3l1.5 2h7L17 7c1.5 0 3 1 3 3v4c0 3-2.5 5-5 5h-6c-2.5 0-5-2-5-5v-4z"></path><path d="M8 19v2"></path><path d="M16 19v2"></path></svg>';
 
-// Indicador pequeno no cartão do topo: quão perto os porcos estão (um
-// pontinho aceso por passo já andado, de CHIZO_TOTAL_TURNOS).
+// Indicador pequeno no cartão do topo: quão perto os porcos estão (uma
+// pegada 🐾 acesa por passo já andado, de CHIZO_TOTAL_TURNOS).
 function chizoIndicadorHtml(turno) {
   let pontos = '';
   for (let i = 0; i < CHIZO_TOTAL_TURNOS; i++) {
-    pontos += '<span class="passo' + (i <= turno ? ' ativo' : '') + '"></span>';
+    pontos += '<span class="passo' + (i <= turno ? ' ativo' : '') + '">🐾</span>';
   }
   return '<div class="passos-indicador">' + pontos + '</div>';
 }
@@ -417,6 +417,7 @@ function agendarProximoTurnoChizo(minhaSessao) {
 }
 
 function renderChizo() {
+  vibrar('leve'); // toque leve no início de cada passo (respeita o interruptor do Perfil)
   const S = pStr();
   const container = document.getElementById('proteger-container');
   container.innerHTML =
