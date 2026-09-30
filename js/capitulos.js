@@ -7,8 +7,9 @@
 // js/state.js). Os capítulos nunca travam a subida de nível: os níveis
 // continuam só pela Reputação (ver js/niveis.js).
 //
-// Este ficheiro só tem: os dados, um leitor de critérios e a avaliação
-// SILENCIOSA (abaixo). Não há avaliação normal, balões, selos nem ecrã.
+// Este ficheiro tem: os dados, um leitor de critérios, a avaliação
+// SILENCIOSA (migração única) e a CELEBRAÇÃO de cada capítulo cumprido
+// (uma só vez, um por visita à Quinta). Sem selos, Reputação nem trancas.
 //
 // "criterio" é uma LISTA de alternativas: basta uma ser verdadeira. Cada
 // alternativa é { tipo, caminho, alvo[, campo] }:
@@ -104,15 +105,23 @@ function capitulosLerCriterio(capitulo) {
 // js/nuvem.js), porque a cópia da nuvem pode ser antiga e não trazer
 // "capitulos".
 function capitulosAvaliarEmSilencio() {
-  if (!state.capitulos || typeof state.capitulos !== 'object') state.capitulos = { iniciado: false, concluidos: {} };
+  if (!state.capitulos || typeof state.capitulos !== 'object') state.capitulos = { iniciado: false, concluidos: {}, celebrados: {}, celebradosMigrado: false };
   const cap = state.capitulos;
-  if (cap.iniciado) return;
   if (!cap.concluidos || typeof cap.concluidos !== 'object') cap.concluidos = {};
+  if (!cap.celebrados || typeof cap.celebrados !== 'object') cap.celebrados = {};
+  if (cap.iniciado && cap.celebradosMigrado) return;
 
+  // Migração única: o que já está cumprido conta como concluído E
+  // celebrado (sem balão). "celebradosMigrado" é a marca de que isto já
+  // correu; depois disso nunca mais se marca em silêncio.
   CAPITULOS_CONFIG.forEach(function (c) {
-    if (capitulosLerCriterio(c).cumprido) cap.concluidos[c.id] = true;
+    if (cap.concluidos[c.id] === true || capitulosLerCriterio(c).cumprido) {
+      cap.concluidos[c.id] = true;
+      cap.celebrados[c.id] = true;
+    }
   });
   cap.iniciado = true;
+  cap.celebradosMigrado = true;
 }
 
 // -----------------------------------------------------------------
@@ -156,6 +165,36 @@ const CAPITULOS_STRINGS = {
 function cStr(id) {
   const dict = CAPITULOS_STRINGS[currentLang] || CAPITULOS_STRINGS.pt;
   return dict[id] || CAPITULOS_STRINGS.pt[id] || {};
+}
+
+// CELEBRAÇÃO — chamada em goTo() ao entrar na Quinta (js/main.js), depois
+// da história de nível, e só se esta não apareceu nessa visita. Celebra no
+// máximo UM capítulo (o mais baixo cumprido e ainda não celebrado): marca
+// concluidos + celebrados, grava, mostra o balão e vibra/toca. Devolve true
+// se celebrou.
+function capitulosAvaliarCelebracao() {
+  if (!state.capitulos || typeof state.capitulos !== 'object') return false;
+  const cap = state.capitulos;
+  // Sem a migração feita, nunca celebrar (evita balões retroativos).
+  if (!cap.celebradosMigrado) return false;
+  if (!cap.concluidos || typeof cap.concluidos !== 'object') cap.concluidos = {};
+  if (!cap.celebrados || typeof cap.celebrados !== 'object') cap.celebrados = {};
+
+  // No máximo UM por visita: o mais baixo cumprido e ainda não celebrado.
+  const c = CAPITULOS_CONFIG.filter(function (x) {
+    return cap.celebrados[x.id] !== true && capitulosLerCriterio(x).cumprido;
+  })[0];
+  if (!c) return false;
+
+  cap.concluidos[c.id] = true;
+  cap.celebrados[c.id] = true;
+  saveState(state);
+
+  mostrarFalas([t('capitulo.' + c.id + '.conclusao')], 'YoshiCat');
+  vibrar('sucesso');
+  tocarSom('objetivoCumprido');
+  atualizarCapituloQuinta();
+  return true;
 }
 
 // Cumprido se já está em concluidos OU o critério é verdadeiro agora.

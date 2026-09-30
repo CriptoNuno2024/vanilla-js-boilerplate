@@ -62,11 +62,13 @@ function traduzirFalasHistoria(lista) {
 // Mostra a intro uma única vez — só na primeira vez de sempre que um
 // jogador NOVO entra na Quinta (ver goTo() em js/main.js). Jogadores
 // antigos nunca a veem.
+// Devolve true se mostrou a intro agora, false se não.
 function mostrarHistoriaIntro() {
-  if (state.acesso.jogadorAntigo || state.acesso.introMostrada) return;
+  if (state.acesso.jogadorAntigo || state.acesso.introMostrada) return false;
   state.acesso.introMostrada = true;
   saveState(state);
   mostrarFalas(traduzirFalasHistoria(HISTORIA_INTRO), 'YoshiCat');
+  return true;
 }
 
 // Junta a história de TODOS os níveis passados entre nivelAntigo (não

@@ -75,10 +75,13 @@ function atualizarCartaoNivelQuinta() {
 // história desse(s) nível(eis) (ver mostrarHistoriaSubidaNivel() em
 // js/historia.js — junta a história de TODOS os níveis passados, por
 // ordem, se se tiver subido mais do que um de uma vez) e vibra.
+// Devolve true se mostrou história/balão, false se não (ver
+// capitulosAvaliarCelebracao() em js/capitulos.js, que espera pela visita
+// seguinte quando isto devolve true).
 function verificarSubidaNivel() {
   const nivelAntigo = state.niveis.nivelMostrado;
   const nivelAtual = nivelPelaReputacao(state.reputacao);
-  if (nivelAtual <= nivelAntigo) return;
+  if (nivelAtual <= nivelAntigo) return false;
 
   state.niveis.nivelMostrado = nivelAtual;
   saveState(state);
@@ -91,6 +94,7 @@ function verificarSubidaNivel() {
   }
   vibrar('sucesso');
   tocarSom('subiuNivel');
+  return true;
 }
 
 // ---------------------------------------------------------------------

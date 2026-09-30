@@ -109,6 +109,14 @@ const TRANSLATIONS = {
     'historia.nivel6.2': 'Mas o YoshiCat sabe que esta terra guarda histórias muito mais antigas… e esta foi só a primeira.',
     'historia.nivel6.3': 'Em breve: as Garrafas de Coleção.',
 
+    // Balões de conclusão dos Capítulos (textos provisórios)
+    'capitulo.cap1.conclusao': 'A Vinha voltou à vida! Quatro tarefas diferentes e já se nota a mão de quem cuida.',
+    'capitulo.cap2.conclusao': 'Primeira colheita feita! Os guardiões da Quinta estão orgulhosos.',
+    'capitulo.cap3.conclusao': 'A primeira garrafa de Moscatel! Um dia vais contar esta história.',
+    'capitulo.cap4.conclusao': 'O convite da vila está aceite: já tens seis histórias na Enciclopédia.',
+    'capitulo.cap5.conclusao': 'Esta garrafa soube esperar na Cave. Em breve: a Cave de Reserva.',
+    'capitulo.cap6.conclusao': 'Leste todas as histórias antigas da Enciclopédia. Em breve: as Garrafas de Coleção.',
+
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparação',

@@ -123,10 +123,15 @@ function defaultState() {
     // Capítulos da Quinta (ver js/capitulos.js). concluidos: { idDoCapitulo:
     // true } — só sobe, nunca desce. iniciado: false até à primeira
     // avaliação (ver capitulosAvaliarEmSilencio()), que marca em silêncio o
-    // que já estiver cumprido.
+    // que já estiver cumprido. celebrados: { idDoCapitulo: true } — capítulos
+    // cujo balão de conclusão já foi mostrado (ou que já estavam cumpridos
+    // na migração); só sobe, nunca desce. celebradosMigrado: true depois de
+    // a migração única ter marcado o que já estava cumprido como celebrado.
     capitulos: {
       iniciado: false,
-      concluidos: {}
+      concluidos: {},
+      celebrados: {},
+      celebradosMigrado: false
     }
   };
 }

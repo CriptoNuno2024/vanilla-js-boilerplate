@@ -512,8 +512,12 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
-    if (typeof mostrarHistoriaIntro === 'function') mostrarHistoriaIntro();
-    if (typeof verificarSubidaNivel === 'function') verificarSubidaNivel();
+    let mostrouHistoria = false;
+    if (typeof mostrarHistoriaIntro === 'function' && mostrarHistoriaIntro()) mostrouHistoria = true;
+    if (typeof verificarSubidaNivel === 'function' && verificarSubidaNivel()) mostrouHistoria = true;
+    // Celebração de capítulo: só se nenhuma história acabou de aparecer
+    // (senão espera pela visita seguinte). Ver js/capitulos.js.
+    if (!mostrouHistoria && typeof capitulosAvaliarCelebracao === 'function') capitulosAvaliarCelebracao();
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();
       atualizarFaixaFesta();
