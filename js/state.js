@@ -190,7 +190,7 @@ function temProgressoExistente() {
 }
 
 function avaliarJogadorAntigo() {
-  if (state.acesso.jogadorAntigo === true) return; // decidido "antigo": nunca volta a "novo"
+  if (state.acesso.jogadorAntigo !== null) return; // já decidido (antigo ou novo): não se reavalia
   const antigo = temProgressoExistente();
   if (antigo !== state.acesso.jogadorAntigo) {
     state.acesso.jogadorAntigo = antigo;
