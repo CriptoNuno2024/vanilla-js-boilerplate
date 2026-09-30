@@ -185,6 +185,7 @@ function marcarObjetivoCumprido(id) {
   saveState(state);
   updateStatsDisplays();
   atualizarCartaoObjetivosQuinta();
+  if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
   if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
 }
 

@@ -115,4 +115,86 @@ function capitulosAvaliarEmSilencio() {
   cap.iniciado = true;
 }
 
+// -----------------------------------------------------------------
+// TEXTOS DOS CAPÍTULOS (só o título e o objetivo de cada um) e cartão
+// do capítulo atual no ecrã da Quinta (ver #capitulo-container em
+// index.html). "ui" tem os textos soltos do cartão.
+// -----------------------------------------------------------------
+
+const CAPITULOS_STRINGS = {
+  pt: {
+    ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo no Nível {n}', todos: 'Todos os capítulos cumpridos' },
+    cap1: { titulo: 'Devolver a vida à Vinha', objetivo: 'Faz 4 tarefas diferentes na Vinha.' },
+    cap2: { titulo: 'Guardiões da Colheita', objetivo: 'Faz a 1.ª colheita.' },
+    cap3: { titulo: 'O primeiro Moscatel', objetivo: 'Faz a primeira garrafa.' },
+    cap4: { titulo: 'O convite da vila', objetivo: 'Descobre 6 entradas da Enciclopédia.' },
+    cap5: { titulo: 'O que descansa mais tempo', objetivo: 'Deixa uma garrafa descansar 3 dias ou mais na Cave.' },
+    cap6: { titulo: 'Histórias mais antigas', objetivo: 'Descobre todas as entradas da Enciclopédia.' }
+  },
+  en: {
+    ui: { rotulo: 'Chapter', proximo: 'Next chapter at Level {n}', todos: 'All chapters completed' },
+    cap1: { titulo: 'Bringing the Vineyard back to life', objetivo: 'Do 4 different tasks in the Vineyard.' },
+    cap2: { titulo: 'Guardians of the Harvest', objetivo: 'Bring in your first harvest.' },
+    cap3: { titulo: 'The first Moscatel', objetivo: 'Make your first bottle.' },
+    cap4: { titulo: "The village's invitation", objetivo: 'Discover 6 Encyclopedia entries.' },
+    cap5: { titulo: 'What rests the longest', objetivo: 'Let a bottle rest in the Cellar for 3 days or more.' },
+    cap6: { titulo: 'Older stories', objetivo: 'Discover every Encyclopedia entry.' }
+  },
+  es: {
+    ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo en el Nivel {n}', todos: 'Todos los capítulos cumplidos' },
+    cap1: { titulo: 'Devolver la vida al Viñedo', objetivo: 'Haz 4 tareas distintas en el Viñedo.' },
+    cap2: { titulo: 'Guardianes de la Cosecha', objetivo: 'Haz tu primera cosecha.' },
+    cap3: { titulo: 'El primer Moscatel', objetivo: 'Haz tu primera botella.' },
+    cap4: { titulo: 'La invitación de la villa', objetivo: 'Descubre 6 entradas de la Enciclopedia.' },
+    cap5: { titulo: 'Lo que más reposa', objetivo: 'Deja reposar una botella 3 días o más en la Bodega.' },
+    cap6: { titulo: 'Historias más antiguas', objetivo: 'Descubre todas las entradas de la Enciclopedia.' }
+  }
+};
+
+// Como fStr() em js/festas.js: os textos do capítulo "id" (ou "ui") no
+// idioma atual, com o português como reserva.
+function cStr(id) {
+  const dict = CAPITULOS_STRINGS[currentLang] || CAPITULOS_STRINGS.pt;
+  return dict[id] || CAPITULOS_STRINGS.pt[id] || {};
+}
+
+// Cumprido se já está em concluidos OU o critério é verdadeiro agora.
+// Só lê: nunca marca nada no estado (quem marca é a avaliação, ver acima).
+function capituloEstaCumprido(c) {
+  const concluidos = (state.capitulos && state.capitulos.concluidos) || {};
+  return concluidos[c.id] === true || capitulosLerCriterio(c).cumprido;
+}
+
+// Cartão do capítulo atual, dentro do topcard da Quinta (ver
+// #capitulo-container em index.html). Mostra o primeiro capítulo não
+// cumprido cujo nível já foi atingido; sem nenhum, diz qual é o próximo
+// (ou que já estão todos). Só desenha: não grava nem marca nada.
+function atualizarCapituloQuinta() {
+  const container = document.getElementById('capitulo-container');
+  if (!container) return;
+
+  const ui = cStr('ui');
+  const nivelAtual = nivelPelaReputacao(state.reputacao);
+  const porCumprir = CAPITULOS_CONFIG.filter(function (c) { return !capituloEstaCumprido(c); });
+  const atual = porCumprir.filter(function (c) { return c.nivel <= nivelAtual; })[0];
+
+  let conteudo;
+  if (atual) {
+    const s = cStr(atual.id);
+    const r = capitulosLerCriterio(atual);
+    const pct = (isFinite(r.total) && r.total > 0) ? Math.round((r.atual / r.total) * 100) : 0;
+    conteudo =
+      '<p class="mini-bloco-titulo">' + ui.rotulo + ' ' + atual.nivel + ' · ' + s.titulo + '</p>' +
+      '<div class="nivel-barra"><div class="nivel-barra-cheio" style="width:' + pct + '%"></div></div>' +
+      '<p class="objetivo-linha">· ' + s.objetivo + '</p>' +
+      '<p class="mini-sub">' + r.atual + ' / ' + (isFinite(r.total) ? r.total : '?') + '</p>';
+  } else if (porCumprir.length > 0) {
+    conteudo = '<p class="mini-bloco-titulo">' + ui.proximo.replace('{n}', porCumprir[0].nivel) + '</p>';
+  } else {
+    conteudo = '<p class="mini-bloco-titulo">' + ui.todos + '</p>';
+  }
+
+  container.innerHTML = '<div class="mini-bloco">' + conteudo + '</div>';
+}
+
 capitulosAvaliarEmSilencio();
