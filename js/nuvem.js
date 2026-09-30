@@ -87,10 +87,30 @@ const nuvemFalsa = {
   }
 };
 
+// Nuvem "avariada", só com ?nuvem=erro: tudo devolve erro. Com
+// &demora=1 os callbacks nunca respondem (para provar o tempo limite).
+// Serve para testar o "Apagar o meu progresso" quando a nuvem falha.
+function nuvemModoErro() {
+  return new URLSearchParams(location.search).get('nuvem') === 'erro';
+}
+
+function nuvemFazerAvariada() {
+  const semResposta = new URLSearchParams(location.search).get('demora') === '1';
+  function avaria() {
+    const cb = arguments[arguments.length - 1];
+    if (semResposta || typeof cb !== 'function') return;
+    cb(new Error('nuvem de teste avariada'));
+  }
+  return { setItem: avaria, getItem: avaria, getItems: avaria, getKeys: avaria, removeItem: avaria, removeItems: avaria };
+}
+
+const nuvemAvariada = nuvemFazerAvariada();
+
 // Devolve o CloudStorage a usar, ou null se não houver nenhum disponível
 // (fora do Telegram e sem ?nuvem=teste) — nesse caso o jogo fica só com
 // o localStorage, tal como acontecia antes deste ficheiro existir.
 function nuvemStorage() {
+  if (nuvemModoErro()) return nuvemAvariada;
   if (nuvemModoTeste()) return nuvemFalsa;
   const dentroDoTelegram = tg && tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
   if (dentroDoTelegram && tg.CloudStorage) return tg.CloudStorage;
@@ -107,6 +127,7 @@ function nuvemPartirEmPedacos(texto) {
 // erro para fora: se a nuvem falhar ou não existir, callback(false) —
 // o localStorage já foi gravado à parte, em saveState() (js/state.js).
 function nuvemGuardarEstado(s, callback) {
+  if (apagando) { if (callback) callback(false); return; }
   const storage = nuvemStorage();
   if (!storage) { if (callback) callback(false); return; }
 
@@ -123,7 +144,7 @@ function nuvemGuardarEstado(s, callback) {
   const meta = JSON.stringify({ partes: pedacos.length, atualizadoEm: s.ultimaGravacaoEm || Date.now() });
 
   storage.setItem(NUVEM_CHAVE_META, meta, function (erroMeta) {
-    if (erroMeta) { if (callback) callback(false); return; }
+    if (erroMeta || apagando) { if (callback) callback(false); return; }
 
     let restantes = pedacos.length;
     let falhou = false;
@@ -142,6 +163,7 @@ function nuvemGuardarEstado(s, callback) {
 // vezes seguidas ao CloudStorage do Telegram.
 let _nuvemTimerGravacao = null;
 function nuvemGuardarEstadoComAtraso(s) {
+  if (apagando) return;
   if (_nuvemTimerGravacao) clearTimeout(_nuvemTimerGravacao);
   _nuvemTimerGravacao = setTimeout(function () {
     _nuvemTimerGravacao = null;
@@ -204,6 +226,7 @@ function nuvemSincronizarAoAbrir() {
   if (!nuvemStorage()) return; // fora do Telegram (e sem ?nuvem=teste): só localStorage, como já era
 
   nuvemLerEstado(function (estadoNuvem) {
+    if (apagando) return; // a apagar o progresso: não repor nada
     if (!estadoNuvem) {
       // Nuvem vazia: se este aparelho já tem progresso, copia-o agora
       // para a nuvem, para os jogadores atuais não perderem nada.
@@ -232,6 +255,72 @@ function nuvemSincronizarAoAbrir() {
     // se fosse um jogador novo.
     if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
     nuvemAtualizarEcraAposSync();
+  });
+}
+
+// -----------------------------------------------------------------
+// APAGAR O PROGRESSO (botão do Perfil, ver js/perfil.js)
+// -----------------------------------------------------------------
+
+const NUVEM_LIMITE_APAGAR_MS = 8000; // tempo máximo de cada chamada à nuvem ao apagar
+const NUVEM_PREFIXO_APAGAR = 'yc_state_'; // apanha o meta e todas as partes (também as órfãs)
+
+// Cancela a gravação na nuvem que estiver agendada (o temporizador de
+// 800 ms). A bandeira "apagando" é ligada por quem chama.
+function nuvemCancelarGravacaoPendente() {
+  if (_nuvemTimerGravacao) clearTimeout(_nuvemTimerGravacao);
+  _nuvemTimerGravacao = null;
+}
+
+// Nuvem a usar ao apagar: a de teste/erro (se pedido no endereço), ou a
+// do Telegram se existir e for da versão 6.9 ou mais recente (a primeira
+// com getKeys/removeItems). Sem nuvem devolve null.
+function nuvemStorageParaApagar() {
+  const s = nuvemStorage();
+  if (!s) return null;
+  if (nuvemModoTeste() || nuvemModoErro()) return s;
+  if (typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('6.9')) return s;
+  return null;
+}
+
+// Chama fn(cb) e garante UMA só resposta a cb(erro, resultado): se o
+// Telegram não responder dentro do limite, responde com erro.
+function nuvemComLimite(fn, cb) {
+  let respondeu = false;
+  const timer = setTimeout(function () {
+    if (respondeu) return;
+    respondeu = true;
+    cb(new Error('tempo esgotado'));
+  }, NUVEM_LIMITE_APAGAR_MS);
+  try {
+    fn(function (erro, resultado) {
+      if (respondeu) return;
+      respondeu = true;
+      clearTimeout(timer);
+      cb(erro, resultado);
+    });
+  } catch (e) {
+    if (respondeu) return;
+    respondeu = true;
+    clearTimeout(timer);
+    cb(e);
+  }
+}
+
+// Apaga da nuvem todas as chaves "yc_state_*". callback(true) se correu
+// bem (ou se não há nuvem); callback(false) se deu erro ou não respondeu.
+function nuvemApagarTudo(callback) {
+  const storage = nuvemStorageParaApagar();
+  if (!storage) { callback(true); return; }
+
+  nuvemComLimite(function (cb) { storage.getKeys(cb); }, function (erroChaves, chaves) {
+    if (erroChaves || !Array.isArray(chaves)) { callback(false); return; }
+    const aApagar = chaves.filter(function (c) { return String(c).indexOf(NUVEM_PREFIXO_APAGAR) === 0; });
+    if (aApagar.length === 0) { callback(true); return; }
+
+    nuvemComLimite(function (cb) { storage.removeItems(aApagar, cb); }, function (erroApagar) {
+      callback(!erroApagar);
+    });
   });
 }
 

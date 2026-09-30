@@ -140,7 +140,10 @@ function gerarObjetivosDoDia() {
   state.objetivos.dia = diaLisboaDeHoje();
   state.objetivos.lista = escolhidos.map(function (id) { return { id: id, cumprido: false }; });
   state.objetivos.bonusDiaDado = false;
-  saveState(state);
+  // Jogador ainda sem qualquer gravação nem progresso (ex.: logo depois de
+  // "Apagar o meu progresso"): os objetivos ficam só em memória e gravam-se
+  // com a 1.ª ação real, para não criar estado novo na nuvem só por abrir.
+  if (state.ultimaGravacaoEm || temProgressoExistente()) saveState(state);
 }
 
 // Chamada logo ao abrir o jogo (ver fundo deste ficheiro) E sempre que

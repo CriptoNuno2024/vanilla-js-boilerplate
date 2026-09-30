@@ -74,10 +74,12 @@ function renderPerfil() {
         '<label><input type="checkbox" id="perfil-som-check" onchange="alternarSom(this.checked)"> ' +
         '<span data-i18n="perfil.som"></span></label>' +
       '</p>' +
+      '<p class="info-text" id="perfil-apagar-aviso" data-i18n="perfil.apagarAviso" hidden></p>' +
     '</div>' +
     '<div class="action-panel">' +
       convidarHtml +
       '<button type="button" class="btn-pill pill-main pill-grande" onclick="goTo(\'enciclopedia\')" data-i18n="perfil.btnEnciclopedia"></button>' +
+      '<button type="button" class="btn-ghost" onclick="perfilPedirApagar()" data-i18n="perfil.btnApagar"></button>' +
       '<button type="button" class="btn-ghost" onclick="goTo(\'home\')" data-i18n="perfil.btnSairInicio"></button>' +
     '</div>';
 
@@ -99,6 +101,61 @@ function alternarSom(ligada) {
   state.som = ligada;
   saveState(state);
   somAplicarInterruptor(ligada);
+}
+
+// ---------------------------------------------------------------------
+// APAGAR O MEU PROGRESSO — confirmação em dois toques (1.º: botão do
+// Perfil; 2.º: "Apagar tudo"). Só o 2.º apaga. Ver nuvemApagarTudo() em
+// js/nuvem.js (nuvem primeiro; se falhar, não se apaga nada).
+// ---------------------------------------------------------------------
+
+function perfilPedirApagar() {
+  const aviso = document.getElementById('perfil-apagar-aviso');
+  const painel = document.querySelector('#perfil-container .action-panel');
+  if (!aviso || !painel) return;
+  aviso.hidden = false;
+  painel.innerHTML =
+    '<button type="button" id="perfil-apagar-cancelar" class="btn-pill pill-main pill-grande" onclick="renderPerfil()" data-i18n="perfil.apagarCancelar"></button>' +
+    '<button type="button" id="perfil-apagar-confirmar" class="btn-ghost" onclick="perfilApagarTudo()" data-i18n="perfil.apagarConfirmar"></button>';
+  applyTranslations();
+  aviso.scrollIntoView({ block: 'nearest' });
+}
+
+function perfilApagarBotoes(ativos) {
+  ['perfil-apagar-cancelar', 'perfil-apagar-confirmar'].forEach(function (id) {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = !ativos; b.style.opacity = ativos ? '' : '0.5'; }
+  });
+}
+
+function perfilApagarTudo() {
+  if (apagando) return;
+  // Trava tudo o que grava, ANTES de apagar.
+  apagando = true;
+  nuvemCancelarGravacaoPendente();
+  if (typeof pararRelogioVinha === 'function') pararRelogioVinha();
+  perfilApagarBotoes(false);
+  const aviso = document.getElementById('perfil-apagar-aviso');
+  if (aviso) aviso.textContent = t('perfil.apagarA');
+
+  nuvemApagarTudo(function (ok) {
+    if (!ok) {
+      // Falhou ou não respondeu: não se apagou nada, nem no aparelho.
+      apagando = false;
+      if (aviso) aviso.textContent = t('perfil.apagarAviso');
+      perfilApagarBotoes(true);
+      showMessage(t('perfil.apagarFalha'));
+      return;
+    }
+    // Nuvem apagada (ou inexistente): só as duas chaves conhecidas.
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TEMPO_CACHE_KEY);
+    } catch (e) { /* sem acesso ao localStorage: nada mais a apagar */ }
+    if (aviso) aviso.textContent = t('perfil.apagarFeito');
+    // "apagando" fica ligado: nada volta a gravar antes do reload.
+    setTimeout(function () { location.reload(); }, 600);
+  });
 }
 
 // Abre a partilha do Telegram com o link do jogo. Não lê contactos, não guarda
