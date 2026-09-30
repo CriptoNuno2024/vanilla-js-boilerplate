@@ -18,6 +18,10 @@ const tg = window.Telegram.WebApp;
 
 const STORAGE_KEY = 'yoshicat_quinta_state_v2';
 
+// Ligada enquanto o Perfil está a apagar o progresso (ver perfilApagarTudo()
+// em js/perfil.js): com isto a true, saveState() e a nuvem não gravam nada.
+let apagando = false;
+
 function defaultState() {
   return {
     uvas: 0,
@@ -147,6 +151,7 @@ function loadState() {
 }
 
 function saveState(s) {
+  if (apagando) return;
   s.ultimaGravacaoEm = Date.now();
   // FUTURO: substituir esta linha por uma chamada à API (ver nota acima).
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
