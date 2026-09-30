@@ -2,6 +2,15 @@
 // PERFIL — pontos atuais, galeria de garrafas e título especial
 // ---------------------------------------------------------------------
 
+// Convite de amigos (botão "Convidar amigos" no Perfil): escondido por defeito.
+// Aparece se CONVITES_ATIVOS for true ou se o endereço tiver ?convites=teste.
+const CONVITES_ATIVOS = false;
+const LINK_CONVITE = 'https://t.me/YoshiCatQuintaBot';
+
+function convitesVisiveis() {
+  return CONVITES_ATIVOS || new URLSearchParams(location.search).get('convites') === 'teste';
+}
+
 // Ícones simples de traço (substituem os emojis 🍇💧⭐🍾📖🏅).
 const PERFIL_ICONES = {
   uvas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><circle cx="9" cy="16" r="3"></circle><circle cx="15" cy="18" r="3"></circle><circle cx="11" cy="11" r="3"></circle><circle cx="17" cy="12.5" r="3"></circle><path d="M12 5v3.5"></path><path d="M12 5c1.4-1.3 3-1.8 4.6-1.6"></path></svg>',
@@ -39,6 +48,10 @@ function renderPerfil() {
     ? '<p class="info-text">' + state.garrafas + ' — <span data-i18n="perfil.ultimaLabel"></span>: ' + state.ultimaGarrafaData + '</p>'
     : '<p class="info-text" data-i18n="perfil.semGarrafas"></p>';
 
+  const convidarHtml = convitesVisiveis()
+    ? '<button type="button" class="btn-ghost" onclick="convidarAmigos()" data-i18n="perfil.btnConvidar"></button>'
+    : '';
+
   container.innerHTML =
     '<div class="topcard"><p class="mini-title" data-i18n="perfil.title"></p></div>' +
     '<div class="scroll-panel">' +
@@ -63,6 +76,7 @@ function renderPerfil() {
       '</p>' +
     '</div>' +
     '<div class="action-panel">' +
+      convidarHtml +
       '<button type="button" class="btn-pill pill-main pill-grande" onclick="goTo(\'enciclopedia\')" data-i18n="perfil.btnEnciclopedia"></button>' +
       '<button type="button" class="btn-ghost" onclick="goTo(\'home\')" data-i18n="perfil.btnSairInicio"></button>' +
     '</div>';
@@ -85,4 +99,16 @@ function alternarSom(ligada) {
   state.som = ligada;
   saveState(state);
   somAplicarInterruptor(ligada);
+}
+
+// Abre a partilha do Telegram com o link do jogo. Não lê contactos, não guarda
+// nada e não faz pedidos de rede: é só o Telegram a abrir o seu próprio ecrã.
+function convidarAmigos() {
+  const dentroDoTelegram = tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
+  if (dentroDoTelegram && typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('6.1')) {
+    tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(LINK_CONVITE) +
+      '&text=' + encodeURIComponent(t('convite.texto')));
+  } else {
+    showMessage(t('convite.texto') + '\n\n' + t('convite.fora') + '\n' + LINK_CONVITE);
+  }
 }
