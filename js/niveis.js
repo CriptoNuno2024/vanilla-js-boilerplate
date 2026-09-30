@@ -32,7 +32,9 @@ function nivelPelaReputacao(reputacao) {
 function iniciarNivelSeNecessario() {
   if (state.niveis.nivelMostrado === null) {
     state.niveis.nivelMostrado = nivelPelaReputacao(state.reputacao);
-    saveState(state);
+    // Sem gravação nem progresso (ex.: depois de apagar): fica só em memória
+    // e grava-se com a 1.ª ação real (ver gerarObjetivosDoDia em js/objetivos.js).
+    if (state.ultimaGravacaoEm || temProgressoExistente()) saveState(state);
   }
 }
 iniciarNivelSeNecessario();

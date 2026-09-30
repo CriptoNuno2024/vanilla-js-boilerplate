@@ -194,6 +194,9 @@ function avaliarJogadorAntigo() {
   const antigo = temProgressoExistente();
   if (antigo !== state.acesso.jogadorAntigo) {
     state.acesso.jogadorAntigo = antigo;
+    // "Novo" (false) não se grava: reavalia-se a cada abertura, e assim abrir
+    // o jogo sem progresso não cria estado no localStorage.
+    if (!antigo) return;
     // Grava só no localStorage (não saveState()): esta primeira chamada
     // corre ainda dentro deste ficheiro, antes de js/nuvem.js carregar —
     // nuvemGuardarEstadoComAtraso() ainda não existe. A 2ª chamada (ver
