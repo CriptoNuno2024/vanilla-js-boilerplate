@@ -94,7 +94,27 @@ const VINHA_DICA_SAZONAL_KEY = {
   inverno: { compostagem: 'vinha.dica.compostagem.inverno' }
 };
 
+// ===================================================================
+// PONTO CERTO DA VINDIMA — janela fixa, pelo calendário de Lisboa (não
+// pelo mês do telemóvel): de 15 de setembro a 15 de outubro, inclusive.
+// Colher dentro dela soma +10% às uvas. Só bónus: fora da janela nada
+// é tirado nem bloqueado, e nada é gravado.
+// ===================================================================
+const REGRAS_VINDIMA = {
+  inicio: '09-15', // "MM-DD", inclusive
+  fim: '10-15',    // "MM-DD", inclusive
+  bonusUvas: 0.10
+};
+
+// diaLisboaDeHoje() devolve "YYYY-MM-DD" (ver js/tempo.js): comparam-se
+// só o mês e o dia, como texto.
+function vindimaPontoCerto() {
+  const mmdd = String(diaLisboaDeHoje()).slice(5, 10);
+  return mmdd >= REGRAS_VINDIMA.inicio && mmdd <= REGRAS_VINDIMA.fim;
+}
+
 function dicaVinha(actionKey) {
+  if (actionKey === 'colher' && vindimaPontoCerto()) return t('vinha.dica.colher.pontoCerto');
   const porEstacao = VINHA_DICA_SAZONAL_KEY[estacaoAtual()];
   const key = porEstacao && porEstacao[actionKey];
   return t(key || ('vinha.dica.' + actionKey));
@@ -256,9 +276,12 @@ function botaoVinha(actionKey, i18nKey, bloqueadoExtra, sufixoBloqueado) {
   const sufixo = restante > 0 ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') :
     (bloqueadoExtra && sufixoBloqueado ? (' (' + sufixoBloqueado + ')') : '');
   const temBonusTempo = actionKey === 'regar' && tempoAtual().calorForte;
-  const bonusHtml = (acaoTemBonusEstacao(actionKey) || temBonusTempo)
+  const bonusHtml = ((acaoTemBonusEstacao(actionKey) || temBonusTempo)
     ? ' <span class="bonus-suffix">' + t(VINHA_BONUS_LABEL_KEY[actionKey]) + '</span>'
-    : '';
+    : '') +
+    (actionKey === 'colher' && vindimaPontoCerto()
+      ? ' <span class="bonus-suffix">' + t('vinha.bonusVindima') + '</span>'
+      : '');
   if (!bloqueado) preCarregarFotoVinha(actionKey);
   return '<button class="btn-pill" ' + (bloqueado ? 'disabled' : '') +
     ' onclick="executarAcaoVinha(\'' + actionKey + '\')">' +
@@ -445,10 +468,12 @@ function executarAcaoVinha(actionKey) {
     if (v.fase !== 'pronta') return;
     // O bónus do outono e o bónus da poda juntam-se (somam-se as
     // percentagens): outono sozinho = 1.5x, poda sozinha = 1.25x,
-    // os dois juntos = 1.75x.
+    // os dois juntos = 1.75x. O ponto certo da vindima (ver
+    // vindimaPontoCerto()) soma mais 0.10 às uvas.
     const bonusOutono = acaoTemBonusEstacao('colher') ? (VINHA_MULTIPLICADOR_BONUS - 1) : 0;
     const bonusPoda = v.bonusPoda ? REGRAS_PODA.bonusVindima : 0;
-    const multiplicador = 1 + bonusOutono + bonusPoda;
+    const bonusPontoCerto = vindimaPontoCerto() ? REGRAS_VINDIMA.bonusUvas : 0;
+    const multiplicador = 1 + bonusOutono + bonusPoda + bonusPontoCerto;
     const uvasBase = Math.max(1, 12 + v.pontosCuidado * 4 + randInt(-2, 2));
     const uvasGanhas = Math.round(uvasBase * multiplicador);
     const repGanha = bonusOutono > 0 ? randInt(2, 5) : 0;

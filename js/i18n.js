@@ -182,6 +182,8 @@ const TRANSLATIONS = {
     'vinha.bonusCuidado': '(+50% cuidado)',
     'vinha.bonusAdubo': '(+50% adubo)',
     'vinha.bonusColheita': '(+50% uvas e reputação)',
+    'vinha.bonusVindima': '(+10% no ponto certo)',
+    'vinha.dica.colher.pontoCerto': 'É o ponto certo da vindima: colhe agora e ganhas um extra!',
 
     // Frase de sabor mostrada no balão depois de cada ação da Vinha
     // (ver VINHA_FLAVOR em js/vinha.js) — fora da estação de bónus.
@@ -506,6 +508,8 @@ const TRANSLATIONS = {
     'vinha.bonusCuidado': '(+50% care)',
     'vinha.bonusAdubo': '(+50% compost)',
     'vinha.bonusColheita': '(+50% grapes and reputation)',
+    'vinha.bonusVindima': '(+10% at the perfect moment)',
+    'vinha.dica.colher.pontoCerto': 'Perfect harvest moment: pick now for an extra bonus!',
 
     'vinha.dica.cavar': 'Turning the soil airs out the roots and readies the ground for a new planting.',
     'vinha.dica.plantar': 'The new Moscatel Graúdo cuttings are planted with care, in rows facing west.',
@@ -824,6 +828,8 @@ const TRANSLATIONS = {
     'vinha.bonusCuidado': '(+50% cuidado)',
     'vinha.bonusAdubo': '(+50% abono)',
     'vinha.bonusColheita': '(+50% uvas y reputación)',
+    'vinha.bonusVindima': '(+10% en su punto)',
+    'vinha.dica.colher.pontoCerto': '¡Es el punto justo de la vendimia: cosecha ahora y ganas un extra!',
 
     'vinha.dica.cavar': 'Remover la tierra airea las raíces y prepara el suelo para una nueva plantación.',
     'vinha.dica.plantar': 'Los nuevos esquejes de Moscatel Graúdo se plantan con cuidado, en filas orientadas al poniente.',
