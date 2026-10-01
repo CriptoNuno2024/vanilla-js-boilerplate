@@ -172,3 +172,45 @@ function convidarAmigos() {
     showMessage(t('convite.texto') + '\n\n' + t('convite.fora') + '\n' + LINK_CONVITE);
   }
 }
+
+// ---------------------------------------------------------------------
+// FOTO DO TELEGRAM NO BOTÃO DO PERFIL (.profile-btn na barra de topo) —
+// SÓ MOSTRA, nunca guarda: lê apenas tg.initDataUnsafe.user.photo_url (nenhum
+// outro campo do utilizador) e o endereço fica numa variável local e no src
+// da imagem — não vai para o state, localStorage, nuvem, logs nem bot.
+// Se não houver foto, o endereço for inválido, a imagem falhar ou o jogo
+// abrir fora do Telegram, fica o desenho (SVG) de sempre. O botão é HTML
+// estático (index.html): nada o redesenha, por isso a foto não desaparece.
+// ---------------------------------------------------------------------
+function fotoTelegramEnderecoValido(endereco) {
+  try {
+    const u = new URL(endereco);
+    if (u.protocol !== 'https:') return false;
+    return ['t.me', 'telegram.org'].some(function (d) {
+      return u.hostname === d || u.hostname.endsWith('.' + d);
+    });
+  } catch (e) {
+    return false;
+  }
+}
+
+function fotoTelegramNoBotao() {
+  try {
+    const botao = document.querySelector('.profile-btn');
+    const utilizador = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    const endereco = utilizador && utilizador.photo_url;
+    if (!botao || typeof endereco !== 'string' || !fotoTelegramEnderecoValido(endereco)) return;
+    const desenho = botao.querySelector('svg');
+    const img = new Image();
+    img.className = 'profile-foto';
+    img.alt = '';
+    img.referrerPolicy = 'no-referrer';
+    // Só entra no botão depois de carregar: nunca há imagem partida nem botão vazio.
+    img.onload = function () {
+      if (desenho) desenho.style.display = 'none';
+      botao.appendChild(img);
+    };
+    img.src = endereco;
+  } catch (e) { /* sem foto: fica o desenho de sempre */ }
+}
+fotoTelegramNoBotao();
