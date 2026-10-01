@@ -146,6 +146,10 @@ function main() {
     if (!Object.prototype.hasOwnProperty.call(J.PERSONAGENS_CARAS, nome)) falta('Proteger (falas dos porcos)', 'a personagem "' + nome + '" em PERSONAGENS_CARAS');
   });
 
+  // i) Prateleira da Coleção (Nível 6): textos em pt, en e es
+  ['adega.colecaoTitulo', 'adega.colecaoVazia', 'adega.colecaoDias1', 'adega.colecaoDias2',
+   'adega.colecaoDias3', 'adega.colecaoSaoMartinho'].forEach(function (k) { chave('Prateleira da Coleção', k); });
+
   if (avisos.length > 0) {
     console.log('Avisos (não falham):');
     avisos.forEach(function (a) { console.log(' - ' + a); });
