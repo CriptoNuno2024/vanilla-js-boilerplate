@@ -77,6 +77,7 @@ function renderPerfil() {
         '<label><input type="checkbox" id="perfil-som-check" onchange="alternarSom(this.checked)"> ' +
         '<span data-i18n="perfil.som"></span></label>' +
       '</p>' +
+      '<p class="info-text nuvem-estado" id="perfil-nuvem-estado"></p>' +
       '<p class="info-text" id="perfil-apagar-aviso" data-i18n="perfil.apagarAviso" hidden></p>' +
     '</div>' +
     '<div class="action-panel">' +
@@ -93,6 +94,7 @@ function renderPerfil() {
 
   atualizarDialogo('', '');
   applyTranslations();
+  if (typeof nuvemAtualizarLinhaPerfil === 'function') nuvemAtualizarLinhaPerfil();
 }
 
 function alternarVibracao(ligada) {

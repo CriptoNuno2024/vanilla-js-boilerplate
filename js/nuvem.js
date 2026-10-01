@@ -123,13 +123,70 @@ function nuvemPartirEmPedacos(texto) {
   return pedacos.length ? pedacos : [''];
 }
 
+// DIAGNÓSTICO DA GRAVAÇÃO — só mostra e verifica, nunca decide qual cópia
+// ganha. ok: null antes da 1.ª gravação desta sessão, true/false depois;
+// em: hora (ms) da última gravação CONFIRMADA; erro: null, 'gravacao',
+// 'verificacao' ou 'tamanho'. Sem dados do jogador. Mostrado no Perfil
+// (ver nuvemTextoEstado() e renderPerfil() em js/perfil.js).
+const nuvemEstado = { ok: null, em: 0, erro: null };
+let _nuvemSeqGravacao = 0; // só a gravação mais recente atualiza nuvemEstado
+
+function nuvemTextoEstado() {
+  if (!nuvemStorage()) return t('perfil.nuvemIndisponivel');
+  if (nuvemEstado.ok === true) {
+    const d = new Date(nuvemEstado.em);
+    const hora = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    return t('perfil.nuvemOk').replace('{hora}', hora);
+  }
+  if (nuvemEstado.ok === false) return t('perfil.nuvemFalhou');
+  return t('perfil.nuvemSemGravacao');
+}
+
+function nuvemAtualizarLinhaPerfil() {
+  const el = document.getElementById('perfil-nuvem-estado');
+  if (el) el.textContent = nuvemTextoEstado();
+}
+
+// Lê de volta o meta e as partes UMA vez e compara o carimbo, o número de
+// partes e o tamanho total com o que se gravou. callback(true/false).
+function nuvemVerificarGravacao(storage, meta, tamanhoTotal, chaves, callback) {
+  storage.getItem(NUVEM_CHAVE_META, function (erro, metaTexto) {
+    if (erro || !metaTexto) { callback(false); return; }
+    let lido;
+    try { lido = JSON.parse(metaTexto); } catch (e) { callback(false); return; }
+    if (!lido || lido.atualizadoEm !== meta.atualizadoEm || lido.partes !== meta.partes) { callback(false); return; }
+    storage.getItems(chaves, function (erroPartes, valores) {
+      if (erroPartes || !valores) { callback(false); return; }
+      const total = chaves.reduce(function (soma, c) { return soma + (valores[c] || '').length; }, 0);
+      callback(total === tamanhoTotal);
+    });
+  });
+}
+
 // Guarda o estado completo na nuvem, partido em pedaços. Nunca lança
 // erro para fora: se a nuvem falhar ou não existir, callback(false) —
 // o localStorage já foi gravado à parte, em saveState() (js/state.js).
+// O resultado (e a verificação) fica em nuvemEstado.
 function nuvemGuardarEstado(s, callback) {
   if (apagando) { if (callback) callback(false); return; }
   const storage = nuvemStorage();
   if (!storage) { if (callback) callback(false); return; }
+
+  const seq = ++_nuvemSeqGravacao;
+  function concluir(ok, erro) {
+    if (seq === _nuvemSeqGravacao) {
+      nuvemEstado.ok = ok;
+      nuvemEstado.erro = ok ? null : erro;
+      if (ok) nuvemEstado.em = Date.now();
+      if (!ok && typeof console !== 'undefined' && console.warn) {
+        console.warn(erro === 'verificacao' ? 'Nuvem: a gravação não coincide com a leitura de volta.'
+          : erro === 'tamanho' ? 'Nuvem: estado demasiado grande para gravar.'
+          : 'Nuvem: a gravação falhou.');
+      }
+      nuvemAtualizarLinhaPerfil();
+    }
+    if (callback) callback(ok);
+  }
 
   const texto = JSON.stringify(s);
   const pedacos = nuvemPartirEmPedacos(texto);
@@ -137,14 +194,15 @@ function nuvemGuardarEstado(s, callback) {
   if (pedacos.length > NUVEM_MAX_PARTES) {
     // Progresso ficou grande demais para a nuvem — não arrisca gravar
     // só metade; o localStorage continua a funcionar normalmente.
-    if (callback) callback(false);
+    concluir(false, 'tamanho');
     return;
   }
 
-  const meta = JSON.stringify({ partes: pedacos.length, atualizadoEm: s.ultimaGravacaoEm || Date.now() });
+  const meta = { partes: pedacos.length, atualizadoEm: s.ultimaGravacaoEm || Date.now() };
 
-  storage.setItem(NUVEM_CHAVE_META, meta, function (erroMeta) {
-    if (erroMeta || apagando) { if (callback) callback(false); return; }
+  storage.setItem(NUVEM_CHAVE_META, JSON.stringify(meta), function (erroMeta) {
+    if (apagando) { if (callback) callback(false); return; }
+    if (erroMeta) { concluir(false, 'gravacao'); return; }
 
     let restantes = pedacos.length;
     let falhou = false;
@@ -152,7 +210,12 @@ function nuvemGuardarEstado(s, callback) {
       storage.setItem(NUVEM_CHAVE_PREFIXO_PARTE + i, pedaco, function (erroParte) {
         if (erroParte) falhou = true;
         restantes -= 1;
-        if (restantes === 0 && callback) callback(!falhou);
+        if (restantes !== 0) return;
+        if (falhou) { concluir(false, 'gravacao'); return; }
+        const chaves = pedacos.map(function (_, j) { return NUVEM_CHAVE_PREFIXO_PARTE + j; });
+        nuvemVerificarGravacao(storage, meta, texto.length, chaves, function (coincide) {
+          concluir(coincide, 'verificacao');
+        });
       });
     });
   });
@@ -162,14 +225,34 @@ function nuvemGuardarEstado(s, callback) {
 // num segundo) numa só gravação na nuvem, para não pedir demasiadas
 // vezes seguidas ao CloudStorage do Telegram.
 let _nuvemTimerGravacao = null;
+let _nuvemEstadoPendente = null;
 function nuvemGuardarEstadoComAtraso(s) {
   if (apagando) return;
   if (_nuvemTimerGravacao) clearTimeout(_nuvemTimerGravacao);
+  _nuvemEstadoPendente = s;
   _nuvemTimerGravacao = setTimeout(function () {
     _nuvemTimerGravacao = null;
+    _nuvemEstadoPendente = null;
     nuvemGuardarEstado(s);
   }, NUVEM_ATRASO_GRAVACAO_MS);
 }
+
+// Grava já, sem esperar pelos 800 ms, quando a página fica escondida ou
+// fecha. Só se houver alteração por gravar (temporizador pendente); cancela
+// esse temporizador para não gravar duas vezes.
+function nuvemGravarJa() {
+  if (!_nuvemTimerGravacao || !_nuvemEstadoPendente) return;
+  clearTimeout(_nuvemTimerGravacao);
+  _nuvemTimerGravacao = null;
+  const s = _nuvemEstadoPendente;
+  _nuvemEstadoPendente = null;
+  nuvemGuardarEstado(s);
+}
+
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden') nuvemGravarJa();
+});
+window.addEventListener('pagehide', nuvemGravarJa);
 
 // Lê o estado guardado na nuvem. Chama callback(null) se não houver
 // nada (ou der erro), ou callback(estadoLido) com ultimaGravacaoEm já
@@ -291,6 +374,7 @@ const NUVEM_PREFIXO_APAGAR = 'yc_state_'; // apanha o meta e todas as partes (ta
 function nuvemCancelarGravacaoPendente() {
   if (_nuvemTimerGravacao) clearTimeout(_nuvemTimerGravacao);
   _nuvemTimerGravacao = null;
+  _nuvemEstadoPendente = null;
 }
 
 // Nuvem a usar ao apagar: a de teste/erro (se pedido no endereço), ou a
