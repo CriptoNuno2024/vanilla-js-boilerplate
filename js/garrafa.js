@@ -176,6 +176,47 @@ function garrafaQueMaisDescansou() {
   return maior === null ? null : Math.floor(maior);
 }
 
+// Prateleira da Coleção (Nível 6) — só leitura, calculada a partir de
+// state.adega.historico (nada é gravado). As garrafas de festa (Edição São
+// Martinho) contam à parte; as outras, por dias de descanso: 1, 2, 3 ou mais.
+// Entradas sem campos (garrafas antigas) são ignoradas.
+function colecaoVisivel() {
+  return !!state.acesso.jogadorAntigo || nivelPelaReputacao(state.reputacao) >= 6;
+}
+
+function contarColecao() {
+  const h = state.adega && state.adega.historico;
+  const c = { saoMartinho: 0, dias1: 0, dias2: 0, dias3: 0 };
+  if (!Array.isArray(h)) return c;
+  h.forEach(function (e) {
+    if (!e || typeof e !== 'object') return;
+    if (e.festa) { c.saoMartinho++; return; }
+    const d = Number(e.diasDescanso);
+    if (e.diasDescanso === null || e.diasDescanso === undefined || !Number.isFinite(d)) return;
+    if (d === 1) c.dias1++;
+    else if (d === 2) c.dias2++;
+    else if (d >= 3) c.dias3++;
+  });
+  return c;
+}
+
+function colecaoHtml() {
+  if (!colecaoVisivel()) return '';
+  const c = contarColecao();
+  const linhas = [
+    ['adega.colecaoDias1', c.dias1],
+    ['adega.colecaoDias2', c.dias2],
+    ['adega.colecaoDias3', c.dias3],
+    ['adega.colecaoSaoMartinho', c.saoMartinho]
+  ].filter(function (l) { return l[1] > 0; }).map(function (l) {
+    return '<p class="colecao-linha">' + t(l[0]).replace('{n}', l[1]) + '</p>';
+  });
+  return '<div class="colecao-bloco">' +
+    '<p class="mini-bloco-titulo">' + t('adega.colecaoTitulo') + '</p>' +
+    (linhas.length ? linhas.join('') : '<p class="colecao-linha">' + t('adega.colecaoVazia') + '</p>') +
+  '</div>';
+}
+
 function reservaHtml() {
   if (!caveReservaAberta()) return '';
   let linha = '';
@@ -194,6 +235,7 @@ function reservaHtml() {
     '<p class="phase-desc" data-i18n="adega.reservaTexto1"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto2"></p>' +
     linha +
+    colecaoHtml() +
   '</div>';
 }
 
