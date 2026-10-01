@@ -35,6 +35,8 @@ const PROTEGER_STRINGS = {
     ],
     fechaduraVitoria: 'O Fygmo2 desiste, guarda o monóculo e foge pela vinha fora — a Reserva Especial está a salvo.',
     fechaduraDerrota: 'Tarde demais... o Fygmo2 força a fechadura e escapa com uma garrafa da Reserva Especial.',
+    fechaduraReservaFygmo: 'Hmpf… a Reserva safou-se. Mas já lhe sentimos o cheiro!',
+    fechaduraReservaFygmo2: 'Hehe! Uma garrafinha da Reserva Especial não se desperdiça!',
     disfarceVitoria: function (porco) { return 'Debaixo das folhas estava o ' + porco + ', apanhado em flagrante a tentar fugir com a colheita!'; },
     disfarceDerrota: function (porco) { return 'Era só uva a sério... enquanto isso, o ' + porco + ' escapa com um cesto cheio.'; },
     chizoTurnos: [
@@ -70,6 +72,8 @@ const PROTEGER_STRINGS = {
     ],
     fechaduraVitoria: 'Fygmo2 gives up, puts away his monocle and flees across the vineyard — the Special Reserve is safe.',
     fechaduraDerrota: 'Too late... Fygmo2 forces the lock and escapes with a bottle from the Special Reserve.',
+    fechaduraReservaFygmo: 'Hmpf… the Reserve is safe. But we can smell it already!',
+    fechaduraReservaFygmo2: 'Hehe! A little bottle of the Special Reserve won\'t go to waste!',
     disfarceVitoria: function (porco) { return 'Under the leaves was ' + porco + ', caught red-handed trying to escape with the harvest!'; },
     disfarceDerrota: function (porco) { return 'It was real grapes after all... meanwhile, ' + porco + ' escapes with a full basket.'; },
     chizoTurnos: [
@@ -105,6 +109,8 @@ const PROTEGER_STRINGS = {
     ],
     fechaduraVitoria: 'El Fygmo2 se rinde, guarda el monóculo y huye por el viñedo — la Reserva Especial está a salvo.',
     fechaduraDerrota: 'Demasiado tarde... el Fygmo2 fuerza la cerradura y escapa con una botella de la Reserva Especial.',
+    fechaduraReservaFygmo: 'Hmpf… la Reserva se salvó. ¡Pero ya le olemos!',
+    fechaduraReservaFygmo2: '¡Jeje! ¡Una botellita de la Reserva Especial no se desperdicia!',
     disfarceVitoria: function (porco) { return '¡Debajo de las hojas estaba el ' + porco + ', atrapado con las manos en la masa intentando huir con la cosecha!'; },
     disfarceDerrota: function (porco) { return 'Era solo uva de verdad... mientras tanto, el ' + porco + ' escapa con un cesto lleno.'; },
     chizoTurnos: [
@@ -512,9 +518,12 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   // vez, com nome próprio (já não "Jogar Novamente").
   // Logo a seguir ao resultado fala o porco: ganhou = Fygmo (perde),
   // perdeu = Fygmo2 (ganha). É só uma fala, não mexe em nada do estado.
+  // Na Fechadura, com a Cave de Reserva aberta, o porco fala da Reserva
+  // Especial (só texto; caveReservaAberta() só lê o estado, ver js/garrafa.js).
+  const daReserva = ultimoTipoProteger === 'fechadura' && typeof caveReservaAberta === 'function' && caveReservaAberta();
   const falas = [mensagem, venceu
-    ? { texto: t('proteger.fala.fygmoPerde'), falante: 'Fygmo' }
-    : { texto: t('proteger.fala.fygmo2Ganha'), falante: 'Fygmo2' }];
+    ? { texto: daReserva ? S.fechaduraReservaFygmo : t('proteger.fala.fygmoPerde'), falante: 'Fygmo' }
+    : { texto: daReserva ? S.fechaduraReservaFygmo2 : t('proteger.fala.fygmo2Ganha'), falante: 'Fygmo2' }];
   if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
   } else if (venceu && !ganhaPremio) {
