@@ -82,6 +82,10 @@ function main() {
     const capitulos = J.CAPITULOS_CONFIG.filter(function (c) { return c.nivel === n; });
     if (capitulos.length === 0) falta(onde, 'um capítulo em CAPITULOS_CONFIG');
     capitulos.forEach(function (c) {
+      // d') o falante do capítulo (opcional) tem de existir em PERSONAGENS_CARAS
+      if (c.falante && !Object.prototype.hasOwnProperty.call(J.PERSONAGENS_CARAS, c.falante)) {
+        falta(onde + ' (capítulo ' + c.id + ')', 'a personagem "' + c.falante + '" em PERSONAGENS_CARAS (falante do capítulo)');
+      }
       LINGUAS.forEach(function (l) {
         const s = (J.CAPITULOS_STRINGS[l] || {})[c.id] || {};
         if (!temTexto(s.titulo)) falta(onde + ' (capítulo ' + c.id + ')', 'o título em ' + l);
