@@ -197,6 +197,39 @@ function capitulosAvaliarCelebracao() {
   return true;
 }
 
+// MODO DE TESTE (só ver a celebração, sem cumprir o capítulo): abre o jogo
+// com ?capitulo=3 (ou cap3) e, se quiseres ver a cara de outra personagem
+// no balão, &falante=Chizo (só nomes de PERSONAGENS_CARAS; senão YoshiCat).
+// Mostra UMA vez por carregamento da página, mesmo que haja intro ou
+// história de nível nessa visita. NÃO ESCREVE NADA: nada de saveState,
+// state.capitulos, nuvem nem localStorage (mostrarFalas, vibrar e tocarSom
+// só mexem no ecrã). Chamada em goTo() ao entrar na Quinta (js/main.js).
+let _capitulosTesteMostrado = false;
+
+function capitulosParametrosTeste() {
+  let params;
+  try { params = new URLSearchParams(location.search); } catch (e) { return null; }
+  const m = /^(?:cap)?([1-6])$/i.exec(params.get('capitulo') || '');
+  if (!m) return null;
+  const id = 'cap' + m[1];
+  if (!CAPITULOS_CONFIG.some(function (x) { return x.id === id; })) return null;
+  const f = params.get('falante');
+  const falante = (f && typeof caraDoPersonagem === 'function' && caraDoPersonagem(f)) ? f : 'YoshiCat';
+  return { id: id, falante: falante };
+}
+
+// Devolve true se mostrou a celebração de teste nesta chamada.
+function capitulosCelebracaoDeTeste() {
+  if (_capitulosTesteMostrado) return false;
+  const teste = capitulosParametrosTeste();
+  if (!teste) return false;
+  _capitulosTesteMostrado = true;
+  mostrarFalas([t('capitulo.' + teste.id + '.conclusao')], teste.falante);
+  vibrar('sucesso');
+  tocarSom('objetivoCumprido');
+  return true;
+}
+
 // Cumprido se já está em concluidos OU o critério é verdadeiro agora.
 // Só lê: nunca marca nada no estado (quem marca é a avaliação, ver acima).
 function capituloEstaCumprido(c) {
