@@ -20,6 +20,9 @@
 //   algumaEntrada  — alguma entrada da lista em "caminho" tem campo >= alvo
 // "alvo" pode ser um número ou o nome de um alvo calculado (ver
 // capitulosResolverAlvo()).
+//
+// "falante" (opcional) é quem diz a conclusão no balão: um nome de
+// PERSONAGENS_CARAS (js/personagens.js). Sem ele fala o YoshiCat.
 // ---------------------------------------------------------------------
 
 const CAPITULOS_CONFIG = [
@@ -34,7 +37,7 @@ const CAPITULOS_CONFIG = [
   },
   { id: 'cap3', nivel: 3, criterio: [{ tipo: 'numero', caminho: 'garrafas', alvo: 1 }] },
   { id: 'cap4', nivel: 4, criterio: [{ tipo: 'contarLista', caminho: 'encyclopedia.unlocked', alvo: 6 }] },
-  { id: 'cap5', nivel: 5, criterio: [{ tipo: 'algumaEntrada', caminho: 'adega.historico', campo: 'diasDescanso', alvo: 3 }] },
+  { id: 'cap5', nivel: 5, falante: 'Chizo', criterio: [{ tipo: 'algumaEntrada', caminho: 'adega.historico', campo: 'diasDescanso', alvo: 3 }] },
   { id: 'cap6', nivel: 6, criterio: [{ tipo: 'contarLista', caminho: 'encyclopedia.unlocked', alvo: 'totalEnciclopedia' }] }
 ];
 
@@ -190,7 +193,7 @@ function capitulosAvaliarCelebracao() {
   cap.celebrados[c.id] = true;
   saveState(state);
 
-  mostrarFalas([t('capitulo.' + c.id + '.conclusao')], 'YoshiCat');
+  mostrarFalas([t('capitulo.' + c.id + '.conclusao')], c.falante || 'YoshiCat');
   vibrar('sucesso');
   tocarSom('objetivoCumprido');
   atualizarCapituloQuinta();
@@ -199,7 +202,8 @@ function capitulosAvaliarCelebracao() {
 
 // MODO DE TESTE (só ver a celebração, sem cumprir o capítulo): abre o jogo
 // com ?capitulo=3 (ou cap3) e, se quiseres ver a cara de outra personagem
-// no balão, &falante=Chizo (só nomes de PERSONAGENS_CARAS; senão YoshiCat).
+// no balão, &falante=Chizo (só nomes de PERSONAGENS_CARAS; senão fala quem o
+// capítulo define em CAPITULOS_CONFIG, ou o YoshiCat).
 // Mostra UMA vez por carregamento da página, mesmo que haja intro ou
 // história de nível nessa visita. NÃO ESCREVE NADA: nada de saveState,
 // state.capitulos, nuvem nem localStorage (mostrarFalas, vibrar e tocarSom
@@ -213,8 +217,11 @@ function capitulosParametrosTeste() {
   if (!m) return null;
   const id = 'cap' + m[1];
   if (!CAPITULOS_CONFIG.some(function (x) { return x.id === id; })) return null;
+  // ?falante= (só nomes de PERSONAGENS_CARAS) vence; sem ele (ou se for
+  // inválido) fala quem o capítulo define em CAPITULOS_CONFIG, ou o YoshiCat.
   const f = params.get('falante');
-  const falante = (f && typeof caraDoPersonagem === 'function' && caraDoPersonagem(f)) ? f : 'YoshiCat';
+  const doCapitulo = CAPITULOS_CONFIG.filter(function (x) { return x.id === id; })[0].falante;
+  const falante = (f && typeof caraDoPersonagem === 'function' && caraDoPersonagem(f)) ? f : (doCapitulo || 'YoshiCat');
   return { id: id, falante: falante };
 }
 
