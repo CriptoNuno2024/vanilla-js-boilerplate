@@ -131,6 +131,21 @@ function main() {
     if (!fs.existsSync(path.join(RAIZ, f))) falta('Cave de Reserva', 'o ficheiro "' + f + '"');
   });
 
+  // h) falas dos porcos no fim do Proteger: textos em pt/en/es (aviso se > 90
+  // caracteres) e os dois falantes em PERSONAGENS_CARAS
+  ['proteger.fala.fygmoPerde', 'proteger.fala.fygmo2Ganha'].forEach(function (k) {
+    chave('Proteger (falas dos porcos)', k);
+    LINGUAS.forEach(function (l) {
+      const texto = tr[l] && tr[l][k];
+      if (temTexto(texto) && texto.length > LIMITE_CONCLUSAO) {
+        avisos.push('Proteger: "' + k + '" em ' + l + ' tem ' + texto.length + ' caracteres (limite ' + LIMITE_CONCLUSAO + ')');
+      }
+    });
+  });
+  ['Fygmo', 'Fygmo2'].forEach(function (nome) {
+    if (!Object.prototype.hasOwnProperty.call(J.PERSONAGENS_CARAS, nome)) falta('Proteger (falas dos porcos)', 'a personagem "' + nome + '" em PERSONAGENS_CARAS');
+  });
+
   if (avisos.length > 0) {
     console.log('Avisos (não falham):');
     avisos.forEach(function (a) { console.log(' - ' + a); });

@@ -82,6 +82,8 @@ const TRANSLATIONS = {
     // Limite diário de prémios no Proteger (ver js/proteger.js).
     'proteger.modoTreino': 'O Chizo já está de guarda. Volta amanhã para mais prémios!',
     'proteger.modoTreinoResultado': 'Sem prémio — modo treino.',
+    'proteger.fala.fygmoPerde': 'Hmpf… desta vez ganhaste. Amanhã voltamos!',
+    'proteger.fala.fygmo2Ganha': 'Hehe! O cesto é nosso, YoshiCat!',
 
     // Áreas por Nível (ver js/niveis.js) e "Primeiros Passos" na Vinha
     // (ver js/vinha.js).
@@ -407,6 +409,8 @@ const TRANSLATIONS = {
 
     'proteger.modoTreino': 'Chizo is already on guard. Come back tomorrow for more prizes!',
     'proteger.modoTreinoResultado': 'No prize — training mode.',
+    'proteger.fala.fygmoPerde': 'Hmpf… you won this time. We\'ll be back tomorrow!',
+    'proteger.fala.fygmo2Ganha': 'Hehe! The basket is ours, YoshiCat!',
 
     'acesso.trancado': 'Unlocks at Level {n} · {nome} — {faltam} more Reputation needed.',
     'vinha.primeiroPassoMsg': 'First steps in the Vineyard! (+{n} Reputation)',
@@ -717,6 +721,8 @@ const TRANSLATIONS = {
 
     'proteger.modoTreino': 'El Chizo ya está de guardia. ¡Vuelve mañana para más premios!',
     'proteger.modoTreinoResultado': 'Sin premio — modo entrenamiento.',
+    'proteger.fala.fygmoPerde': 'Hmpf… esta vez ganaste. ¡Mañana volvemos!',
+    'proteger.fala.fygmo2Ganha': '¡Jeje! ¡El cesto es nuestro, YoshiCat!',
 
     'acesso.trancado': 'Se abre en el Nivel {n} · {nome} — faltan {faltam} de Reputación.',
     'vinha.primeiroPassoMsg': '¡Primeros pasos en el Viñedo! (+{n} Reputación)',
