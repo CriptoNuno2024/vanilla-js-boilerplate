@@ -109,13 +109,13 @@ const TRANSLATIONS = {
     'historia.nivel6.2': 'Mas o YoshiCat sabe que esta terra guarda histórias muito mais antigas… e esta foi só a primeira.',
     'historia.nivel6.3': 'Em breve: as Garrafas de Coleção.',
 
-    // Balões de conclusão dos Capítulos (textos provisórios)
-    'capitulo.cap1.conclusao': 'A Vinha voltou à vida! Quatro tarefas diferentes e já se nota a mão de quem cuida.',
-    'capitulo.cap2.conclusao': 'Primeira colheita feita! Os guardiões da Quinta estão orgulhosos.',
-    'capitulo.cap3.conclusao': 'A primeira garrafa de Moscatel! Um dia vais contar esta história.',
-    'capitulo.cap4.conclusao': 'O convite da vila está aceite: já tens seis histórias na Enciclopédia.',
-    'capitulo.cap5.conclusao': 'Esta garrafa soube esperar na Cave. Os mais velhos tinham razão: o tempo faz o melhor Moscatel.',
-    'capitulo.cap6.conclusao': 'Leste todas as histórias antigas da Enciclopédia. Em breve: as Garrafas de Coleção.',
+    // Balões de conclusão dos Capítulos
+    'capitulo.cap1.conclusao': 'Quatro tarefas e a Vinha já não parece abandonada.',
+    'capitulo.cap2.conclusao': 'A primeira colheita é nossa! Desta vez os porcos chegaram tarde.',
+    'capitulo.cap3.conclusao': 'A prensa rangeu, mas cumpriu. A primeira garrafa da Quinta está feita.',
+    'capitulo.cap4.conclusao': 'Quem vai às festas tem de conhecer a terra. Já li seis histórias da nossa.',
+    'capitulo.cap5.conclusao': 'Este Moscatel teve paciência. Mas os porcos também já lhe farejaram o cheiro.',
+    'capitulo.cap6.conclusao': 'Esta terra tem mais histórias do que garrafas.',
 
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
@@ -430,6 +430,14 @@ const TRANSLATIONS = {
     'historia.nivel6.2': 'But YoshiCat knows this land holds much older stories... and this was only the first.',
     'historia.nivel6.3': "Coming soon: the Collector's Bottles.",
 
+    // Balões de conclusão dos Capítulos
+    'capitulo.cap1.conclusao': 'Four tasks done and the Vineyard no longer looks abandoned.',
+    'capitulo.cap2.conclusao': 'The first harvest is ours! This time the pigs arrived too late.',
+    'capitulo.cap3.conclusao': 'The press creaked, but it worked. The first bottle is done.',
+    'capitulo.cap4.conclusao': "Those who go to the festivals must know the land. I've read six of its stories.",
+    'capitulo.cap5.conclusao': 'This Moscatel was patient. But the pigs have sniffed it out too.',
+    'capitulo.cap6.conclusao': 'This land has more stories than bottles.',
+
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
     'vinha.faseCurta.preparada': 'Planting',
@@ -731,6 +739,14 @@ const TRANSLATIONS = {
     'historia.nivel6.1': 'Ya nadie la llama Quinta Olvidada. Ahora es la Casa del Moscatel.',
     'historia.nivel6.2': 'Pero el YoshiCat sabe que esta tierra guarda historias mucho más antiguas… y esta fue solo la primera.',
     'historia.nivel6.3': 'Próximamente: las Botellas de Colección.',
+
+    // Balões de conclusão dos Capítulos
+    'capitulo.cap1.conclusao': 'Cuatro tareas y el Viñedo ya no parece abandonado.',
+    'capitulo.cap2.conclusao': '¡La primera cosecha es nuestra! Esta vez los cerdos llegaron tarde.',
+    'capitulo.cap3.conclusao': 'La prensa crujió, pero cumplió. La primera botella de la Quinta está hecha.',
+    'capitulo.cap4.conclusao': 'Quien va a las fiestas debe conocer la tierra. Ya leí seis historias de la nuestra.',
+    'capitulo.cap5.conclusao': 'Este Moscatel tuvo paciencia. Pero los cerdos ya le olfatearon el aroma.',
+    'capitulo.cap6.conclusao': 'Esta tierra tiene más historias que botellas.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',
