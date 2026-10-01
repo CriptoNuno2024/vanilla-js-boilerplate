@@ -150,6 +150,17 @@ function main() {
   ['adega.colecaoTitulo', 'adega.colecaoVazia', 'adega.colecaoDias1', 'adega.colecaoDias2',
    'adega.colecaoDias3', 'adega.colecaoSaoMartinho'].forEach(function (k) { chave('Prateleira da Coleção', k); });
 
+  // j) Ponto certo da vindima: etiqueta e dica em pt, en e es (dica <= 90 caracteres)
+  ['vinha.bonusVindima', 'vinha.dica.colher.pontoCerto'].forEach(function (k) {
+    chave('Ponto certo da vindima', k);
+    LINGUAS.forEach(function (l) {
+      const texto = tr[l] && tr[l][k];
+      if (temTexto(texto) && texto.length > LIMITE_CONCLUSAO) {
+        avisos.push('Vindima: "' + k + '" em ' + l + ' tem ' + texto.length + ' caracteres (limite ' + LIMITE_CONCLUSAO + ')');
+      }
+    });
+  });
+
   if (avisos.length > 0) {
     console.log('Avisos (não falham):');
     avisos.forEach(function (a) { console.log(' - ' + a); });
