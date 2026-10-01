@@ -532,6 +532,7 @@ function goTo(screen, opcoes) {
   if (screen === 'explorar') enterExplorar();
   if (screen === 'enciclopedia') renderEnciclopedia();
   if (screen === 'perfil') renderPerfil();
+  if (screen === 'conquistas') renderConquistas();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
 
