@@ -223,6 +223,7 @@ function mostrarFalaAtual() {
   }
 
   nomeEl.textContent = dialogoNomeAtual;
+  if (typeof mostrarCaraNoBalao === 'function') mostrarCaraNoBalao(dialogoNomeAtual);
   msgEl.textContent = textoDaFala(entrada);
   bolha.hidden = false;
   if (setaEl) setaEl.classList.toggle('oculto', dialogoIndice >= dialogoFila.length - 1);

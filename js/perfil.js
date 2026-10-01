@@ -178,9 +178,11 @@ function convidarAmigos() {
 // SÓ MOSTRA, nunca guarda: lê apenas tg.initDataUnsafe.user.photo_url (nenhum
 // outro campo do utilizador) e o endereço fica numa variável local e no src
 // da imagem — não vai para o state, localStorage, nuvem, logs nem bot.
-// Se não houver foto, o endereço for inválido, a imagem falhar ou o jogo
-// abrir fora do Telegram, fica o desenho (SVG) de sempre. O botão é HTML
-// estático (index.html): nada o redesenha, por isso a foto não desaparece.
+// A reserva é a cara do YoshiCat (js/personagens.js), que aparece logo; a
+// foto do Telegram só a substitui depois de carregar. Se não houver foto, o
+// endereço for inválido, a foto falhar ou o jogo abrir fora do Telegram,
+// fica a cara; se esta também falhar, fica o desenho (SVG) de sempre. O
+// botão é HTML estático (index.html): nada o redesenha.
 // ---------------------------------------------------------------------
 function fotoTelegramEnderecoValido(endereco) {
   try {
@@ -194,23 +196,37 @@ function fotoTelegramEnderecoValido(endereco) {
   }
 }
 
+// Mostra "src" no botão (substituindo a imagem que lá estiver) só depois
+// de carregar: nunca há imagem partida nem botão vazio.
+function perfilBotaoMostrarImagem(botao, src, aoCarregar) {
+  const img = new Image();
+  img.className = 'profile-foto';
+  img.alt = '';
+  img.referrerPolicy = 'no-referrer';
+  img.onload = function () {
+    if (aoCarregar && !aoCarregar()) return;
+    botao.querySelectorAll('img.profile-foto').forEach(function (antiga) { botao.removeChild(antiga); });
+    const desenho = botao.querySelector('svg');
+    if (desenho) desenho.style.display = 'none';
+    botao.appendChild(img);
+  };
+  img.src = src;
+}
+
 function fotoTelegramNoBotao() {
   try {
     const botao = document.querySelector('.profile-btn');
+    if (!botao) return;
+    let temFotoTelegram = false;
+
+    // Reserva: a cara do YoshiCat (nunca sobrepõe a foto do Telegram).
+    const cara = typeof caraDoPersonagem === 'function' ? caraDoPersonagem('YoshiCat') : null;
+    if (cara) perfilBotaoMostrarImagem(botao, cara, function () { return !temFotoTelegram; });
+
     const utilizador = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
     const endereco = utilizador && utilizador.photo_url;
-    if (!botao || typeof endereco !== 'string' || !fotoTelegramEnderecoValido(endereco)) return;
-    const desenho = botao.querySelector('svg');
-    const img = new Image();
-    img.className = 'profile-foto';
-    img.alt = '';
-    img.referrerPolicy = 'no-referrer';
-    // Só entra no botão depois de carregar: nunca há imagem partida nem botão vazio.
-    img.onload = function () {
-      if (desenho) desenho.style.display = 'none';
-      botao.appendChild(img);
-    };
-    img.src = endereco;
-  } catch (e) { /* sem foto: fica o desenho de sempre */ }
+    if (typeof endereco !== 'string' || !fotoTelegramEnderecoValido(endereco)) return;
+    perfilBotaoMostrarImagem(botao, endereco, function () { temFotoTelegram = true; return true; });
+  } catch (e) { /* sem imagem: fica o desenho de sempre */ }
 }
 fotoTelegramNoBotao();

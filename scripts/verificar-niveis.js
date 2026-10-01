@@ -13,7 +13,7 @@ const vm = require('vm');
 const RAIZ = path.join(__dirname, '..');
 const LINGUAS = ['pt', 'en', 'es'];
 // Ordem de carga como no index.html (só os ficheiros de que isto precisa).
-const FICHEIROS = ['state.js', 'i18n.js', 'niveis.js', 'capitulos.js', 'historia.js', 'conquistas.js'];
+const FICHEIROS = ['state.js', 'i18n.js', 'niveis.js', 'capitulos.js', 'historia.js', 'conquistas.js', 'personagens.js'];
 
 function carregarJogo() {
   const guardado = {};
@@ -28,6 +28,7 @@ function carregarJogo() {
     URLSearchParams: URLSearchParams,
     document: { querySelectorAll: function () { return []; }, getElementById: function () { return null; } },
     setTimeout: function () {},
+    Image: function () {},
     Date: Date
   };
   sandbox.window = sandbox;
@@ -40,7 +41,7 @@ function carregarJogo() {
   return vm.runInContext(
     '({ TRANSLATIONS: TRANSLATIONS, NIVEIS_CONFIG: NIVEIS_CONFIG, HISTORIA_NIVEIS: HISTORIA_NIVEIS,' +
     ' CAPITULOS_CONFIG: CAPITULOS_CONFIG, CAPITULOS_STRINGS: CAPITULOS_STRINGS,' +
-    ' NIVEL_NECESSARIO_POR_ECRA: NIVEL_NECESSARIO_POR_ECRA, CONQUISTAS_CONFIG: CONQUISTAS_CONFIG })', ctx);
+    ' NIVEL_NECESSARIO_POR_ECRA: NIVEL_NECESSARIO_POR_ECRA, CONQUISTAS_CONFIG: CONQUISTAS_CONFIG, PERSONAGENS_CARAS: PERSONAGENS_CARAS })', ctx);
 }
 
 const faltas = [];
@@ -99,6 +100,12 @@ function main() {
   J.CONQUISTAS_CONFIG.forEach(function (c) {
     chave('Conquista ' + c.id, c.nomeKey);
     chave('Conquista ' + c.id, c.descKey);
+  });
+
+  // f) cada cara de PERSONAGENS_CARAS existe como ficheiro em disco
+  Object.keys(J.PERSONAGENS_CARAS).forEach(function (nome) {
+    const ficheiro = J.PERSONAGENS_CARAS[nome];
+    if (!fs.existsSync(path.join(RAIZ, ficheiro))) falta('Personagem ' + nome, 'o ficheiro "' + ficheiro + '"');
   });
 
   if (faltas.length === 0) {
