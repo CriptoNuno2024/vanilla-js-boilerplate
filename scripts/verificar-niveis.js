@@ -46,6 +46,8 @@ function carregarJogo() {
 
 const faltas = [];
 function falta(onde, o) { faltas.push(onde + ': falta ' + o); }
+const avisos = [];
+const LIMITE_CONCLUSAO = 90; // caracteres que cabem no balão sem esticar
 
 function temTexto(valor) { return typeof valor === 'string' && valor.trim() !== ''; }
 
@@ -85,7 +87,17 @@ function main() {
         if (!temTexto(s.titulo)) falta(onde + ' (capítulo ' + c.id + ')', 'o título em ' + l);
         if (!temTexto(s.objetivo)) falta(onde + ' (capítulo ' + c.id + ')', 'o objetivo em ' + l);
       });
-      chave(onde + ' (capítulo ' + c.id + ')', 'capitulo.' + c.id + '.conclusao', ['pt']);
+      chave(onde + ' (capítulo ' + c.id + ')', 'capitulo.' + c.id + '.conclusao');
+      // AVISO (não falha): o balão de fala mostra ~2 linhas de texto (ver
+      // .dialogue-msg em index.html); acima de 90 caracteres estica para cima
+      // e tapa mais da cena.
+      LINGUAS.forEach(function (l) {
+        const k = 'capitulo.' + c.id + '.conclusao';
+        const texto = tr[l] && tr[l][k];
+        if (temTexto(texto) && texto.length > LIMITE_CONCLUSAO) {
+          avisos.push(onde + ' (capítulo ' + c.id + '): a conclusão "' + k + '" em ' + l + ' tem ' + texto.length + ' caracteres (limite ' + LIMITE_CONCLUSAO + ')');
+        }
+      });
     });
   });
 
@@ -114,6 +126,11 @@ function main() {
   ['assets/vinha/barril_dourado.jpg', 'assets/vinha/barril.jpg'].forEach(function (f) {
     if (!fs.existsSync(path.join(RAIZ, f))) falta('Cave de Reserva', 'o ficheiro "' + f + '"');
   });
+
+  if (avisos.length > 0) {
+    console.log('Avisos (não falham):');
+    avisos.forEach(function (a) { console.log(' - ' + a); });
+  }
 
   if (faltas.length === 0) {
     console.log('OK');
