@@ -151,6 +151,52 @@ function botaoAdega(acao, i18nKey, bloqueado, sufixoExtra) {
     '</button>';
 }
 
+// ---------------------------------------------------------------------
+// CAVE DE RESERVA — vitrine só de leitura, aberta no Nível 5 (nada é
+// gravado nem premiado). Mesmo teste que ecraDesbloqueado() em
+// js/niveis.js: um jogador antigo (state.acesso.jogadorAntigo) tem tudo
+// aberto. A Reserva Especial é a que a Fechadura do Proteger defende.
+// ---------------------------------------------------------------------
+const CAVE_RESERVA_NIVEL = 5;
+const CAVE_RESERVA_FOTO = 'assets/vinha/barril_dourado.jpg';
+
+function caveReservaAberta() {
+  return !!state.acesso.jogadorAntigo || nivelPelaReputacao(state.reputacao) >= CAVE_RESERVA_NIVEL;
+}
+
+// Maior diasDescanso do histórico, ou null se não houver dados (nada inventado).
+function garrafaQueMaisDescansou() {
+  const h = state.adega && state.adega.historico;
+  if (!Array.isArray(h)) return null;
+  let maior = null;
+  h.forEach(function (e) {
+    const d = e && Number(e.diasDescanso);
+    if (Number.isFinite(d) && d >= 1 && (maior === null || d > maior)) maior = d;
+  });
+  return maior === null ? null : Math.floor(maior);
+}
+
+function reservaHtml() {
+  if (!caveReservaAberta()) return '';
+  let linha = '';
+  if (state.garrafas <= 0) {
+    linha = '<p class="phase-progress" data-i18n="perfil.semGarrafas"></p>';
+  } else {
+    const dias = garrafaQueMaisDescansou();
+    if (dias !== null) {
+      linha = '<p class="phase-progress">' +
+        t(dias === 1 ? 'adega.reservaMaisDescansouUm' : 'adega.reservaMaisDescansou').replace('{n}', dias) + '</p>';
+    }
+  }
+  return '<div class="reserva-bloco">' +
+    '<img class="reserva-foto" src="' + CAVE_RESERVA_FOTO + '" alt="">' +
+    '<p class="mini-bloco-titulo" data-i18n="adega.reservaTitulo"></p>' +
+    '<p class="phase-desc" data-i18n="adega.reservaTexto1"></p>' +
+    '<p class="phase-desc" data-i18n="adega.reservaTexto2"></p>' +
+    linha +
+  '</div>';
+}
+
 function renderAdega() {
   const container = document.getElementById('garrafa-container');
   const a = state.adega;
@@ -173,12 +219,13 @@ function renderAdega() {
         '<p class="phase-desc" data-i18n="garrafa.passo3"></p>' +
         '<p class="phase-progress">' + t('adega.caveDescansado').replace('{tempo}', formatarDiasAdega(dias)) + '</p>' +
         '<p class="phase-progress">' + t('adega.caveReputacaoPrevista').replace('{valor}', repPrevista) + '</p>' +
+        reservaHtml() +
       '</div>';
     }
     botoesHtml += botaoAdega('engarrafar', 'adega.btnEngarrafar', !pronto, sufixoEngarrafar);
   } else {
     if (adegaCartaoAberto) {
-      corpoHtml = '<div class="cartao-corpo"><p class="phase-desc" data-i18n="garrafa.descricao"></p></div>';
+      corpoHtml = '<div class="cartao-corpo"><p class="phase-desc" data-i18n="garrafa.descricao"></p>' + reservaHtml() + '</div>';
     }
     botoesHtml += botaoAdega('fortificar', 'adega.btnFortificar',
       state.gotas < ADEGA_CUSTO_GOTAS_FORTIFICAR || a.aguardente < ADEGA_CUSTO_AGUARDENTE_FORTIFICAR);

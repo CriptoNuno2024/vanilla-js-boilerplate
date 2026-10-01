@@ -108,6 +108,13 @@ function main() {
     if (!fs.existsSync(path.join(RAIZ, ficheiro))) falta('Personagem ' + nome, 'o ficheiro "' + ficheiro + '"');
   });
 
+  // g) Cave de Reserva: textos novos (pt, en, es) e as duas imagens
+  ['adega.reservaTitulo', 'adega.reservaTexto1', 'adega.reservaTexto2',
+   'adega.reservaMaisDescansou', 'adega.reservaMaisDescansouUm'].forEach(function (k) { chave('Cave de Reserva', k); });
+  ['assets/vinha/barril_dourado.jpg', 'assets/vinha/barril.jpg'].forEach(function (f) {
+    if (!fs.existsSync(path.join(RAIZ, f))) falta('Cave de Reserva', 'o ficheiro "' + f + '"');
+  });
+
   if (faltas.length === 0) {
     console.log('OK');
     process.exit(0);
