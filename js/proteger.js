@@ -510,7 +510,11 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   // recompensa — toca para ver a segunda) e sai-se pela barra de
   // baixo, sem botão nenhum. Perdeu: fica um botão para tentar outra
   // vez, com nome próprio (já não "Jogar Novamente").
-  const falas = [mensagem];
+  // Logo a seguir ao resultado fala o porco: ganhou = Fygmo (perde),
+  // perdeu = Fygmo2 (ganha). É só uma fala, não mexe em nada do estado.
+  const falas = [mensagem, venceu
+    ? { texto: t('proteger.fala.fygmoPerde'), falante: 'Fygmo' }
+    : { texto: t('proteger.fala.fygmo2Ganha'), falante: 'Fygmo2' }];
   if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
   } else if (venceu && !ganhaPremio) {

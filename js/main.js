@@ -194,7 +194,9 @@ let dialogoComFotoPropria = false;
 // Cada entrada da fila pode ser só texto (como sempre foi) ou um objeto
 // { texto, foto, pos } — usado pela história (ver js/historia.js) para
 // trocar a foto de fundo em falas certas, sem afetar nenhuma das
-// chamadas antigas, que continuam a passar só texto.
+// chamadas antigas, que continuam a passar só texto. Pode ainda ter
+// falante (nome de PERSONAGENS_CARAS): essa fala mostra esse nome e essa
+// cara; sem falante, vale o nome da fila (o 2.º argumento de mostrarFalas).
 function textoDaFala(entrada) {
   return (entrada && typeof entrada === 'object') ? entrada.texto : entrada;
 }
@@ -222,8 +224,9 @@ function mostrarFalaAtual() {
     tocarSomFicheiro(entrada.som);
   }
 
-  nomeEl.textContent = dialogoNomeAtual;
-  if (typeof mostrarCaraNoBalao === 'function') mostrarCaraNoBalao(dialogoNomeAtual);
+  const falante = (entrada && typeof entrada === 'object' && entrada.falante) ? entrada.falante : dialogoNomeAtual;
+  nomeEl.textContent = falante;
+  if (typeof mostrarCaraNoBalao === 'function') mostrarCaraNoBalao(falante);
   msgEl.textContent = textoDaFala(entrada);
   bolha.hidden = false;
   if (setaEl) setaEl.classList.toggle('oculto', dialogoIndice >= dialogoFila.length - 1);
