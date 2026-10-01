@@ -518,7 +518,13 @@ function goTo(screen, opcoes) {
     if (typeof verificarSubidaNivel === 'function' && verificarSubidaNivel()) mostrouHistoria = true;
     // Celebração de capítulo: só se nenhuma história acabou de aparecer
     // (senão espera pela visita seguinte). Ver js/capitulos.js.
-    if (!mostrouHistoria && typeof capitulosAvaliarCelebracao === 'function') capitulosAvaliarCelebracao();
+    // Modo de teste (?capitulo=N): mostra a celebração sem escrever nada e,
+    // nessa visita, dispensa a celebração a sério. Ver js/capitulos.js.
+    if (typeof capitulosCelebracaoDeTeste === 'function' && capitulosCelebracaoDeTeste()) {
+      // só teste
+    } else if (!mostrouHistoria && typeof capitulosAvaliarCelebracao === 'function') {
+      capitulosAvaliarCelebracao();
+    }
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();
       atualizarFaixaFesta();
