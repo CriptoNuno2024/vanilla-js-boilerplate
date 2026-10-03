@@ -172,9 +172,35 @@ function cStr(id) {
 
 // CELEBRAÇÃO — chamada em goTo() ao entrar na Quinta (js/main.js), depois
 // da história de nível, e só se esta não apareceu nessa visita. Celebra no
-// máximo UM capítulo (o mais baixo cumprido e ainda não celebrado): marca
-// concluidos + celebrados, grava, mostra o balão e vibra/toca. Devolve true
-// se celebrou.
+// máximo UM capítulo (o mais baixo cumprido e ainda não celebrado): mostra o
+// balão e vibra/toca, mas só MARCA concluidos + celebrados (e grava) depois
+// de o balão ter ficado visível CAPITULOS_CONFIRMAR_MS seguidos no ecrã da
+// Quinta. Se o jogador sair antes (goTo cancela, ver
+// capitulosCancelarCelebracaoPendente()), nada se marca e a festa repete na
+// visita seguinte. Devolve true se celebrou (ou já havia uma pendente).
+const CAPITULOS_CONFIRMAR_MS = 3000;
+let _capitulosPendente = null; // { id, texto, timeoutId } enquanto a festa espera pela confirmação
+
+function capitulosCancelarCelebracaoPendente() {
+  if (!_capitulosPendente) return;
+  clearTimeout(_capitulosPendente.timeoutId);
+  _capitulosPendente = null;
+}
+
+function capitulosConfirmarCelebracao(id, texto) {
+  _capitulosPendente = null;
+  const ecra = document.querySelector('.screen.active');
+  const bolha = document.getElementById('app-dialogue');
+  const aindaVisivel = ecra && ecra.id === 'screen-quinta' && bolha && !bolha.hidden &&
+    typeof dialogoFila !== 'undefined' && dialogoFila[0] === texto;
+  if (!aindaVisivel) return;
+  const cap = state.capitulos;
+  cap.concluidos[id] = true;
+  cap.celebrados[id] = true;
+  saveState(state);
+  atualizarCapituloQuinta();
+}
+
 function capitulosAvaliarCelebracao() {
   if (!state.capitulos || typeof state.capitulos !== 'object') return false;
   const cap = state.capitulos;
@@ -182,6 +208,7 @@ function capitulosAvaliarCelebracao() {
   if (!cap.celebradosMigrado) return false;
   if (!cap.concluidos || typeof cap.concluidos !== 'object') cap.concluidos = {};
   if (!cap.celebrados || typeof cap.celebrados !== 'object') cap.celebrados = {};
+  if (_capitulosPendente) return true; // já há uma festa à espera: nunca agendar outra
 
   // No máximo UM por visita: o mais baixo cumprido e ainda não celebrado.
   const c = CAPITULOS_CONFIG.filter(function (x) {
@@ -189,14 +216,15 @@ function capitulosAvaliarCelebracao() {
   })[0];
   if (!c) return false;
 
-  cap.concluidos[c.id] = true;
-  cap.celebrados[c.id] = true;
-  saveState(state);
-
-  mostrarFalas([t('capitulo.' + c.id + '.conclusao')], c.falante || 'YoshiCat');
+  const texto = t('capitulo.' + c.id + '.conclusao');
+  mostrarFalas([texto], c.falante || 'YoshiCat');
   vibrar('sucesso');
   tocarSom('objetivoCumprido');
-  atualizarCapituloQuinta();
+  _capitulosPendente = {
+    id: c.id,
+    texto: texto,
+    timeoutId: setTimeout(function () { capitulosConfirmarCelebracao(c.id, texto); }, CAPITULOS_CONFIRMAR_MS)
+  };
   return true;
 }
 
