@@ -78,6 +78,7 @@ function renderPerfil() {
         '<span data-i18n="perfil.som"></span></label>' +
       '</p>' +
       '<p class="info-text nuvem-estado" id="perfil-nuvem-estado"></p>' +
+      '<p class="info-text nuvem-estado" id="perfil-diag-capitulos"></p>' + // DIAGNOSTICO TEMPORARIO - remover
       '<p class="info-text" id="perfil-apagar-aviso" data-i18n="perfil.apagarAviso" hidden></p>' +
     '</div>' +
     '<div class="action-panel">' +
@@ -95,6 +96,24 @@ function renderPerfil() {
   atualizarDialogo('', '');
   applyTranslations();
   if (typeof nuvemAtualizarLinhaPerfil === 'function') nuvemAtualizarLinhaPerfil();
+  perfilDiagCapitulos(); // DIAGNOSTICO TEMPORARIO - remover
+}
+
+// DIAGNOSTICO TEMPORARIO - remover (esta função e a linha #perfil-diag-capitulos
+// em renderPerfil). Só LÊ o state e escreve texto técnico no ecrã.
+function perfilDiagCapitulos() {
+  const el = document.getElementById('perfil-diag-capitulos');
+  if (!el) return;
+  const cap = state && state.capitulos;
+  const lista = function (o) {
+    return (o && typeof o === 'object') ? '[' + Object.keys(o).filter(function (k) { return o[k] === true; }).join(',') + ']' : '?';
+  };
+  const migrado = cap && typeof cap.celebradosMigrado === 'boolean' ? (cap.celebradosMigrado ? 'sim' : 'nao') : '?';
+  const mostrado = state && state.niveis && state.niveis.nivelMostrado !== null && state.niveis.nivelMostrado !== undefined ? state.niveis.nivelMostrado : '?';
+  const rep = state && typeof state.reputacao === 'number' ? state.reputacao : null;
+  const real = (rep !== null && typeof nivelPelaReputacao === 'function') ? nivelPelaReputacao(rep) : '?';
+  el.textContent = 'Cap: concluidos=' + lista(cap && cap.concluidos) + ' celebrados=' + lista(cap && cap.celebrados) +
+    ' migrado=' + migrado + ' \u00b7 nivelMostrado=' + mostrado + ' \u00b7 nivelReal=' + real + ' \u00b7 rep=' + (rep !== null ? rep : '?');
 }
 
 function alternarVibracao(ligada) {
