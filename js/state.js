@@ -109,7 +109,12 @@ function defaultState() {
       dia: null,
       lista: [],
       bonusDiaDado: false,
-      selosTotal: 0
+      selosTotal: 0,
+      // Ronda do Chizo (ver js/ronda.js): faz parte do estado do dia, por isso
+      // é reposta com os objetivos à meia-noite de Lisboa. feitas: rondas já
+      // concluídas hoje (0 a 2); saidaEm/fimEm: timestamps enquanto o Chizo
+      // está em ronda, senão null; ultimoFimEm: fim da última ronda concluída.
+      ronda: { feitas: 0, saidaEm: null, fimEm: null, ultimoFimEm: null }
     },
     // Áreas por nível (ver js/niveis.js). jogadorAntigo: null = ainda por
     // decidir; vira true/false na primeira vez que corre este código (ver

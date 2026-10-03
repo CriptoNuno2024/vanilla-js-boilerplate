@@ -1680,6 +1680,16 @@
     <button type="button" class="btn-pill pill-main" onclick="goTo('enciclopedia')" data-i18n="explorar.btnLer">Ler</button>
   </div>
 
+  <!-- Cartão do pedido do dia (Ronda do Chizo, ver js/ronda.js) — mesmo
+       aspeto do cartão de "nova entrada"; escondido ao mudar de ecrã. -->
+  <div id="app-pedido" class="unlock-card" hidden>
+    <div class="unlock-textos">
+      <p class="unlock-label" id="pedido-label"></p>
+      <p class="unlock-titulo" id="pedido-titulo"></p>
+    </div>
+    <button type="button" class="btn-pill pill-main" id="pedido-botao" onclick="rondaChizoBotao()"></button>
+  </div>
+
   <!-- Barra de navegação (visível em qualquer ecrã do jogo) -->
   <nav id="app-bottomnav" class="app-chrome">
     <button type="button" class="nav-btn" data-screen="vinha" onclick="goTo('vinha')">
@@ -1803,10 +1813,10 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=51"></script>
+  <script src="js/state.js?v=52"></script>
   <script src="js/som.js?v=46"></script>
   <script src="js/nuvem.js?v=52"></script>
-  <script src="js/i18n.js?v=56"></script>
+  <script src="js/i18n.js?v=57"></script>
   <script src="js/estacoes.js?v=41"></script>
   <script src="js/tempo.js?v=47"></script>
   <script src="js/festas.js?v=45"></script>
@@ -1818,9 +1828,10 @@
   <script src="js/perfil.js?v=53"></script>
   <script src="js/niveis.js?v=48"></script>
   <script src="js/historia.js?v=50"></script>
-  <script src="js/objetivos.js?v=48"></script>
+  <script src="js/objetivos.js?v=49"></script>
   <script src="js/capitulos.js?v=6"></script>
+  <script src="js/ronda.js?v=1"></script>
   <script src="js/conquistas.js?v=1"></script>
-  <script src="js/main.js?v=54"></script>
+  <script src="js/main.js?v=55"></script>
 </body>
 </html>
