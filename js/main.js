@@ -502,6 +502,8 @@ function goTo(screen, opcoes) {
   document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
   document.getElementById('screen-' + screen).classList.add('active');
   document.body.classList.toggle('tela-home', screen === 'home');
+  // Festa de capítulo ainda por confirmar: sair do ecrã cancela-a (ver js/capitulos.js).
+  if (typeof capitulosCancelarCelebracaoPendente === 'function') capitulosCancelarCelebracaoPendente();
   atualizarChromeNovoAspeto(screen);
   restaurarFundoDoEcraAtual();
   updateStatsDisplays();
