@@ -140,6 +140,8 @@ function atualizarChromeNovoAspeto(screen) {
   if (bolha) bolha.hidden = true;
   const cartaoNovaEntrada = document.getElementById('app-unlock');
   if (cartaoNovaEntrada) cartaoNovaEntrada.hidden = true;
+  const cartaoPedido = document.getElementById('app-pedido');
+  if (cartaoPedido) cartaoPedido.hidden = true;
 }
 
 // ---------------------------------------------------------------------
@@ -163,6 +165,14 @@ function reposicionarFlutuantes() {
     cartaoNovaEntrada.style.setProperty('--pilha-abaixo', baseAcao + 'px');
     if (!cartaoNovaEntrada.hidden) {
       baseBalao = baseAcao + Math.round(cartaoNovaEntrada.getBoundingClientRect().height) + 8;
+    }
+  }
+  // Cartão do pedido do dia (js/ronda.js): ocupa o mesmo lugar que o de "nova entrada".
+  const cartaoPedido = document.getElementById('app-pedido');
+  if (cartaoPedido) {
+    cartaoPedido.style.setProperty('--pilha-abaixo', baseAcao + 'px');
+    if (!cartaoPedido.hidden) {
+      baseBalao = baseAcao + Math.round(cartaoPedido.getBoundingClientRect().height) + 8;
     }
   }
 
@@ -525,10 +535,18 @@ function goTo(screen, opcoes) {
     // (senão espera pela visita seguinte). Ver js/capitulos.js.
     // Modo de teste (?capitulo=N): mostra a celebração sem escrever nada e,
     // nessa visita, dispensa a celebração a sério. Ver js/capitulos.js.
+    let mostrouFesta = false;
     if (typeof capitulosCelebracaoDeTeste === 'function' && capitulosCelebracaoDeTeste()) {
-      // só teste
+      mostrouFesta = true; // só teste
     } else if (!mostrouHistoria && typeof capitulosAvaliarCelebracao === 'function') {
-      capitulosAvaliarCelebracao();
+      mostrouFesta = capitulosAvaliarCelebracao();
+    }
+    // Ronda do Chizo (pedido do dia): só se nenhuma história nem festa de
+    // capítulo apareceu nesta visita. Modo de teste (?pedido=chizo): ver js/ronda.js.
+    if (typeof rondaChizoTeste === 'function' && rondaChizoTeste()) {
+      // só teste
+    } else if (!mostrouHistoria && !mostrouFesta && typeof rondaChizoAvaliar === 'function') {
+      rondaChizoAvaliar();
     }
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();
