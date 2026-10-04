@@ -11,3 +11,6 @@ O projeto nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com lice
 
 ## Meteorologia
 Dados do tempo: Open-Meteo (open-meteo.com).
+
+## Imagens novas
+Imagens geradas com IA (Grok/Gemini), sem marca de serviço, carregadas a 04/10/2026.
