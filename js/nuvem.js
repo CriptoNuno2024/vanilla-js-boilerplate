@@ -37,6 +37,7 @@ const NUVEM_CHAVE_PREFIXO_PARTE = 'yc_state_parte_';
 const NUVEM_TAMANHO_PARTE = 3000; // margem de segurança abaixo do limite de 4096 do CloudStorage
 const NUVEM_MAX_PARTES = 20;      // até 60 000 caracteres de progresso — bem acima do que o jogo usa hoje
 const NUVEM_ATRASO_GRAVACAO_MS = 800; // agrupa gravações seguidas (ex: vários toques rápidos) numa só
+const NUVEM_ESPERA_LEITURA_MS = 8000;  // até quando se espera pela leitura da nuvem ao abrir, antes de deixar seguir gravações de ações reais
 
 function nuvemModoTeste() {
   return new URLSearchParams(location.search).get('nuvem') === 'teste';
@@ -178,6 +179,7 @@ function nuvemGuardarEstado(s, callback) {
       nuvemEstado.ok = ok;
       nuvemEstado.erro = ok ? null : erro;
       if (ok) nuvemEstado.em = Date.now();
+      if (ok && !arranque.primeiraGravacaoEm) arranque.primeiraGravacaoEm = Date.now(); // DIAGNOSTICO TEMPORARIO - remover
       if (!ok && typeof console !== 'undefined' && console.warn) {
         console.warn(erro === 'verificacao' ? 'Nuvem: a gravação não coincide com a leitura de volta.'
           : erro === 'tamanho' ? 'Nuvem: estado demasiado grande para gravar.'
@@ -320,32 +322,65 @@ function nuvemJuntarCapitulos(a, b) {
 }
 
 function nuvemSincronizarAoAbrir() {
-  if (!nuvemStorage()) return; // fora do Telegram (e sem ?nuvem=teste): só localStorage, como já era
+  if (!nuvemStorage()) { // fora do Telegram (e sem ?nuvem=teste): só localStorage, como já era
+    arranque.respondeu = true;
+    arranque.ganhou = 'sem nuvem';
+    return;
+  }
+
+  // Passados 8 s sem resposta, deixam seguir as gravações de ações reais
+  // (uma só, agora); um estado só de arranque continua retido até a nuvem responder.
+  const temporizador = setTimeout(function () {
+    arranque.passou8s = true;
+    if (arranque.acaoReal && arranque.adiada && !arranque.respondeu) {
+      arranque.adiada = false;
+      nuvemGuardarEstadoComAtraso(state);
+    }
+  }, NUVEM_ESPERA_LEITURA_MS);
 
   nuvemLerEstado(function (estadoNuvem) {
+    clearTimeout(temporizador);
     if (apagando) return; // a apagar o progresso: não repor nada
+    arranque.respondeu = true;
+    arranque.respostaMs = Date.now() - arranque.abertoEm;
     if (!estadoNuvem) {
       // Nuvem vazia: se este aparelho já tem progresso, copia-o agora
       // para a nuvem, para os jogadores atuais não perderem nada.
+      arranque.ganhou = 'sem nuvem';
+      arranque.adiada = false;
       if (state.ultimaGravacaoEm) nuvemGuardarEstado(state);
+      nuvemAtualizarDiagPerfil();
       return;
     }
 
-    const localEm = state.ultimaGravacaoEm || 0;
+    // O local conta com o carimbo de ANTES das gravações de arranque (que
+    // carimbam "agora" um estado antigo), a não ser que o jogador tenha
+    // feito uma ação real antes de a nuvem responder: aí o local é mesmo
+    // o mais recente.
+    const localEm = arranque.acaoReal ? (state.ultimaGravacaoEm || 0) : arranque.localEm;
     const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
+    arranque.nuvemEm = nuvemEm;
+    arranque.nuvemRep = estadoNuvem.reputacao;
 
     if (localEm >= nuvemEm) {
+      arranque.ganhou = 'local';
       // Capítulos: o que a nuvem tiver a mais (outro aparelho) entra por união.
       const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
       const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos);
       if (mudou) state.capitulos = juntos;
-      if (localEm > nuvemEm || mudou) nuvemGuardarEstado(state); // alinha a nuvem com o local, que é mais recente
+      const havia = arranque.adiada;
+      arranque.adiada = false;
+      if (localEm > nuvemEm || mudou || havia) nuvemGuardarEstado(state); // UMA só gravação: alinha a nuvem com o local, que é mais recente
+      nuvemAtualizarDiagPerfil();
       return;
     }
 
     // A nuvem tem progresso mais recente (ex: o jogador jogou noutro
     // aparelho): usa-o, guarda-o também no localStorage deste aparelho,
-    // e refresca o ecrã atual com os novos valores.
+    // e refresca o ecrã atual com os novos valores. O que ficou retido
+    // (estado antigo de arranque) nunca é enviado.
+    arranque.ganhou = 'nuvem';
+    arranque.adiada = false;
     const capitulosLocais = state.capitulos;
     state = mergeDeep(defaultState(), estadoNuvem);
     state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
@@ -358,8 +393,39 @@ function nuvemSincronizarAoAbrir() {
     // se fosse um jogador novo.
     if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
     if (typeof capitulosAvaliarEmSilencio === 'function') capitulosAvaliarEmSilencio();
+    // O que é do dia (objetivos e Ronda do Chizo) volta a ser decidido sobre o
+    // estado adotado: se o "dia" dele for de ontem, gera objetivos novos e repõe a ronda.
+    if (typeof garantirObjetivosDoDia === 'function') garantirObjetivosDoDia();
     nuvemAtualizarEcraAposSync();
+    nuvemRefazerQuinta();
+    nuvemAtualizarDiagPerfil();
   });
+}
+
+// Se o ecrã ativo for a Quinta, refaz os cartões que dependem do estado
+// (nível, capítulo, objetivos, resumo) e o pedido da Ronda do Chizo, que
+// pode ter sido mostrado com o estado antigo.
+function nuvemRefazerQuinta() {
+  const ativo = document.querySelector('.screen.active');
+  if (!ativo || ativo.id !== 'screen-quinta') return;
+  if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
+  if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
+  if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
+  if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+  if (typeof rondaChizoEsconderCartao === 'function') {
+    const cartao = document.getElementById('app-pedido');
+    if (cartao && !cartao.hidden) {
+      rondaChizoEsconderCartao();
+      if (typeof mostrarFalas === 'function') mostrarFalas([]); // tira o balão do pedido velho
+    }
+    const balao = document.getElementById('app-dialogue');
+    if (balao && balao.hidden && typeof rondaChizoAvaliar === 'function') rondaChizoAvaliar();
+  }
+}
+
+// DIAGNOSTICO TEMPORARIO - remover (junto com perfilDiagArranque() em js/perfil.js)
+function nuvemAtualizarDiagPerfil() {
+  if (typeof perfilDiagArranque === 'function') perfilDiagArranque();
 }
 
 // -----------------------------------------------------------------
