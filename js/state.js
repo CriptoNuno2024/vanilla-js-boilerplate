@@ -175,10 +175,40 @@ function saveState(s) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
   // Guarda também na nuvem do Telegram (js/nuvem.js) — nunca substitui o
   // localStorage acima, só acrescenta uma segunda cópia de segurança.
+  // Enquanto a cópia da nuvem não foi lida (ver "arranque" abaixo), NÃO se
+  // envia nada: um estado antigo, carimbado "agora", podia sobrepor-se à
+  // cópia boa. Uma gravação feita depois de o jogador ter tocado no ecrã
+  // conta como ação real (marca arranque.acaoReal).
+  if (arranque.jogadorTocou) arranque.acaoReal = true;
+  if (!nuvemPodeEnviar()) { arranque.adiada = true; return; }
   nuvemGuardarEstadoComAtraso(s);
 }
 
 let state = loadState();
+
+// SINCRONIZAÇÃO SEGURA AO ABRIR — só em memória (nunca no state). Guarda o
+// carimbo e a Reputação do local ANTES de qualquer gravação de arranque (ver
+// objetivos.js e niveis.js, que gravam logo ao abrir e carimbam "agora").
+// js/nuvem.js usa isto em nuvemSincronizarAoAbrir() para comparar com a nuvem.
+const arranque = {
+  localEm: state.ultimaGravacaoEm || 0,
+  localRep: typeof state.reputacao === 'number' ? state.reputacao : 0,
+  abertoEm: Date.now(),
+  jogadorTocou: false, // true a partir do 1.º toque no ecrã
+  acaoReal: false,     // true se se gravou depois de um toque (não é gravação de arranque)
+  respondeu: false,    // a leitura da nuvem respondeu (ou não há nuvem)
+  passou8s: false,     // passaram 8 s sem resposta
+  adiada: false,       // houve gravações que não foram enviadas à nuvem
+  // Diagnóstico temporário (ver perfilDiagArranque() em js/perfil.js)
+  nuvemEm: null, nuvemRep: null, ganhou: null, respostaMs: null, primeiraGravacaoEm: null
+};
+if (typeof document.addEventListener === 'function') document.addEventListener('pointerdown', function () { arranque.jogadorTocou = true; }, true);
+
+// Pode enviar-se à nuvem? Sim depois de a leitura responder; passados 8 s sem
+// resposta, só gravações de ações reais (um estado só de arranque continua retido).
+function nuvemPodeEnviar() {
+  return arranque.respondeu || (arranque.passou8s && arranque.acaoReal);
+}
 
 // ---------------------------------------------------------------------
 // JOGADOR ANTIGO vs JOGADOR NOVO (ver Áreas por Nível em js/niveis.js)

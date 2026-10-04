@@ -79,6 +79,7 @@ function renderPerfil() {
       '</p>' +
       '<p class="info-text nuvem-estado" id="perfil-nuvem-estado"></p>' +
       '<p class="info-text nuvem-estado" id="perfil-diag-capitulos"></p>' + // DIAGNOSTICO TEMPORARIO - remover
+      '<p class="info-text nuvem-estado" id="perfil-diag-arranque"></p>' + // DIAGNOSTICO TEMPORARIO - remover
       '<p class="info-text" id="perfil-apagar-aviso" data-i18n="perfil.apagarAviso" hidden></p>' +
     '</div>' +
     '<div class="action-panel">' +
@@ -97,6 +98,7 @@ function renderPerfil() {
   applyTranslations();
   if (typeof nuvemAtualizarLinhaPerfil === 'function') nuvemAtualizarLinhaPerfil();
   perfilDiagCapitulos(); // DIAGNOSTICO TEMPORARIO - remover
+  perfilDiagArranque(); // DIAGNOSTICO TEMPORARIO - remover
 }
 
 // DIAGNOSTICO TEMPORARIO - remover (esta função e a linha #perfil-diag-capitulos
@@ -114,6 +116,25 @@ function perfilDiagCapitulos() {
   const real = (rep !== null && typeof nivelPelaReputacao === 'function') ? nivelPelaReputacao(rep) : '?';
   el.textContent = 'Cap: concluidos=' + lista(cap && cap.concluidos) + ' celebrados=' + lista(cap && cap.celebrados) +
     ' migrado=' + migrado + ' \u00b7 nivelMostrado=' + mostrado + ' \u00b7 nivelReal=' + real + ' \u00b7 rep=' + (rep !== null ? rep : '?');
+}
+
+// DIAGNOSTICO TEMPORARIO - remover (esta função e a linha #perfil-diag-arranque
+// em renderPerfil, e nuvemAtualizarDiagPerfil() em js/nuvem.js). Só LÊ o que
+// ficou em memória em "arranque" (js/state.js); não escreve nada no estado.
+function perfilDiagArranque() {
+  const el = document.getElementById('perfil-diag-arranque');
+  if (!el || typeof arranque === 'undefined') return;
+  const hora = function (ms) {
+    if (typeof ms !== 'number' || !ms) return '?';
+    const d = new Date(ms);
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  };
+  const rep = function (r) { return typeof r === 'number' ? r : '?'; };
+  el.textContent = 'Arranque: local ' + hora(arranque.localEm) + ' (rep ' + rep(arranque.localRep) + ')' +
+    ' | nuvem ' + hora(arranque.nuvemEm) + ' (rep ' + rep(arranque.nuvemRep) + ')' +
+    ' | ganhou: ' + (arranque.ganhou || 'a aguardar') +
+    ' | resposta em ' + (typeof arranque.respostaMs === 'number' ? (arranque.respostaMs / 1000).toFixed(1) + ' s' : '?') +
+    ' | 1.ª gravação nuvem ' + hora(arranque.primeiraGravacaoEm);
 }
 
 function alternarVibracao(ligada) {
