@@ -101,6 +101,7 @@ const NAV_ATIVO_POR_ECRA = {
   proteger: 'proteger',
   quinta: 'quinta',
   garrafa: 'garrafa',
+  engarrafar: 'garrafa',
   explorar: 'explorar',
   enciclopedia: 'explorar',
   festa: 'quinta'
@@ -119,6 +120,9 @@ const LIMPEZA_AO_SAIR_POR_ECRA = {
   },
   vinha: function () {
     if (typeof pararRelogioVinha === 'function') pararRelogioVinha();
+  },
+  engarrafar: function () {
+    if (typeof pararRelogioEngarrafar === 'function') pararRelogioEngarrafar();
   }
 };
 
@@ -567,6 +571,7 @@ function goTo(screen, opcoes) {
   if (screen === 'vinha') enterVinha();
   if (screen === 'proteger') startProteger();
   if (screen === 'garrafa') renderGarrafaScreen();
+  if (screen === 'engarrafar') enterEngarrafar();
   if (screen === 'explorar') enterExplorar();
   if (screen === 'enciclopedia') renderEnciclopedia();
   if (screen === 'perfil') renderPerfil();

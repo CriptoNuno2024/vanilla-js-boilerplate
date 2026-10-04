@@ -585,18 +585,30 @@
       margin-bottom: 8px;
     }
 
-    /* Garrafa acabada de engarrafar (ver garrafaFeitaHtml() em js/garrafa.js):
-       foto pequena com o nome e os dias por baixo, no topo do cartão da Adega. */
-    .garrafa-feita { text-align: center; margin-bottom: 8px; }
-    .garrafa-feita-foto {
+    /* Página da garrafa (ver renderEngarrafar() em js/garrafa.js): garrafa
+       grande com a legenda por cima, barra até à cor seguinte por baixo. */
+    .garrafa-grande { position: relative; width: 80%; margin: 0 auto 10px; }
+    .garrafa-grande-foto {
       display: block;
-      width: 120px;
-      height: 120px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 10px;
-      margin: 0 auto 4px;
+      border-radius: 12px;
     }
-    .garrafa-feita-nome { font-size: 13px; font-weight: 700; margin: 0; color: #f5d76e; }
+    .garrafa-grande-legenda {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      margin: 0;
+      padding: 8px 10px 22px;
+      border-radius: 12px 12px 0 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #f5d76e;
+    }
 
     .cooldown-suffix {
       font-size: 12px;
@@ -1535,6 +1547,7 @@
     body.jogo-cheio #screen-vinha.content,
     body.jogo-cheio #screen-proteger.content,
     body.jogo-cheio #screen-garrafa.content,
+    body.jogo-cheio #screen-engarrafar.content,
     body.jogo-cheio #screen-explorar.content,
     body.jogo-cheio #screen-enciclopedia.content,
     body.jogo-cheio #screen-perfil.content,
@@ -1783,6 +1796,11 @@
     <div id="garrafa-container"></div>
   </div>
 
+  <!-- ECRÃ: PÁGINA DA GARRAFA (aberta pelo botão Engarrafar da Adega — ver js/garrafa.js) -->
+  <div id="screen-engarrafar" class="screen content">
+    <div id="engarrafar-container"></div>
+  </div>
+
   <!-- ECRÃ: EXPLORAR (desbloqueia uma entrada da Enciclopédia de cada vez) -->
   <div id="screen-explorar" class="screen content">
     <div id="explorar-container"></div>
@@ -1829,14 +1847,14 @@
   <script src="js/state.js?v=53"></script>
   <script src="js/som.js?v=47"></script>
   <script src="js/nuvem.js?v=53"></script>
-  <script src="js/i18n.js?v=57"></script>
+  <script src="js/i18n.js?v=58"></script>
   <script src="js/estacoes.js?v=41"></script>
   <script src="js/tempo.js?v=47"></script>
   <script src="js/festas.js?v=45"></script>
   <script src="js/vinha.js?v=49"></script>
   <script src="js/explorar.js?v=43"></script>
   <script src="js/proteger.js?v=50"></script>
-  <script src="js/garrafa.js?v=49"></script>
+  <script src="js/garrafa.js?v=50"></script>
   <script src="js/personagens.js?v=1"></script>
   <script src="js/perfil.js?v=54"></script>
   <script src="js/niveis.js?v=48"></script>
@@ -1845,6 +1863,6 @@
   <script src="js/capitulos.js?v=6"></script>
   <script src="js/ronda.js?v=1"></script>
   <script src="js/conquistas.js?v=1"></script>
-  <script src="js/main.js?v=56"></script>
+  <script src="js/main.js?v=57"></script>
 </body>
 </html>
