@@ -484,6 +484,7 @@ function executarAcaoVinha(actionKey) {
     v.pontosCuidado = 0;
     v.bonusPoda = false; // o bónus da poda gasta-se nesta vindima
     registarCooldownVinha(actionKey);
+    tocarSom('colher');
     let sufixoColheita = ' (+' + uvasGanhas + ' ' + t('stat.uvas');
     if (repGanha > 0) sufixoColheita += ', +' + repGanha + ' ' + t('stat.reputacao');
     sufixoColheita += ')';
@@ -544,6 +545,7 @@ function executarAcaoVinha(actionKey) {
   }
 
   registarCooldownVinha(actionKey);
+  if (actionKey === 'cavar' || actionKey === 'regar') tocarSom(actionKey); // só aqui, depois de a ação ter sucesso
   if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_' + actionKey);
   vinhaMensagemAtual = dicaVinha(actionKey) + premiarPrimeiroPasso(actionKey) + sufixoSeSubiuNivel(nivelAntes);
   vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
