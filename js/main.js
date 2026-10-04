@@ -281,6 +281,8 @@ function atualizarDialogo(mensagem, nome) {
   mostrarFalas(mensagem, nome);
 }
 
+let _entradaComSom = null; // id da última entrada para a qual já tocou o som
+
 // Cartão de "nova entrada desbloqueada" — genérico, usado por Explorar,
 // Vinha, Adega e Festa. Recebe a entrada da Enciclopédia (ver
 // desbloquearEntradaEnciclopedia() em js/explorar.js) ou null/undefined
@@ -298,6 +300,12 @@ function mostrarNovaEntrada(entrada) {
   }
 
   tituloEl.textContent = entrada.titulo;
+  // Som só quando a entrada aparece pela 1.ª vez (cada uma desbloqueia-se uma
+  // só vez); voltar a desenhar o mesmo cartão (ex.: ao refazer o ecrã) não repete.
+  if (entrada.id !== undefined && entrada.id !== _entradaComSom) {
+    _entradaComSom = entrada.id;
+    tocarSom('novaEntrada');
+  }
   cartao.hidden = false;
   reposicionarFlutuantes();
 }

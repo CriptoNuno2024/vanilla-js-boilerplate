@@ -113,6 +113,57 @@ function somTocarEstouro() {
   fonte.start(t0);
 }
 
+// Ruído filtrado curto (terra, água, rangido): ruído branco ou "castanho"
+// (mais grave) passado por um filtro cuja frequência desliza de freqIni
+// para freqFim. Menos de 0,3 s; volume baixo.
+function somTocarRuidoFiltrado(inicioOffset, duracao, tipoFiltro, freqIni, freqFim, volume, castanho) {
+  const t0 = somCtx.currentTime + (inicioOffset || 0);
+  const amostras = Math.floor(somCtx.sampleRate * duracao);
+  const buffer = somCtx.createBuffer(1, amostras, somCtx.sampleRate);
+  const dados = buffer.getChannelData(0);
+  let ultimo = 0;
+  for (let i = 0; i < amostras; i++) {
+    const branco = Math.random() * 2 - 1;
+    if (castanho) {
+      ultimo = (ultimo + 0.02 * branco) / 1.02; // ruído castanho: só graves
+      dados[i] = ultimo * 3.5;
+    } else {
+      dados[i] = branco;
+    }
+  }
+  const fonte = somCtx.createBufferSource();
+  fonte.buffer = buffer;
+  const filtro = somCtx.createBiquadFilter();
+  filtro.type = tipoFiltro;
+  filtro.frequency.setValueAtTime(freqIni, t0);
+  filtro.frequency.exponentialRampToValueAtTime(freqFim, t0 + duracao);
+  const gain = somCtx.createGain();
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.linearRampToValueAtTime(volume, t0 + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duracao);
+  fonte.connect(filtro);
+  filtro.connect(gain);
+  gain.connect(somGainMestre);
+  fonte.start(t0);
+}
+
+// Tom grave que desce devagar (parte do rangido da prensa).
+function somTocarTomDescendente(freqIni, freqFim, duracao, volume) {
+  const t0 = somCtx.currentTime;
+  const osc = somCtx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(freqIni, t0);
+  osc.frequency.exponentialRampToValueAtTime(freqFim, t0 + duracao);
+  const gain = somCtx.createGain();
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.linearRampToValueAtTime(volume, t0 + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duracao);
+  osc.connect(gain);
+  gain.connect(somGainMestre);
+  osc.start(t0);
+  osc.stop(t0 + duracao + 0.02);
+}
+
 // Botão de área trancada (cadeado) — som abafado curto (tom grave
 // passado por um filtro passa-baixo), nunca irritante.
 function somTocarAbafado() {
@@ -158,7 +209,35 @@ const SOM_EFEITOS = {
   // Engarrafar na Adega — "pop!" de rolha.
   engarrafarPop: function () { somTocarEstouro(); },
   // Botão de área trancada (cadeado) — som abafado curto.
-  ecraTrancado: function () { somTocarAbafado(); }
+  ecraTrancado: function () { somTocarAbafado(); },
+  // Os sons seguintes são todos curtos (menos de 0,3 s) e mais baixos que o
+  // "objetivoCumprido" (volume máximo 0,15 contra 0,2).
+  // Cavar na Vinha — "tchuf" de terra: ruído castanho grave a ficar mais grave.
+  cavar: function () { somTocarRuidoFiltrado(0, 0.22, 'lowpass', 600, 120, 0.15, true); },
+  // Regar na Vinha — fio de água (ruído passa-banda) e 3 pingos a descer.
+  regar: function () {
+    somTocarRuidoFiltrado(0, 0.26, 'bandpass', 2500, 1500, 0.05, false);
+    somTocarTom(1300, 0, 0.07, 'sine', 0.1);
+    somTocarTom(1050, 0.08, 0.07, 'sine', 0.1);
+    somTocarTom(820, 0.16, 0.08, 'sine', 0.1);
+  },
+  // Colher na Vinha — "tchic" de tesoura e 2 notas rápidas a subir.
+  colher: function () {
+    somTocarRuidoFiltrado(0, 0.04, 'bandpass', 3500, 3000, 0.1, false);
+    somTocarTom(784, 0.04, 0.09, 'triangle', 0.13);
+    somTocarTom(1174.66, 0.12, 0.12, 'triangle', 0.13);
+  },
+  // Prensar na Adega — rangido: tom grave a descer devagar + ruído grave.
+  prensar: function () {
+    somTocarTomDescendente(170, 70, 0.27, 0.14);
+    somTocarRuidoFiltrado(0, 0.27, 'bandpass', 500, 200, 0.07, false);
+  },
+  // Nova entrada da Enciclopédia (cartão "Nova entrada!") — 2 notas a subir,
+  // como uma página a virar.
+  novaEntrada: function () {
+    somTocarTom(659.25, 0, 0.1, 'triangle', 0.12);
+    somTocarTom(880, 0.09, 0.14, 'triangle', 0.12);
+  }
 };
 
 function tocarSom(nome) {

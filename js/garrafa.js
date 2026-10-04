@@ -325,6 +325,7 @@ function executarAcaoAdega(acao) {
     state.gotas += gotasGanhas;
     a.bagaco += bagacoGanho;
     registarCooldownAdega('prensar');
+    tocarSom('prensar');
     adegaMensagemAtual = t('garrafa.passo1') + ' ' +
       t('adega.resultadoPrensar').replace('{gotas}', gotasGanhas).replace('{bagaco}', bagacoGanho);
     adegaFotoAtual = ADEGA_FOTOS.prensar;
