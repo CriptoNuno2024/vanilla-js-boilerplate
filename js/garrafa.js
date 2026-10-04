@@ -40,6 +40,52 @@ function reputacaoDaCave(diasDescansados) {
   return valor;
 }
 
+// ---------------------------------------------------------------------
+// COR DA GARRAFA — vem dos dias de descanso (nada é gravado: lê-se o
+// diasDescanso que já existe em state.adega.historico). 1 dia = Jovem,
+// 2 = Dourado, 3 = Âmbar, 4 ou mais = Cobre. Dias em falta ou inválidos
+// usam a Jovem. Reutilizável (ex.: pela prateleira da Coleção): devolve
+// { imagem, nomeKey, dias }, com dias = null se o valor não era válido.
+// ---------------------------------------------------------------------
+const GARRAFAS_POR_DIAS = [
+  { dias: 1, imagem: 'assets/garrafas/garrafa_1_jovem.jpg', nomeKey: 'adega.garrafaJovem' },
+  { dias: 2, imagem: 'assets/garrafas/garrafa_2_dourado.jpg', nomeKey: 'adega.garrafaDourado' },
+  { dias: 3, imagem: 'assets/garrafas/garrafa_3_ambar.jpg', nomeKey: 'adega.garrafaAmbar' },
+  { dias: 4, imagem: 'assets/garrafas/garrafa_4_cobre.jpg', nomeKey: 'adega.garrafaCobre' }
+];
+
+function garrafaPorDias(dias) {
+  const n = Number(dias);
+  const valido = dias !== null && dias !== undefined && Number.isFinite(n) && n >= 1;
+  const d = valido ? Math.floor(n) : null;
+  let escolhida = GARRAFAS_POR_DIAS[0];
+  if (valido) {
+    GARRAFAS_POR_DIAS.forEach(function (g) { if (d >= g.dias) escolhida = g; });
+  }
+  return { imagem: escolhida.imagem, nomeKey: escolhida.nomeKey, dias: d };
+}
+
+// "Âmbar · 3 dias" — o nome e os dias aparecem sempre juntos, porque o
+// Dourado e o Âmbar quase não se distinguem num ecrã pequeno.
+function garrafaLegenda(g) {
+  const dias = g.dias === null ? '' :
+    ' · ' + t(g.dias === 1 ? 'adega.garrafaDiasUm' : 'adega.garrafaDias').replace('{n}', g.dias);
+  return t(g.nomeKey) + dias;
+}
+
+// Garrafa acabada de engarrafar (só em memória, só para o resultado do
+// Engarrafar). A imagem só entra na página quando existe, por isso nada
+// é pré-carregado no arranque.
+let adegaGarrafaFeita = null;
+
+function garrafaFeitaHtml() {
+  if (!adegaGarrafaFeita) return '';
+  return '<div class="garrafa-feita">' +
+    '<img class="garrafa-feita-foto" src="' + adegaGarrafaFeita.imagem + '" alt="">' +
+    '<p class="garrafa-feita-nome">' + garrafaLegenda(adegaGarrafaFeita) + '</p>' +
+  '</div>';
+}
+
 // Custos e produção de cada passo. O bagaço é feito para chegar à
 // vontade: com o que o Prensar dá por cada uso, um jogador normal
 // nunca fica preso à espera de bagaço para o Alambique.
@@ -133,6 +179,7 @@ function renderGarrafaScreen() {
   adegaMensagemAtual = '';
   adegaNovaEntrada = null;
   adegaFotoAtual = null;
+  adegaGarrafaFeita = null;
   adegaCartaoAberto = false;
   preCarregarFotoAdega('prensar');
   preCarregarFotoAdega('alambique');
@@ -267,7 +314,7 @@ function renderAdega() {
     botoesHtml += botaoAdega('engarrafar', 'adega.btnEngarrafar', !pronto, sufixoEngarrafar);
   } else {
     if (adegaCartaoAberto) {
-      corpoHtml = '<div class="cartao-corpo"><p class="phase-desc" data-i18n="garrafa.descricao"></p>' + reservaHtml() + '</div>';
+      corpoHtml = '<div class="cartao-corpo">' + garrafaFeitaHtml() + '<p class="phase-desc" data-i18n="garrafa.descricao"></p>' + reservaHtml() + '</div>';
     }
     botoesHtml += botaoAdega('fortificar', 'adega.btnFortificar',
       state.gotas < ADEGA_CUSTO_GOTAS_FORTIFICAR || a.aguardente < ADEGA_CUSTO_AGUARDENTE_FORTIFICAR);
@@ -305,6 +352,7 @@ function renderAdega() {
 function executarAcaoAdega(acao) {
   adegaFotoAtual = null;
   adegaNovaEntrada = null;
+  adegaGarrafaFeita = null;
   const a = state.adega;
 
   if (tempoRestanteAdega(acao) > 0) {
@@ -372,6 +420,9 @@ function executarAcaoAdega(acao) {
     state.ultimaGarrafaData = new Date().toLocaleDateString(localeAtual());
     a.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: diasCompletos });
     a.lote = null;
+    // Mostra a garrafa feita no cartão do topo (abre-o para se ver logo).
+    adegaGarrafaFeita = garrafaPorDias(diasCompletos);
+    adegaCartaoAberto = true;
     adegaMensagemAtual = t('garrafa.passo4') + ' ' + t('adega.resultadoEngarrafar').replace('{rep}', repGanha);
     adegaNovaEntrada = desbloquearEntradaEnciclopedia('curtimenta');
     adegaFotoAtual = ADEGA_FOTOS.engarrafar;
