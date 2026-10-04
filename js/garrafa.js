@@ -73,17 +73,54 @@ function garrafaLegenda(g) {
   return t(g.nomeKey) + dias;
 }
 
-// Garrafa acabada de engarrafar (só em memória, só para o resultado do
-// Engarrafar). A imagem só entra na página quando existe, por isso nada
-// é pré-carregado no arranque.
+// Garrafa acabada de engarrafar (só em memória): preenchida por
+// executarAcaoAdega('engarrafar') e lida pela página da garrafa (ver
+// renderEngarrafar() abaixo) para mostrar o resultado.
 let adegaGarrafaFeita = null;
 
-function garrafaFeitaHtml() {
-  if (!adegaGarrafaFeita) return '';
-  return '<div class="garrafa-feita">' +
-    '<img class="garrafa-feita-foto" src="' + adegaGarrafaFeita.imagem + '" alt="">' +
-    '<p class="garrafa-feita-nome">' + garrafaLegenda(adegaGarrafaFeita) + '</p>' +
-  '</div>';
+// ---------------------------------------------------------------------
+// ESTADO DO LOTE PARA A PÁGINA DA GARRAFA — função pura (não lê o
+// state nem o relógio), por isso fácil de testar. Recebe os dias de
+// descanso (fracionários, ver diasDescansadosNaCave()); valores
+// negativos ou inválidos (ex.: relógio do aparelho errado) contam como 0.
+// Devolve:
+//   diasCompletos  dias inteiros de descanso
+//   atual          garrafaPorDias(diasCompletos), ou null antes de 1 dia
+//   proxima        { dias, imagem, nomeKey } da próxima cor, ou null na última (Cobre)
+//   msAteProxima   milissegundos até à próxima cor (0 na última)
+//   fracao         0 a 1, progresso entre a cor anterior e a próxima (1 na última)
+// ---------------------------------------------------------------------
+const DIA_MS = 24 * 60 * 60 * 1000;
+
+function estadoGarrafaLote(diasDescanso) {
+  const n = Number(diasDescanso);
+  const dias = Number.isFinite(n) && n > 0 ? n : 0;
+  const diasCompletos = Math.floor(dias);
+  let proxima = null;
+  let anterior = 0;
+  for (let i = 0; i < GARRAFAS_POR_DIAS.length; i++) {
+    if (GARRAFAS_POR_DIAS[i].dias > dias) { proxima = GARRAFAS_POR_DIAS[i]; break; }
+    anterior = GARRAFAS_POR_DIAS[i].dias;
+  }
+  return {
+    diasCompletos: diasCompletos,
+    atual: diasCompletos >= 1 ? garrafaPorDias(diasCompletos) : null,
+    proxima: proxima,
+    msAteProxima: proxima ? Math.round((proxima.dias - dias) * DIA_MS) : 0,
+    fracao: proxima ? (dias - anterior) / (proxima.dias - anterior) : 1
+  };
+}
+
+// "5 h 20 min", "2 d 3 h", "12 min" — arredonda para cima, para nunca
+// mostrar "0 min" antes de a hora chegar.
+function formatarFaltaGarrafa(ms) {
+  const totalMin = Math.max(1, Math.ceil(ms / 60000));
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  if (d > 0) return d + ' d' + (h > 0 ? ' ' + h + ' h' : '');
+  if (h > 0) return h + ' h' + (m > 0 ? ' ' + m + ' min' : '');
+  return m + ' min';
 }
 
 // Custos e produção de cada passo. O bagaço é feito para chegar à
@@ -186,14 +223,14 @@ function renderGarrafaScreen() {
   renderAdega();
 }
 
-function botaoAdega(acao, i18nKey, bloqueado, sufixoExtra) {
+function botaoAdega(acao, i18nKey, bloqueado, sufixoExtra, aoClicar) {
   const restante = tempoRestanteAdega(acao);
   const emCooldown = restante > 0;
   const desabilitado = emCooldown || !!bloqueado;
   const sufixoCooldown = emCooldown ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') : (sufixoExtra || '');
   if (!desabilitado) preCarregarFotoAdega(acao);
   return '<button class="btn-pill" ' + (desabilitado ? 'disabled' : '') +
-    ' onclick="executarAcaoAdega(\'' + acao + '\')">' +
+    ' onclick="' + (aoClicar || 'executarAcaoAdega(\'' + acao + '\')') + '">' +
     '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixoCooldown + '</span>' +
     '</button>';
 }
@@ -311,10 +348,11 @@ function renderAdega() {
         reservaHtml() +
       '</div>';
     }
-    botoesHtml += botaoAdega('engarrafar', 'adega.btnEngarrafar', !pronto, sufixoEngarrafar);
+    // Sempre tocável: abre a página da garrafa (a espera trata-se lá).
+    botoesHtml += botaoAdega('engarrafar', 'adega.btnEngarrafar', false, sufixoEngarrafar, "goTo('engarrafar')");
   } else {
     if (adegaCartaoAberto) {
-      corpoHtml = '<div class="cartao-corpo">' + garrafaFeitaHtml() + '<p class="phase-desc" data-i18n="garrafa.descricao"></p>' + reservaHtml() + '</div>';
+      corpoHtml = '<div class="cartao-corpo"><p class="phase-desc" data-i18n="garrafa.descricao"></p>' + reservaHtml() + '</div>';
     }
     botoesHtml += botaoAdega('fortificar', 'adega.btnFortificar',
       state.gotas < ADEGA_CUSTO_GOTAS_FORTIFICAR || a.aguardente < ADEGA_CUSTO_AGUARDENTE_FORTIFICAR);
@@ -420,9 +458,7 @@ function executarAcaoAdega(acao) {
     state.ultimaGarrafaData = new Date().toLocaleDateString(localeAtual());
     a.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: diasCompletos });
     a.lote = null;
-    // Mostra a garrafa feita no cartão do topo (abre-o para se ver logo).
     adegaGarrafaFeita = garrafaPorDias(diasCompletos);
-    adegaCartaoAberto = true;
     adegaMensagemAtual = t('garrafa.passo4') + ' ' + t('adega.resultadoEngarrafar').replace('{rep}', repGanha);
     adegaNovaEntrada = desbloquearEntradaEnciclopedia('curtimenta');
     adegaFotoAtual = ADEGA_FOTOS.engarrafar;
@@ -436,3 +472,148 @@ function executarAcaoAdega(acao) {
   updateStatsDisplays();
   renderAdega();
 }
+
+// ---------------------------------------------------------------------
+// PÁGINA DA GARRAFA (ecrã "engarrafar", aberto pelo botão Engarrafar da
+// Adega quando há lote). Mostra a garrafa com a cor do dia, a barra até
+// à cor seguinte e a Reputação prevista; "Engarrafar agora" só está
+// ativo a partir de 1 dia e chama a lógica que já existe
+// (executarAcaoAdega('engarrafar')). O resultado aparece nesta página.
+// Sem estado novo: tudo se calcula a partir de state.adega.lote.
+// ---------------------------------------------------------------------
+const ENGARRAFAR_RELOGIO_MS = 30 * 1000;
+let engarrafarTimerId = null;
+let engarrafarResultado = null;   // { garrafa, rep } depois de engarrafar, senão null
+let engarrafarDiasMostrados = -1; // diasCompletos desenhados, para saber quando redesenhar
+
+// Pára sempre que se sai do ecrã (ver LIMPEZA_AO_SAIR_POR_ECRA, em
+// js/main.js) e quando a app fica escondida (ver visibilitychange abaixo).
+function pararRelogioEngarrafar() {
+  if (engarrafarTimerId) {
+    clearInterval(engarrafarTimerId);
+    engarrafarTimerId = null;
+  }
+}
+
+function iniciarRelogioEngarrafar() {
+  pararRelogioEngarrafar();
+  engarrafarTimerId = setInterval(atualizarEngarrafar, ENGARRAFAR_RELOGIO_MS);
+}
+
+function engarrafarEcraAtivo() {
+  const ecra = document.getElementById('screen-engarrafar');
+  return !!ecra && ecra.classList.contains('active');
+}
+
+function enterEngarrafar() {
+  engarrafarResultado = null;
+  if (!state.adega.lote) {
+    // Sem lote não há nada a mostrar aqui.
+    goTo('garrafa', { semHistorico: true });
+    return;
+  }
+  renderEngarrafar();
+  iniciarRelogioEngarrafar();
+}
+
+function textoProximaCorGarrafa(est) {
+  if (!est.proxima) return t('adega.paginaUltimaCor');
+  return t('adega.paginaProxima')
+    .replace('{nome}', t(est.proxima.nomeKey))
+    .replace('{tempo}', formatarFaltaGarrafa(est.msAteProxima));
+}
+
+function sufixoFaltaEngarrafar(dias) {
+  const ms = Math.round((REGRAS_DESCANSO_CAVE.diasMinimos - dias) * DIA_MS);
+  return ms > 0 ? ' ' + t('adega.paginaFaltaSufixo').replace('{tempo}', formatarFaltaGarrafa(ms)) : '';
+}
+
+function renderEngarrafar() {
+  const container = document.getElementById('engarrafar-container');
+  if (!container) return;
+  let corpoHtml = '';
+  let botoesHtml = '';
+  let fundo = ADEGA_FOTOS.cave;
+
+  if (engarrafarResultado) {
+    fundo = ADEGA_FOTOS.engarrafar;
+    corpoHtml =
+      garrafaGrandeHtml(engarrafarResultado.garrafa) +
+      '<p class="phase-desc">' + t('garrafa.passo4') + '</p>' +
+      '<p class="phase-progress">' + t('adega.resultadoEngarrafar').replace('{rep}', engarrafarResultado.rep) + '</p>';
+    botoesHtml = '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>';
+  } else {
+    const dias = diasDescansadosNaCave();
+    const est = estadoGarrafaLote(dias);
+    const pronto = est.diasCompletos >= REGRAS_DESCANSO_CAVE.diasMinimos;
+    engarrafarDiasMostrados = est.diasCompletos;
+    corpoHtml =
+      (est.atual ? garrafaGrandeHtml(est.atual) : '<p class="phase-desc" data-i18n="adega.paginaAindaDescansa"></p>') +
+      '<div class="nivel-barra"><div class="nivel-barra-cheio" id="engarrafar-barra" style="width:' + Math.round(est.fracao * 100) + '%"></div></div>' +
+      '<p class="phase-progress" id="engarrafar-proxima">' + textoProximaCorGarrafa(est) + '</p>' +
+      (pronto ? '<p class="phase-progress">' + t('adega.caveReputacaoPrevista').replace('{valor}', reputacaoDaCave(est.diasCompletos)) + '</p>' : '');
+    botoesHtml =
+      '<button type="button" class="btn-pill pill-main pill-grande" id="engarrafar-agora" ' + (pronto ? '' : 'disabled ') + 'onclick="engarrafarAgora()">' +
+        '<span data-i18n="adega.paginaBtnAgora"></span><span class="cooldown-suffix" id="engarrafar-falta">' + (pronto ? '' : sufixoFaltaEngarrafar(dias)) + '</span>' +
+      '</button>' +
+      '<button type="button" class="btn-pill" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>';
+  }
+
+  container.innerHTML =
+    '<div class="topcard"><p class="mini-title" data-i18n="adega.paginaTitulo"></p></div>' +
+    '<div class="scroll-panel garrafa-pagina">' + corpoHtml + '</div>' +
+    '<div class="action-panel">' + botoesHtml + '</div>';
+
+  definirFundo('foto', fundo, ADEGA_FOTO_POS[fundo]);
+  applyTranslations();
+  reposicionarFlutuantes();
+}
+
+function garrafaGrandeHtml(g) {
+  return '<div class="garrafa-grande">' +
+    '<img class="garrafa-grande-foto" src="' + g.imagem + '" alt="">' +
+    '<p class="garrafa-grande-legenda">' + garrafaLegenda(g) + '</p>' +
+  '</div>';
+}
+
+// Chamado pelo relógio: só redesenha tudo quando muda o dia completo
+// (nova cor ou passou de 1 dia); entre dois dias só mexe na barra e nos tempos.
+function atualizarEngarrafar() {
+  if (!engarrafarEcraAtivo() || engarrafarResultado) { pararRelogioEngarrafar(); return; }
+  if (!state.adega.lote) { pararRelogioEngarrafar(); renderEngarrafar(); return; }
+  const dias = diasDescansadosNaCave();
+  const est = estadoGarrafaLote(dias);
+  if (est.diasCompletos !== engarrafarDiasMostrados) { renderEngarrafar(); return; }
+  const barra = document.getElementById('engarrafar-barra');
+  if (barra) barra.style.width = Math.round(est.fracao * 100) + '%';
+  const prox = document.getElementById('engarrafar-proxima');
+  if (prox) prox.textContent = textoProximaCorGarrafa(est);
+  const falta = document.getElementById('engarrafar-falta');
+  if (falta && est.diasCompletos < REGRAS_DESCANSO_CAVE.diasMinimos) falta.textContent = sufixoFaltaEngarrafar(dias);
+}
+
+function engarrafarAgora() {
+  const a = state.adega;
+  if (!a.lote || Math.floor(diasDescansadosNaCave()) < REGRAS_DESCANSO_CAVE.diasMinimos) {
+    renderEngarrafar(); // ainda não está pronto: não faz nada
+    return;
+  }
+  const repAntes = state.reputacao;
+  executarAcaoAdega('engarrafar'); // a lógica de sempre (garrafa, Reputação, histórico, objetivo)
+  if (a.lote || !adegaGarrafaFeita) { renderEngarrafar(); return; }
+  engarrafarResultado = { garrafa: adegaGarrafaFeita, rep: state.reputacao - repAntes };
+  pararRelogioEngarrafar();
+  renderEngarrafar();
+  // O resultado já está escrito nesta página: esconde o balão (o cartão de
+  // "nova entrada" da Enciclopédia, se houver, mantém-se).
+  atualizarDialogo('', '');
+  reposicionarFlutuantes();
+}
+
+// App escondida (ex.: o jogador muda de aplicação): o relógio pára; ao
+// voltar, a página redesenha-se logo (os dias podem ter passado) e o relógio recomeça.
+document.addEventListener('visibilitychange', function () {
+  if (!engarrafarEcraAtivo() || engarrafarResultado) return;
+  if (document.hidden) { pararRelogioEngarrafar(); return; }
+  enterEngarrafar();
+});
