@@ -70,7 +70,7 @@ dias(60).forEach(function (dia) {
 });
 
 // Alvo -> minijogo do Proteger (null = sorteio de hoje).
-const TIPOS = { cave: 'fechadura', vinha: 'disfarces', nevoeiro: 'chizo', trovoada: 'chizo', adega: null };
+const TIPOS = { cave: 'fechadura', vinha: 'disfarces', nevoeiro: 'chizo', trovoada: 'disfarces', adega: null };
 Object.keys(TIPOS).forEach(function (a) { ok(tipoDeProtegerPelaPista(a) === TIPOS[a], 'tipo errado para ' + a); });
 ['porco', '', undefined, null, 42].forEach(function (v) { ok(tipoDeProtegerPelaPista(v) === null, 'valor inválido deve dar null: ' + v); });
 
@@ -207,6 +207,15 @@ function abrirProteger(opcoes) {
   g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'nevoeiro' }, estacao: 'verao' }); g.ev('startProteger()');
   ok(g.ev('ultimoTipoProteger') === 'chizo', 'isco de nevoeiro devia dar o Chizo (até no verão), deu ' + g.ev('ultimoTipoProteger'));
   ok(g.ev('protegerPorcoIsco') === null, 'nevoeiro não nomeia nenhum porco');
+  // Isco de trovoada -> Disfarces (o Chizo tem medo), sem porco nomeado.
+  g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'trovoada' }, estacao: 'verao' }); g.ev('startProteger()');
+  ok(g.ev('ultimoTipoProteger') === 'disfarces', 'isco de trovoada devia dar Disfarces (até no verão), deu ' + g.ev('ultimoTipoProteger'));
+  ok(g.ev('protegerPorcoIsco') === null, 'trovoada não nomeia nenhum porco');
+  // ?pista= no endereço: trovoada abre Disfarces e nevoeiro abre o Chizo.
+  g = abrirProteger({ search: '?pista=trovoada', feitas: 0, estacao: 'verao' }); g.ev('startProteger()'); g.ev('protegerIscoResponder(false)');
+  ok(g.ev('ultimoTipoProteger') === 'disfarces', '?pista=trovoada devia abrir Disfarces, deu ' + g.ev('ultimoTipoProteger'));
+  g = abrirProteger({ search: '?pista=nevoeiro', feitas: 0, estacao: 'inverno' }); g.ev('startProteger()'); g.ev('protegerIscoResponder(false)');
+  ok(g.ev('ultimoTipoProteger') === 'chizo', '?pista=nevoeiro devia abrir o Chizo, deu ' + g.ev('ultimoTipoProteger'));
   // Rondas extra do tempo: o isco só vale na 1.ª ronda.
   g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'vinha' } }); g.ev("protegerRondaAtual = 2; startProteger(true);");
   ok(g.ev('protegerIscoNaRonda') === false && g.ev('protegerPorcoIsco') === null, 'o isco não devia valer nas rondas extra');
