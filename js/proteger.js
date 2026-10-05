@@ -314,8 +314,8 @@ function protegerFalaInicio(texto) {
   else atualizarDialogo(texto, 'YoshiCat');
 }
 
-// Passo "Pôr isco?" antes da 1.ª ronda de cada visita: só com pista, com bagaço
-// e sem registo para este dia e este índice. Nada se gasta até se tocar numa pílula.
+// Passo "Pôr isco?" antes da 1.ª ronda de cada visita: só com pista que tenha
+// minijogo, com bagaço e sem registo para este dia e este índice. Nada se gasta até se tocar numa pílula.
 // Devolve o índice da pista a perguntar, ou null (não se pergunta).
 function protegerIscoPerguntarAgora() {
   try {
@@ -324,7 +324,11 @@ function protegerIscoPerguntarAgora() {
     if (indice === null) return null;
     const bagaco = state.adega && state.adega.bagaco;
     const isco = protegerEmModoTeste() ? null : (state.proteger && state.proteger.isco);
-    return iscoPerguntar(isco, diaLisboaDeHoje(), indice, bagaco) ? indice : null;
+    if (!iscoPerguntar(isco, diaLisboaDeHoje(), indice, bagaco)) return null;
+    // Só se pergunta quando a pista leva a um minijogo (cave, vinha, nevoeiro,
+    // trovoada); com 'adega' ou alvo desconhecido a ronda segue sem passo.
+    const alvo = alvoParaProteger(indice, isco, diaLisboaDeHoje());
+    return tipoDeProtegerPelaPista(alvo) !== null ? indice : null;
   } catch (e) { return null; }
 }
 

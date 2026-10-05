@@ -151,6 +151,19 @@ function abrirProteger(opcoes) {
   g = abrirProteger({ feitas: 0 }); g.ev('startProteger()');
   ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'sem pista não devia haver passo do isco');
 
+  // Só se pergunta quando a pista leva a um minijogo: adega = sem passo e sem gastar bagaço.
+  g = abrirProteger({ search: '?pista=adega' }); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, '?pista=adega não devia mostrar o passo do isco');
+  ok(g.ev('state.adega.bagaco') === 3 && g.reg.saves === 0, 'adega: não devia gastar nem gravar nada');
+  ['cave', 'vinha', 'nevoeiro', 'trovoada'].forEach(function (alvo) {
+    g = abrirProteger({ search: '?pista=' + alvo }); g.ev('startProteger()');
+    ok(g.reg.html.indexOf('protegerIscoResponder(true)') !== -1, alvo + ' devia perguntar (com bagaço)');
+    ok(g.ev('state.adega.bagaco') === 3, alvo + ': a pergunta não devia gastar bagaço');
+  });
+  // Alvo ao vivo 'adega' (sem ?pista=): sem passo.
+  g = abrirProteger({ ceu: null, estacao: 'inverno', garrafa: false }); g.ev('startProteger()');
+  ok(g.ev('alvoParaProteger(0, null, diaLisboaDeHoje())') !== 'adega' || g.reg.html.indexOf('protegerIscoResponder') === -1, 'alvo adega ao vivo não devia perguntar');
+
   // Com pista e bagaço: pergunta e NADA se gasta até tocar numa pílula.
   g = abrirProteger({}); g.ev('startProteger()');
   ok(g.reg.html.indexOf('protegerIscoResponder(true)') !== -1 && g.reg.html.indexOf('protegerIscoResponder(false)') !== -1, 'devia mostrar as duas pílulas');
