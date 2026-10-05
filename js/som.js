@@ -19,6 +19,8 @@ let somGainMestre = null;
 let somGainAmbiente = null;
 let somFonteAmbiente = null;
 let somCaminhoAmbienteAtual = null;
+let somGainFonteAmbiente = null; // só existe quando o ambiente atual tem desvanecimento
+let somSairAmbienteS = 0;        // segundos de desvanecimento ao parar esse ambiente (0 = pára logo)
 const somFicheirosCache = {}; // caminho -> Promise<AudioBuffer|null>, para nunca descarregar o mesmo ficheiro duas vezes
 
 function somCriarContextoSePreciso() {
@@ -60,7 +62,7 @@ document.addEventListener('visibilitychange', function () {
 // interruptor já conta como o toque real do jogador) e retoma.
 function somAplicarInterruptor(ligada) {
   if (!ligada) {
-    pararSomAmbiente();
+    pararSomAmbiente(true);
     if (somCtx) somCtx.suspend();
     return;
   }
@@ -284,11 +286,19 @@ function tocarSomFicheiro(caminho, volume) {
 // vez. Para sozinho ao desligar o som (somAplicarInterruptor acima) ou
 // ao mudar de ecrã (ver pararSomAmbiente() chamado em goTo(),
 // js/main.js), quando fizer sentido a Parte B ligar isto a algum ecrã.
+//
+// Desvanecimento OPCIONAL: iniciarSomAmbiente(caminho, volume, { entrarS,
+// sairS }) entra em fundo durante entrarS segundos e, mais tarde, quando
+// pararSomAmbiente() é chamado sem argumentos (ex.: por goTo()), sai em
+// fundo durante sairS segundos. Sem o 3.º argumento (chuva, trovoada)
+// nada muda: entra e pára de repente, como sempre.
 // ---------------------------------------------------------------------
 
-function iniciarSomAmbiente(caminho, volume) {
+function iniciarSomAmbiente(caminho, volume, desvanecer) {
   if (!state.som) return;
-  if (somCaminhoAmbienteAtual === caminho && somFonteAmbiente) return; // já a tocar este
+  // Com desvanecimento, chamar outra vez enquanto o mesmo som ainda está a
+  // carregar também não o repete (idempotente).
+  if (somCaminhoAmbienteAtual === caminho && (somFonteAmbiente || desvanecer)) return; // já a tocar este
   pararSomAmbiente();
   somCriarContextoSePreciso();
   if (!somPodeTocar()) return;
@@ -299,16 +309,43 @@ function iniciarSomAmbiente(caminho, volume) {
     const fonte = somCtx.createBufferSource();
     fonte.buffer = buffer;
     fonte.loop = true;
-    fonte.connect(somGainAmbiente);
+    if (desvanecer && (desvanecer.entrarS > 0 || desvanecer.sairS > 0)) {
+      const ganho = somCtx.createGain();
+      const t0 = somCtx.currentTime;
+      ganho.gain.setValueAtTime(0, t0);
+      ganho.gain.linearRampToValueAtTime(1, t0 + (desvanecer.entrarS > 0 ? desvanecer.entrarS : 0.01));
+      fonte.connect(ganho);
+      ganho.connect(somGainAmbiente);
+      somGainFonteAmbiente = ganho;
+      somSairAmbienteS = desvanecer.sairS > 0 ? desvanecer.sairS : 0;
+    } else {
+      fonte.connect(somGainAmbiente);
+      somGainFonteAmbiente = null;
+      somSairAmbienteS = 0;
+    }
     fonte.start();
     somFonteAmbiente = fonte;
   });
 }
 
-function pararSomAmbiente() {
+// instantaneo = true ignora o desvanecimento de saída (ex.: ao desligar "Som").
+function pararSomAmbiente(instantaneo) {
   somCaminhoAmbienteAtual = null;
   if (somFonteAmbiente) {
-    try { somFonteAmbiente.stop(); } catch (e) { /* já tinha parado sozinho */ }
+    const fonte = somFonteAmbiente;
+    const ganho = somGainFonteAmbiente;
+    const sair = somSairAmbienteS;
     somFonteAmbiente = null;
+    somGainFonteAmbiente = null;
+    somSairAmbienteS = 0;
+    if (ganho && sair > 0 && !instantaneo && somCtx) {
+      const t0 = somCtx.currentTime;
+      ganho.gain.cancelScheduledValues(t0);
+      ganho.gain.setValueAtTime(ganho.gain.value, t0);
+      ganho.gain.linearRampToValueAtTime(0, t0 + sair);
+      try { fonte.stop(t0 + sair + 0.05); } catch (e) { /* já tinha parado sozinho */ }
+    } else {
+      try { fonte.stop(); } catch (e) { /* já tinha parado sozinho */ }
+    }
   }
 }

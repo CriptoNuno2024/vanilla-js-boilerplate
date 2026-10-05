@@ -32,9 +32,10 @@ function vibrar(tipo) {
 // Vibração leve ao tocar nos botões principais do jogo — delegado num
 // único listener em vez de tocar em cada ecrã. Não apanha os botões da
 // barra de baixo/topo de propósito (dar feedback a cada troca de ecrã
-// seria demasiado); só nas ações dentro dos ecrãs.
+// seria demasiado); só nas ações dentro dos ecrãs. Um botão com o atributo
+// data-sem-vibracao fica de fora (faz a sua própria vibração, ex.: Engarrafar).
 document.addEventListener('click', function (e) {
-  if (e.target.closest('.btn-pill, .btn-choice, .btn-tile, .btn, .btn-ghost')) vibrar('leve');
+  if (e.target.closest('.btn-pill, .btn-choice, .btn-tile, .btn, .btn-ghost') && !e.target.closest('[data-sem-vibracao]')) vibrar('leve');
 }, true);
 
 function showMessage(msg) {
