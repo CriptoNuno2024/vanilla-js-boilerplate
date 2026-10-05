@@ -201,17 +201,19 @@ const arranque = {
   jogadorTocou: false, // true a partir do 1.º toque no ecrã
   acaoReal: false,     // true se se gravou depois de um toque (não é gravação de arranque)
   respondeu: false,    // a leitura da nuvem respondeu (ou não há nuvem)
-  passou8s: false,     // passaram 8 s sem resposta
+  passou8s: false,     // passaram 8 s sem resposta (conta como erro de leitura)
+  nuvemErro: false,    // a última leitura da nuvem falhou (nada é enviado nem trocado; ver nuvemTratarLeitura())
+  nuvemEstatus: null,  // estatuto da última leitura: 'ok', 'vazio' ou 'erro' (só diagnóstico)
   adiada: false,       // houve gravações que não foram enviadas à nuvem
   // Diagnóstico temporário (ver perfilDiagArranque() em js/perfil.js)
   nuvemEm: null, nuvemRep: null, ganhou: null, respostaMs: null, primeiraGravacaoEm: null
 };
 if (typeof document.addEventListener === 'function') document.addEventListener('pointerdown', function () { arranque.jogadorTocou = true; }, true);
 
-// Pode enviar-se à nuvem? Sim depois de a leitura responder; passados 8 s sem
-// resposta, só gravações de ações reais (um estado só de arranque continua retido).
+// Pode enviar-se à nuvem? Só depois de uma leitura bem-sucedida (ou de não haver
+// nuvem / ser uma conta nova): nunca "às cegas", nem passados 8 s sem resposta.
 function nuvemPodeEnviar() {
-  return arranque.respondeu || (arranque.passou8s && arranque.acaoReal);
+  return arranque.respondeu;
 }
 
 // ---------------------------------------------------------------------

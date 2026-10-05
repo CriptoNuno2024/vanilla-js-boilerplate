@@ -37,7 +37,9 @@ const NUVEM_CHAVE_PREFIXO_PARTE = 'yc_state_parte_';
 const NUVEM_TAMANHO_PARTE = 3000; // margem de segurança abaixo do limite de 4096 do CloudStorage
 const NUVEM_MAX_PARTES = 20;      // até 60 000 caracteres de progresso — bem acima do que o jogo usa hoje
 const NUVEM_ATRASO_GRAVACAO_MS = 800; // agrupa gravações seguidas (ex: vários toques rápidos) numa só
-const NUVEM_ESPERA_LEITURA_MS = 8000;  // até quando se espera pela leitura da nuvem ao abrir, antes de deixar seguir gravações de ações reais
+const NUVEM_ESPERA_LEITURA_MS = 8000;  // sem resposta da nuvem ao abrir passados 8 s: conta como erro de leitura
+const NUVEM_RELEITURAS_ERRO_MS = [15000, 60000, 300000]; // depois de um erro: nova leitura aos 15 s, 60 s e 5 min (máximo 3)
+const NUVEM_CONFIRMAR_VAZIO_MS = 10000; // nuvem vazia e progresso no aparelho: 2.ª leitura 10 s depois, antes de copiar
 
 function nuvemModoTeste() {
   return new URLSearchParams(location.search).get('nuvem') === 'teste';
@@ -256,32 +258,41 @@ document.addEventListener('visibilitychange', function () {
 });
 window.addEventListener('pagehide', nuvemGravarJa);
 
-// Lê o estado guardado na nuvem. Chama callback(null) se não houver
-// nada (ou der erro), ou callback(estadoLido) com ultimaGravacaoEm já
-// incluído (vem da chave de metadados, não do próprio JSON do estado).
+// Lê o estado guardado na nuvem. Chama callback(estado, estatus):
+//   'ok'    -> estado lido (com ultimaGravacaoEm vindo da chave de metadados,
+//              não do próprio JSON do estado);
+//   'vazio' -> o getItem do meta respondeu SEM erro e veio vazio: não há nada guardado;
+//   'erro'  -> qualquer outra coisa (erro do CloudStorage, JSON mau, meta sem
+//              partes, parte em falta ou truncada, sem CloudStorage). Nunca é
+//              "vazio": quem chama não pode gravar por cima por causa de um erro.
 function nuvemLerEstado(callback) {
   const storage = nuvemStorage();
-  if (!storage) { callback(null); return; }
+  if (!storage) { callback(null, 'erro'); return; }
 
   storage.getItem(NUVEM_CHAVE_META, function (erro, metaTexto) {
-    if (erro || !metaTexto) { callback(null); return; }
+    if (erro) { callback(null, 'erro'); return; }
+    if (metaTexto === '' || metaTexto === null || metaTexto === undefined) { callback(null, 'vazio'); return; }
+    if (typeof metaTexto !== 'string') { callback(null, 'erro'); return; }
 
     let meta;
-    try { meta = JSON.parse(metaTexto); } catch (e) { callback(null); return; }
-    if (!meta || !meta.partes) { callback(null); return; }
+    try { meta = JSON.parse(metaTexto); } catch (e) { callback(null, 'erro'); return; }
+    if (!meta || !Number.isInteger(meta.partes) || meta.partes < 1 || meta.partes > NUVEM_MAX_PARTES) { callback(null, 'erro'); return; }
 
     const chaves = [];
     for (let i = 0; i < meta.partes; i++) chaves.push(NUVEM_CHAVE_PREFIXO_PARTE + i);
 
     storage.getItems(chaves, function (erroPartes, valores) {
-      if (erroPartes || !valores) { callback(null); return; }
+      if (erroPartes || !valores) { callback(null, 'erro'); return; }
       try {
-        const texto = chaves.map(function (c) { return valores[c] || ''; }).join('');
-        const estado = JSON.parse(texto);
+        const partes = chaves.map(function (c) { return valores[c]; });
+        // Uma parte em falta ou vazia nunca é válida (cada parte tem pelo menos 1 carácter).
+        if (partes.some(function (x) { return typeof x !== 'string' || x === ''; })) { callback(null, 'erro'); return; }
+        const estado = JSON.parse(partes.join(''));
+        if (!estado || typeof estado !== 'object' || Array.isArray(estado)) { callback(null, 'erro'); return; }
         estado.ultimaGravacaoEm = meta.atualizadoEm;
-        callback(estado);
+        callback(estado, 'ok');
       } catch (e) {
-        callback(null);
+        callback(null, 'erro');
       }
     });
   });
@@ -321,6 +332,147 @@ function nuvemJuntarCapitulos(a, b) {
   };
 }
 
+// Leitura da nuvem ao abrir (ver nuvemTratarLeitura() para o que se faz com
+// cada estatuto). Só enquanto arranque.respondeu for false: uma leitura bem
+// sucedida (ou conta nova sem progresso) é que liberta o envio (nuvemPodeEnviar()).
+let _nuvemALer = false;
+let _nuvemTimerReleitura = null;
+let _nuvemReleiturasFeitas = 0;
+
+function nuvemLerParaSincronizar(confirmandoVazio) {
+  if (apagando || arranque.respondeu || _nuvemALer) return;
+  _nuvemALer = true;
+  let respondida = false;
+  // Sem resposta passados 8 s conta como erro (uma resposta tardia é ignorada:
+  // a releitura trata disso).
+  const limite = setTimeout(function () {
+    if (respondida) return;
+    respondida = true;
+    _nuvemALer = false;
+    arranque.passou8s = true;
+    nuvemTratarLeitura(null, 'erro', confirmandoVazio);
+  }, NUVEM_ESPERA_LEITURA_MS);
+
+  nuvemLerEstado(function (estadoNuvem, estatus) {
+    if (respondida) return;
+    respondida = true;
+    clearTimeout(limite);
+    _nuvemALer = false;
+    nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio);
+  });
+}
+
+function nuvemAgendarReleitura() {
+  if (_nuvemTimerReleitura || _nuvemReleiturasFeitas >= NUVEM_RELEITURAS_ERRO_MS.length) return;
+  const espera = NUVEM_RELEITURAS_ERRO_MS[_nuvemReleiturasFeitas++];
+  _nuvemTimerReleitura = setTimeout(function () {
+    _nuvemTimerReleitura = null;
+    nuvemLerParaSincronizar(false);
+  }, espera);
+}
+
+function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
+  if (apagando) return; // a apagar o progresso: não repor nada
+  arranque.nuvemEstatus = estatus;
+
+  if (estatus === 'erro') {
+    // Erro NÃO é "nuvem vazia": não grava nada, não troca o estado, não liberta
+    // o envio. O jogo segue com o local (já gravado no aparelho) e tenta ler outra vez.
+    arranque.nuvemErro = true;
+    arranque.ganhou = 'erro (fica o local)';
+    nuvemAgendarReleitura();
+    nuvemAtualizarDiagPerfil();
+    return;
+  }
+
+  arranque.nuvemErro = false;
+
+  if (estatus === 'vazio') {
+    const temProgresso = !!state.ultimaGravacaoEm || (typeof temProgressoExistente === 'function' && temProgressoExistente());
+    if (!temProgresso) { // conta nova: nada a copiar, sem esperas
+      arranque.respondeu = true;
+      arranque.respostaMs = Date.now() - arranque.abertoEm;
+      arranque.ganhou = 'sem nuvem';
+      arranque.adiada = false;
+      nuvemAtualizarDiagPerfil();
+      return;
+    }
+    if (!confirmandoVazio) {
+      // Pode ser uma resposta vazia passageira: só copia o local depois de uma
+      // 2.ª leitura, uns 10 s depois, a confirmar que continua vazio.
+      arranque.nuvemEstatus = 'vazio (a confirmar)';
+      arranque.ganhou = 'a confirmar vazio';
+      setTimeout(function () { nuvemLerParaSincronizar(true); }, NUVEM_CONFIRMAR_VAZIO_MS);
+      nuvemAtualizarDiagPerfil();
+      return;
+    }
+    arranque.respondeu = true;
+    arranque.respostaMs = Date.now() - arranque.abertoEm;
+    arranque.ganhou = 'sem nuvem';
+    arranque.adiada = false;
+    nuvemGuardarEstado(state); // vazio confirmado: copia o local para a nuvem
+    nuvemAtualizarDiagPerfil();
+    return;
+  }
+
+  // estatus === 'ok'
+  arranque.respondeu = true;
+  arranque.respostaMs = Date.now() - arranque.abertoEm;
+
+  // O local conta com o carimbo de ANTES das gravações de arranque, a não ser
+  // que o jogador tenha feito uma ação real antes de a nuvem responder: aí o
+  // local é mesmo o mais recente.
+  const localEm = arranque.acaoReal ? (state.ultimaGravacaoEm || 0) : arranque.localEm;
+  const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
+  arranque.nuvemEm = nuvemEm;
+  arranque.nuvemRep = estadoNuvem.reputacao;
+
+  // Rede de segurança: a Reputação só sobe (nada a subtrai), por isso uma nuvem
+  // com mais Reputação do que o local tem mais progresso, mesmo que o carimbo
+  // local seja mais recente.
+  const repLocal = Number.isFinite(state.reputacao) ? state.reputacao : 0;
+  const repNuvem = Number.isFinite(estadoNuvem.reputacao) ? estadoNuvem.reputacao : 0;
+  const nuvemTemMaisReputacao = repNuvem > repLocal;
+
+  if (localEm >= nuvemEm && !nuvemTemMaisReputacao) {
+    arranque.ganhou = 'local';
+    // Capítulos: o que a nuvem tiver a mais (outro aparelho) entra por união.
+    const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
+    const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos);
+    if (mudou) state.capitulos = juntos;
+    const havia = arranque.adiada;
+    arranque.adiada = false;
+    if (localEm > nuvemEm || mudou || havia) nuvemGuardarEstado(state); // UMA só gravação: alinha a nuvem com o local, que é mais recente
+    nuvemAtualizarDiagPerfil();
+    return;
+  }
+
+  // A nuvem tem progresso mais recente (ex: o jogador jogou noutro
+  // aparelho) ou mais Reputação: usa-a, guarda-a também no localStorage deste
+  // aparelho, e refresca o ecrã atual com os novos valores. O que ficou retido
+  // (estado antigo de arranque) nunca é enviado.
+  arranque.ganhou = (localEm >= nuvemEm) ? 'nuvem (mais reputação)' : 'nuvem';
+  arranque.adiada = false;
+  const capitulosLocais = state.capitulos;
+  state = mergeDeep(defaultState(), estadoNuvem);
+  state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  // Só agora (progresso local + nuvem já juntos) é que se pode
+  // confirmar com segurança se é um jogador antigo — ver
+  // avaliarJogadorAntigo() em js/state.js. Sem isto, um veterano num
+  // aparelho novo (ou com a memória limpa) só teria o seu progresso de
+  // volta neste momento, e sem este novo despiste ficaria trancado como
+  // se fosse um jogador novo.
+  if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
+  if (typeof capitulosAvaliarEmSilencio === 'function') capitulosAvaliarEmSilencio();
+  // O que é do dia (objetivos e Ronda do Chizo) volta a ser decidido sobre o
+  // estado adotado: se o "dia" dele for de ontem, gera objetivos novos e repõe a ronda.
+  if (typeof garantirObjetivosDoDia === 'function') garantirObjetivosDoDia();
+  nuvemAtualizarEcraAposSync();
+  nuvemRefazerQuinta();
+  nuvemAtualizarDiagPerfil();
+}
+
 function nuvemSincronizarAoAbrir() {
   if (!nuvemStorage()) { // fora do Telegram (e sem ?nuvem=teste): só localStorage, como já era
     arranque.respondeu = true;
@@ -328,78 +480,14 @@ function nuvemSincronizarAoAbrir() {
     return;
   }
 
-  // Passados 8 s sem resposta, deixam seguir as gravações de ações reais
-  // (uma só, agora); um estado só de arranque continua retido até a nuvem responder.
-  const temporizador = setTimeout(function () {
-    arranque.passou8s = true;
-    if (arranque.acaoReal && arranque.adiada && !arranque.respondeu) {
-      arranque.adiada = false;
-      nuvemGuardarEstadoComAtraso(state);
-    }
-  }, NUVEM_ESPERA_LEITURA_MS);
-
-  nuvemLerEstado(function (estadoNuvem) {
-    clearTimeout(temporizador);
-    if (apagando) return; // a apagar o progresso: não repor nada
-    arranque.respondeu = true;
-    arranque.respostaMs = Date.now() - arranque.abertoEm;
-    if (!estadoNuvem) {
-      // Nuvem vazia: se este aparelho já tem progresso, copia-o agora
-      // para a nuvem, para os jogadores atuais não perderem nada.
-      arranque.ganhou = 'sem nuvem';
-      arranque.adiada = false;
-      if (state.ultimaGravacaoEm) nuvemGuardarEstado(state);
-      nuvemAtualizarDiagPerfil();
-      return;
-    }
-
-    // O local conta com o carimbo de ANTES das gravações de arranque (que
-    // carimbam "agora" um estado antigo), a não ser que o jogador tenha
-    // feito uma ação real antes de a nuvem responder: aí o local é mesmo
-    // o mais recente.
-    const localEm = arranque.acaoReal ? (state.ultimaGravacaoEm || 0) : arranque.localEm;
-    const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
-    arranque.nuvemEm = nuvemEm;
-    arranque.nuvemRep = estadoNuvem.reputacao;
-
-    if (localEm >= nuvemEm) {
-      arranque.ganhou = 'local';
-      // Capítulos: o que a nuvem tiver a mais (outro aparelho) entra por união.
-      const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
-      const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos);
-      if (mudou) state.capitulos = juntos;
-      const havia = arranque.adiada;
-      arranque.adiada = false;
-      if (localEm > nuvemEm || mudou || havia) nuvemGuardarEstado(state); // UMA só gravação: alinha a nuvem com o local, que é mais recente
-      nuvemAtualizarDiagPerfil();
-      return;
-    }
-
-    // A nuvem tem progresso mais recente (ex: o jogador jogou noutro
-    // aparelho): usa-o, guarda-o também no localStorage deste aparelho,
-    // e refresca o ecrã atual com os novos valores. O que ficou retido
-    // (estado antigo de arranque) nunca é enviado.
-    arranque.ganhou = 'nuvem';
-    arranque.adiada = false;
-    const capitulosLocais = state.capitulos;
-    state = mergeDeep(defaultState(), estadoNuvem);
-    state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    // Só agora (progresso local + nuvem já juntos) é que se pode
-    // confirmar com segurança se é um jogador antigo — ver
-    // avaliarJogadorAntigo() em js/state.js. Sem isto, um veterano num
-    // aparelho novo (ou com a memória limpa) só teria o seu progresso de
-    // volta neste momento, e sem este novo despiste ficaria trancado como
-    // se fosse um jogador novo.
-    if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
-    if (typeof capitulosAvaliarEmSilencio === 'function') capitulosAvaliarEmSilencio();
-    // O que é do dia (objetivos e Ronda do Chizo) volta a ser decidido sobre o
-    // estado adotado: se o "dia" dele for de ontem, gera objetivos novos e repõe a ronda.
-    if (typeof garantirObjetivosDoDia === 'function') garantirObjetivosDoDia();
-    nuvemAtualizarEcraAposSync();
-    nuvemRefazerQuinta();
-    nuvemAtualizarDiagPerfil();
+  // Ao voltar a ficar visível, se a leitura falhou, tenta outra vez já.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible' || arranque.respondeu || !arranque.nuvemErro) return;
+    if (_nuvemTimerReleitura) { clearTimeout(_nuvemTimerReleitura); _nuvemTimerReleitura = null; }
+    nuvemLerParaSincronizar(false);
   });
+
+  nuvemLerParaSincronizar(false);
 }
 
 // Se o ecrã ativo for a Quinta, refaz os cartões que dependem do estado
