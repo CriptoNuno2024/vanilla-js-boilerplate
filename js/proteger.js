@@ -37,6 +37,11 @@ const PROTEGER_STRINGS = {
     fechaduraDerrota: 'Tarde demais... o Fygmo2 força a fechadura e escapa com uma garrafa da Reserva Especial.',
     fechaduraReservaFygmo: 'Hmpf… a Reserva safou-se. Mas já lhe sentimos o cheiro!',
     fechaduraReservaFygmo2: 'Hehe! Uma garrafinha da Reserva Especial não se desperdiça!',
+    fechaduraDerrotaGarrafa: 'O Fygmo2 foge de patas vazias. A tua Reserva {cor} continua a salvo na Cave.',
+    fechaduraReservaFygmoCor: 'Hmpf… a tua Reserva {cor} safou-se. Mas já lhe sentimos o cheiro!',
+    fechaduraReservaFygmo2Cor: 'Hehe! Uma Reserva {cor} destas não se desperdiça. Da próxima é nossa!',
+    fechaduraReservaFygmoCobre: 'Hmpf… a Reserva Cobre safou-se. A mais escura da Cave… ainda vamos a ela!',
+    fechaduraReservaFygmo2Cobre: 'Hehe! A Reserva Cobre é a mais rara da Cave. Da próxima é nossa!',
     disfarceVitoria: function (porco) { return 'Debaixo das folhas estava o ' + porco + ', apanhado em flagrante a tentar fugir com a colheita!'; },
     disfarceDerrota: function (porco) { return 'Era só uva a sério... enquanto isso, o ' + porco + ' escapa com um cesto cheio.'; },
     chizoTurnos: [
@@ -74,6 +79,11 @@ const PROTEGER_STRINGS = {
     fechaduraDerrota: 'Too late... Fygmo2 forces the lock and escapes with a bottle from the Special Reserve.',
     fechaduraReservaFygmo: 'Hmpf… the Reserve is safe. But we can smell it already!',
     fechaduraReservaFygmo2: 'Hehe! A little bottle of the Special Reserve won\'t go to waste!',
+    fechaduraDerrotaGarrafa: 'Fygmo2 flees empty-handed. Your {cor} Reserve is still safe in the Cellar.',
+    fechaduraReservaFygmoCor: 'Hmpf… your {cor} Reserve is safe. But we can smell it already!',
+    fechaduraReservaFygmo2Cor: 'Hehe! That {cor} Reserve won\'t go to waste. Next time it\'s ours!',
+    fechaduraReservaFygmoCobre: 'Hmpf… the Copper Reserve is safe. The darkest in the Cellar… we\'ll get to it yet!',
+    fechaduraReservaFygmo2Cobre: 'Hehe! The Copper Reserve is the rarest in the Cellar. Next time it\'s ours!',
     disfarceVitoria: function (porco) { return 'Under the leaves was ' + porco + ', caught red-handed trying to escape with the harvest!'; },
     disfarceDerrota: function (porco) { return 'It was real grapes after all... meanwhile, ' + porco + ' escapes with a full basket.'; },
     chizoTurnos: [
@@ -111,6 +121,11 @@ const PROTEGER_STRINGS = {
     fechaduraDerrota: 'Demasiado tarde... el Fygmo2 fuerza la cerradura y escapa con una botella de la Reserva Especial.',
     fechaduraReservaFygmo: 'Hmpf… la Reserva se salvó. ¡Pero ya le olemos!',
     fechaduraReservaFygmo2: '¡Jeje! ¡Una botellita de la Reserva Especial no se desperdicia!',
+    fechaduraDerrotaGarrafa: 'El Fygmo2 huye con las manos vacías. Tu Reserva {cor} sigue a salvo en la Bodega.',
+    fechaduraReservaFygmoCor: 'Hmpf… tu Reserva {cor} se salvó. ¡Pero ya le olemos!',
+    fechaduraReservaFygmo2Cor: '¡Jeje! Una Reserva {cor} así no se desperdicia. ¡A la próxima es nuestra!',
+    fechaduraReservaFygmoCobre: 'Hmpf… la Reserva Cobre se salvó. La más oscura de la Bodega… ¡aún vamos a por ella!',
+    fechaduraReservaFygmo2Cobre: '¡Jeje! La Reserva Cobre es la más rara de la Bodega. ¡A la próxima es nuestra!',
     disfarceVitoria: function (porco) { return '¡Debajo de las hojas estaba el ' + porco + ', atrapado con las manos en la masa intentando huir con la cosecha!'; },
     disfarceDerrota: function (porco) { return 'Era solo uva de verdad... mientras tanto, el ' + porco + ' escapa con un cesto lleno.'; },
     chizoTurnos: [
@@ -166,8 +181,70 @@ const PESOS_PROTEGER_POR_ESTACAO = {
   outono: { fechadura: 0.15, disfarces: 0.425, chizo: 0.425 }
 };
 
+// -----------------------------------------------------------------
+// GARRAFA ESCURA NA FECHADURA (só visual e narrativo, nada é gravado):
+// com a Cave de Reserva aberta e a garrafa que mais descansou com 3 dias ou
+// mais (Âmbar ou Cobre), a Fechadura aparece mais vezes, mostra essa garrafa
+// no cartão do topo e as falas dos porcos nomeiam a cor. Perder nunca tira nada.
+// Para testar: ?garrafaescura=3 (Âmbar) ou ?garrafaescura=4 (Cobre) força só a
+// apresentação, sem tocar no estado nem no histórico. Funciona com ?estacao=.
+// As funções de garrafa.js (carrega a seguir) só são usadas quando existem.
+// -----------------------------------------------------------------
+const PROTEGER_GARRAFA_ESCURA_DIAS = 3;
+
+function garrafaEscuraForcadaNoEndereco() {
+  let valor = null;
+  try { valor = new URLSearchParams(location.search).get('garrafaescura'); } catch (e) { return null; }
+  const n = Number(valor);
+  return (valor !== null && (n === 3 || n === 4)) ? n : null;
+}
+
+// A garrafa escura do jogador ({ imagem, nomeKey, dias }) ou null.
+function garrafaEscuraProteger() {
+  if (typeof garrafaPorDias !== 'function') return null;
+  let dias = garrafaEscuraForcadaNoEndereco();
+  if (dias === null) {
+    if (typeof caveReservaAberta !== 'function' || !caveReservaAberta()) return null;
+    if (typeof garrafaQueMaisDescansou !== 'function') return null;
+    dias = garrafaQueMaisDescansou();
+  }
+  if (typeof dias !== 'number' || !isFinite(dias) || dias < PROTEGER_GARRAFA_ESCURA_DIAS) return null;
+  return garrafaPorDias(dias);
+}
+
+// Miniatura + legenda ("Âmbar · 3 dias") para o cartão do topo; vazio sem garrafa
+// escura. A foto só entra na página quando a Fechadura abre (nada pré-carregado).
+function garrafaEscuraMiniaturaHtml() {
+  const g = garrafaEscuraProteger();
+  if (!g || typeof garrafaLegenda !== 'function') return '';
+  return '<div class="proteger-garrafa">' +
+    '<img class="proteger-garrafa-foto" src="' + g.imagem + '" alt="">' +
+    '<span class="proteger-garrafa-nome">' + garrafaLegenda(g) + '</span>' +
+  '</div>';
+}
+
+function corDaGarrafaEscura(g) {
+  return t(g.nomeKey);
+}
+
+// Com uma garrafa escura (Âmbar ou Cobre, ver garrafaEscuraProteger() abaixo)
+// a Fechadura sai pelo menos com este peso (no inverno continua 1); os outros
+// dois jogos repartem o resto na mesma proporção que já tinham.
+const PROTEGER_PESO_FECHADURA_COM_GARRAFA = 0.45;
+
+// Função pura: pesos dos 3 jogos numa estação, com ou sem garrafa escura.
+function pesosProtegerPara(estacao, temGarrafaEscura) {
+  const base = PESOS_PROTEGER_POR_ESTACAO[estacao];
+  if (!temGarrafaEscura) return base;
+  const fechadura = Math.max(base.fechadura, PROTEGER_PESO_FECHADURA_COM_GARRAFA);
+  const outros = base.disfarces + base.chizo;
+  if (fechadura === base.fechadura || outros <= 0) return base;
+  const escala = (1 - fechadura) / outros;
+  return { fechadura: fechadura, disfarces: base.disfarces * escala, chizo: base.chizo * escala };
+}
+
 function escolherTipoProteger() {
-  const pesos = PESOS_PROTEGER_POR_ESTACAO[estacaoAtual()];
+  const pesos = pesosProtegerPara(estacaoAtual(), !!garrafaEscuraProteger());
   const entradas = Object.keys(pesos).filter(function (tipo) { return pesos[tipo] > 0; });
   const total = entradas.reduce(function (soma, tipo) { return soma + pesos[tipo]; }, 0);
   let r = Math.random() * total;
@@ -269,7 +346,7 @@ function renderFechadura() {
 
   const container = document.getElementById('proteger-container');
   container.innerHTML =
-    protegerTopcardHtml(S, S.fechaduraSubtitulo) +
+    protegerTopcardHtml(S, S.fechaduraSubtitulo, garrafaEscuraMiniaturaHtml()) +
     '<div class="action-panel"><div class="choice-stack">' +
     cena.opcoes.map((op, i) =>
       '<button type="button" class="btn-choice" onclick="responderFechadura(' + i + ')">' + op + '</button>'
@@ -284,7 +361,10 @@ function responderFechadura(i) {
   const S = pStr();
   const cena = S.fechadura[currentFechaduraIndex];
   const venceu = i === cena.correta;
-  finishProteger(venceu, venceu ? S.fechaduraVitoria : S.fechaduraDerrota);
+  // Garrafa escura em vista: a derrota não pode sugerir que ela se perdeu.
+  const g = garrafaEscuraProteger();
+  const derrota = g ? S.fechaduraDerrotaGarrafa.replace('{cor}', corDaGarrafaEscura(g)) : S.fechaduraDerrota;
+  finishProteger(venceu, venceu ? S.fechaduraVitoria : derrota);
 }
 
 // -----------------------------------------------------------------
@@ -521,9 +601,17 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   // Na Fechadura, com a Cave de Reserva aberta, o porco fala da Reserva
   // Especial (só texto; caveReservaAberta() só lê o estado, ver js/garrafa.js).
   const daReserva = ultimoTipoProteger === 'fechadura' && typeof caveReservaAberta === 'function' && caveReservaAberta();
+  // Com garrafa escura (só na Fechadura), a fala nomeia a cor; a Cobre, a mais rara, tem um par próprio.
+  const g = ultimoTipoProteger === 'fechadura' ? garrafaEscuraProteger() : null;
+  const cobre = !!g && g.nomeKey === 'adega.garrafaCobre';
+  const cor = g ? corDaGarrafaEscura(g) : '';
+  const falaFygmo = g ? (cobre ? S.fechaduraReservaFygmoCobre : S.fechaduraReservaFygmoCor.replace('{cor}', cor))
+    : (daReserva ? S.fechaduraReservaFygmo : t('proteger.fala.fygmoPerde'));
+  const falaFygmo2 = g ? (cobre ? S.fechaduraReservaFygmo2Cobre : S.fechaduraReservaFygmo2Cor.replace('{cor}', cor))
+    : (daReserva ? S.fechaduraReservaFygmo2 : t('proteger.fala.fygmo2Ganha'));
   const falas = [mensagem, venceu
-    ? { texto: daReserva ? S.fechaduraReservaFygmo : t('proteger.fala.fygmoPerde'), falante: 'Fygmo' }
-    : { texto: daReserva ? S.fechaduraReservaFygmo2 : t('proteger.fala.fygmo2Ganha'), falante: 'Fygmo2' }];
+    ? { texto: falaFygmo, falante: 'Fygmo' }
+    : { texto: falaFygmo2, falante: 'Fygmo2' }];
   if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
   } else if (venceu && !ganhaPremio) {
@@ -531,7 +619,7 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   }
 
   container.innerHTML =
-    protegerTopcardHtml(S, venceu ? S.protegida : S.naoCorreuBem) +
+    protegerTopcardHtml(S, venceu ? S.protegida : S.naoCorreuBem, ultimoTipoProteger === 'fechadura' ? garrafaEscuraMiniaturaHtml() : '') +
     (venceu ? '' : '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="startProteger()">' + S.tentarOutraVez + '</button></div>');
 
   const derrotaSrc = ultimoTipoProteger === 'chizo' ? PROTEGER_FUNDO_DERROTA_CHIZO : PROTEGER_FUNDO_DERROTA;
