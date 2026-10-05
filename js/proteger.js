@@ -66,7 +66,9 @@ const PROTEGER_STRINGS = {
     ],
     chizoVitoria: 'O Chizo acorda a tempo e ladra! O Fygmo e o Fygmo2 fogem a correr, de mãos a abanar.',
     chizoCedo: 'Falso alarme: o Chizo volta a dormir. Os porcos riem-se, mas não levam nada.',
-    chizoTarde: 'Tarde demais… os porcos já se foram. Ficaram só as pegadas.'
+    chizoTarde: 'Tarde demais… os porcos já se foram. Ficaram só as pegadas.',
+    cadernoPagina: 'Página nova no Caderno (Perfil).',
+    cadernoCompleto: 'Os porcos já não têm papéis para perder.'
   },
 
   en: {
@@ -122,7 +124,9 @@ const PROTEGER_STRINGS = {
     ],
     chizoVitoria: 'Chizo wakes up just in time and barks! Fygmo and Fygmo2 run off empty-handed.',
     chizoCedo: 'False alarm: Chizo goes back to sleep. The pigs laugh, but they take nothing.',
-    chizoTarde: 'Too late… the pigs are gone. Only the footprints remain.'
+    chizoTarde: 'Too late… the pigs are gone. Only the footprints remain.',
+    cadernoPagina: 'New page in the Notebook (Profile).',
+    cadernoCompleto: 'The pigs have no papers left to lose.'
   },
 
   es: {
@@ -178,7 +182,9 @@ const PROTEGER_STRINGS = {
     ],
     chizoVitoria: '¡Chizo se despierta a tiempo y ladra! Fygmo y Fygmo2 huyen corriendo con las manos vacías.',
     chizoCedo: 'Falsa alarma: Chizo vuelve a dormirse. Los cerdos se ríen, pero no se llevan nada.',
-    chizoTarde: 'Demasiado tarde… los cerdos ya se han ido. Solo quedan las huellas.'
+    chizoTarde: 'Demasiado tarde… los cerdos ya se han ido. Solo quedan las huellas.',
+    cadernoPagina: 'Página nueva en el Cuaderno (Perfil).',
+    cadernoCompleto: 'Los cerdos ya no tienen papeles que perder.'
   }
 };
 
@@ -303,6 +309,12 @@ let protegerIscoTeste = false;      // "Pôr isco" tocado em modo de teste
 let protegerIscoPendente = null;    // índice da pista à espera da resposta, ou null
 let protegerIscoNaRonda = false;    // a ronda atual é a 1.ª e tem isco posto
 let protegerPorcoIsco = null;       // 'Fygmo' | 'Fygmo2' | null: o porco chamado pelo isco
+// Caderno dos Fygmos (js/caderno.js): alvo, isco e índice da pista, CAPTURADOS na
+// ronda 1 (tipoProtegerPelaPista() repõe protegerIscoNaRonda e protegerPorcoIsco a
+// cada ronda, por isso finishProteger() não os podia ler já nas rondas extra).
+// null = sem pista com minijogo. Gasta-se uma vez (protegerDarPaginaCaderno()).
+let protegerCaderno = null;         // { alvo, indice, isco, teste } | null
+let protegerCadernoFala = '';       // 'pagina' | 'completo' | '': fala da vitória desta visita
 
 function protegerEmModoTeste() {
   return typeof assaltosAlvoForcadoNoEndereco === 'function' && !!assaltosAlvoForcadoNoEndereco();
@@ -321,6 +333,7 @@ function tipoProtegerPelaPista() {
   protegerPorcoIsco = null;
   try {
     if (protegerRondaAtual !== 1) return null;
+    protegerCaderno = null;
     if (typeof alvoParaProteger !== 'function' || typeof tipoDeProtegerPelaPista !== 'function') return null;
     const indice = protegerPistaIndice();
     if (indice === null) return null;
@@ -330,6 +343,7 @@ function tipoProtegerPelaPista() {
       protegerPorcoIsco = porcoDoAlvo(alvo);
     }
     const tipo = tipoDeProtegerPelaPista(alvo);
+    if (tipo !== null) protegerCaderno = { alvo: alvo, indice: indice, isco: protegerIscoNaRonda, teste: protegerEmModoTeste() };
     return (tipo === 'fechadura' || tipo === 'disfarces' || tipo === 'chizo') ? tipo : null;
   } catch (e) { return null; }
 }
@@ -473,6 +487,8 @@ function startProteger(continuando) {
     protegerRondasTotal = rondasProtegerPorTempo();
     protegerRecompensaAcumulada = { uvas: 0, gotas: 0, rep: 0 };
     protegerAvisoTexto = avisoTempoProteger();
+    protegerCaderno = null;
+    protegerCadernoFala = '';
     if (vitoriasProtegerComPremioRestantesHoje() === 0) {
       protegerAvisoTexto = protegerAvisoTexto ? (protegerAvisoTexto + ' ' + t('proteger.modoTreino')) : t('proteger.modoTreino');
     }
@@ -724,6 +740,24 @@ function alertarChizo() {
 // RESULTADO COMUM AOS 3 ESTILOS
 // -----------------------------------------------------------------
 
+// Página do Caderno numa vitória com prémio na 1.ª ronda, com a pista capturada
+// (protegerCaderno). Nunca em ?pista= (modo de teste), nunca sem o Caderno aberto
+// (nível 3, ou jogador antigo: ecraDesbloqueado('caderno')). Só escreve em
+// state.caderno.paginas (ver cadernoDarPaginaDaVitoria() em js/caderno.js); o
+// saveState é o da vitória. Uma só vez por visita: um toque duplo não repete.
+function protegerDarPaginaCaderno() {
+  const c = protegerCaderno;
+  protegerCaderno = null;
+  if (!c || c.teste || protegerEmModoTeste()) return;
+  try {
+    if (typeof cadernoDarPaginaDaVitoria !== 'function') return;
+    if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('caderno')) return;
+    const r = cadernoDarPaginaDaVitoria(c.alvo, c.isco, c.indice);
+    if (r.pagina) protegerCadernoFala = 'pagina';
+    else if (r.completo) protegerCadernoFala = 'completo';
+  } catch (e) { /* sem página, a vitória segue */ }
+}
+
 function finishProteger(venceu, mensagem) {
   if (venceu) {
     const ganhaPremio = vitoriasProtegerComPremioRestantesHoje() > 0;
@@ -739,6 +773,9 @@ function finishProteger(venceu, mensagem) {
       state.reputacao += repGanha;
       state.proteger.vitoriasComPremioHoje += 1;
       if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('proteger_vencer');
+      // Só a 1.ª ronda da visita dá página (as rondas extra do tempo não). Grava-se
+      // no mesmo saveState da vitória, logo a seguir.
+      if (protegerRondaAtual === 1) protegerDarPaginaCaderno();
     }
     saveState(state);
     updateStatsDisplays();
@@ -789,6 +826,8 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   const falas = [mensagem, venceu
     ? { texto: falaFygmo, falante: protegerPorcoIsco || 'Fygmo' }
     : { texto: falaFygmo2, falante: protegerPorcoIsco || 'Fygmo2' }];
+  // Caderno (só texto): página nova, ou o alvo já tem todas. Depois do porco e antes do prémio.
+  if (protegerCadernoFala) falas.push(protegerCadernoFala === 'pagina' ? S.cadernoPagina : S.cadernoCompleto);
   if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
   } else if (venceu && !ganhaPremio) {

@@ -11,7 +11,7 @@ const path = require('path');
 const vm = require('vm');
 
 const FINAL = process.argv.indexOf('--final') !== -1;
-const ctx = {};
+const ctx = { state: { caderno: { paginas: {} }, uvas: 1 }, diaLisboaDeHoje: function () { return '2026-10-05'; }, caveReservaAberta: function () { return true; } };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'caderno.js'), 'utf8'), ctx, { filename: 'caderno.js' });
 const run = function (c) { return vm.runInContext(c, ctx); };
@@ -142,6 +142,24 @@ const dia = function (n) { return '2026-' + String(1 + Math.floor(n / 28) % 12).
   const vistas = new Set();
   for (let n = 0; n < 200; n++) vistas.add(escolher('trovoada', [], dia(n), n % 2, false, true).pagina.id);
   ok(vistas.size === 3, 'em muitos dias devia sair mais do que uma página (' + vistas.size + ')');
+}
+
+// ----- cadernoDarPaginaDaVitoria (PR C): grava só state.caderno.paginas, idempotente -----
+{
+  ctx.state = { caderno: { paginas: {} }, uvas: 1 };
+  const r1 = ctx.cadernoDarPaginaDaVitoria('vinha', false, 0);
+  ok(r1.pagina && ctx.state.caderno.paginas[r1.pagina.id] === '2026-10-05', 'devia gravar o id com a data de Lisboa');
+  ok(JSON.stringify(Object.keys(ctx.state).sort()) === '["caderno","uvas"]' && ctx.state.uvas === 1, 'não devia tocar noutras partes do estado');
+  ctx.state.caderno.paginas[r1.pagina.id] = '2026-01-01';
+  const r2 = ctx.cadernoDarPaginaDaVitoria('vinha', false, 0);
+  ok(r2.pagina && r2.pagina.id !== r1.pagina.id && ctx.state.caderno.paginas[r1.pagina.id] === '2026-01-01', 'a 2.ª devia ser outra e a 1.ª manter a data');
+  const r3 = ctx.cadernoDarPaginaDaVitoria('vinha', true, 1);
+  const r4 = ctx.cadernoDarPaginaDaVitoria('vinha', true, 1);
+  ok(r3.pagina && r4.pagina === null && r4.completo === true && Object.keys(ctx.state.caderno.paginas).length === 3, 'depois das 3, completo e sem mais páginas');
+  ctx.caveReservaAberta = function () { return false; };
+  ok(ctx.cadernoDarPaginaDaVitoria('cave', false, 0).pagina === null, 'Cave fechada: sem página da cave');
+  ctx.state = {};
+  ok(ctx.cadernoDarPaginaDaVitoria('adega', false, 0).pagina && ctx.state.caderno.paginas, 'sem state.caderno, cria só o caderno');
 }
 
 console.log(falhas === 0 ? 'OK' : falhas + ' FALHA(S)');

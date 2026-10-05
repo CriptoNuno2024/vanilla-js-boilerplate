@@ -5,7 +5,8 @@
 // YoshiCat encontra uma página rasgada escrita pelo Fygmo ou pelo Fygmo2. Cada
 // página liga a um ALVO do dia (ver ASSALTOS_ALVOS em js/assaltos.js).
 //
-// Os dados e escolherPaginaCaderno() são puros; ainda NINGUÉM ganha páginas (PR C). O estado
+// Os dados e escolherPaginaCaderno() são puros; as páginas ganham-se na vitória do Proteger
+// (cadernoDarPaginaDaVitoria(), chamada por finishProteger em js/proteger.js). O estado
 // vive em state.caderno = { paginas: { idPagina: 'AAAA-MM-DD' (Lisboa) } } (ver
 // js/state.js) e a nuvem junta-o por união (nuvemJuntarCaderno em js/nuvem.js).
 //
@@ -170,6 +171,24 @@ function escolherPaginaCaderno(alvo, tenhoIds, hoje, indice, houveIsco, caveAber
 
   const pagina = candidatas[cadernoHash(semente + '#pagina') % candidatas.length];
   return { pagina: pagina, completo: false };
+}
+
+// Dá a página de uma vitória (PR C): escolhe com escolherPaginaCaderno() e grava
+// state.caderno.paginas[id] = hoje (dia de Lisboa), sem tocar em mais nada do
+// estado; o saveState é de quem chama (o da vitória, em finishProteger). A chave é o
+// id: nunca duplica nem muda a data de uma página que já existe.
+// Devolve { pagina, completo } como escolherPaginaCaderno().
+function cadernoDarPaginaDaVitoria(alvo, houveIsco, indice) {
+  if (!state.caderno || typeof state.caderno.paginas !== 'object' || state.caderno.paginas === null) {
+    state.caderno = { paginas: {} };
+  }
+  const hoje = diaLisboaDeHoje();
+  const caveAberta = typeof caveReservaAberta === 'function' && caveReservaAberta();
+  const r = escolherPaginaCaderno(alvo, state.caderno.paginas, hoje, indice, !!houveIsco, caveAberta);
+  if (r.pagina && !Object.prototype.hasOwnProperty.call(state.caderno.paginas, r.pagina.id)) {
+    state.caderno.paginas[r.pagina.id] = hoje;
+  }
+  return r;
 }
 
 // ---------------------------------------------------------------------
