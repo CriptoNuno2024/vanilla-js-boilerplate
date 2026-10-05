@@ -141,6 +141,11 @@ function defaultState() {
       concluidos: {},
       celebrados: {},
       celebradosMigrado: false
+    },
+    // Caderno dos Fygmos (ver js/caderno.js): páginas ganhas, idPagina ->
+    // 'AAAA-MM-DD' (dia em Lisboa em que se ganhou). A nuvem junta-as por união.
+    caderno: {
+      paginas: {}
     }
   };
 }

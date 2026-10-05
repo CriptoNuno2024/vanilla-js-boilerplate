@@ -361,5 +361,62 @@ const dadosLocais = function (rep, em, extra) { return { yoshicat_quinta_state_v
   ok(j.ev('state.reputacao') === 80 && j.ev('state.proteger.isco') === null, '(8) estado da nuvem sem isco devia receber o default');
 }
 
+// (9) Caderno dos Fygmos (state.caderno.paginas): a junção é por UNIÃO e nunca perde páginas.
+{
+  const cap = { iniciado: true, concluidos: { cap1: true }, celebrados: { cap1: true }, celebradosMigrado: true };
+  // Nuvem com mais Reputação (ganha a nuvem): local A + nuvem B = A e B.
+  let nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000, caderno: { paginas: { cave_1: '2026-10-02' } } }, 5000);
+  let j = abrir(dadosLocais(50, 9000, { capitulos: cap, caderno: { paginas: { vinha_1: '2026-10-01' } } }), { t: 20000 }, nuvem, true);
+  ok(j.ev('arranque.ganhou') === 'nuvem (mais reputação)', '(9a) devia ganhar a nuvem: ' + j.ev('arranque.ganhou'));
+  ok(j.ev("state.caderno.paginas.vinha_1") === '2026-10-01' && j.ev("state.caderno.paginas.cave_1") === '2026-10-02', '(9a) as páginas A e B deviam juntar-se');
+  ok(j.ev("Object.keys(state.caderno.paginas).length") === 2, '(9a) só devia haver 2 páginas');
+  ok(j.ev("JSON.stringify(Object.keys(state.capitulos).sort())") === JSON.stringify(['celebrados', 'celebradosMigrado', 'concluidos', 'iniciado']) && j.ev('state.capitulos.concluidos.cap1') === true,
+    '(9a) os capítulos não deviam ser tocados pelo caderno');
+
+  // O local ganha e a nuvem tem páginas que o local não tem: união, e é enviada à nuvem.
+  nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 40, ultimaGravacaoEm: 5000, caderno: { paginas: { adega_1: '2026-10-03', trovoada_rara: '2026-10-04' } } }, 5000);
+  j = abrir(dadosLocais(50, 5000, { caderno: { paginas: { vinha_1: '2026-10-01' } } }), { t: 20000 }, nuvem, true);
+  ok(j.ev('arranque.ganhou') === 'local', '(9b) devia ganhar o local: ' + j.ev('arranque.ganhou'));
+  ok(j.ev("Object.keys(state.caderno.paginas).sort().join()") === 'adega_1,trovoada_rara,vinha_1', '(9b) devia ser a união: ' + j.ev("Object.keys(state.caderno.paginas).join()"));
+  ok(nuvem.escritas > 0 && Object.keys(JSON.parse(nuvem.dados.yc_state_parte_0).caderno.paginas).length === 3, '(9b) a nuvem devia receber as 3 páginas');
+
+  // Sem novidades (mesmas páginas dos dois lados, carimbos iguais): "mudou" não pode dar falso positivo.
+  nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 50, ultimaGravacaoEm: 5000, caderno: { paginas: { vinha_1: '2026-10-01', adega_2: '2026-10-02' } } }, 5000);
+  j = abrir(dadosLocais(50, 5000, { caderno: { paginas: { adega_2: '2026-10-02', vinha_1: '2026-10-01' } } }), { t: 20000 }, nuvem, true);
+  ok(j.ev('arranque.ganhou') === 'local' && nuvem.escritas === 0, '(9c) sem novidades não devia haver escrita (' + nuvem.escritas + ')');
+
+  // Mesma página com 2 datas: fica a mais antiga, venha de que lado vier.
+  nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000, caderno: { paginas: { vinha_1: '2026-10-05' } } }, 5000);
+  j = abrir(dadosLocais(50, 9000, { caderno: { paginas: { vinha_1: '2026-10-03' } } }), { t: 20000 }, nuvem, true);
+  ok(j.ev('state.caderno.paginas.vinha_1') === '2026-10-03', '(9d) devia ficar a data mais antiga (local)');
+  nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000, caderno: { paginas: { vinha_1: '2026-10-02' } } }, 5000);
+  j = abrir(dadosLocais(50, 9000, { caderno: { paginas: { vinha_1: '2026-10-03' } } }), { t: 20000 }, nuvem, true);
+  ok(j.ev('state.caderno.paginas.vinha_1') === '2026-10-02', '(9d) devia ficar a data mais antiga (nuvem)');
+
+  // Save antigo sem 'caderno' (local e nuvem): não rebenta e fica o default.
+  nuvem = nuvemFalsa({}); guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000 }, 5000);
+  j = abrir(dadosLocais(50, 9000), { t: 20000 }, nuvem, true);
+  ok(j.ev("JSON.stringify(state.caderno)") === '{"paginas":{}}', '(9e) save antigo devia ter caderno vazio: ' + j.ev("JSON.stringify(state.caderno)"));
+  ok(abrir({}, { t: 9000 }).ev("JSON.stringify(state.caderno)") === '{"paginas":{}}', '(9e) conta nova devia ter caderno vazio');
+
+  // Função pura: tipos errados ignoram-se, entradas boas ficam, nada é alterado nos argumentos.
+  j = abrir({}, { t: 9000 }, nuvemFalsa({}), true);
+  const f = function (a, b) { return j.ev('JSON.stringify(nuvemJuntarCaderno(' + JSON.stringify(a) + ',' + JSON.stringify(b) + '))'); };
+  const vazio = '{"paginas":{}}';
+  ok(f(null, undefined) === vazio && f('x', 5) === vazio && f([], {}) === vazio, '(9f) lados que não são objetos dão caderno vazio');
+  ok(f({ paginas: [1, 2] }, { paginas: 'lixo' }) === vazio, '(9f) paginas que não é objeto ignora-se');
+  ok(f({ paginas: { a: 5, b: 'lixo', c: '2026-01-02', d: null, e: '2026-13' } }, null) === '{"paginas":{"c":"2026-01-02"}}', '(9f) entradas com tipo ou data erradas ignoram-se: ' + f({ paginas: { a: 5, b: 'lixo', c: '2026-01-02', d: null, e: '2026-13' } }, null));
+  ok(j.ev('Object.keys(nuvemJuntarCaderno(JSON.parse(\'{"paginas":{"__proto__":"2026-01-01"}}\'), null).paginas).length') === 0, '(9f) a chave __proto__ devia ignorar-se');
+  ok(j.ev("({}).caderno === undefined && ({}).vinha_1 === undefined"), '(9f) o protótipo não devia ser alterado');
+  const a = { paginas: { x1: '2026-10-02' } }; const b = { paginas: { y1: '2026-10-01' } };
+  j.ev('var _a = ' + JSON.stringify(a) + ', _b = ' + JSON.stringify(b) + '; nuvemJuntarCaderno(_a, _b);');
+  ok(j.ev('JSON.stringify(_a)') === JSON.stringify(a) && j.ev('JSON.stringify(_b)') === JSON.stringify(b), '(9f) os argumentos não deviam ser alterados');
+}
+
 console.log(falhas === 0 ? 'OK' : falhas + ' FALHA(S)');
 process.exit(falhas === 0 ? 0 : 1);
