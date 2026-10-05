@@ -293,14 +293,16 @@ let _entradaComSom = null; // id da última entrada para a qual já tocou o som
 // Cartão de "nova entrada desbloqueada" — genérico, usado por Explorar,
 // Vinha, Adega e Festa. Recebe a entrada da Enciclopédia (ver
 // desbloquearEntradaEnciclopedia() em js/explorar.js) ou null/undefined
-// para esconder. Só mostra o título — o texto completo fica só na
-// Enciclopédia, um toque de distância através da pastilha "Ler".
+// para esconder. Também esconde (e não toca som) enquanto a Enciclopédia
+// não estiver aberta — ver cartaoNovaEntradaVisivel() em js/niveis.js.
+// Só mostra o título — o texto completo fica só na Enciclopédia, um toque
+// de distância através da pastilha "Ler".
 function mostrarNovaEntrada(entrada) {
   const cartao = document.getElementById('app-unlock');
   const tituloEl = document.getElementById('unlock-titulo');
   if (!cartao || !tituloEl) return;
 
-  if (!entrada) {
+  if (!cartaoNovaEntradaVisivel(entrada)) {
     cartao.hidden = true;
     reposicionarFlutuantes();
     return;
