@@ -462,7 +462,6 @@ function executarAcaoAdega(acao) {
     adegaMensagemAtual = t('garrafa.passo4') + ' ' + t('adega.resultadoEngarrafar').replace('{rep}', repGanha);
     adegaNovaEntrada = desbloquearEntradaEnciclopedia('curtimenta');
     adegaFotoAtual = ADEGA_FOTOS.engarrafar;
-    tocarSom('engarrafarPop');
   } else {
     return;
   }
@@ -534,6 +533,16 @@ function bolhasGarrafaHtml(imagem) {
 // Sem estado novo: tudo se calcula a partir de state.adega.lote.
 // ---------------------------------------------------------------------
 const ENGARRAFAR_RELOGIO_MS = 30 * 1000;
+
+// Sons da página (ver js/som.js). O ambiente (borbulhar de fermentação)
+// só começa quando já há foto (1 dia ou mais), entra e sai em fundo, e é
+// bem mais baixo do que a chuva; o som de engarrafar (vinho a cair + tilintar)
+// é pedido ao abrir a página, para não haver atraso no toque.
+const GARRAFA_SOM_AMBIENTE = 'assets/sons/garrafa_ambiente.mp3';
+const GARRAFA_SOM_ENGARRAFAR = 'assets/sons/garrafa_engarrafar.mp3';
+const GARRAFA_AMBIENTE_VOLUME = 0.2;
+const GARRAFA_AMBIENTE_FADE = { entrarS: 1.2, sairS: 0.8 };
+const GARRAFA_ENGARRAFAR_VOLUME = 0.7;
 let engarrafarTimerId = null;
 let engarrafarResultado = null;   // { garrafa, rep } depois de engarrafar, senão null
 let engarrafarDiasMostrados = -1; // diasCompletos desenhados, para saber quando redesenhar
@@ -584,6 +593,18 @@ function enterEngarrafar() {
   }
   renderEngarrafar();
   iniciarRelogioEngarrafar();
+  iniciarAmbienteEngarrafar();
+  // Com "Som" ligado e o áudio já desbloqueado, pede já o som de engarrafar.
+  if (typeof somPodeTocar === 'function' && somPodeTocar()) somCarregarFicheiro(GARRAFA_SOM_ENGARRAFAR);
+}
+
+// Ambiente só com foto (1 dia ou mais). Idempotente: chamar outra vez (ex.:
+// ao mudar de dia com a página aberta) não o reinicia. Pára em goTo() ao
+// sair, e em engarrafarAgora().
+function iniciarAmbienteEngarrafar() {
+  if (typeof iniciarSomAmbiente !== 'function') return;
+  if (!estadoGarrafaLote(diasDescansadosNaCave()).atual) return;
+  iniciarSomAmbiente(GARRAFA_SOM_AMBIENTE, GARRAFA_AMBIENTE_VOLUME, GARRAFA_AMBIENTE_FADE);
 }
 
 function textoProximaCorGarrafa(est) {
@@ -623,7 +644,7 @@ function renderEngarrafar() {
       '<p class="phase-progress" id="engarrafar-proxima">' + textoProximaCorGarrafa(est) + '</p>' +
       (pronto ? '<p class="phase-progress">' + t('adega.caveReputacaoPrevista').replace('{valor}', reputacaoDaCave(est.diasCompletos)) + '</p>' : '');
     botoesHtml =
-      '<button type="button" class="btn-pill pill-main pill-grande" id="engarrafar-agora" ' + (pronto ? '' : 'disabled ') + 'onclick="engarrafarAgora()">' +
+      '<button type="button" class="btn-pill pill-main pill-grande" id="engarrafar-agora" data-sem-vibracao ' + (pronto ? '' : 'disabled ') + 'onclick="engarrafarAgora()">' +
         '<span data-i18n="adega.paginaBtnAgora"></span><span class="cooldown-suffix" id="engarrafar-falta">' + (pronto ? '' : sufixoFaltaEngarrafar(dias)) + '</span>' +
       '</button>' +
       '<button type="button" class="btn-pill" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>';
@@ -663,7 +684,7 @@ function atualizarEngarrafar() {
   if (!state.adega.lote) { pararRelogioEngarrafar(); renderEngarrafar(); return; }
   const dias = diasDescansadosNaCave();
   const est = estadoGarrafaLote(dias);
-  if (est.diasCompletos !== engarrafarDiasMostrados) { renderEngarrafar(); return; }
+  if (est.diasCompletos !== engarrafarDiasMostrados) { renderEngarrafar(); iniciarAmbienteEngarrafar(); return; }
   const barra = document.getElementById('engarrafar-barra');
   if (barra) barra.style.width = Math.round(est.fracao * 100) + '%';
   const fusao = document.getElementById('engarrafar-fusao');
@@ -685,6 +706,9 @@ function engarrafarAgora() {
   if (a.lote || !adegaGarrafaFeita) { renderEngarrafar(); return; }
   engarrafarResultado = { garrafa: adegaGarrafaFeita, rep: state.reputacao - repAntes };
   pararRelogioEngarrafar();
+  pararSomAmbiente();                                        // o ambiente sai em fundo
+  tocarSomFicheiro(GARRAFA_SOM_ENGARRAFAR, GARRAFA_ENGARRAFAR_VOLUME);
+  vibrar('sucesso');                                         // (o botão não faz a vibração leve: data-sem-vibracao)
   renderEngarrafar();
   // O resultado já está escrito nesta página: esconde o balão (o cartão de
   // "nova entrada" da Enciclopédia, se houver, mantém-se).
