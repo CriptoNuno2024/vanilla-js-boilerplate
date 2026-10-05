@@ -269,7 +269,7 @@ const TRANSLATIONS = {
     'enciclopedia.bloqueado': 'Por desbloquear.',
 
     'garrafa.title': 'Criar Garrafa',
-    'garrafa.descricao': 'São precisas 100 Gotas de Moscatel para criar 1 Garrafa (+30 Reputação).',
+    'garrafa.descricao': 'São precisas 100 Gotas de Moscatel para criar 1 Garrafa (+30 a +50 Reputação).',
     'garrafa.btnCriar': 'Criar Garrafa',
     'garrafa.btnSeguinte': 'Seguinte',
     'garrafa.btnContinuar': 'Continuar',
@@ -444,8 +444,8 @@ const TRANSLATIONS = {
     'ronda.obrigado': 'Half a bowl, as agreed. A guard dog doesn\'t work for free. (+{rep} Reputation, +{gotas} drops)',
     'ronda.pista.vinha.1': 'Woof. Tracks between the vines. Fygmo is sizing up the bunches.',
     'ronda.pista.vinha.2': 'The wind carried a pig smell from the vineyard. Watch the bunches today.',
-    'ronda.pista.adega.1': 'I sniffed round the Cellar: it smells of brandy and nosy pigs.',
-    'ronda.pista.adega.2': 'Heard grunting by the barrels. The Cellar deserves a look today.',
+    'ronda.pista.adega.1': 'I sniffed round the Winery: it smells of brandy and nosy pigs.',
+    'ronda.pista.adega.2': 'Heard grunting by the barrels. The Winery deserves a look today.',
     'ronda.pista.cave.1': 'Tracks at the Cave door. Fygmo2 is sniffing around your Reserve.',
     'ronda.pista.cave.2': 'Too quiet in the Cave. When the pigs go silent, they are planning.',
     'ronda.pista.nevoeiro.1': 'In this fog the pigs roam free. Stay alert, YoshiCat.',
@@ -629,7 +629,7 @@ const TRANSLATIONS = {
     'enciclopedia.bloqueado': 'Not yet unlocked.',
 
     'garrafa.title': 'Make a Bottle',
-    'garrafa.descricao': 'You need 100 Moscatel Drops to make 1 Bottle (+30 Reputation).',
+    'garrafa.descricao': 'You need 100 Moscatel Drops to make 1 Bottle (+30 to +50 Reputation).',
     'garrafa.btnCriar': 'Make a Bottle',
     'garrafa.btnSeguinte': 'Next',
     'garrafa.btnContinuar': 'Continue',
@@ -988,7 +988,7 @@ const TRANSLATIONS = {
     'enciclopedia.bloqueado': 'Por desbloquear.',
 
     'garrafa.title': 'Crear Botella',
-    'garrafa.descricao': 'Se necesitan 100 Gotas de Moscatel para crear 1 Botella (+30 Reputación).',
+    'garrafa.descricao': 'Se necesitan 100 Gotas de Moscatel para crear 1 Botella (+30 a +50 Reputación).',
     'garrafa.btnCriar': 'Crear Botella',
     'garrafa.btnSeguinte': 'Siguiente',
     'garrafa.btnContinuar': 'Continuar',

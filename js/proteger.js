@@ -91,7 +91,7 @@ const PROTEGER_STRINGS = {
     fechadura: [
       { situacao: 'Fygmo2 pulls out his monocle and measures the Special Reserve lock millimeter by millimeter, looking for a weak spot.', opcoes: ['Swap the lock for a reinforced padlock', 'Walk away and come back tomorrow', 'Shout "who\'s there?" into the dark'], correta: 0 },
       { situacao: 'A metallic clatter echoes through the cellar — Fygmo2 is trying different picks on the lock.', opcoes: ['Go back to sleep, it must be the wind', 'Add an extra bolt to the door', 'Open the door to see who it is'], correta: 1 },
-      { situacao: 'Hidden on the cellar stairs, Fygmo raises his binoculars and signals Fygmo2 to move forward.', opcoes: ['Suddenly turn on the cellar lights', 'Close your eyes and hope it passes', "Call out Fygmo's name, laughing"], correta: 0 },
+      { situacao: 'Hidden on the cellar stairs, Fygmo raises his binoculars and signals Fygmo2 to move forward.', opcoes: ['Suddenly turn on the winery lights', 'Close your eyes and hope it passes', "Call out Fygmo's name, laughing"], correta: 0 },
       { situacao: 'Monocle in place, Fygmo2 presses his ear against the Special Reserve lock to listen to the gears.', opcoes: ['Distract him with a noisy falling bucket', 'Leave him a friendly note', 'Ignore it and go back to sleep'], correta: 0 }
     ],
     // Sem a Cave de Reserva aberta (ver caveReservaAberta() em js/garrafa.js) a Fechadura fala da adega.
@@ -115,10 +115,10 @@ const PROTEGER_STRINGS = {
     disfarceVitoria: function (porco) { return 'Under the leaves was ' + porco + ', caught red-handed trying to escape with the harvest!'; },
     disfarceDerrota: function (porco) { return 'It was real grapes after all… ' + porco + ' runs off laughing, basket empty and pride full.'; },
     chizoTurnos: [
-      'Fygmo and Fygmo2 creep slowly toward the cellar, hidden among the shadows...',
+      'Fygmo and Fygmo2 creep slowly toward the winery, hidden among the shadows...',
       'Fygmo signals Fygmo2 to move forward a little more...',
-      'You can already hear their footsteps by the cellar door...',
-      'Fygmo is already opening the cellar door!'
+      'You can already hear their footsteps by the winery door...',
+      'Fygmo is already opening the winery door!'
     ],
     chizoVitoria: 'Chizo wakes up just in time and barks! Fygmo and Fygmo2 run off empty-handed.',
     chizoCedo: 'False alarm: Chizo goes back to sleep. The pigs laugh, but they take nothing.',
