@@ -85,3 +85,48 @@ function tipoDeProtegerPelaPista(alvo) {
   if (alvo === 'nevoeiro' || alvo === 'trovoada') return 'chizo';
   return null;
 }
+
+// -----------------------------------------------------------------
+// ISCO (ver js/proteger.js): antes da 1.ª ronda do Proteger o jogador pode pôr
+// 1 bagaço de isco para a pista de hoje. Registo em state.proteger.isco:
+// { dia: 'AAAA-MM-DD' (Lisboa), indice: 0 ou 1 (o índice da pista), alvo: o
+// alvo fixado, ou null se recusou }. Funções puras, para testar em node.
+// -----------------------------------------------------------------
+
+// O registo vale para este dia e este índice?
+function iscoDoDia(isco, hoje, indice) {
+  return !!isco && typeof isco === 'object' && isco.dia === hoje && isco.indice === indice;
+}
+
+// O alvo fixado pelo isco (só se o registo é de hoje, deste índice e tem alvo
+// válido), ou null.
+function iscoAlvoFixado(isco, hoje, indice) {
+  if (!iscoDoDia(isco, hoje, indice)) return null;
+  return ASSALTOS_ALVOS.indexOf(isco.alvo) !== -1 ? isco.alvo : null;
+}
+
+// Pergunta-se "Pôr isco?" só com pista (índice 0 ou 1), com bagaço e se ainda
+// não há registo (posto ou recusado) para este dia e este índice.
+function iscoPerguntar(isco, hoje, indice, bagaco) {
+  if (indice !== 0 && indice !== 1) return false;
+  if (!(bagaco >= 1)) return false;
+  return !iscoDoDia(isco, hoje, indice);
+}
+
+// Alvo a seguir no Proteger: ?pista= no endereço > isco fixado (mesmo dia e
+// índice) > cálculo ao vivo (alvoDosPorcosDoDia).
+function alvoParaProteger(indice, isco, hoje, leituras) {
+  const l = leituras || assaltosLeituras();
+  if (l.forcado) return l.forcado;
+  const fixado = iscoAlvoFixado(isco, hoje != null ? hoje : l.dia, indice);
+  if (fixado) return fixado;
+  return alvoDosPorcosDoDia(indice, l);
+}
+
+// O porco que o isco chama (as pistas nomeiam o Fygmo2 na Cave e o Fygmo na
+// Vinha); null nos outros alvos, que não nomeiam nenhum.
+function porcoDoAlvo(alvo) {
+  if (alvo === 'cave') return 'Fygmo2';
+  if (alvo === 'vinha') return 'Fygmo';
+  return null;
+}

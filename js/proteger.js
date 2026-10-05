@@ -22,6 +22,11 @@ const PROTEGER_STRINGS = {
     chizoSubtitulo: 'Acorda o Chizo a tempo',
     chizoExplicacao: 'Os porcos aproximam-se sozinhos. Acorda o Chizo no momento certo: nem cedo demais, nem tarde demais! Toca quando ouvires os passos junto à porta.',
     chizoComecar: 'Começar',
+    iscoSubtitulo: 'Um isco para os porcos?',
+    iscoPergunta: 'O bagaço de uva é ração: ponho um punhado no caminho e vejo quem aparece. Gasta 1 bagaço.',
+    iscoBotao: 'Pôr isco (-1 bagaço)',
+    iscoSem: 'Seguir sem isco',
+    iscoFala: function (porco) { return porco ? 'O isco já chamou o ' + porco + '. Vem aí.' : 'O cheiro do bagaço já passou de focinho em focinho. Vem aí gente.'; },
     chizoBotao: 'Acordar o Chizo!',
     protegida: 'A Quinta está protegida!',
     naoCorreuBem: 'Desta vez não correu bem...',
@@ -64,6 +69,11 @@ const PROTEGER_STRINGS = {
     chizoSubtitulo: 'Wake Chizo in time',
     chizoExplicacao: 'The pigs are creeping closer on their own. Wake Chizo at the right moment: not too early, not too late! Tap when you hear the footsteps by the door.',
     chizoComecar: 'Start',
+    iscoSubtitulo: 'Bait for the pigs?',
+    iscoPergunta: 'Grape pomace is animal feed: I\'ll leave a handful on the path and see who shows up. Costs 1 pomace.',
+    iscoBotao: 'Set the bait (-1 pomace)',
+    iscoSem: 'Carry on without bait',
+    iscoFala: function (porco) { return porco ? 'The bait has already caught ' + porco + "'s attention. Here he comes." : 'The smell of pomace is already going from snout to snout. Company is coming.'; },
     chizoBotao: 'Wake Chizo!',
     protegida: 'The Farm is protected!',
     naoCorreuBem: "It didn't go well this time...",
@@ -106,6 +116,11 @@ const PROTEGER_STRINGS = {
     chizoSubtitulo: 'Despierta a Chizo a tiempo',
     chizoExplicacao: 'Los cerdos se acercan solos. Despierta a Chizo en el momento justo: ¡ni demasiado pronto, ni demasiado tarde! Toca cuando oigas los pasos junto a la puerta.',
     chizoComecar: 'Empezar',
+    iscoSubtitulo: '¿Un cebo para los cerdos?',
+    iscoPergunta: 'El orujo de uva es pienso: dejo un puñado en el camino y veo quién aparece. Gasta 1 orujo.',
+    iscoBotao: 'Poner cebo (-1 orujo)',
+    iscoSem: 'Seguir sin cebo',
+    iscoFala: function (porco) { return porco ? 'El cebo ya llamó al ' + porco + '. Ahí viene.' : 'El olor del orujo ya pasa de hocico en hocico. Viene gente.'; },
     chizoBotao: '¡Despertar a Chizo!',
     protegida: '¡La Quinta está protegida!',
     naoCorreuBem: 'Esta vez no salió bien...',
@@ -244,23 +259,108 @@ function pesosProtegerPara(estacao, temGarrafaEscura) {
 }
 
 // A pista do dia (js/assaltos.js) decide o minijogo só na 1.ª ronda de cada
-// visita (as rondas extra do tempo mantêm o sorteio). Com ?pista= no endereço
-// usa esse alvo; senão só depois da meia taça de hoje (índice = feitas - 1).
+// visita (as rondas extra do tempo mantêm o sorteio).
+// Índice da pista de hoje: com ?pista= no endereço é 0; senão só depois da meia
+// taça de hoje (índice = feitas - 1). null = sem pista. Só lê: não grava nada.
+function protegerPistaIndice() {
+  try {
+    if (typeof assaltosAlvoForcadoNoEndereco === 'function' && assaltosAlvoForcadoNoEndereco()) return 0;
+    const feitas = typeof rondaChizoFeitasHoje === 'function' ? rondaChizoFeitasHoje() : 0;
+    return feitas >= 1 ? Math.min(feitas, 2) - 1 : null;
+  } catch (e) { return null; }
+}
+
+// Isco desta visita, só em memória (ver protegerIscoResponder()): em modo de teste
+// (?pista=) nunca se grava nem se gasta nada.
+let protegerIscoTeste = false;      // "Pôr isco" tocado em modo de teste
+let protegerIscoPendente = null;    // índice da pista à espera da resposta, ou null
+let protegerIscoNaRonda = false;    // a ronda atual é a 1.ª e tem isco posto
+let protegerPorcoIsco = null;       // 'Fygmo' | 'Fygmo2' | null: o porco chamado pelo isco
+
+function protegerEmModoTeste() {
+  return typeof assaltosAlvoForcadoNoEndereco === 'function' && !!assaltosAlvoForcadoNoEndereco();
+}
+
+// Há isco para a pista de hoje (posto agora em teste, ou gravado em state.proteger.isco)?
+function protegerIscoPostoAgora(indice) {
+  if (protegerEmModoTeste()) return protegerIscoTeste;
+  return !!iscoAlvoFixado(state.proteger && state.proteger.isco, diaLisboaDeHoje(), indice);
+}
+
 // Devolve 'fechadura' | 'disfarces' | 'chizo' ou null (= sorteio de hoje).
-// Só lê: não grava nada.
+// Precedência do alvo: ?pista= > isco fixado > cálculo ao vivo (alvoParaProteger).
 function tipoProtegerPelaPista() {
+  protegerIscoNaRonda = false;
+  protegerPorcoIsco = null;
   try {
     if (protegerRondaAtual !== 1) return null;
-    if (typeof alvoDosPorcosDoDia !== 'function' || typeof tipoDeProtegerPelaPista !== 'function') return null;
-    let indice = 0;
-    if (!(typeof assaltosAlvoForcadoNoEndereco === 'function' && assaltosAlvoForcadoNoEndereco())) {
-      const feitas = typeof rondaChizoFeitasHoje === 'function' ? rondaChizoFeitasHoje() : 0;
-      if (feitas < 1) return null;
-      indice = feitas - 1;
+    if (typeof alvoParaProteger !== 'function' || typeof tipoDeProtegerPelaPista !== 'function') return null;
+    const indice = protegerPistaIndice();
+    if (indice === null) return null;
+    const alvo = alvoParaProteger(indice, state.proteger && state.proteger.isco, diaLisboaDeHoje());
+    if (protegerIscoPostoAgora(indice)) {
+      protegerIscoNaRonda = true;
+      protegerPorcoIsco = porcoDoAlvo(alvo);
     }
-    const tipo = tipoDeProtegerPelaPista(alvoDosPorcosDoDia(indice));
+    const tipo = tipoDeProtegerPelaPista(alvo);
     return (tipo === 'fechadura' || tipo === 'disfarces' || tipo === 'chizo') ? tipo : null;
   } catch (e) { return null; }
+}
+
+// Primeira fala da ronda: com isco, o balão nomeia o porco chamado antes da
+// fala de sempre (só texto).
+function protegerFalaInicio(texto) {
+  if (protegerIscoNaRonda) mostrarFalas([pStr().iscoFala(protegerPorcoIsco), texto], 'YoshiCat');
+  else atualizarDialogo(texto, 'YoshiCat');
+}
+
+// Passo "Pôr isco?" antes da 1.ª ronda de cada visita: só com pista, com bagaço
+// e sem registo para este dia e este índice. Nada se gasta até se tocar numa pílula.
+// Devolve o índice da pista a perguntar, ou null (não se pergunta).
+function protegerIscoPerguntarAgora() {
+  try {
+    if (typeof iscoPerguntar !== 'function') return null;
+    const indice = protegerPistaIndice();
+    if (indice === null) return null;
+    const bagaco = state.adega && state.adega.bagaco;
+    const isco = protegerEmModoTeste() ? null : (state.proteger && state.proteger.isco);
+    return iscoPerguntar(isco, diaLisboaDeHoje(), indice, bagaco) ? indice : null;
+  } catch (e) { return null; }
+}
+
+function renderIscoPergunta(indice) {
+  protegerIscoPendente = indice;
+  const S = pStr();
+  const container = document.getElementById('proteger-container');
+  container.innerHTML =
+    protegerTopcardHtml(S, S.iscoSubtitulo, '<p class="mini-sub">' + t('adega.recursoBagaco') + ' ' + state.adega.bagaco + '</p>') +
+    '<div class="action-panel"><div class="choice-stack">' +
+      '<button type="button" class="btn-choice" onclick="protegerIscoResponder(true)">' + S.iscoBotao + '</button>' +
+      '<button type="button" class="btn-choice" onclick="protegerIscoResponder(false)">' + S.iscoSem + '</button>' +
+    '</div></div>';
+  definirFundo('foto', PROTEGER_FUNDOS.chizo.src, PROTEGER_FUNDOS.chizo.pos);
+  atualizarDialogo(S.iscoPergunta, 'YoshiCat');
+}
+
+// "Pôr isco": 1 bagaço e o registo { dia, indice, alvo } no MESMO saveState.
+// "Seguir sem isco": registo com alvo null (não volta a perguntar). Nunca gasta
+// duas vezes. Em modo de teste (?pista=) não grava nem gasta nada.
+function protegerIscoResponder(poe) {
+  const indice = protegerIscoPendente;
+  if (indice === null) return; // já respondido (toque duplo)
+  protegerIscoPendente = null;
+  if (protegerEmModoTeste()) {
+    protegerIscoTeste = !!poe;
+  } else {
+    const hoje = diaLisboaDeHoje();
+    if (!iscoDoDia(state.proteger.isco, hoje, indice)) {
+      const poeMesmo = !!poe && state.adega.bagaco >= 1;
+      if (poeMesmo) state.adega.bagaco -= 1;
+      state.proteger.isco = { dia: hoje, indice: indice, alvo: poeMesmo ? alvoDosPorcosDoDia(indice) : null };
+      saveState(state);
+    }
+  }
+  iniciarRondaProteger();
 }
 
 function escolherTipoProteger() {
@@ -346,6 +446,16 @@ function startProteger(continuando) {
       protegerAvisoTexto = protegerAvisoTexto ? (protegerAvisoTexto + ' ' + t('proteger.modoTreino')) : t('proteger.modoTreino');
     }
   }
+  if (!continuando) {
+    protegerIscoTeste = false;
+    protegerIscoPendente = null;
+    const indiceIsco = protegerIscoPerguntarAgora();
+    if (indiceIsco !== null) { renderIscoPergunta(indiceIsco); return; }
+  }
+  iniciarRondaProteger();
+}
+
+function iniciarRondaProteger() {
   tocarSomFicheiro('assets/sons/porco_grunhir.mp3', 0.7);
   const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
@@ -359,11 +469,18 @@ function startProteger(continuando) {
 // -----------------------------------------------------------------
 
 let currentFechaduraIndex = -1;
+const PROTEGER_FECHADURA_CENAS_POR_PORCO = { Fygmo: [2], Fygmo2: [0, 1, 3] };
 
 function renderFechadura() {
   ultimoTipoProteger = 'fechadura';
   const S = pStr();
   currentFechaduraIndex = randInt(0, S.fechadura.length - 1);
+  // Com isco, a cena é do porco chamado (as cenas 0, 1 e 3 são do Fygmo2 e a 2 do
+  // Fygmo, nas 3 línguas); só muda qual cena sai, nunca as opções nem a correta.
+  if (protegerPorcoIsco) {
+    const deste = PROTEGER_FECHADURA_CENAS_POR_PORCO[protegerPorcoIsco].filter(function (i) { return i < S.fechadura.length; });
+    if (deste.length) currentFechaduraIndex = deste[randInt(0, deste.length - 1)];
+  }
   const cena = S.fechadura[currentFechaduraIndex];
 
   const container = document.getElementById('proteger-container');
@@ -376,7 +493,7 @@ function renderFechadura() {
     '</div></div>';
 
   definirFundo('foto', PROTEGER_FUNDOS.fechadura.src, PROTEGER_FUNDOS.fechadura.pos);
-  atualizarDialogo(cena.situacao, 'YoshiCat');
+  protegerFalaInicio(cena.situacao);
 }
 
 function responderFechadura(i) {
@@ -404,7 +521,7 @@ function renderDisfarces() {
   ultimoTipoProteger = 'disfarces';
   const S = pStr();
   currentDisfarceIndex = randInt(0, 3);
-  currentDisfarcePorco = randInt(0, 1) === 0 ? 'Fygmo' : 'Fygmo2';
+  currentDisfarcePorco = protegerPorcoIsco || (randInt(0, 1) === 0 ? 'Fygmo' : 'Fygmo2');
 
   const container = document.getElementById('proteger-container');
   container.innerHTML =
@@ -416,7 +533,7 @@ function renderDisfarces() {
     '</div></div>';
 
   definirFundo('foto', PROTEGER_FUNDOS.disfarces.src, PROTEGER_FUNDOS.disfarces.pos, PROTEGER_FUNDOS.disfarces.size);
-  atualizarDialogo(S.disfarcesIntro, 'YoshiCat');
+  protegerFalaInicio(S.disfarcesIntro);
 }
 
 function responderDisfarce(i) {
@@ -494,7 +611,7 @@ function iniciarChizo() {
     '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="comecarChizo()">' + S.chizoComecar + '</button></div>';
 
   definirFundo('foto', PROTEGER_FUNDOS.chizo.src, PROTEGER_FUNDOS.chizo.pos);
-  atualizarDialogo(S.chizoExplicacao, 'YoshiCat');
+  protegerFalaInicio(S.chizoExplicacao);
 }
 
 function comecarChizo() {
@@ -631,9 +748,10 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
     : (daReserva ? S.fechaduraReservaFygmo : t('proteger.fala.fygmoPerde'));
   const falaFygmo2 = g ? (cobre ? S.fechaduraReservaFygmo2Cobre : S.fechaduraReservaFygmo2Cor.replace('{cor}', cor))
     : (daReserva ? S.fechaduraReservaFygmo2 : t('proteger.fala.fygmo2Ganha'));
+  // Com isco (e um porco chamado), é esse porco quem fala, ganhe ou perca.
   const falas = [mensagem, venceu
-    ? { texto: falaFygmo, falante: 'Fygmo' }
-    : { texto: falaFygmo2, falante: 'Fygmo2' }];
+    ? { texto: falaFygmo, falante: protegerPorcoIsco || 'Fygmo' }
+    : { texto: falaFygmo2, falante: protegerPorcoIsco || 'Fygmo2' }];
   if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
   } else if (venceu && !ganhaPremio) {
