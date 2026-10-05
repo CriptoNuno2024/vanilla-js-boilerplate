@@ -207,18 +207,18 @@ const TRANSLATIONS = {
     // Frase de sabor mostrada no balão depois de cada ação da Vinha
     // (ver VINHA_FLAVOR em js/vinha.js) — fora da estação de bónus.
     'vinha.dica.cavar': 'Revolver a terra areja as raízes e prepara o solo para uma nova plantação.',
-    'vinha.dica.plantar': 'Os novos bacelos de Moscatel Graúdo são plantados com cuidado, em filas viradas a poente.',
+    'vinha.dica.plantar': 'Os novos bacelos de Moscatel Graúdo são plantados com cuidado.',
     'vinha.dica.ervas': 'As ervas daninhas competem pela água e pelos nutrientes que a videira precisa.',
     'vinha.dica.regar': 'A água desce devagar até às raízes fundas. É dali que a videira tira o que o Moscatel vai guardar.',
     'vinha.dica.adubar': 'O adubo orgânico devolve à terra o que a vinha consumiu na estação anterior.',
     'vinha.dica.compostagem': 'Os resíduos da poda e das ervas arrancadas transformam-se, com tempo, em adubo rico para a vinha.',
-    'vinha.dica.colher': 'A vindima é feita à mão, cacho a cacho, para não danificar os bagos maduros de Moscatel.',
+    'vinha.dica.colher': 'Colhe cacho a cacho, para não danificar os bagos maduros de Moscatel.',
 
     // Estações do ano — dicas próprias de cada ação com vantagem
     'vinha.dica.plantar.primavera': 'É primavera, a altura certa para plantar: os novos bacelos de Moscatel Graúdo pegam com mais força nesta estação.',
     'vinha.dica.ervas.primavera': 'Na primavera as ervas daninhas crescem depressa — arrancá-las agora dá um impulso extra às videiras.',
     'vinha.dica.regar.verao': 'No calor do verão, a água é ainda mais preciosa: a vinha da Arrábida agradece cada rega.',
-    'vinha.dica.colher.outono': 'É outono, mês da vindima: os cachos maduros de Moscatel são colhidos à mão, cacho a cacho.',
+    'vinha.dica.colher.outono': 'É outono, mês da vindima: colhe os cachos maduros de Moscatel, cacho a cacho.',
     'vinha.dica.compostagem.inverno': 'No inverno, os resíduos da poda enchem o composto: uma boa altura para transformá-los em adubo rico.',
 
     // Estações do ano — a fase verdadeira da videira (Parte B)
@@ -570,17 +570,17 @@ const TRANSLATIONS = {
     'vinha.dica.colher.pontoCerto': 'Perfect harvest moment: pick now for an extra bonus!',
 
     'vinha.dica.cavar': 'Turning the soil airs out the roots and readies the ground for a new planting.',
-    'vinha.dica.plantar': 'The new Moscatel Graúdo cuttings are planted with care, in rows facing west.',
+    'vinha.dica.plantar': 'The new Moscatel Graúdo cuttings are planted with care.',
     'vinha.dica.ervas': 'Weeds compete for the water and nutrients the vine needs.',
     'vinha.dica.regar': 'The water sinks slowly down to the deep roots. That is where the vine draws what the Moscatel will keep.',
     'vinha.dica.adubar': 'The organic compost returns to the soil what the vineyard used up last season.',
     'vinha.dica.compostagem': 'Pruning waste and pulled weeds turn, over time, into rich compost for the vineyard.',
-    'vinha.dica.colher': 'The harvest is done by hand, bunch by bunch, so the ripe Moscatel grapes are not damaged.',
+    'vinha.dica.colher': 'Pick bunch by bunch, so the ripe Moscatel grapes are not damaged.',
 
     'vinha.dica.plantar.primavera': "It's spring, the right time to plant: young Moscatel Graúdo vine cuttings take root more easily this season.",
     'vinha.dica.ervas.primavera': 'In spring weeds grow fast — pulling them now gives the vines an extra boost.',
     'vinha.dica.regar.verao': 'In the summer heat, water is even more precious: the Arrábida vineyard is grateful for every watering.',
-    'vinha.dica.colher.outono': "It's autumn, harvest time: the ripe Moscatel bunches are picked by hand, one by one.",
+    'vinha.dica.colher.outono': "It's autumn, harvest time: pick the ripe Moscatel bunches one by one.",
     'vinha.dica.compostagem.inverno': 'In winter, pruning waste fills up the compost — a good time to turn it into rich fertiliser.',
 
     'vinha.faseRealLabel': 'Right now, in the real vineyard:',
@@ -929,17 +929,17 @@ const TRANSLATIONS = {
     'vinha.dica.colher.pontoCerto': '¡Es el punto justo de la vendimia: cosecha ahora y ganas un extra!',
 
     'vinha.dica.cavar': 'Remover la tierra airea las raíces y prepara el suelo para una nueva plantación.',
-    'vinha.dica.plantar': 'Los nuevos esquejes de Moscatel Graúdo se plantan con cuidado, en filas orientadas al poniente.',
+    'vinha.dica.plantar': 'Los nuevos esquejes de Moscatel Graúdo se plantan con cuidado.',
     'vinha.dica.ervas': 'Las malas hierbas compiten por el agua y los nutrientes que necesita la vid.',
     'vinha.dica.regar': 'El agua baja despacio hasta las raíces profundas. De ahí saca la vid lo que el Moscatel guardará.',
     'vinha.dica.adubar': 'El abono orgánico devuelve a la tierra lo que el viñedo consumió en la estación anterior.',
     'vinha.dica.compostagem': 'Los residuos de la poda y las malas hierbas arrancadas se convierten, con el tiempo, en abono rico para el viñedo.',
-    'vinha.dica.colher': 'La vendimia se hace a mano, racimo a racimo, para no dañar los granos maduros de Moscatel.',
+    'vinha.dica.colher': 'Cosecha racimo a racimo, para no dañar los granos maduros de Moscatel.',
 
     'vinha.dica.plantar.primavera': 'Es primavera, el momento adecuado para plantar: los nuevos esquejes de Moscatel Graúdo arraigan con más fuerza en esta estación.',
     'vinha.dica.ervas.primavera': 'En primavera las malas hierbas crecen deprisa: arrancarlas ahora da un impulso extra a las vides.',
     'vinha.dica.regar.verao': 'En el calor del verano, el agua es aún más preciosa: el viñedo de Arrábida agradece cada riego.',
-    'vinha.dica.colher.outono': 'Es otoño, mes de la vendimia: los racimos maduros de Moscatel se recogen a mano, uno a uno.',
+    'vinha.dica.colher.outono': 'Es otoño, mes de la vendimia: recoge los racimos maduros de Moscatel uno a uno.',
     'vinha.dica.compostagem.inverno': 'En invierno, los residuos de la poda llenan el compost: un buen momento para convertirlos en abono rico.',
 
     'vinha.faseRealLabel': 'Ahora mismo, en el viñedo real:',
