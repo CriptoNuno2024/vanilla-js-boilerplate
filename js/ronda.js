@@ -63,16 +63,37 @@ function rondaChizoFase(agora) {
   return 'pedido';
 }
 
-// Curiosidade: o texto de uma entrada da Enciclopédia (só as que não são
-// "manual" nem de estação, todas curtas). Escolha estável para o mesmo dia e
-// a mesma ronda, para não mudar se o jogador voltar a abrir a Quinta.
-function rondaChizoCuriosidade(indice) {
-  const lista = encyclopediaEntries().filter(function (e) { return !e.manual && !e.estacao; });
+// Mês (1 a 12) de um dia "YYYY-MM-DD" (o de diaLisboaDeHoje()); 0 se inválido.
+function rondaChizoMesDoDia(dia) {
+  const m = parseInt(String(dia).slice(5, 7), 10);
+  return m >= 1 && m <= 12 ? m : 0;
+}
+
+// Candidatas à curiosidade: entradas que não são "manual" nem de estação e,
+// se tiverem o campo opcional "meses" (ver js/explorar.js), só no(s) seu(s)
+// mês(es). Função pura. Nunca devolve vazio havendo entradas: se o filtro
+// por mês esvaziar a lista, ignora-se o campo "meses".
+function rondaChizoCandidatas(entradas, mes) {
+  const base = entradas.filter(function (e) { return !e.manual && !e.estacao; });
+  const daEpoca = base.filter(function (e) { return !Array.isArray(e.meses) || e.meses.indexOf(mes) !== -1; });
+  return daEpoca.length > 0 ? daEpoca : base;
+}
+
+// Escolha estável para o mesmo dia e a mesma ronda (semente = dia + índice).
+// Função pura: o mês vem do próprio dia "YYYY-MM-DD".
+function rondaChizoEscolher(entradas, dia, indice) {
+  const lista = rondaChizoCandidatas(entradas, rondaChizoMesDoDia(dia));
   if (lista.length === 0) return '';
-  const semente = diaLisboaDeHoje() + '#' + indice;
+  const semente = dia + '#' + indice;
   let h = 0;
   for (let i = 0; i < semente.length; i++) h = (h * 31 + semente.charCodeAt(i)) >>> 0;
   return lista[h % lista.length].texto;
+}
+
+// Curiosidade: o texto de uma entrada da Enciclopédia, respeitando a época do
+// ano (dia de Lisboa, o mesmo da semente). Estável para o mesmo dia e ronda.
+function rondaChizoCuriosidade(indice) {
+  return rondaChizoEscolher(encyclopediaEntries(), diaLisboaDeHoje(), indice);
 }
 
 function rondaChizoMostrarCartao(titulo, botao, acao) {
