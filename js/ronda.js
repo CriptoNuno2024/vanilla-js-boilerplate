@@ -13,8 +13,13 @@
 // Chamada em goTo('quinta') (js/main.js), só se nenhuma história de nível
 // nem festa de capítulo apareceu nessa visita.
 //
+// Depois da meia taça o Chizo dá também a PISTA do dia dos porcos (só texto,
+// ver js/assaltos.js).
+//
 // Teste (não escreve nada no estado): ?pedido=chizo mostra o pedido e
-// ?pedido=chizo-volta mostra o regresso com a curiosidade.
+// ?pedido=chizo-volta mostra o regresso com a curiosidade; nesse modo o
+// botão mostra o agradecimento e a pista (índice 0), também sem gravar.
+// ?pista=vinha|adega|cave|nevoeiro|trovoada força o alvo da pista.
 // ---------------------------------------------------------------------
 
 const RONDA_CHIZO_CONFIG = {
@@ -108,10 +113,27 @@ function rondaChizoMandar() {
   mostrarFalas([t('ronda.saiu')], 'YoshiCat');
 }
 
+// Falas do agradecimento: [obrigado, pista do dia]. indice = nº da ronda
+// ANTES de somar (0 ou 1). A pista só entra se js/assaltos.js existir e o
+// texto estiver traduzido; senão fica só o agradecimento.
+function rondaChizoFalasObrigado(indice) {
+  const cfg = RONDA_CHIZO_CONFIG;
+  const falas = [t('ronda.obrigado').replace('{rep}', cfg.recompensaReputacao).replace('{gotas}', cfg.recompensaGotas)];
+  try {
+    if (typeof alvoDosPorcosDoDia === 'function' && typeof textoDaPista === 'function') {
+      const chave = textoDaPista(alvoDosPorcosDoDia(indice), indice);
+      const pista = t(chave);
+      if (pista && pista !== chave) falas.push(pista);
+    }
+  } catch (e) { /* sem pista, só o agradecimento */ }
+  return falas;
+}
+
 function rondaChizoDarMeiaTaca() {
   if (rondaChizoFase(Date.now()) !== 'volta') { rondaChizoEsconderCartao(); return; } // só dá uma vez
   const r = rondaChizoEstado();
   const cfg = RONDA_CHIZO_CONFIG;
+  const indice = r.feitas; // antes de somar: 0 na 1.ª ronda, 1 na 2.ª
   state.reputacao += cfg.recompensaReputacao;
   state.gotas += cfg.recompensaGotas;
   r.feitas += 1;
@@ -120,7 +142,7 @@ function rondaChizoDarMeiaTaca() {
   r.fimEm = null;
   saveState(state);
   rondaChizoEsconderCartao();
-  mostrarFalas([t('ronda.obrigado').replace('{rep}', cfg.recompensaReputacao).replace('{gotas}', cfg.recompensaGotas)], cfg.falante);
+  mostrarFalas(rondaChizoFalasObrigado(indice), cfg.falante);
   vibrar('sucesso');
   tocarSom('objetivoCumprido');
   updateStatsDisplays();
@@ -132,7 +154,10 @@ function rondaChizoDarMeiaTaca() {
 function rondaChizoBotao() {
   if (_rondaAcaoAtual === 'mandar') rondaChizoMandar();
   else if (_rondaAcaoAtual === 'meiaTaca') rondaChizoDarMeiaTaca();
-  else rondaChizoEsconderCartao(); // modo de teste: só fecha, sem escrever nada
+  else { // modo de teste: agradecimento e pista (índice 0), sem escrever nada
+    rondaChizoEsconderCartao();
+    mostrarFalas(rondaChizoFalasObrigado(0), RONDA_CHIZO_CONFIG.falante);
+  }
 }
 
 // Modo de teste: ?pedido=chizo ou ?pedido=chizo-volta. NÃO ESCREVE NADA.
