@@ -7,7 +7,7 @@ const vm = require('vm');
 const ctx = { URLSearchParams: URLSearchParams, location: { search: '' } };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'assaltos.js'), 'utf8'), ctx);
-const { alvoDosPorcosDoDia, textoDaPista, tipoDeProtegerPelaPista } = ctx;
+const { alvoDosPorcosDoDia, textoDaPista, tipoDeProtegerPelaPista, iscoDoDia, iscoAlvoFixado, iscoPerguntar, alvoParaProteger, porcoDoAlvo } = ctx;
 
 let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
@@ -79,6 +79,131 @@ ctx.location.search = '?pista=cave';
 ok(alvoDosPorcosDoDia(0) === 'cave', '?pista=cave deve forçar a cave');
 ctx.location.search = '?pista=porco';
 ok(alvoDosPorcosDoDia(0) === 'adega', '?pista inválida deve cair para adega (sem globais)');
+
+// ----- ISCO (funções puras) -----
+const HOJE = '2026-10-05', OUTRO_DIA = '2026-10-04';
+const lIsco = function (extra) { return Object.assign({ dia: HOJE, estacao: 'inverno', fase: 'repouso', ceu: null, garrafaEscura: false, forcado: null }, extra || {}); };
+{
+  // Precedência: ?pista= > isco fixado > cálculo ao vivo.
+  const isco = { dia: HOJE, indice: 0, alvo: 'cave' };
+  ok(alvoParaProteger(0, isco, HOJE, lIsco({ forcado: 'vinha' })) === 'vinha', 'o ?pista= devia vencer o isco');
+  ok(alvoParaProteger(0, isco, HOJE, lIsco()) === 'cave', 'o isco fixado devia vencer o cálculo ao vivo (sem garrafa escura a cave não sairia ao vivo)');
+  ok(alvoParaProteger(0, null, HOJE, lIsco()) === alvoDosPorcosDoDia(0, lIsco()), 'sem isco devia dar o cálculo ao vivo');
+  // O isco fixa o alvo mesmo que o tempo mude depois: ao vivo seria trovoada.
+  ok(alvoParaProteger(0, { dia: HOJE, indice: 0, alvo: 'adega' }, HOJE, lIsco({ ceu: 'trovoada' })) === 'adega', 'o isco devia fixar o alvo mesmo com o tempo a mudar');
+  ok(alvoParaProteger(0, null, HOJE, lIsco({ ceu: 'trovoada' })) === 'trovoada', 'sem isco, a trovoada ao vivo devia valer');
+  // Isco de outro dia ou outro índice é ignorado.
+  ok(alvoParaProteger(0, { dia: OUTRO_DIA, indice: 0, alvo: 'cave' }, HOJE, lIsco()) === 'adega', 'isco de outro dia devia ser ignorado');
+  ok(alvoParaProteger(1, { dia: HOJE, indice: 0, alvo: 'cave' }, HOJE, lIsco()) === alvoDosPorcosDoDia(1, lIsco()), 'isco de outro índice devia ser ignorado');
+  ok(iscoAlvoFixado({ dia: HOJE, indice: 0, alvo: null }, HOJE, 0) === null, 'recusa não fixa alvo');
+  ok(iscoAlvoFixado({ dia: HOJE, indice: 0, alvo: 'porco' }, HOJE, 0) === null, 'alvo inválido não fixa');
+  ok(iscoAlvoFixado('lixo', HOJE, 0) === null && iscoAlvoFixado(undefined, HOJE, 0) === null, 'registo inválido não fixa');
+  // Perguntar: só com pista, com bagaço e sem registo deste dia e índice.
+  ok(iscoPerguntar(null, HOJE, 0, 3) === true, 'devia perguntar: pista, bagaço, sem registo');
+  ok(iscoPerguntar(null, HOJE, 0, 0) === false, 'sem bagaço, sem passo');
+  ok(iscoPerguntar(null, HOJE, null, 3) === false && iscoPerguntar(null, HOJE, 2, 3) === false, 'sem pista, sem passo');
+  ok(iscoPerguntar({ dia: HOJE, indice: 0, alvo: null }, HOJE, 0, 3) === false, 'a recusa não devia perguntar outra vez');
+  ok(iscoPerguntar({ dia: HOJE, indice: 0, alvo: 'cave' }, HOJE, 0, 3) === false, 'o isco posto não devia perguntar outra vez');
+  ok(iscoPerguntar({ dia: OUTRO_DIA, indice: 0, alvo: 'cave' }, HOJE, 0, 3) === true, 'o registo de outro dia não devia impedir a pergunta');
+  ok(iscoPerguntar({ dia: HOJE, indice: 0, alvo: 'cave' }, HOJE, 1, 3) === true, 'a 2.ª pista (índice 1) devia perguntar de novo');
+  // Porco do alvo.
+  ok(porcoDoAlvo('cave') === 'Fygmo2' && porcoDoAlvo('vinha') === 'Fygmo', 'porco da cave e da vinha');
+  ok(porcoDoAlvo('adega') === null && porcoDoAlvo('nevoeiro') === null && porcoDoAlvo('trovoada') === null && porcoDoAlvo(null) === null, 'sem porco nos outros alvos');
+}
+
+// ----- ISCO no fluxo do Proteger (js/proteger.js a correr em vm, com o jogo simulado) -----
+function abrirProteger(opcoes) {
+  const o = Object.assign({ feitas: 1, bagaco: 3, isco: null, search: '', estacao: 'inverno', ceu: null, garrafa: true }, opcoes);
+  const reg = { falas: [], saves: 0, html: '' };
+  const sb = {
+    console: { log() {}, warn() {}, error() {} },
+    URLSearchParams: URLSearchParams,
+    location: { search: o.search },
+    document: { getElementById: function () { return { set innerHTML(v) { reg.html = v; }, get innerHTML() { return reg.html; } }; } },
+    state: { adega: { bagaco: o.bagaco }, proteger: { isco: o.isco, vitoriasComPremioHoje: 0, diaVitoriasLisboa: HOJE } },
+    saveState: function () { reg.saves++; },
+    t: function (k) { return k; },
+    randInt: function (a, b) { return a; },
+    diaLisboaDeHoje: function () { return HOJE; },
+    estacaoAtual: function () { return o.estacao; },
+    faseRealAtual: function () { return 'repouso'; },
+    tempoAtual: function () { return o.ceu ? { disponivel: true, ceu: o.ceu } : { disponivel: false }; },
+    caveReservaAberta: function () { return o.garrafa; },
+    garrafaQueMaisDescansou: function () { return 3; },
+    garrafaPorDias: function () { return { imagem: 'x', nomeKey: 'adega.garrafaAmbar' }; },
+    rondaChizoFeitasHoje: function () { return o.feitas; },
+    definirFundo() {}, tocarSomFicheiro() {}, vibrar() {}, tocarSom() {},
+    atualizarDialogo: function (m) { reg.falas.push([m]); },
+    mostrarFalas: function (m) { reg.falas.push(Array.isArray(m) ? m : [m]); },
+    localeAtual: function () { return 'pt-PT'; },
+    TEMPO_CONFIG: { vantagens: { rondasExtraProteger: { nevoeiro: 1, trovoada: 1 } } },
+    currentLang: 'pt', setTimeout: function () { return 1; }, clearTimeout: function () {}
+  };
+  sb.window = sb;
+  const cx = vm.createContext(sb);
+  ['assaltos.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
+  return { cx: cx, reg: reg, ev: function (c) { return vm.runInContext(c, cx); } };
+}
+{
+  // Sem bagaço, sem passo (vai direto ao minijogo); sem pista, sem passo.
+  let g = abrirProteger({ bagaco: 0 }); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'sem bagaço não devia haver passo do isco');
+  g = abrirProteger({ feitas: 0 }); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'sem pista não devia haver passo do isco');
+
+  // Com pista e bagaço: pergunta e NADA se gasta até tocar numa pílula.
+  g = abrirProteger({}); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder(true)') !== -1 && g.reg.html.indexOf('protegerIscoResponder(false)') !== -1, 'devia mostrar as duas pílulas');
+  ok(g.ev('state.adega.bagaco') === 3 && g.reg.saves === 0, 'a pergunta não devia gastar nem gravar nada');
+
+  // "Pôr isco": -1 bagaço e registo { dia, indice, alvo } num só saveState; toque duplo não gasta 2 vezes.
+  g.ev('protegerIscoResponder(true)'); g.ev('protegerIscoResponder(true)');
+  ok(g.ev('state.adega.bagaco') === 2, 'devia gastar exatamente 1 bagaço, ficou ' + g.ev('state.adega.bagaco'));
+  ok(g.reg.saves === 1, 'devia gravar uma só vez, gravou ' + g.reg.saves);
+  const reg0 = g.ev('state.proteger.isco');
+  ok(reg0 && reg0.dia === HOJE && reg0.indice === 0 && reg0.alvo === g.ev('alvoDosPorcosDoDia(0)'), 'registo do isco errado: ' + JSON.stringify(reg0));
+  // Reabrir o Proteger na mesma pista: não volta a perguntar.
+  g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'não devia voltar a perguntar com isco posto');
+
+  // "Seguir sem isco": grava alvo null, não gasta, não volta a perguntar.
+  g = abrirProteger({}); g.ev('startProteger()'); g.ev('protegerIscoResponder(false)');
+  ok(g.ev('state.adega.bagaco') === 3, 'recusar não devia gastar bagaço');
+  ok(g.ev('state.proteger.isco.alvo') === null && g.ev('state.proteger.isco.indice') === 0, 'a recusa devia gravar alvo null');
+  g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'a recusa não devia perguntar outra vez');
+
+  // Isco de outro dia ou de outro índice: ignorado (pergunta de novo).
+  g = abrirProteger({ isco: { dia: OUTRO_DIA, indice: 0, alvo: 'cave' } }); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') !== -1, 'isco de outro dia devia ser ignorado');
+  g = abrirProteger({ feitas: 2, isco: { dia: HOJE, indice: 0, alvo: 'cave' } }); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') !== -1, 'isco do índice 0 devia ser ignorado na 2.ª pista (índice 1)');
+
+  // Efeito: isco da cave -> Fechadura com cena do Fygmo2 (mesmo que ao vivo fosse trovoada) e o balão nomeia-o.
+  g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'cave' }, ceu: 'trovoada' }); g.ev('startProteger()');
+  ok(g.ev('ultimoTipoProteger') === 'fechadura', 'isco da cave devia dar a Fechadura, deu ' + g.ev('ultimoTipoProteger'));
+  ok([0, 1, 3].indexOf(g.ev('currentFechaduraIndex')) !== -1, 'a cena devia ser do Fygmo2');
+  ok(g.reg.falas.some(function (f) { return f.length === 2 && /Fygmo2/.test(f[0]); }), 'o balão devia nomear o Fygmo2');
+  // Isco da vinha -> Disfarces com o Fygmo.
+  g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'vinha' } }); g.ev('startProteger()');
+  ok(g.ev('ultimoTipoProteger') === 'disfarces' && g.ev('currentDisfarcePorco') === 'Fygmo', 'isco da vinha devia dar Disfarces com o Fygmo');
+  // Isco de nevoeiro -> Chizo, sem porco nomeado.
+  g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'nevoeiro' }, estacao: 'verao' }); g.ev('startProteger()');
+  ok(g.ev('ultimoTipoProteger') === 'chizo', 'isco de nevoeiro devia dar o Chizo (até no verão), deu ' + g.ev('ultimoTipoProteger'));
+  ok(g.ev('protegerPorcoIsco') === null, 'nevoeiro não nomeia nenhum porco');
+  // Rondas extra do tempo: o isco só vale na 1.ª ronda.
+  g = abrirProteger({ isco: { dia: HOJE, indice: 0, alvo: 'vinha' } }); g.ev("protegerRondaAtual = 2; startProteger(true);");
+  ok(g.ev('protegerIscoNaRonda') === false && g.ev('protegerPorcoIsco') === null, 'o isco não devia valer nas rondas extra');
+
+  // Modo de teste (?pista=): mostra o passo mas não grava nem gasta nada; ?pista= vence o isco.
+  g = abrirProteger({ search: '?pista=cave', feitas: 0, estacao: 'verao', garrafa: false }); g.ev('startProteger()');
+  ok(g.reg.html.indexOf('protegerIscoResponder') !== -1, 'em teste (?pista=) devia mostrar o passo');
+  g.ev('protegerIscoResponder(true)');
+  ok(g.ev('state.adega.bagaco') === 3 && g.reg.saves === 0 && g.ev('state.proteger.isco') === null, 'em teste não devia gastar nem gravar');
+  ok(g.ev('ultimoTipoProteger') === 'fechadura' && g.ev('protegerPorcoIsco') === 'Fygmo2', 'em teste ?pista=cave + isco: Fechadura com o Fygmo2');
+  g = abrirProteger({ search: '?pista=vinha', isco: { dia: HOJE, indice: 0, alvo: 'cave' } }); g.ev('startProteger()');
+  ok(g.ev('alvoParaProteger(0, state.proteger.isco, diaLisboaDeHoje())') === 'vinha', '?pista= devia vencer o isco gravado');
+}
 
 console.log(falhas === 0 ? 'OK' : falhas + ' FALHA(S)');
 process.exit(falhas === 0 ? 0 : 1);

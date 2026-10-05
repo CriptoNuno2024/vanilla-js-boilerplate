@@ -92,7 +92,11 @@ function defaultState() {
     // independente do fuso do jogador).
     proteger: {
       diaVitoriasLisboa: null,
-      vitoriasComPremioHoje: 0
+      vitoriasComPremioHoje: 0,
+      // Isco do Proteger (ver js/proteger.js e iscoDoDia() em js/assaltos.js): null
+      // ou { dia: 'AAAA-MM-DD' de Lisboa, indice: 0 ou 1 (índice da pista), alvo: o
+      // alvo fixado, ou null se o jogador recusou o isco }.
+      isco: null
     },
     // Níveis da Quinta (ver js/niveis.js), calculados a partir da
     // Reputação total. nivelMostrado: null significa "ainda por decidir" —

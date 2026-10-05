@@ -347,5 +347,19 @@ const dadosLocais = function (rep, em, extra) { return { yoshicat_quinta_state_v
   ok(nuvem.escritas > 0, '(7) a 1.ª ação real devia ser enviada');
 }
 
+// (8) conta antiga (sem state.proteger.isco) recebe o default null; um isco gravado mantém-se.
+{
+  const antiga = abrir({ yoshicat_quinta_state_v2: JSON.stringify({ reputacao: 50, ultimaGravacaoEm: 1000, proteger: { diaVitoriasLisboa: '2026-10-04', vitoriasComPremioHoje: 1 } }) }, { t: 9000 });
+  ok(antiga.ev('state.proteger.isco') === null, '(8) conta antiga devia receber isco = null');
+  ok(antiga.ev('state.proteger.vitoriasComPremioHoje') === 1, '(8) os campos antigos do Proteger deviam manter-se');
+  ok(abrir({}, { t: 9000 }).ev('state.proteger.isco') === null, '(8) conta nova devia ter isco = null');
+  const comIsco = abrir({ yoshicat_quinta_state_v2: JSON.stringify({ reputacao: 50, ultimaGravacaoEm: 1000, proteger: { isco: { dia: '2026-10-05', indice: 0, alvo: 'cave' } } }) }, { t: 9000 });
+  ok(comIsco.ev("state.proteger.isco.alvo") === 'cave' && comIsco.ev('state.proteger.isco.indice') === 0, '(8) o isco gravado devia manter-se');
+  // Estado da nuvem antigo (sem isco) adotado: recebe o default.
+  const nuvem = nuvemFalsa({}); guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000, proteger: { vitoriasComPremioHoje: 2 } }, 5000);
+  const j = abrir(dadosLocais(10, 1000), { t: 9000 }, nuvem, true);
+  ok(j.ev('state.reputacao') === 80 && j.ev('state.proteger.isco') === null, '(8) estado da nuvem sem isco devia receber o default');
+}
+
 console.log(falhas === 0 ? 'OK' : falhas + ' FALHA(S)');
 process.exit(falhas === 0 ? 0 : 1);
