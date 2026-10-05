@@ -177,7 +177,7 @@ const FESTAS_STRINGS = {
       jeropigaTitulo: "St. Martin's Jeropiga",
       jeropigaFalta: "You still need more must or spirit for the jeropiga. Press more Grapes and distil more Pomace in the Still.",
       jeropigaJaFeitaHoje: "You've already made jeropiga today. Come back tomorrow to make more.",
-      jeropigaSucesso: 'The must meets the grape spirit and jeropiga is born — sweet, strong, honey-coloured. A St. Martin Edition bottle is ready.',
+      jeropigaSucesso: 'The must meets the spirit and jeropiga is born — sweet, strong, honey-coloured. A St. Martin Edition bottle is ready.',
 
       provaTitulo: 'Tasting the New Wine',
       provaJaFeitaHoje: "You've already tasted the wine today. Come back tomorrow to taste more.",
