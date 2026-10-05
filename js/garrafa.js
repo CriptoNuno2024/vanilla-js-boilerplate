@@ -473,6 +473,58 @@ function executarAcaoAdega(acao) {
   renderAdega();
 }
 
+// Opacidade (0 a 1) da foto da cor SEGUINTE por cima da atual: igual à
+// fração da barra. Sem foto atual (antes de 1 dia) ou sem seguinte (a
+// Cobre, última) não há fusão: 0. Função pura, recebe o resultado de
+// estadoGarrafaLote().
+function opacidadeFusaoGarrafa(est) {
+  if (!est || !est.atual || !est.proxima) return 0;
+  const f = Number(est.fracao);
+  return Number.isFinite(f) ? Math.min(1, Math.max(0, f)) : 0;
+}
+
+// Onde fica o CORPO da garrafa em cada foto (caixa em % da imagem, medida
+// nos píxeis das 4 fotos de 512x512: esq/dir = bordas do vidro, topo = a
+// superfície do líquido, base = fundo da garrafa; rotulo = faixa vertical
+// do rótulo, lida à vista numa grelha de 10%, igual nas 4 fotos). As 4 fotos
+// têm a mesma composição (diferença de 1 px). Foto que não esteja aqui usa o
+// valor seguro.
+const GARRAFAS_CORPO = {
+  'assets/garrafas/garrafa_1_jovem.jpg':   { esq: 40.0, dir: 57.6, topo: 39.8, base: 89.4, rotulo: [49.5, 81] },
+  'assets/garrafas/garrafa_2_dourado.jpg': { esq: 40.0, dir: 57.2, topo: 39.8, base: 89.6, rotulo: [49.5, 81] },
+  'assets/garrafas/garrafa_3_ambar.jpg':   { esq: 40.2, dir: 57.4, topo: 39.8, base: 89.3, rotulo: [49.5, 81] },
+  'assets/garrafas/garrafa_4_cobre.jpg':   { esq: 40.2, dir: 57.4, topo: 39.8, base: 89.5, rotulo: [49.5, 81] }
+};
+const GARRAFA_CORPO_SEGURO = { esq: 41, dir: 57, topo: 41, base: 88, rotulo: [50, 81] };
+
+// 7 bolhas pequenas: x = posição dentro do corpo (%), s = tamanho (% da
+// largura do corpo), d = segundos por subida, a = atraso inicial (s, negativo
+// no CSS para já irem a meio caminho). Só aspeto, fixas (sem aleatório).
+const GARRAFA_BOLHAS = [
+  { x: 16, s: 12, d: 9, a: 0 },   { x: 44, s: 14, d: 11, a: 2.5 }, { x: 76, s: 10, d: 8, a: 5 },
+  { x: 30, s: 13, d: 12, a: 7 },  { x: 60, s: 12, d: 10, a: 1 },   { x: 86, s: 10, d: 9.5, a: 4 },
+  { x: 50, s: 9, d: 13, a: 8.5 }
+];
+
+function bolhasGarrafaHtml(imagem) {
+  const c = GARRAFAS_CORPO[imagem] || GARRAFA_CORPO_SEGURO;
+  // Um pouco para dentro do vidro e abaixo da superfície do líquido. O
+  // rótulo fica À FRENTE do líquido, por isso uma máscara esconde as bolhas
+  // enquanto passam atrás dele (aparecem por cima e por baixo do rótulo).
+  const topo = c.topo + 3;
+  const altura = c.base - c.topo - 4.5;
+  const a = Math.max(0, Math.min(100, (c.rotulo[0] - topo) / altura * 100)).toFixed(1);
+  const b = Math.max(0, Math.min(100, (c.rotulo[1] - topo) / altura * 100)).toFixed(1);
+  const mascara = 'linear-gradient(to bottom,#000 0,#000 ' + a + '%,transparent ' + a + '%,transparent ' + b + '%,#000 ' + b + '%,#000 100%)';
+  const caixa = 'left:' + (c.esq + 2) + '%;top:' + topo + '%;width:' + (c.dir - c.esq - 4.5) + '%;height:' + altura + '%;' +
+    '-webkit-mask-image:' + mascara + ';mask-image:' + mascara;
+  return '<div class="garrafa-bolhas" style="' + caixa + '" aria-hidden="true">' +
+    GARRAFA_BOLHAS.map(function (b) {
+      return '<span class="bolha" style="left:' + b.x + '%;--s:' + b.s + ';animation-duration:' + b.d + 's;animation-delay:-' + b.a + 's"></span>';
+    }).join('') +
+  '</div>';
+}
+
 // ---------------------------------------------------------------------
 // PÁGINA DA GARRAFA (ecrã "engarrafar", aberto pelo botão Engarrafar da
 // Adega quando há lote). Mostra a garrafa com a cor do dia, a barra até
@@ -493,12 +545,30 @@ function pararRelogioEngarrafar() {
     clearInterval(engarrafarTimerId);
     engarrafarTimerId = null;
   }
+  marcarBolhasEngarrafar(false);
 }
 
 function iniciarRelogioEngarrafar() {
   pararRelogioEngarrafar();
   engarrafarTimerId = setInterval(atualizarEngarrafar, ENGARRAFAR_RELOGIO_MS);
+  marcarBolhasEngarrafar(true);
 }
+
+// As bolhas só correm enquanto o relógio corre (página aberta e app
+// visível): "viva" liga o animation-play-state no CSS.
+function marcarBolhasEngarrafar(ligadas) {
+  const painel = document.querySelector('#engarrafar-container .garrafa-pagina');
+  if (painel) painel.classList.toggle('viva', !!ligadas);
+}
+
+// A foto e o resto têm de caber sem barra de deslizar: o CSS precisa da
+// altura do painel de botões (que varia) para saber a altura que sobra.
+function ajustarAlturaEngarrafar() {
+  const painel = document.querySelector('#engarrafar-container .garrafa-pagina');
+  const acao = document.querySelector('#engarrafar-container .action-panel');
+  if (painel && acao) painel.style.setProperty('--engarrafar-acao', Math.ceil(acao.getBoundingClientRect().height) + 'px');
+}
+window.addEventListener('resize', function () { if (engarrafarEcraAtivo()) ajustarAlturaEngarrafar(); });
 
 function engarrafarEcraAtivo() {
   const ecra = document.getElementById('screen-engarrafar');
@@ -538,7 +608,7 @@ function renderEngarrafar() {
   if (engarrafarResultado) {
     fundo = ADEGA_FOTOS.engarrafar;
     corpoHtml =
-      garrafaGrandeHtml(engarrafarResultado.garrafa) +
+      garrafaGrandeHtml(engarrafarResultado.garrafa, null) +
       '<p class="phase-desc">' + t('garrafa.passo4') + '</p>' +
       '<p class="phase-progress">' + t('adega.resultadoEngarrafar').replace('{rep}', engarrafarResultado.rep) + '</p>';
     botoesHtml = '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>';
@@ -548,7 +618,7 @@ function renderEngarrafar() {
     const pronto = est.diasCompletos >= REGRAS_DESCANSO_CAVE.diasMinimos;
     engarrafarDiasMostrados = est.diasCompletos;
     corpoHtml =
-      (est.atual ? garrafaGrandeHtml(est.atual) : '<p class="phase-desc" data-i18n="adega.paginaAindaDescansa"></p>') +
+      (est.atual ? garrafaGrandeHtml(est.atual, est) : '<p class="phase-desc" data-i18n="adega.paginaAindaDescansa"></p>') +
       '<div class="nivel-barra"><div class="nivel-barra-cheio" id="engarrafar-barra" style="width:' + Math.round(est.fracao * 100) + '%"></div></div>' +
       '<p class="phase-progress" id="engarrafar-proxima">' + textoProximaCorGarrafa(est) + '</p>' +
       (pronto ? '<p class="phase-progress">' + t('adega.caveReputacaoPrevista').replace('{valor}', reputacaoDaCave(est.diasCompletos)) + '</p>' : '');
@@ -561,17 +631,27 @@ function renderEngarrafar() {
 
   container.innerHTML =
     '<div class="topcard"><p class="mini-title" data-i18n="adega.paginaTitulo"></p></div>' +
-    '<div class="scroll-panel garrafa-pagina">' + corpoHtml + '</div>' +
+    '<div class="scroll-panel garrafa-pagina' + (engarrafarResultado ? ' resultado' : '') + (engarrafarTimerId ? ' viva' : '') + '">' + corpoHtml + '</div>' +
     '<div class="action-panel">' + botoesHtml + '</div>';
 
   definirFundo('foto', fundo, ADEGA_FOTO_POS[fundo]);
   applyTranslations();
+  ajustarAlturaEngarrafar();
   reposicionarFlutuantes();
 }
 
-function garrafaGrandeHtml(g) {
+// est (resultado de estadoGarrafaLote) só vem na página do lote: com ele a
+// foto da cor seguinte (se existir) funde-se por cima e há bolhas. A foto
+// seguinte só entra na página aqui, quando existe, por isso nada é
+// pré-carregado no arranque. Sem est (resultado): só a foto e a legenda.
+function garrafaGrandeHtml(g, est) {
+  const seguinte = est && est.proxima
+    ? '<img class="garrafa-grande-foto garrafa-fusao" id="engarrafar-fusao" src="' + est.proxima.imagem + '" alt="" style="opacity:' + opacidadeFusaoGarrafa(est) + '">'
+    : '';
   return '<div class="garrafa-grande">' +
     '<img class="garrafa-grande-foto" src="' + g.imagem + '" alt="">' +
+    seguinte +
+    (est ? bolhasGarrafaHtml(g.imagem) : '') +
     '<p class="garrafa-grande-legenda">' + garrafaLegenda(g) + '</p>' +
   '</div>';
 }
@@ -586,6 +666,8 @@ function atualizarEngarrafar() {
   if (est.diasCompletos !== engarrafarDiasMostrados) { renderEngarrafar(); return; }
   const barra = document.getElementById('engarrafar-barra');
   if (barra) barra.style.width = Math.round(est.fracao * 100) + '%';
+  const fusao = document.getElementById('engarrafar-fusao');
+  if (fusao) fusao.style.opacity = opacidadeFusaoGarrafa(est);
   const prox = document.getElementById('engarrafar-proxima');
   if (prox) prox.textContent = textoProximaCorGarrafa(est);
   const falta = document.getElementById('engarrafar-falta');
