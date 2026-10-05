@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------
 // TEMPO REAL DE SETÚBAL — Open-Meteo (grátis, sem chave)
 //
-// Vai buscar o estado do céu, a temperatura e o vento em Setúbal, no
-// máximo uma vez por hora (guarda a resposta entretanto em
-// localStorage). Se não houver internet ou o serviço falhar, o jogo
-// continua normalmente, só com a estação (ver js/estacoes.js) — nunca
-// mostra erros ao jogador.
+// Vai buscar o estado do céu, a temperatura e o vento em Setúbal (um
+// pedido bem-sucedido vale 20 minutos, uma falha só 5 — ver TEMPO_CONFIG;
+// entretanto a resposta fica em localStorage). Se não houver internet ou
+// o serviço falhar, o jogo continua normalmente, só com a estação (ver
+// js/estacoes.js) — nunca mostra erros ao jogador.
 //
 // Para testar: acrescenta ?tempo=sol (ou chuva / calor / nevoeiro /
 // trovoada / vento / frio / noite) ao endereço. Funciona junto com
@@ -20,7 +20,10 @@
 const TEMPO_CONFIG = {
   latitude: 38.52,
   longitude: -8.89,
-  intervaloMinimoMs: 60 * 60 * 1000, // no máximo 1 pedido por hora
+  // Quanto tempo vale o último resultado antes de se pedir outra vez (só
+  // na próxima entrada na Quinta ou na Vinha — não há relógio nenhum).
+  cacheSucessoMs: 20 * 60 * 1000, // pedido bem-sucedido
+  cacheFalhaMs: 5 * 60 * 1000,    // pedido falhado: tenta de novo mais cedo
 
   limites: {
     calorForteC: 30,   // acima disto conta como calor forte
@@ -153,23 +156,55 @@ function guardarTempoCache(cache) {
   }
 }
 
-// Vai buscar o tempo à Open-Meteo, respeitando o limite de 1x/hora
-// (guardado em TEMPO_CACHE_KEY). Nunca lança erro para fora: se
-// falhar, o jogo fica só sem a linha do tempo real.
+// A entrada guardada tem dados de tempo utilizáveis? (ok e campos válidos)
+function tempoCacheComDados(cache) {
+  return !!cache && typeof cache === 'object' && cache.ok === true &&
+    Number.isFinite(cache.tempC) && Number.isFinite(cache.ventoKmh) && typeof cache.ceu === 'string';
+}
+
+// A cache ainda vale (não é preciso pedir outra vez)? Função pura: recebe
+// a entrada e a hora (Date.now()). Sucesso vale cacheSucessoMs, falha
+// cacheFalhaMs. Vazia, inválida ou com hora no futuro (relógio do
+// aparelho errado) conta como expirada. O formato da entrada não mudou
+// ({ fetchedAt, ok, ... }), por isso cache antiga continua a servir: só
+// é avaliada pelos prazos novos.
+function tempoCacheValida(cache, agora) {
+  if (!cache || typeof cache !== 'object') return false;
+  const idade = agora - cache.fetchedAt;
+  if (!Number.isFinite(idade) || idade < 0) return false;
+  return idade < (cache.ok === true ? TEMPO_CONFIG.cacheSucessoMs : TEMPO_CONFIG.cacheFalhaMs);
+}
+
+// DIAGNOSTICO TEMPORARIO - remover (junto com perfilDiagTempo() e a linha
+// #perfil-diag-tempo em js/perfil.js). Só em memória: de onde veio o último
+// resultado ('rede', 'cache', 'falha' ou 'teste') e a que horas (Date.now()).
+let _tempoDiag = null;
+
+function tempoDiagnostico() {
+  return _tempoDiag;
+}
+
+// Vai buscar o tempo à Open-Meteo, respeitando os prazos da cache
+// (guardada em TEMPO_CACHE_KEY, ver tempoCacheValida). Nunca lança erro
+// para fora: se falhar, o jogo fica só sem a linha do tempo real.
 async function garantirTempoAtualizado() {
-  if (tempoForcadoNoEndereco()) return; // em teste, nunca pede à API
+  if (tempoForcadoNoEndereco()) { // em teste, nunca pede à API
+    _tempoDiag = { fonte: 'teste', em: Date.now() };
+    return;
+  }
 
   const cache = carregarTempoCache();
   const agora = Date.now();
 
-  if (cache && (agora - cache.fetchedAt) < TEMPO_CONFIG.intervaloMinimoMs) {
+  if (tempoCacheValida(cache, agora)) {
     _tempoAtual = cache.ok ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : (cache.stale || condicaoIndisponivel());
+    _tempoDiag = { fonte: cache.ok ? 'cache' : 'falha', em: cache.fetchedAt };
     return;
   }
 
   // Enquanto o pedido novo não chega, continua a mostrar os dados
   // antigos (se existirem) em vez de esconder a linha sem razão.
-  if (cache && cache.ok) _tempoAtual = condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu);
+  if (tempoCacheComDados(cache)) _tempoAtual = condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu);
 
   try {
     const controlador = new AbortController();
@@ -187,11 +222,13 @@ async function garantirTempoAtualizado() {
 
     _tempoAtual = condicaoDeTeste(tempC, ventoKmh, ceu);
     guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu });
+    _tempoDiag = { fonte: 'rede', em: agora };
   } catch (e) {
     // Sem internet ou serviço em baixo: mantém os dados antigos (se
-    // havia) e não volta a tentar antes da próxima hora.
-    guardarTempoCache({ fetchedAt: agora, ok: false, stale: (cache && cache.ok) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : null });
-    if (!cache || !cache.ok) _tempoAtual = condicaoIndisponivel();
+    // havia) e não volta a tentar antes de passarem cacheFalhaMs.
+    guardarTempoCache({ fetchedAt: agora, ok: false, stale: tempoCacheComDados(cache) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : null });
+    _tempoDiag = { fonte: 'falha', em: agora };
+    if (!tempoCacheComDados(cache)) _tempoAtual = condicaoIndisponivel();
   }
 }
 
