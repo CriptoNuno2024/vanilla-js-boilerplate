@@ -586,14 +586,41 @@
     }
 
     /* Página da garrafa (ver renderEngarrafar() em js/garrafa.js): garrafa
-       grande com a legenda por cima, barra até à cor seguinte por baixo. */
-    .garrafa-grande { position: relative; width: 80%; margin: 0 auto 10px; }
+       grande com a legenda por cima, barra até à cor seguinte por baixo.
+       O painel nunca passa da altura que sobra entre o topo e os botões
+       (--engarrafar-acao = altura do painel de botões, medida por JS), e a
+       foto é o menor entre 80% da largura e a altura que sobra. */
+    .scroll-panel.garrafa-pagina {
+      --dispo: calc(100vh - var(--topo-altura) - 60px - var(--nav-altura) - 16px - var(--engarrafar-acao, 110px));
+      --reserva: 96px;  /* barra + tempo + Reputação + margens */
+      max-height: var(--dispo);
+    }
+    @supports (height: 100dvh) {
+      .scroll-panel.garrafa-pagina {
+        --dispo: calc(100dvh - var(--topo-altura) - 60px - var(--nav-altura) - 16px - var(--engarrafar-acao, 110px));
+      }
+    }
+    .scroll-panel.garrafa-pagina.resultado { --reserva: 180px; } /* + texto e resultado */
+    .garrafa-grande {
+      position: relative;
+      width: min(80%, max(88px, calc(var(--dispo) - var(--reserva))));
+      margin: 0 auto 10px;
+      container-type: inline-size; /* a legenda acompanha o tamanho da foto */
+    }
     .garrafa-grande-foto {
       display: block;
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
       border-radius: 12px;
+    }
+    /* A foto da cor seguinte, por cima da atual, com a opacidade da barra. */
+    .garrafa-fusao {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      transition: opacity 2s linear;
     }
     .garrafa-grande-legenda {
       position: absolute;
@@ -605,9 +632,38 @@
       border-radius: 12px 12px 0 0;
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
       text-align: center;
-      font-size: 15px;
+      font-size: 12px;
+      font-size: clamp(10px, 6.2cqw, 15px);
+      white-space: nowrap;
       font-weight: 700;
       color: #f5d76e;
+    }
+    /* Bolhas pequenas a subir dentro do corpo da garrafa (a caixa vem de
+       GARRAFAS_CORPO). Só correm com a página aberta e a app visível
+       (".viva", ligada por js/garrafa.js); sem movimento reduzido, nada. */
+    .garrafa-bolhas { position: absolute; overflow: hidden; pointer-events: none; }
+    .bolha {
+      position: absolute;
+      bottom: 0;
+      width: calc(var(--s) * 1%);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.12));
+      opacity: 0;
+      animation: bolha-subir linear infinite;
+      animation-play-state: paused;
+    }
+    .garrafa-pagina.viva .bolha { animation-play-state: running; }
+    @keyframes bolha-subir {
+      0%   { bottom: 0;    opacity: 0;    transform: translateX(0); }
+      15%  {               opacity: 0.55; }
+      50%  {                              transform: translateX(2px); }
+      85%  {               opacity: 0.3; }
+      100% { bottom: 92%;  opacity: 0;    transform: translateX(-1px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .garrafa-bolhas { display: none; }
+      .garrafa-fusao { transition: none; }
     }
 
     .cooldown-suffix {
@@ -1854,7 +1910,7 @@
   <script src="js/vinha.js?v=49"></script>
   <script src="js/explorar.js?v=43"></script>
   <script src="js/proteger.js?v=50"></script>
-  <script src="js/garrafa.js?v=50"></script>
+  <script src="js/garrafa.js?v=51"></script>
   <script src="js/personagens.js?v=1"></script>
   <script src="js/perfil.js?v=55"></script>
   <script src="js/niveis.js?v=48"></script>
