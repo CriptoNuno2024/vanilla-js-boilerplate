@@ -170,7 +170,11 @@ function loadState() {
 
 function saveState(s) {
   if (apagando) return;
-  s.ultimaGravacaoEm = Date.now();
+  // O carimbo só muda por ação do jogador (arranque.jogadorTocou) ou se ainda
+  // não existe (0: jogador antigo sem carimbo). As gravações de arranque (ver
+  // objetivos.js e niveis.js) guardam o conteúdo SEM o mudar, para um estado
+  // antigo não parecer o mais recente a js/nuvem.js (nuvemSincronizarAoAbrir).
+  if (arranque.jogadorTocou || !s.ultimaGravacaoEm) s.ultimaGravacaoEm = Date.now();
   // FUTURO: substituir esta linha por uma chamada à API (ver nota acima).
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
   // Guarda também na nuvem do Telegram (js/nuvem.js) — nunca substitui o
