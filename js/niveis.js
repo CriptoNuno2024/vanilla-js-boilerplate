@@ -119,6 +119,14 @@ function ecraDesbloqueado(screen) {
   return nivelPelaReputacao(state.reputacao) >= nivelPreciso;
 }
 
+// Decide se o cartão "Nova entrada!" (ver mostrarNovaEntrada() em
+// js/main.js) aparece: só com uma entrada para mostrar E com a
+// Enciclopédia já aberta — senão o botão "Ler" levava a "Abre no Nível 4".
+// A entrada continua desbloqueada em state.encyclopedia.unlocked.
+function cartaoNovaEntradaVisivel(entrada) {
+  return !!entrada && ecraDesbloqueado('enciclopedia');
+}
+
 // Mensagem ao tocar num ecrã ainda trancado (ver goTo() em js/main.js),
 // ex.: "Abre no Nível 3 · Quinta Produtora — faltam 12 de Reputação."
 function mostrarMensagemTrancada(screen) {
