@@ -15,8 +15,8 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'estagio', titulo: 'O Estágio em Cascos de Carvalho', texto: 'O segredo de um bom Moscatel está na paciência: o vinho repousa em cascos de carvalho durante anos, ganhando notas de mel, frutos secos e passas à medida que envelhece.' },
     { id: 'reconhecimento', titulo: 'Entre os Grandes Generosos de Portugal', texto: 'O Moscatel de Setúbal conta-se entre os grandes vinhos generosos de Portugal, ao lado do Porto, do Madeira e do Carcavelos.' },
     { id: 'protecao', titulo: 'Cuidar da Vinha Todos os Dias', texto: 'Aprendeste com os antigos vinhateiros que proteger a vinha é tão importante como colhê-la — sem cuidado diário, nem a melhor terra dá bom vinho.' },
-    { id: 'vindima', titulo: 'A Vindima', texto: 'Na vindima, apanham-se os cachos de Moscatel quando estão no ponto certo. Há quem ainda os corte um a um, à mão, e há quem use máquinas.' },
-    { id: 'poda', titulo: 'A Poda da Vinha', texto: 'No inverno, com a videira em repouso, faz-se a poda: cortam-se os ramos em excesso para concentrar a força da planta nos cachos que vão nascer na próxima estação.' },
+    { id: 'vindima', meses: [9, 10], titulo: 'A Vindima', texto: 'Na vindima, apanham-se os cachos de Moscatel quando estão no ponto certo. Há quem ainda os corte um a um, à mão, e há quem use máquinas.' },
+    { id: 'poda', meses: [11, 12, 1, 2, 3], titulo: 'A Poda da Vinha', texto: 'No inverno, com a videira em repouso, faz-se a poda: cortam-se os ramos em excesso para concentrar a força da planta nos cachos que vão nascer na próxima estação.' },
     { id: 'aguardente', titulo: 'A Aguardente Vínica', texto: 'A fortificação do Moscatel é feita juntando aguardente vínica ao mosto em fermentação. O álcool interrompe o processo e preserva o açúcar natural da uva, dando ao vinho a sua doçura característica.' },
     { id: 'regiao', titulo: 'A Região Demarcada de Setúbal', texto: 'A demarcação do Moscatel de Setúbal começou em 1907 e é uma das denominações de origem mais antigas de Portugal.' },
     { id: 'repousoInverno', estacao: 'inverno', titulo: 'O Repouso da Videira', texto: 'No inverno a videira está sem folhas e descansa. É nesta fase de repouso que se faz a poda.' },
@@ -39,8 +39,8 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'estagio', titulo: 'Aging in Oak Casks', texto: 'The secret of a good Moscatel is patience: the wine rests in oak casks for years, gaining notes of honey, dried fruit and raisins as it ages.' },
     { id: 'reconhecimento', titulo: "Among Portugal's Great Fortified Wines", texto: "Setúbal Moscatel ranks among Portugal's great fortified wines, alongside Port, Madeira and Carcavelos." },
     { id: 'protecao', titulo: 'Caring for the Vineyard Every Day', texto: 'You learned from the old vine-growers that protecting the vineyard matters as much as harvesting it — without daily care, not even the best soil makes good wine.' },
-    { id: 'vindima', titulo: 'The Harvest', texto: 'At harvest, Moscatel bunches are picked when they are at the right point. Some still cut them one by one, by hand, and some use machines.' },
-    { id: 'poda', titulo: 'Pruning the Vineyard', texto: 'In winter, while the vine rests, pruning takes place: excess branches are cut back so the plant channels its strength into the bunches that will grow next season.' },
+    { id: 'vindima', meses: [9, 10], titulo: 'The Harvest', texto: 'At harvest, Moscatel bunches are picked when they are at the right point. Some still cut them one by one, by hand, and some use machines.' },
+    { id: 'poda', meses: [11, 12, 1, 2, 3], titulo: 'Pruning the Vineyard', texto: 'In winter, while the vine rests, pruning takes place: excess branches are cut back so the plant channels its strength into the bunches that will grow next season.' },
     { id: 'aguardente', titulo: 'Wine Spirit Fortification', texto: "Moscatel is fortified by adding wine spirit (aguardente vínica) to the fermenting must. The alcohol halts the process and preserves the grape's natural sugar, giving the wine its characteristic sweetness." },
     { id: 'regiao', titulo: 'The Setúbal Demarcated Region', texto: 'The demarcation of Setúbal Moscatel began in 1907 and is one of the oldest denominations of origin in Portugal.' },
     { id: 'repousoInverno', estacao: 'inverno', titulo: 'Vine Dormancy', texto: 'In winter the vine is bare of leaves and rests. It is in this resting phase that pruning is done.' },
@@ -63,8 +63,8 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'estagio', titulo: 'La Crianza en Toneles de Roble', texto: 'El secreto de un buen Moscatel está en la paciencia: el vino reposa en toneles de roble durante años, ganando notas de miel, frutos secos y pasas a medida que envejece.' },
     { id: 'reconhecimento', titulo: 'Entre los Grandes Generosos de Portugal', texto: 'El Moscatel de Setúbal se cuenta entre los grandes vinos generosos de Portugal, junto al Oporto, el Madeira y el Carcavelos.' },
     { id: 'protecao', titulo: 'Cuidar el Viñedo Todos los Días', texto: 'Aprendiste de los antiguos viticultores que proteger el viñedo es tan importante como cosecharlo — sin cuidado diario, ni la mejor tierra da buen vino.' },
-    { id: 'vindima', titulo: 'La Vendimia', texto: 'En la vendimia se recogen los racimos de Moscatel cuando están en su punto. Hay quien todavía los corta uno a uno, a mano, y hay quien usa máquinas.' },
-    { id: 'poda', titulo: 'La Poda del Viñedo', texto: 'En invierno, con la vid en reposo, se hace la poda: se cortan las ramas en exceso para concentrar la fuerza de la planta en los racimos que nacerán en la próxima temporada.' },
+    { id: 'vindima', meses: [9, 10], titulo: 'La Vendimia', texto: 'En la vendimia se recogen los racimos de Moscatel cuando están en su punto. Hay quien todavía los corta uno a uno, a mano, y hay quien usa máquinas.' },
+    { id: 'poda', meses: [11, 12, 1, 2, 3], titulo: 'La Poda del Viñedo', texto: 'En invierno, con la vid en reposo, se hace la poda: se cortan las ramas en exceso para concentrar la fuerza de la planta en los racimos que nacerán en la próxima temporada.' },
     { id: 'aguardente', titulo: 'El Aguardiente Vínico', texto: 'La fortificación del Moscatel se hace añadiendo aguardiente vínico al mosto en fermentación. El alcohol detiene el proceso y preserva el azúcar natural de la uva, dando al vino su característico dulzor.' },
     { id: 'regiao', titulo: 'La Región Demarcada de Setúbal', texto: 'La demarcación del Moscatel de Setúbal comenzó en 1907 y es una de las denominaciones de origen más antiguas de Portugal.' },
     { id: 'repousoInverno', estacao: 'inverno', titulo: 'El Reposo de la Vid', texto: 'En invierno la vid está sin hojas y descansa. Es en esta fase de reposo cuando se hace la poda.' },
@@ -81,6 +81,10 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'magusto', manual: true, imagem: 'assets/ecras/enciclopedia_magusto.jpg', titulo: 'El Magosto', texto: 'El magosto es la fiesta de las castañas asadas, celebrada en torno a San Martín, el 11 de noviembre. Las familias se reúnen alrededor de la hoguera para asar castañas y probar el vino nuevo — y ni los cerdos Fygmo y Fygmo2 resisten el olor.' }
   ]
 };
+
+// Campo opcional "meses" (números 1 a 12): só a Ronda do Chizo o lê (ver
+// rondaChizoCandidatas em js/ronda.js) para não contar a poda em outubro.
+// Não afeta o Explorar, os desbloqueios nem a Enciclopédia.
 
 // As entradas são guardadas por id (independente da língua), para que
 // o progresso desbloqueado se mantenha ao trocar de idioma.
