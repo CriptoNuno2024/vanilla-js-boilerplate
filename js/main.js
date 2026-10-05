@@ -85,6 +85,7 @@ const FUNDO_DOS_ECRAS = {
   quinta: { src: 'assets/ecras/menu_quinta.jpg', pos: 'right top' },
   explorar: { src: 'assets/ecras/explorar_trator.jpg' },
   enciclopedia: { src: 'assets/ecras/enciclopedia_yoshi_cat_2.jpg' },
+  caderno: { src: 'assets/ecras/fygmos_fazem_das_suas.jpg' },
   perfil: { src: 'assets/ecras/yoshi_cat_varanda.jpg' },
   lingua: null
 };
@@ -105,6 +106,7 @@ const NAV_ATIVO_POR_ECRA = {
   engarrafar: 'garrafa',
   explorar: 'explorar',
   enciclopedia: 'explorar',
+  caderno: 'quinta',
   festa: 'quinta'
 };
 
@@ -577,6 +579,7 @@ function goTo(screen, opcoes) {
   if (screen === 'enciclopedia') renderEnciclopedia();
   if (screen === 'perfil') renderPerfil();
   if (screen === 'conquistas') renderConquistas();
+  if (screen === 'caderno') renderCaderno();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
 

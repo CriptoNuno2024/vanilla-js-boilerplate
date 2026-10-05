@@ -106,6 +106,7 @@ function verificarSubidaNivel() {
 const NIVEL_NECESSARIO_POR_ECRA = {
   proteger: 2,
   garrafa: 3,
+  caderno: 3,
   explorar: 4,
   enciclopedia: 4,
   festa: 4

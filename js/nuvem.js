@@ -316,6 +316,7 @@ function nuvemAtualizarEcraAposSync() {
   if (!ativo) return;
   if (ativo.id === 'screen-perfil' && typeof renderPerfil === 'function') renderPerfil();
   if (ativo.id === 'screen-enciclopedia' && typeof renderEnciclopedia === 'function') renderEnciclopedia();
+  if (ativo.id === 'screen-caderno' && typeof renderCaderno === 'function') renderCaderno();
 }
 
 // Junta state.capitulos de dois estados por UNIÃO: concluidos e celebrados

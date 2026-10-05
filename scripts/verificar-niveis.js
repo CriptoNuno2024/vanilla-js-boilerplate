@@ -161,6 +161,21 @@ function main() {
     });
   });
 
+  // k) Ecrã do Caderno: textos de UI em pt/en/es e registo nos sítios do costume
+  ['perfil.caderno', 'caderno.title', 'caderno.subtitulo', 'caderno.porGanhar', 'caderno.autorLabel', 'caderno.vazio'].forEach(function (k) { chave('Ecrã do Caderno', k); });
+  if (J.NIVEL_NECESSARIO_POR_ECRA.caderno !== 3) falta('Ecrã do Caderno', 'a tranca caderno: 3 em NIVEL_NECESSARIO_POR_ECRA');
+  const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
+  const main = fs.readFileSync(path.join(RAIZ, 'js', 'main.js'), 'utf8');
+  if (html.indexOf('id="screen-caderno"') === -1) falta('Ecrã do Caderno', 'a div #screen-caderno no index.html');
+  if (html.indexOf('id="caderno-container"') === -1) falta('Ecrã do Caderno', 'o #caderno-container no index.html');
+  if (html.indexOf('body.jogo-cheio #screen-caderno.content') === -1) falta('Ecrã do Caderno', '#screen-caderno na lista body.jogo-cheio do index.html');
+  if (!/NAV_ATIVO_POR_ECRA = \{[^}]*\bcaderno:/.test(main)) falta('Ecrã do Caderno', 'caderno em NAV_ATIVO_POR_ECRA (js/main.js)');
+  const fundo = /FUNDO_DOS_ECRAS = \{[\s\S]*?\n\};/.exec(main) && /\bcaderno: \{ src: '([^']+)'/.exec(/FUNDO_DOS_ECRAS = \{[\s\S]*?\n\};/.exec(main)[0]);
+  if (!fundo) falta('Ecrã do Caderno', 'caderno em FUNDO_DOS_ECRAS (js/main.js)');
+  else if (!fs.existsSync(path.join(RAIZ, fundo[1]))) falta('Ecrã do Caderno', 'o ficheiro de fundo "' + fundo[1] + '"');
+  if (main.indexOf('renderCaderno()') === -1) falta('Ecrã do Caderno', 'renderCaderno() em goTo (js/main.js)');
+  if (fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8').indexOf('screen-caderno') === -1) falta('Ecrã do Caderno', 'o refresco em nuvemAtualizarEcraAposSync (js/nuvem.js)');
+
   if (avisos.length > 0) {
     console.log('Avisos (não falham):');
     avisos.forEach(function (a) { console.log(' - ' + a); });
