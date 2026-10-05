@@ -18,6 +18,7 @@ const PERFIL_ICONES = {
   reputacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M12 3l2.9 6.1 6.6.9-4.8 4.6 1.1 6.6L12 18l-5.8 3.2 1.1-6.6-4.8-4.6 6.6-.9z"></path></svg>',
   garrafas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M10 2h4v3.8l1.8 2.7c.4.6.7 1.4.7 2.2V20a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2V10.7c0-.8.2-1.6.7-2.2L10 5.8V2z"></path><path d="M10 11.5h4"></path></svg>',
   conquistas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><circle cx="12" cy="9" r="5"></circle><path d="M9 13l-1.5 8L12 18l4.5 3-1.5-8"></path></svg>',
+  caderno: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"></path><path d="M6 3v18"></path><path d="M9.5 8h5"></path><path d="M9.5 12h5"></path></svg>',
   conhecimento: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M4 5.5c2.2-1.2 5.3-1.2 8 0v13c-2.7-1.2-5.8-1.2-8 0v-13z"></path><path d="M20 5.5c-2.2-1.2-5.3-1.2-8 0v13c2.7-1.2 5.8-1.2 8 0v-13z"></path></svg>'
 };
 
@@ -28,6 +29,14 @@ const PERFIL_GARRAFA_PEQUENA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke=
 function perfilCard(icone, value, i18nKey, atributos) {
   return '<div class="profile-card"' + (atributos || '') + '><div class="stat-icon">' + icone + '</div><div class="stat-value">' + value +
     '</div><div class="stat-label" data-i18n="' + i18nKey + '"></div></div>';
+}
+
+// Cartão "Caderno n / 15": só aparece com o Caderno aberto (nível 3, ou jogador
+// antigo — ver ecraDesbloqueado em js/niveis.js); abaixo disso nem se vê.
+function cadernoCartaoPerfil() {
+  if (typeof cadernoResumo !== 'function' || typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('caderno')) return '';
+  return perfilCard(PERFIL_ICONES.caderno, cadernoResumo(), 'perfil.caderno',
+    ' role="button" tabindex="0" onclick="goTo(\'caderno\')" onkeydown="if (event.key === \'Enter\') goTo(\'caderno\')"');
 }
 
 function renderGaleriaGarrafas() {
@@ -64,6 +73,7 @@ function renderPerfil() {
         perfilCard(PERFIL_ICONES.conhecimento, state.conhecimento, 'stat.conhecimento') +
         perfilCard(PERFIL_ICONES.conquistas, conquistasResumo(), 'perfil.conquistas',
           ' role="button" tabindex="0" onclick="goTo(\'conquistas\')" onkeydown="if (event.key === \'Enter\') goTo(\'conquistas\')"') +
+        cadernoCartaoPerfil() +
       '</div>' +
       tituloHtml +
       '<h2 data-i18n="perfil.galeriaTitulo"></h2>' +

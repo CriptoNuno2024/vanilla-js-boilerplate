@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------
-// CADERNO DOS FYGMOS — estrutura e dados (PR A: sem ecrã e sem efeito no jogo).
+// CADERNO DOS FYGMOS — estrutura e dados (PR A) e ecrã só de leitura (PR B, no fim do ficheiro).
 //
 // O Caderno é o caderno de PLANOS dos porcos: depois de travar um assalto o
 // YoshiCat encontra uma página rasgada escrita pelo Fygmo ou pelo Fygmo2. Cada
 // página liga a um ALVO do dia (ver ASSALTOS_ALVOS em js/assaltos.js).
 //
-// Este ficheiro só tem dados e funções puras; ainda NINGUÉM o chama. O estado
+// Os dados e escolherPaginaCaderno() são puros; ainda NINGUÉM ganha páginas (PR C). O estado
 // vive em state.caderno = { paginas: { idPagina: 'AAAA-MM-DD' (Lisboa) } } (ver
 // js/state.js) e a nuvem junta-o por união (nuvemJuntarCaderno em js/nuvem.js).
 //
@@ -99,4 +99,68 @@ function escolherPaginaCaderno(alvo, tenhoIds, hoje, indice, houveIsco, caveAber
 
   const pagina = candidatas[cadernoHash(semente + '#pagina') % candidatas.length];
   return { pagina: pagina, completo: false };
+}
+
+// ---------------------------------------------------------------------
+// ECRÃ DO CADERNO (PR B: só leitura). Aberto a partir do cartão "Caderno n / 15"
+// do Perfil, no molde do Livro de Conquistas (renderConquistas em js/conquistas.js).
+// Só LÊ state.caderno.paginas; quem escreve nele é o PR C.
+// ---------------------------------------------------------------------
+
+// Páginas ganhas = chaves de state.caderno.paginas que existem em CADERNO_PAGINAS
+// (ids desconhecidos, p.ex. vindos de uma versão futura, não contam: sempre n / 15).
+function cadernoPaginasGanhas() {
+  const mapa = (state && state.caderno && state.caderno.paginas) || {};
+  return CADERNO_PAGINAS.filter(function (p) {
+    return Object.prototype.hasOwnProperty.call(mapa, p.id);
+  });
+}
+
+// "n / 15" do mosaico do Perfil e do topcard.
+function cadernoResumo() {
+  return cadernoPaginasGanhas().length + ' / ' + CADERNO_PAGINAS.length;
+}
+
+function cadernoEscapar(texto) {
+  return String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderCaderno() {
+  const container = document.getElementById('caderno-container');
+  const ganhas = cadernoPaginasGanhas();
+  const ganhasIds = {};
+  ganhas.forEach(function (p) { ganhasIds[p.id] = true; });
+  // As da cave por ganhar (e enquanto não há Cave) mostram-se como as outras: "???".
+  const porGanhar = CADERNO_PAGINAS.filter(function (p) { return !ganhasIds[p.id]; });
+
+  const cartaoGanho = function (p) {
+    const texto = p[currentLang] || p.pt;
+    return '<div class="encyclopedia-card">' +
+      '<h3>' + cadernoEscapar(texto.titulo) + '</h3>' +
+      '<p><em>' + t('caderno.autorLabel') + ' ' + cadernoEscapar(p.autor) + '</em></p>' +
+      '<p>' + cadernoEscapar(texto.corpo) + '</p>' +
+    '</div>';
+  };
+  const cartaoPorGanhar = function () {
+    return '<div class="encyclopedia-card locked"><h3>' + t('caderno.porGanhar') + '</h3></div>';
+  };
+
+  const vazioHtml = ganhas.length === 0 ? '<p class="info-text" style="grid-column: 1 / -1">' + t('caderno.vazio') + '</p>' : '';
+
+  container.innerHTML =
+    '<div class="topcard">' +
+      '<p class="mini-title" data-i18n="caderno.title"></p>' +
+      '<p class="mini-sub">' + cadernoResumo() + ' · ' + t('caderno.subtitulo') + '</p>' +
+    '</div>' +
+    '<div class="scroll-panel encyclopedia-grid">' +
+      vazioHtml +
+      ganhas.map(cartaoGanho).join('') +
+      porGanhar.map(cartaoPorGanhar).join('') +
+    '</div>' +
+    '<div class="action-panel">' +
+      '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
+    '</div>';
+
+  atualizarDialogo('', '');
+  applyTranslations();
 }
