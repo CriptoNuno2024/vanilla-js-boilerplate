@@ -332,6 +332,26 @@ function nuvemJuntarCapitulos(a, b) {
   };
 }
 
+// Junta state.caderno de dois estados por UNIÃO das páginas (nunca se perde
+// nenhuma): idPagina -> 'AAAA-MM-DD'; se a mesma página tem 2 datas fica a mais
+// antiga. Entradas com tipo errado (não objeto, chave estranha, data que não
+// seja AAAA-MM-DD) ignoram-se. Ids desconhecidos mantêm-se (podem vir de uma
+// versão mais nova). A ordem das chaves segue a do 1.º estado, para uma junção
+// sem novidades dar o mesmo JSON (ver o teste "mudou" em nuvemTratarLeitura).
+// Devolve um objeto novo.
+function nuvemJuntarCaderno(a, b) {
+  const paginas = {};
+  [a, b].forEach(function (c) {
+    const mapa = (c && typeof c === 'object' && c.paginas && typeof c.paginas === 'object' && !Array.isArray(c.paginas)) ? c.paginas : {};
+    Object.keys(mapa).forEach(function (id) {
+      const dia = mapa[id];
+      if (id === '__proto__' || typeof dia !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dia)) return;
+      if (!Object.prototype.hasOwnProperty.call(paginas, id) || dia < paginas[id]) paginas[id] = dia;
+    });
+  });
+  return { paginas: paginas };
+}
+
 // Leitura da nuvem ao abrir (ver nuvemTratarLeitura() para o que se faz com
 // cada estatuto). Só enquanto arranque.respondeu for false: uma leitura bem
 // sucedida (ou conta nova sem progresso) é que liberta o envio (nuvemPodeEnviar()).
@@ -438,8 +458,10 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
     arranque.ganhou = 'local';
     // Capítulos: o que a nuvem tiver a mais (outro aparelho) entra por união.
     const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
-    const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos);
-    if (mudou) state.capitulos = juntos;
+    const juntoCaderno = nuvemJuntarCaderno(state.caderno, estadoNuvem.caderno);
+    const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos) ||
+      JSON.stringify(juntoCaderno) !== JSON.stringify(state.caderno);
+    if (mudou) { state.capitulos = juntos; state.caderno = juntoCaderno; }
     const havia = arranque.adiada;
     arranque.adiada = false;
     if (localEm > nuvemEm || mudou || havia) nuvemGuardarEstado(state); // UMA só gravação: alinha a nuvem com o local, que é mais recente
@@ -454,8 +476,10 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
   arranque.ganhou = (localEm >= nuvemEm) ? 'nuvem (mais reputação)' : 'nuvem';
   arranque.adiada = false;
   const capitulosLocais = state.capitulos;
+  const cadernoLocal = state.caderno;
   state = mergeDeep(defaultState(), estadoNuvem);
   state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
+  state.caderno = nuvemJuntarCaderno(cadernoLocal, state.caderno);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   // Só agora (progresso local + nuvem já juntos) é que se pode
   // confirmar com segurança se é um jogador antigo — ver
