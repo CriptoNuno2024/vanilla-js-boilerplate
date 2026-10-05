@@ -666,6 +666,18 @@
       .garrafa-fusao { transition: none; }
     }
 
+    /* Garrafa escura na Fechadura do Proteger (ver garrafaEscuraMiniaturaHtml()
+       em js/proteger.js): miniatura com o nome e os dias, dentro do cartão do topo. */
+    .proteger-garrafa { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .proteger-garrafa-foto {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex: none;
+    }
+    .proteger-garrafa-nome { font-size: 12.5px; font-weight: 700; color: #f5d76e; line-height: 1.25; }
+
     .cooldown-suffix {
       font-size: 12px;
       opacity: 0.8;
@@ -1909,7 +1921,7 @@
   <script src="js/festas.js?v=45"></script>
   <script src="js/vinha.js?v=49"></script>
   <script src="js/explorar.js?v=43"></script>
-  <script src="js/proteger.js?v=50"></script>
+  <script src="js/proteger.js?v=51"></script>
   <script src="js/garrafa.js?v=52"></script>
   <script src="js/personagens.js?v=1"></script>
   <script src="js/perfil.js?v=55"></script>
