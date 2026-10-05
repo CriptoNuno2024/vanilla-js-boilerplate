@@ -338,7 +338,8 @@ function renderAdega() {
     const diasCompletos = Math.floor(dias);
     const pronto = diasCompletos >= REGRAS_DESCANSO_CAVE.diasMinimos;
     const repPrevista = reputacaoDaCave(diasCompletos);
-    const sufixoEngarrafar = pronto ? '' : (' (' + formatarDiasAdega(REGRAS_DESCANSO_CAVE.diasMinimos - dias) + ')');
+    // Ainda a descansar: o botão só abre a página do lote, por isso diz "Ver o lote (falta 14h)".
+    const sufixoEngarrafar = pronto ? '' : (' (' + t('adega.loteFalta').replace('{tempo}', formatarDiasAdega(REGRAS_DESCANSO_CAVE.diasMinimos - dias)) + ')');
 
     if (adegaCartaoAberto) {
       corpoHtml = '<div class="cartao-corpo">' +
@@ -349,7 +350,7 @@ function renderAdega() {
       '</div>';
     }
     // Sempre tocável: abre a página da garrafa (a espera trata-se lá).
-    botoesHtml += botaoAdega('engarrafar', 'adega.btnEngarrafar', false, sufixoEngarrafar, "goTo('engarrafar')");
+    botoesHtml += botaoAdega('engarrafar', pronto ? 'adega.btnEngarrafar' : 'adega.btnVerLote', false, sufixoEngarrafar, "goTo('engarrafar')");
   } else {
     if (adegaCartaoAberto) {
       corpoHtml = '<div class="cartao-corpo"><p class="phase-desc" data-i18n="garrafa.descricao"></p>' + reservaHtml() + '</div>';
