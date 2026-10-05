@@ -198,9 +198,9 @@ const TRANSLATIONS = {
     'vinha.msgProtegerFrio': 'As videiras foram protegidas do frio intenso desta noite.',
 
     // Estações do ano — vantagens junto aos botões (Parte A)
-    'vinha.bonusCuidado': '(+50% cuidado)',
-    'vinha.bonusAdubo': '(+50% adubo)',
-    'vinha.bonusColheita': '(+50% uvas e reputação)',
+    'vinha.bonusCuidado': '(bónus da estação)',
+    'vinha.bonusAdubo': '(bónus da estação)',
+    'vinha.bonusColheita': '(+50% uvas e mais Reputação)',
     'vinha.bonusVindima': '(+10% no ponto certo)',
     'vinha.dica.colher.pontoCerto': 'É o ponto certo da vindima: colhe agora e ganhas um extra!',
 
@@ -211,7 +211,7 @@ const TRANSLATIONS = {
     'vinha.dica.ervas': 'As ervas daninhas competem pela água e pelos nutrientes que a videira precisa.',
     'vinha.dica.regar': 'A água desce devagar até às raízes fundas. É dali que a videira tira o que o Moscatel vai guardar.',
     'vinha.dica.adubar': 'O adubo orgânico devolve à terra o que a vinha consumiu na estação anterior.',
-    'vinha.dica.compostagem': 'Os resíduos da poda e das ervas arrancadas transformam-se, com tempo, em adubo rico para a vinha.',
+    'vinha.dica.compostagem': 'Os restos da vinha e as ervas arrancadas transformam-se, com tempo, em adubo rico para a vinha.',
     'vinha.dica.colher': 'Colhe cacho a cacho, para não danificar os bagos maduros de Moscatel.',
 
     // Estações do ano — dicas próprias de cada ação com vantagem
@@ -269,7 +269,7 @@ const TRANSLATIONS = {
     'enciclopedia.bloqueado': 'Por desbloquear.',
 
     'garrafa.title': 'Criar Garrafa',
-    'garrafa.descricao': 'São precisas 100 Gotas de Moscatel para criar 1 Garrafa (+30 a +50 Reputação).',
+    'garrafa.descricao': 'São precisas 100 Gotas de Moscatel para criar 1 Garrafa (+30 a +60 Reputação).',
     'garrafa.btnCriar': 'Criar Garrafa',
     'garrafa.btnSeguinte': 'Seguinte',
     'garrafa.btnContinuar': 'Continuar',
@@ -563,9 +563,9 @@ const TRANSLATIONS = {
     'vinha.msgRepararEstacas': 'The strong wind loosened some of the vineyard stakes — they were repaired in time.',
     'vinha.msgProtegerFrio': "The vines were protected from tonight's intense cold.",
 
-    'vinha.bonusCuidado': '(+50% care)',
-    'vinha.bonusAdubo': '(+50% compost)',
-    'vinha.bonusColheita': '(+50% grapes and reputation)',
+    'vinha.bonusCuidado': '(season bonus)',
+    'vinha.bonusAdubo': '(season bonus)',
+    'vinha.bonusColheita': '(+50% grapes and more Reputation)',
     'vinha.bonusVindima': '(+10% at the perfect moment)',
     'vinha.dica.colher.pontoCerto': 'Perfect harvest moment: pick now for an extra bonus!',
 
@@ -574,7 +574,7 @@ const TRANSLATIONS = {
     'vinha.dica.ervas': 'Weeds compete for the water and nutrients the vine needs.',
     'vinha.dica.regar': 'The water sinks slowly down to the deep roots. That is where the vine draws what the Moscatel will keep.',
     'vinha.dica.adubar': 'The organic compost returns to the soil what the vineyard used up last season.',
-    'vinha.dica.compostagem': 'Pruning waste and pulled weeds turn, over time, into rich compost for the vineyard.',
+    'vinha.dica.compostagem': 'Vineyard leftovers and pulled weeds turn, over time, into rich compost for the vineyard.',
     'vinha.dica.colher': 'Pick bunch by bunch, so the ripe Moscatel grapes are not damaged.',
 
     'vinha.dica.plantar.primavera': "It's spring, the right time to plant: young Moscatel Graúdo vine cuttings take root more easily this season.",
@@ -629,7 +629,7 @@ const TRANSLATIONS = {
     'enciclopedia.bloqueado': 'Not yet unlocked.',
 
     'garrafa.title': 'Make a Bottle',
-    'garrafa.descricao': 'You need 100 Moscatel Drops to make 1 Bottle (+30 to +50 Reputation).',
+    'garrafa.descricao': 'You need 100 Moscatel Drops to make 1 Bottle (+30 to +60 Reputation).',
     'garrafa.btnCriar': 'Make a Bottle',
     'garrafa.btnSeguinte': 'Next',
     'garrafa.btnContinuar': 'Continue',
@@ -922,9 +922,9 @@ const TRANSLATIONS = {
     'vinha.msgRepararEstacas': 'El viento fuerte soltó algunas estacas del viñedo — se repararon a tiempo.',
     'vinha.msgProtegerFrio': 'Las cepas fueron protegidas del frío intenso de esta noche.',
 
-    'vinha.bonusCuidado': '(+50% cuidado)',
-    'vinha.bonusAdubo': '(+50% abono)',
-    'vinha.bonusColheita': '(+50% uvas y reputación)',
+    'vinha.bonusCuidado': '(bonificación de la estación)',
+    'vinha.bonusAdubo': '(bonificación de la estación)',
+    'vinha.bonusColheita': '(+50% uvas y más Reputación)',
     'vinha.bonusVindima': '(+10% en su punto)',
     'vinha.dica.colher.pontoCerto': '¡Es el punto justo de la vendimia: cosecha ahora y ganas un extra!',
 
@@ -933,7 +933,7 @@ const TRANSLATIONS = {
     'vinha.dica.ervas': 'Las malas hierbas compiten por el agua y los nutrientes que necesita la vid.',
     'vinha.dica.regar': 'El agua baja despacio hasta las raíces profundas. De ahí saca la vid lo que el Moscatel guardará.',
     'vinha.dica.adubar': 'El abono orgánico devuelve a la tierra lo que el viñedo consumió en la estación anterior.',
-    'vinha.dica.compostagem': 'Los residuos de la poda y las malas hierbas arrancadas se convierten, con el tiempo, en abono rico para el viñedo.',
+    'vinha.dica.compostagem': 'Los restos del viñedo y las malas hierbas arrancadas se convierten, con el tiempo, en abono rico para el viñedo.',
     'vinha.dica.colher': 'Cosecha racimo a racimo, para no dañar los granos maduros de Moscatel.',
 
     'vinha.dica.plantar.primavera': 'Es primavera, el momento adecuado para plantar: los nuevos esquejes de Moscatel Graúdo arraigan con más fuerza en esta estación.',
@@ -988,7 +988,7 @@ const TRANSLATIONS = {
     'enciclopedia.bloqueado': 'Por desbloquear.',
 
     'garrafa.title': 'Crear Botella',
-    'garrafa.descricao': 'Se necesitan 100 Gotas de Moscatel para crear 1 Botella (+30 a +50 Reputación).',
+    'garrafa.descricao': 'Se necesitan 100 Gotas de Moscatel para crear 1 Botella (+30 a +60 Reputación).',
     'garrafa.btnCriar': 'Crear Botella',
     'garrafa.btnSeguinte': 'Siguiente',
     'garrafa.btnContinuar': 'Continuar',
