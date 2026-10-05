@@ -175,7 +175,7 @@ const FESTAS_STRINGS = {
       castanhasBonusVerao: " With this St. Martin's summer sun, the roaster yielded even more chestnuts!",
 
       jeropigaTitulo: "St. Martin's Jeropiga",
-      jeropigaFalta: "You still need more must or grape spirit for the jeropiga. Press more Grapes and distil more Pomace in the Still.",
+      jeropigaFalta: "You still need more must or spirit for the jeropiga. Press more Grapes and distil more Pomace in the Still.",
       jeropigaJaFeitaHoje: "You've already made jeropiga today. Come back tomorrow to make more.",
       jeropigaSucesso: 'The must meets the grape spirit and jeropiga is born — sweet, strong, honey-coloured. A St. Martin Edition bottle is ready.',
 
