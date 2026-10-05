@@ -134,7 +134,7 @@ function perfilDiagArranque() {
   const rep = function (r) { return typeof r === 'number' ? r : '?'; };
   el.textContent = 'Arranque: local ' + hora(arranque.localEm) + ' (rep ' + rep(arranque.localRep) + ')' +
     ' | nuvem ' + hora(arranque.nuvemEm) + ' (rep ' + rep(arranque.nuvemRep) + ')' +
-    ' | ganhou: ' + (arranque.ganhou || 'a aguardar') +
+    ' | leitura ' + (arranque.nuvemEstatus || '?') + ' | ganhou: ' + (arranque.ganhou || 'a aguardar') +
     ' | resposta em ' + (typeof arranque.respostaMs === 'number' ? (arranque.respostaMs / 1000).toFixed(1) + ' s' : '?') +
     ' | 1.ª gravação nuvem ' + hora(arranque.primeiraGravacaoEm);
 }

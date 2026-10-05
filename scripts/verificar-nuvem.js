@@ -23,13 +23,19 @@ function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } 
 // (nunca responde). Cada pedido de escrita fica registado em .escritas.
 function nuvemFalsa(inicial) {
   const dados = Object.assign({}, inicial);
-  const f = { modo: 'ok', dados: dados, escritas: 0 };
+  const f = { modo: 'ok', dados: dados, escritas: 0, leituras: 0, vaziasPrimeiras: 0 };
   function responde(cb, erro, valor) {
     if (f.modo === 'silencio') return;
     if (f.modo === 'erro') { cb(new Error('avaria')); return; }
     cb(erro, valor);
   }
-  f.getItem = function (k, cb) { responde(cb, null, Object.prototype.hasOwnProperty.call(dados, k) ? dados[k] : ''); };
+  f.getItem = function (k, cb) {
+    if (k === 'yc_state_meta') {
+      f.leituras++;
+      if (f.vaziasPrimeiras > 0 && f.modo === 'ok') { f.vaziasPrimeiras--; cb(null, ''); return; } // vazio passageiro
+    }
+    responde(cb, null, Object.prototype.hasOwnProperty.call(dados, k) ? dados[k] : '');
+  };
   f.getItems = function (ks, cb) {
     const r = {};
     ks.forEach(function (k) { r[k] = Object.prototype.hasOwnProperty.call(dados, k) ? dados[k] : ''; });
@@ -49,6 +55,9 @@ function guardarNaNuvem(nuvem, estado, em) {
 // relógio controlado, e opcionalmente o nuvem.js com a nuvem falsa.
 function abrir(localStorageDados, relogio, nuvem, comNuvemJs) {
   const pointer = [];
+  const ouvintes = {};
+  const temporizadores = [];
+  let proximoId = 1;
   const sandbox = {
     console: { log() {}, warn() {}, error() {} },
     localStorage: {
@@ -59,14 +68,17 @@ function abrir(localStorageDados, relogio, nuvem, comNuvemJs) {
     location: { search: '' },
     URLSearchParams: URLSearchParams,
     document: {
-      addEventListener: function (tipo, fn) { if (tipo === 'pointerdown') pointer.push(fn); },
+      addEventListener: function (tipo, fn) {
+        if (tipo === 'pointerdown') pointer.push(fn);
+        (ouvintes[tipo] = ouvintes[tipo] || []).push(fn);
+      },
       querySelectorAll: function () { return []; },
       querySelector: function () { return null; },
       getElementById: function () { return null; },
       visibilityState: 'visible'
     },
-    setTimeout: function () { return 1; },
-    clearTimeout: function () {},
+    setTimeout: function (fn, ms) { const id = proximoId++; temporizadores.push({ id: id, em: relogio.t + (ms || 0), fn: fn }); return id; },
+    clearTimeout: function (id) { const i = temporizadores.findIndex(function (x) { return x.id === id; }); if (i !== -1) temporizadores.splice(i, 1); },
     applyTranslations: function () {},
     t: function (k) { return k; },
     Date: class extends Date { static now() { return relogio.t; } }
@@ -80,7 +92,25 @@ function abrir(localStorageDados, relogio, nuvem, comNuvemJs) {
   return {
     ctx: ctx,
     ev: function (codigo) { return vm.runInContext(codigo, ctx); },
-    tocar: function () { pointer.forEach(function (fn) { fn(); }); }
+    tocar: function () { pointer.forEach(function (fn) { fn(); }); },
+    // Avança o relógio e dispara os temporizadores que vencem, por ordem.
+    avancar: function (ms) {
+      const alvo = relogio.t + ms;
+      for (;;) {
+        temporizadores.sort(function (a, b) { return a.em - b.em; });
+        if (!temporizadores.length || temporizadores[0].em > alvo) break;
+        const x = temporizadores.shift();
+        relogio.t = Math.max(relogio.t, x.em);
+        x.fn();
+      }
+      relogio.t = alvo;
+    },
+    pendentes: function () { return temporizadores.length; },
+    visivel: function () { (ouvintes.visibilitychange || []).forEach(function (fn) { fn(); }); },
+    estatus: function () {
+      vm.runInContext('var _r = null; nuvemLerEstado(function (e, s) { _r = s; });', ctx);
+      return vm.runInContext('_r', ctx);
+    }
   };
 }
 
@@ -158,6 +188,163 @@ function estadoGuardado(dados) { return JSON.parse(dados.yoshicat_quinta_state_v
   const j = abrir(ls, { t: 20000 }, nuvem, true);
   j.ev('saveState(state);');
   ok(j.ev('state.ultimaGravacaoEm') === 5000, '(d3) o carimbo adotado da nuvem mudou sem toque');
+}
+
+const dadosLocais = function (rep, em, extra) { return { yoshicat_quinta_state_v2: JSON.stringify(Object.assign({ reputacao: rep, ultimaGravacaoEm: em }, extra || {})) }; };
+
+// (1) getItem com erro: nenhum setItem, estado igual, nada enviado mesmo após uma ação real.
+{
+  const ls = dadosLocais(50, 1000);
+  const nuvem = nuvemFalsa({ yc_state_meta: JSON.stringify({ partes: 1, atualizadoEm: 5000 }), yc_state_parte_0: JSON.stringify({ reputacao: 80 }) });
+  nuvem.modo = 'erro';
+  const antes = JSON.stringify(nuvem.dados);
+  const j = abrir(ls, { t: 9000 }, nuvem, true);
+  ok(j.ev('arranque.nuvemErro') === true, '(1) devia estar em erro');
+  ok(j.ev('arranque.respondeu') === false, '(1) respondeu não devia ficar true');
+  ok(j.ev('nuvemPodeEnviar()') === false, '(1) não devia poder enviar');
+  j.tocar();
+  j.ev('state.gotas += 3; saveState(state);'); // ação real
+  j.avancar(2000);
+  ok(nuvem.escritas === 0, '(1) escreveu na nuvem depois de um erro');
+  ok(JSON.stringify(nuvem.dados) === antes, '(1) a nuvem mudou');
+  ok(j.ev('state.reputacao') === 50 && j.ev('state.gotas') === 3, '(1) o estado local mudou sem ação');
+  ok(estadoGuardado(ls).gotas === 3, '(1) a ação real devia ficar gravada no aparelho');
+  // reler: 15 s, 60 s, 5 min (máximo 3), e ao voltar a ficar visível
+  const lei = function () { return nuvem.leituras; };
+  ok(lei() === 1, '(1) leituras iniciais: ' + lei());
+  j.avancar(12000); ok(lei() === 1, '(1) releu cedo demais');
+  j.avancar(1500);  ok(lei() === 2, '(1) devia reler aos 15 s: ' + lei());
+  j.avancar(60000); ok(lei() === 3, '(1) devia reler aos 60 s: ' + lei());
+  j.avancar(300000); ok(lei() === 4, '(1) devia reler aos 5 min: ' + lei());
+  j.avancar(3600000); ok(lei() === 4, '(1) não devia reler mais de 3 vezes');
+  j.visivel(); ok(lei() === 5, '(1) devia reler ao voltar a ficar visível: ' + lei());
+  ok(nuvem.escritas === 0, '(1) escreveu na nuvem durante as releituras');
+  ok(j.ev('arranque.nuvemEstatus') === 'erro', '(1) estatuto devia ser erro');
+  // sem resposta nenhuma (nunca responde): passados 8 s também é erro, sem enviar
+  const nuvem2 = nuvemFalsa({}); nuvem2.modo = 'silencio';
+  const j2 = abrir(dadosLocais(50, 1000), { t: 9000 }, nuvem2, true);
+  j2.tocar(); j2.ev('saveState(state);'); j2.avancar(9000);
+  ok(nuvem2.escritas === 0 && j2.ev('arranque.nuvemErro') === true, '(1) sem resposta devia contar como erro, sem enviar às cegas');
+}
+
+// (2) meta vazio com progresso local: só copia depois da 2.ª leitura (10 s depois).
+{
+  const ls = dadosLocais(50, 1000);
+  const nuvem = nuvemFalsa({});
+  const j = abrir(ls, { t: 9000 }, nuvem, true);
+  ok(nuvem.escritas === 0 && j.ev('arranque.respondeu') === false, '(2) copiou à 1.ª leitura');
+  j.avancar(9000); ok(nuvem.escritas === 0, '(2) copiou antes dos 10 s');
+  j.avancar(1500);
+  ok(nuvem.leituras >= 2, '(2) devia ter feito a 2.ª leitura: ' + nuvem.leituras); // (a verificação da gravação também lê o meta)
+  ok(nuvem.escritas > 0 && !!nuvem.dados.yc_state_meta, '(2) devia copiar o local depois de confirmar o vazio');
+  ok(j.ev('arranque.respondeu') === true, '(2) devia ficar liberto depois de confirmar');
+}
+
+// (2b) vazio passageiro: a 2.ª leitura já traz dados melhores, que ganham; nada é sobreposto.
+{
+  const ls = dadosLocais(50, 1000);
+  const nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000 }, 5000);
+  nuvem.vaziasPrimeiras = 1;
+  const j = abrir(ls, { t: 9000 }, nuvem, true);
+  ok(nuvem.escritas === 0, '(2b) escreveu na 1.ª leitura vazia');
+  j.avancar(10500);
+  ok(nuvem.escritas === 0, '(2b) escreveu por cima da nuvem boa');
+  ok(j.ev('state.reputacao') === 80, '(2b) a nuvem boa devia ganhar');
+}
+
+// (3) meta ok com parte vazia ou JSON truncado, meta sem partes, meta mau: é erro (e meta '' é vazio).
+{
+  const casos = [
+    ['parte vazia', { yc_state_meta: JSON.stringify({ partes: 2, atualizadoEm: 5000 }), yc_state_parte_0: '{"reputacao":80,', yc_state_parte_1: '' }],
+    ['parte em falta', { yc_state_meta: JSON.stringify({ partes: 2, atualizadoEm: 5000 }), yc_state_parte_0: '{"reputacao":80}' }],
+    ['JSON truncado', { yc_state_meta: JSON.stringify({ partes: 1, atualizadoEm: 5000 }), yc_state_parte_0: '{"reputacao": 8' }],
+    ['meta sem partes', { yc_state_meta: JSON.stringify({ atualizadoEm: 5000 }) }],
+    ['meta JSON mau', { yc_state_meta: '{nao-json' }]
+  ];
+  casos.forEach(function (c) {
+    const ls = dadosLocais(50, 1000);
+    const nuvem = nuvemFalsa(c[1]);
+    const j = abrir(ls, { t: 9000 }, nuvem, true);
+    ok(j.estatus() === 'erro', '(3) ' + c[0] + ': devia ser erro, deu ' + j.estatus());
+    ok(nuvem.escritas === 0, '(3) ' + c[0] + ': escreveu na nuvem');
+    ok(j.ev('state.reputacao') === 50, '(3) ' + c[0] + ': trocou o estado');
+    ok(j.ev('arranque.nuvemErro') === true, '(3) ' + c[0] + ': nuvemErro devia estar ligado');
+  });
+  const jv = abrir(dadosLocais(0, 0), { t: 9000 }, nuvemFalsa({}), true);
+  ok(jv.estatus() === 'vazio', '(3) meta vazio devia ser vazio');
+  const nb = nuvemFalsa({}); guardarNaNuvem(nb, { reputacao: 1 }, 5000);
+  ok(abrir(dadosLocais(0, 0), { t: 9000 }, nb, true).estatus() === 'ok', '(3) meta e partes boas devia ser ok');
+}
+
+// (4) erro e depois sucesso: aplica a regra normal.
+{
+  // nuvem melhor
+  let nuvem = nuvemFalsa({}); guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000 }, 5000);
+  nuvem.modo = 'erro';
+  let j = abrir(dadosLocais(50, 1000), { t: 9000 }, nuvem, true);
+  ok(j.ev('state.reputacao') === 50, '(4) estado devia ficar local durante o erro');
+  nuvem.modo = 'ok'; j.avancar(15500);
+  ok(j.ev('arranque.respondeu') === true && j.ev('arranque.nuvemErro') === false, '(4) devia ficar liberto depois do sucesso');
+  ok(j.ev('arranque.ganhou') === 'nuvem' && j.ev('state.reputacao') === 80, '(4) a nuvem devia ganhar: ' + j.ev('arranque.ganhou'));
+  // local mais recente (carimbo e reputação)
+  nuvem = nuvemFalsa({}); guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000 }, 5000);
+  nuvem.modo = 'erro';
+  j = abrir(dadosLocais(90, 7000), { t: 9000 }, nuvem, true);
+  nuvem.modo = 'ok'; j.avancar(15500);
+  ok(j.ev('arranque.ganhou') === 'local' && j.ev('state.reputacao') === 90, '(4) o local devia ganhar: ' + j.ev('arranque.ganhou'));
+  ok(nuvem.escritas > 0 && JSON.parse(nuvem.dados.yc_state_parte_0).reputacao === 90, '(4) a nuvem devia ser alinhada com o local');
+}
+
+// (5) Reputação da nuvem maior: a nuvem ganha mesmo com o carimbo local mais recente (capítulos unidos).
+{
+  const nuvem = nuvemFalsa({});
+  guardarNaNuvem(nuvem, { reputacao: 80, ultimaGravacaoEm: 5000, capitulos: { iniciado: true, concluidos: { cap2: true }, celebrados: { cap2: true }, celebradosMigrado: true } }, 5000);
+  const ls = dadosLocais(50, 9000, { capitulos: { iniciado: true, concluidos: { cap1: true }, celebrados: { cap1: true }, celebradosMigrado: true } });
+  const j = abrir(ls, { t: 20000 }, nuvem, true);
+  ok(j.ev('arranque.ganhou') === 'nuvem (mais reputação)', '(5) devia ganhar a nuvem por reputação: ' + j.ev('arranque.ganhou'));
+  ok(j.ev('state.reputacao') === 80, '(5) reputação devia ser 80');
+  ok(j.ev('state.capitulos.concluidos.cap1') === true && j.ev('state.capitulos.concluidos.cap2') === true, '(5) os capítulos deviam juntar-se');
+  // reputação igual e local mais recente: ganha o local
+  const nuvem2 = nuvemFalsa({}); guardarNaNuvem(nuvem2, { reputacao: 50, ultimaGravacaoEm: 5000 }, 5000);
+  const j2 = abrir(dadosLocais(50, 9000), { t: 20000 }, nuvem2, true);
+  ok(j2.ev('arranque.ganhou') === 'local', '(5) com reputação igual o carimbo local devia ganhar');
+}
+
+// (6) cenário de 04/10 completo: aparelho velho, a nuvem falha ou responde vazia, o jogador
+// joga um pouco, e só depois a nuvem (com o progresso do outro aparelho) responde bem.
+{
+  // 6a: erro + ação real; depois a nuvem boa responde. Antes: o local (carimbo novo) ganhava e a nuvem recuava.
+  let nuvem = nuvemFalsa({}); guardarNaNuvem(nuvem, { reputacao: 80, uvas: 9, ultimaGravacaoEm: 5000 }, 5000);
+  const antes = JSON.stringify(nuvem.dados);
+  nuvem.modo = 'erro';
+  let j = abrir(dadosLocais(50, 1000), { t: 9000 }, nuvem, true);
+  j.ev('saveState(state);'); // gravação de arranque (objetivos do dia)
+  j.tocar(); j.ev('state.reputacao += 2; saveState(state);'); // ação real: 52, carimbo "agora"
+  j.avancar(10000);
+  ok(JSON.stringify(nuvem.dados) === antes, '(6a) a nuvem mudou durante o erro');
+  nuvem.modo = 'ok'; j.avancar(10000);
+  ok(JSON.stringify(JSON.parse(nuvem.dados.yc_state_parte_0)) === JSON.stringify({ reputacao: 80, uvas: 9, ultimaGravacaoEm: 5000 }), '(6a) a nuvem boa foi sobreposta');
+  ok(j.ev('state.reputacao') === 80, '(6a) a Reputação devia voltar a 80, está ' + j.ev('state.reputacao'));
+  // 6b: a nuvem responde "vazio" uma vez (passageiro) com progresso local: não é copiado de imediato.
+  nuvem = nuvemFalsa({}); guardarNaNuvem(nuvem, { reputacao: 80, uvas: 9, ultimaGravacaoEm: 5000 }, 5000);
+  nuvem.vaziasPrimeiras = 1;
+  j = abrir(dadosLocais(50, 1000), { t: 9000 }, nuvem, true);
+  j.tocar(); j.ev('state.reputacao += 2; saveState(state);');
+  ok(nuvem.escritas === 0, '(6b) o local foi enviado com a nuvem "vazia"');
+  j.avancar(11000);
+  ok(j.ev('state.reputacao') === 80 && nuvem.escritas === 0, '(6b) a nuvem boa devia ganhar sem ser sobreposta');
+}
+
+// (7) conta nova sem progresso local: sem esperas, e a 1.ª ação real é enviada normalmente.
+{
+  const nuvem = nuvemFalsa({});
+  const j = abrir({}, { t: 9000 }, nuvem, true);
+  ok(j.ev('arranque.respondeu') === true && j.ev('nuvemPodeEnviar()') === true, '(7) devia ficar liberto logo');
+  ok(j.pendentes() === 0, '(7) não devia haver temporizadores à espera: ' + j.pendentes());
+  ok(nuvem.leituras === 1 && nuvem.escritas === 0, '(7) só uma leitura e nada escrito');
+  j.tocar(); j.ev('state.gotas = 1; saveState(state);'); j.avancar(1000);
+  ok(nuvem.escritas > 0, '(7) a 1.ª ação real devia ser enviada');
 }
 
 console.log(falhas === 0 ? 'OK' : falhas + ' FALHA(S)');
