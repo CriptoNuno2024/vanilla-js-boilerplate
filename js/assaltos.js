@@ -72,6 +72,16 @@ function alvoDosPorcosDoDia(indice, leituras) {
 function textoDaPista(alvo, indice, leituras) {
   let dia = '';
   try { dia = (leituras || assaltosLeituras()).dia; } catch (e) {}
-  const variante = ((assaltosHash(dia, indice) >>> 8) % 2) + 1;
+  const variante = (((assaltosHash(dia, indice) >>> 8) + indice) % 2) + 1;
   return 'ronda.pista.' + alvo + '.' + variante;
+}
+
+// Minijogo do Proteger que segue a pista: cave -> 'fechadura', vinha ->
+// 'disfarces', nevoeiro/trovoada -> 'chizo'. Adega ou valor desconhecido ->
+// null (o Proteger usa o sorteio de sempre, ver escolherTipoProteger()).
+function tipoDeProtegerPelaPista(alvo) {
+  if (alvo === 'cave') return 'fechadura';
+  if (alvo === 'vinha') return 'disfarces';
+  if (alvo === 'nevoeiro' || alvo === 'trovoada') return 'chizo';
+  return null;
 }

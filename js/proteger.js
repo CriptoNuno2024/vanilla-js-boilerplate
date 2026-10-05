@@ -243,7 +243,29 @@ function pesosProtegerPara(estacao, temGarrafaEscura) {
   return { fechadura: fechadura, disfarces: base.disfarces * escala, chizo: base.chizo * escala };
 }
 
+// A pista do dia (js/assaltos.js) decide o minijogo só na 1.ª ronda de cada
+// visita (as rondas extra do tempo mantêm o sorteio). Com ?pista= no endereço
+// usa esse alvo; senão só depois da meia taça de hoje (índice = feitas - 1).
+// Devolve 'fechadura' | 'disfarces' | 'chizo' ou null (= sorteio de hoje).
+// Só lê: não grava nada.
+function tipoProtegerPelaPista() {
+  try {
+    if (protegerRondaAtual !== 1) return null;
+    if (typeof alvoDosPorcosDoDia !== 'function' || typeof tipoDeProtegerPelaPista !== 'function') return null;
+    let indice = 0;
+    if (!(typeof assaltosAlvoForcadoNoEndereco === 'function' && assaltosAlvoForcadoNoEndereco())) {
+      const feitas = typeof rondaChizoFeitasHoje === 'function' ? rondaChizoFeitasHoje() : 0;
+      if (feitas < 1) return null;
+      indice = feitas - 1;
+    }
+    const tipo = tipoDeProtegerPelaPista(alvoDosPorcosDoDia(indice));
+    return (tipo === 'fechadura' || tipo === 'disfarces' || tipo === 'chizo') ? tipo : null;
+  } catch (e) { return null; }
+}
+
 function escolherTipoProteger() {
+  const daPista = tipoProtegerPelaPista();
+  if (daPista) return daPista;
   const pesos = pesosProtegerPara(estacaoAtual(), !!garrafaEscuraProteger());
   const entradas = Object.keys(pesos).filter(function (tipo) { return pesos[tipo] > 0; });
   const total = entradas.reduce(function (soma, tipo) { return soma + pesos[tipo]; }, 0);
