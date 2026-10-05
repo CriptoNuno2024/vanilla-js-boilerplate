@@ -43,6 +43,16 @@ function rondaChizoEstado() {
   return state.objetivos.ronda;
 }
 
+// Quantas rondas já deram meia taça HOJE. Só lê (nunca grava, ao contrário de
+// rondaChizoEstado(), que pode repor o dia); 0 se o dia não bate ou faltar algo.
+function rondaChizoFeitasHoje() {
+  try {
+    const o = state.objetivos;
+    if (!o || o.dia !== diaLisboaDeHoje() || !o.ronda || typeof o.ronda !== 'object') return 0;
+    return Number.isFinite(o.ronda.feitas) && o.ronda.feitas > 0 ? o.ronda.feitas : 0;
+  } catch (e) { return 0; }
+}
+
 // 'fora' (em ronda), 'volta' (já pode regressar), 'espera' (2.ª ronda ainda
 // não), 'fim' (as duas feitas) ou 'pedido' (há uma ronda para pedir).
 function rondaChizoFase(agora) {

@@ -7,7 +7,7 @@ const vm = require('vm');
 const ctx = { URLSearchParams: URLSearchParams, location: { search: '' } };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'assaltos.js'), 'utf8'), ctx);
-const { alvoDosPorcosDoDia, textoDaPista } = ctx;
+const { alvoDosPorcosDoDia, textoDaPista, tipoDeProtegerPelaPista } = ctx;
 
 let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
@@ -63,6 +63,16 @@ dias(60).forEach(function (dia) {
   variantes[k] = 1;
 });
 ok(Object.keys(variantes).length === 2, 'as duas variantes devem aparecer em 60 dias');
+
+// Variante com o mesmo alvo nas 2 rondas do dia: nunca a mesma frase.
+dias(60).forEach(function (dia) {
+  ok(textoDaPista('adega', 0, { dia: dia }) !== textoDaPista('adega', 1, { dia: dia }), 'frase repetida nas 2 rondas em ' + dia);
+});
+
+// Alvo -> minijogo do Proteger (null = sorteio de hoje).
+const TIPOS = { cave: 'fechadura', vinha: 'disfarces', nevoeiro: 'chizo', trovoada: 'chizo', adega: null };
+Object.keys(TIPOS).forEach(function (a) { ok(tipoDeProtegerPelaPista(a) === TIPOS[a], 'tipo errado para ' + a); });
+['porco', '', undefined, null, 42].forEach(function (v) { ok(tipoDeProtegerPelaPista(v) === null, 'valor inválido deve dar null: ' + v); });
 
 // Alvo forçado pelo endereço (não escreve nada) e valor inválido ignorado.
 ctx.location.search = '?pista=cave';
