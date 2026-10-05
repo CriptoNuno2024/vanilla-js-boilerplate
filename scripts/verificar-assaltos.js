@@ -160,9 +160,12 @@ function abrirProteger(opcoes) {
     ok(g.reg.html.indexOf('protegerIscoResponder(true)') !== -1, alvo + ' devia perguntar (com bagaço)');
     ok(g.ev('state.adega.bagaco') === 3, alvo + ': a pergunta não devia gastar bagaço');
   });
-  // Alvo ao vivo 'adega' (sem ?pista=): sem passo.
-  g = abrirProteger({ ceu: null, estacao: 'inverno', garrafa: false }); g.ev('startProteger()');
-  ok(g.ev('alvoParaProteger(0, null, diaLisboaDeHoje())') !== 'adega' || g.reg.html.indexOf('protegerIscoResponder') === -1, 'alvo adega ao vivo não devia perguntar');
+  // Alvo ao vivo 'adega' (sem ?pista=): primavera, sem garrafa escura e sem tempo especial
+  // dão SEMPRE 'adega'; então não há passo e não se gasta bagaço.
+  g = abrirProteger({ ceu: null, estacao: 'primavera', garrafa: false }); g.ev('startProteger()');
+  ok(g.ev('alvoParaProteger(0, null, diaLisboaDeHoje())') === 'adega', 'com leituras fixas o alvo ao vivo devia ser adega, deu ' + g.ev('alvoParaProteger(0, null, diaLisboaDeHoje())'));
+  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'alvo adega ao vivo não devia perguntar');
+  ok(g.ev('state.adega.bagaco') === 3 && g.reg.saves === 0, 'alvo adega ao vivo: não devia gastar nem gravar nada');
 
   // Com pista e bagaço: pergunta e NADA se gasta até tocar numa pílula.
   g = abrirProteger({}); g.ev('startProteger()');
