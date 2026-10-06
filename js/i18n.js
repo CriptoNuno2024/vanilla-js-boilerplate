@@ -58,6 +58,10 @@ const TRANSLATIONS = {
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
+    'visita.linha': 'Hoje: {nome} está na Quinta',
+    'visita.nome.valentim': 'o Sr. Valentim',
+    'visita.nome.marisa': 'a Marisa',
+    'visita.nome.henrique': 'o Dr. Henrique',
     'ronda.label': 'Pedido do dia',
     'ronda.tituloPedido': 'Ronda do Chizo',
     'ronda.tituloVolta': 'Chizo de volta',
@@ -433,6 +437,10 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'House of Moscatel',
 
     'objetivos.titulo': 'Today on the Farm',
+    'visita.linha': 'Today: {nome} is at the Farm',
+    'visita.nome.valentim': 'Mr. Valentim',
+    'visita.nome.marisa': 'Marisa',
+    'visita.nome.henrique': 'Dr. Henrique',
     'ronda.label': 'Request of the day',
     'ronda.tituloPedido': "Chizo's patrol",
     'ronda.tituloVolta': 'Chizo is back',
@@ -792,6 +800,10 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'Casa del Moscatel',
 
     'objetivos.titulo': 'Hoy en la Quinta',
+    'visita.linha': 'Hoy: {nome} está en la Quinta',
+    'visita.nome.valentim': 'el Sr. Valentim',
+    'visita.nome.marisa': 'la Marisa',
+    'visita.nome.henrique': 'el Dr. Henrique',
     'ronda.label': 'Encargo del día',
     'ronda.tituloPedido': 'Ronda de Chizo',
     'ronda.tituloVolta': 'Chizo ha vuelto',

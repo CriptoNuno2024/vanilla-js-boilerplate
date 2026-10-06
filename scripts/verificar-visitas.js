@@ -178,6 +178,41 @@ const CONTEXTOS = [];
   for (let k = 0; k < 100; k++) { const v = escolher(mapa, ctxM, dia(k)).visita; ok(!v || (v.id !== 'valentim_1' && v.id !== 'henrique_1'), 'o mapa de feitas devia ser aceite'); }
 }
 
+// ----- Ciclo: tudo feito escolhe a feita há mais tempo, nunca a de ontem -----
+{
+  // Inverno, sem festa, Cave nem garrafa: possíveis valentim_1 (com condição) e os 3 sem condição.
+  const inv = { nivel: 4, estacao: 'inverno', fase: 'repouso', festaAtiva: false, caveAberta: false, garrafaDias: null };
+  const possiveis = ['valentim_1', 'valentim_4', 'marisa_4', 'henrique_3'];
+  const datas = { valentim_1: '2026-01-04', valentim_4: '2026-01-01', marisa_4: '2026-01-03', henrique_3: '2026-01-02' };
+  // A mais antiga é sempre a escolhida (o hash do dia só desempata), mesmo havendo uma só com condição.
+  for (let n = 0; n < 60; n++) {
+    const v = escolher(datas, inv, '2026-02-' + String(1 + n % 28).padStart(2, '0')).visita;
+    ok(!v || v.id === 'valentim_4', 'tudo feito devia dar a feita há mais tempo (valentim_4), saiu ' + (v && v.id));
+  }
+  // 40 dias seguidos, atualizando as datas como o jogo (visitaFazerHoje): nunca igual à do dia anterior,
+  // e todas as possíveis rodam.
+  const feitas = Object.assign({}, datas);
+  let anterior = null;
+  const usadas = {};
+  let comVisita = 0;
+  for (let n = 0; n < 40; n++) {
+    const d = '2026-03-' + String(1 + n % 28).padStart(2, '0');
+    const dd = n < 28 ? d : '2026-04-' + String(n - 27).padStart(2, '0');
+    const v = escolher(feitas, inv, dd).visita;
+    if (!v) { anterior = null; continue; } // dia sem visita: nada muda
+    comVisita++;
+    ok(possiveis.indexOf(v.id) !== -1, 'o ciclo ofereceu fora do contexto: ' + v.id);
+    ok(anterior === null || v.id !== anterior, 'repetiu a visita do dia anterior (' + v.id + ' em ' + dd + ')');
+    feitas[v.id] = dd;
+    usadas[v.id] = 1;
+    anterior = v.id;
+  }
+  ok(comVisita >= 20, 'devia haver visitas na maioria dos dias (' + comVisita + '/40)');
+  ok(Object.keys(usadas).length === possiveis.length, 'o ciclo devia rodar por todas as possíveis: ' + Object.keys(usadas));
+  // Sem datas (lista de ids) também funciona e nunca sai fora das possíveis.
+  for (let n = 0; n < 40; n++) { const v = escolher(possiveis, inv, dia(n)).visita; ok(!v || possiveis.indexOf(v.id) !== -1, 'lista sem datas: fora do contexto'); }
+}
+
 // ----- Proporção de dias sem visita perto de 1 em 4 -----
 {
   const c = { nivel: 5, estacao: 'outono', fase: 'vindima', festaAtiva: true, caveAberta: true, garrafaDias: 2 };

@@ -6,8 +6,8 @@
 // visitas (12 no total), com uma condição opcional ligada ao jogo (estação, fase
 // da vinha, festa, Cave, garrafa a descansar) e uma "reputacao" de 1 a 3.
 //
-// NADA chama estas funções ainda: sem ecrã e sem nuvem. As funções de dados e de escolha
-// são puras; as do fim do ficheiro (PR 2) leem e gravam state.visitas (ver js/state.js).
+// As funções de dados e de escolha são puras; as do meio do ficheiro (PR 2) leem e gravam
+// state.visitas (ver js/state.js) e as do fim (PR 3) desenham a linha no cartão da Quinta.
 // Os textos são
 // provisórios ("[por escrever]" em todas as línguas) até serem escritos e
 // aprovados; `node scripts/verificar-visitas.js --final` falha enquanto restar
@@ -95,12 +95,12 @@ function visitaCondicaoOk(visita, contexto) {
 //   feitasIds  ids já feitos: lista, ou um mapa idVisita -> qualquer coisa
 // Regras: no máximo 1 por dia; cerca de 1 dia em 4 sem visita (hash do dia);
 // só entre as que cumprem as condições e ainda não estão feitas, preferindo as COM
-// condição às sem condição; se todas as possíveis já foram feitas, voltam a ser
-// oferecidas (ciclo) em vez de ficar sem nada.
+// condição às sem condição; se todas as possíveis já foram feitas, volta a ser
+// oferecida a feita há mais tempo (ciclo), em vez de ficar sem nada.
 function escolherVisitaDoDia(feitasIds, contexto, diaLisboa) {
-  const feitas = {};
+  const feitas = {}; // idVisita -> data 'AAAA-MM-DD' (true se não houver data)
   if (Array.isArray(feitasIds)) feitasIds.forEach(function (id) { feitas[id] = true; });
-  else if (feitasIds && typeof feitasIds === 'object') Object.keys(feitasIds).forEach(function (id) { feitas[id] = true; });
+  else if (feitasIds && typeof feitasIds === 'object') Object.keys(feitasIds).forEach(function (id) { feitas[id] = feitasIds[id]; });
 
   if (!contexto || !(contexto.nivel >= VISITAS_NIVEL_MINIMO)) return { visita: null };
   if (visitasHash(diaLisboa + '#visita#dia') % VISITAS_UM_DIA_EM_N === 0) return { visita: null };
@@ -108,15 +108,25 @@ function escolherVisitaDoDia(feitasIds, contexto, diaLisboa) {
   const possiveis = VISITAS.filter(function (v) { return visitaCondicaoOk(v, contexto); });
   if (possiveis.length === 0) return { visita: null };
 
-  const novas = possiveis.filter(function (v) { return feitas[v.id] !== true; });
-  const base = novas.length > 0 ? novas : possiveis; // tudo feito: ciclo
-  const comCondicao = base.filter(function (v) { return v.condicao !== null; });
-  const candidatas = comCondicao.length > 0 ? comCondicao : base;
-  return { visita: candidatas[visitasHash(diaLisboa + '#visita#escolha') % candidatas.length] };
+  const novas = possiveis.filter(function (v) { return feitas[v.id] === undefined; });
+  if (novas.length > 0) {
+    // Ainda há por fazer: preferem-se as COM condição às sem condição.
+    const comCondicao = novas.filter(function (v) { return v.condicao !== null; });
+    const candidatas = comCondicao.length > 0 ? comCondicao : novas;
+    return { visita: candidatas[visitasHash(diaLisboa + '#visita#escolha') % candidatas.length] };
+  }
+
+  // Tudo feito: ciclo. Escolhe a feita há mais tempo (a data mais antiga em feitas); o
+  // hash do dia só desempata. Como a feita ontem tem a data mais recente, com 2 ou mais
+  // possíveis nunca repete a visita de ontem. Uma lista de ids não traz datas: empatam todas.
+  const dataDe = function (v) { return typeof feitas[v.id] === 'string' ? feitas[v.id] : ''; };
+  const maisAntiga = possiveis.reduce(function (min, v) { return dataDe(v) < min ? dataDe(v) : min; }, dataDe(possiveis[0]));
+  const empatadas = possiveis.filter(function (v) { return dataDe(v) === maisAntiga; });
+  return { visita: empatadas[visitasHash(diaLisboa + '#visita#escolha') % empatadas.length] };
 }
 
 // ---------------------------------------------------------------------
-// ESTADO E PAGAMENTO (PR 2; ainda sem ecrã: nada as chama).
+// ESTADO E PAGAMENTO (PR 2).
 // state.visitas = { feitas: { idVisita: 'AAAA-MM-DD' }, hoje: { dia, id, feita } | null }.
 // A Reputação só sobe, e só por visitaFazerHoje(). Em modo de teste (parâmetros de
 // endereço) nada se grava nem se paga. Quem chamar ainda tem de refrescar o ecrã
@@ -207,4 +217,75 @@ function visitaFazerHoje() {
   state.reputacao += r.visita.reputacao;
   saveState(state);
   return { ok: true, visita: r.visita };
+}
+
+// ---------------------------------------------------------------------
+// LINHA NO CARTÃO DA QUINTA (PR 3). "Hoje: {nome} está na Quinta", só a partir do
+// nível 4, sem balão automático: ao tocar mostra a fala da visita e, na 1.ª vez, paga.
+// Se o texto da visita ainda for "[por escrever]" (em qualquer língua) a linha não
+// aparece e nada se grava. Teste: ?visita=id mostra a linha com essa visita (ignora
+// época, condição, nível e "[por escrever]"); não grava nem paga.
+// ---------------------------------------------------------------------
+
+function visitaPersonagemPorId(id) {
+  return VISITAS_PERSONAGENS.filter(function (p) { return p.id === id; })[0] || null;
+}
+
+function visitaTextoPorEscrever(visita) {
+  return ['pt', 'en', 'es'].some(function (l) { return !visita.texto[l] || String(visita.texto[l]).indexOf(VISITAS_POR_ESCREVER) !== -1; });
+}
+
+// ?visita=id com um dos ids das visitas, ou null.
+function visitaDeTeste() {
+  try {
+    const id = new URLSearchParams(location.search).get('visita');
+    return id ? visitaPorId(id) : null;
+  } catch (e) { return null; }
+}
+
+// O que a linha mostra: { visita, feita } ou { visita: null }. Só lê; só grava (via
+// visitaDeHoje) quando há mesmo uma linha a mostrar.
+function visitaParaLinha() {
+  const teste = visitaDeTeste();
+  if (teste) return { visita: teste, feita: false };
+  const r = visitaResolverHoje();
+  if (!r.visita || visitaTextoPorEscrever(r.visita)) return { visita: null };
+  return visitaDeHoje();
+}
+
+function visitaFalaDe(visita) {
+  const p = visitaPersonagemPorId(visita.personagem);
+  const nome = p ? (p.nome[currentLang] || p.nome.pt) : '';
+  return { nome: nome, texto: visita.texto[currentLang] || visita.texto.pt };
+}
+
+function atualizarLinhaVisitaQuinta() {
+  const container = document.getElementById('visita-container');
+  if (!container) return;
+  let r;
+  try { r = visitaParaLinha(); } catch (e) { r = { visita: null }; }
+  if (!r.visita) { container.innerHTML = ''; return; }
+  const texto = t('visita.linha').replace('{nome}', t('visita.nome.' + r.visita.personagem));
+  container.innerHTML =
+    '<div class="mini-bloco">' +
+      '<button type="button" class="visita-linha' + (r.feita ? ' feita' : '') + '" onclick="visitaLinhaToque()">' +
+        texto + (r.feita ? ' ✓' : '') +
+      '</button>' +
+    '</div>';
+}
+
+function visitaLinhaToque() {
+  const r = visitaParaLinha();
+  if (!r.visita) { atualizarLinhaVisitaQuinta(); return; }
+  const fala = visitaFalaDe(r.visita);
+  mostrarFalas([fala.texto], fala.nome);
+  const pago = visitaFazerHoje();
+  if (pago.ok) {
+    vibrar('sucesso');
+    tocarSom('objetivoCumprido');
+    updateStatsDisplays();
+    if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
+    if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+    atualizarLinhaVisitaQuinta();
+  }
 }
