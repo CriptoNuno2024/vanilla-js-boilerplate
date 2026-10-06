@@ -330,18 +330,23 @@ function colecaoHtml() {
 
 function reservaHtml() {
   if (!caveReservaAberta()) return '';
+  const dias = state.garrafas > 0 ? garrafaQueMaisDescansou() : null;
   let linha = '';
   if (state.garrafas <= 0) {
     linha = '<p class="phase-progress" data-i18n="perfil.semGarrafas"></p>';
-  } else {
-    const dias = garrafaQueMaisDescansou();
-    if (dias !== null) {
-      linha = '<p class="phase-progress">' +
-        t(dias === 1 ? 'adega.reservaMaisDescansouUm' : 'adega.reservaMaisDescansou').replace('{n}', dias) + '</p>';
-    }
+  } else if (dias !== null) {
+    linha = '<p class="phase-progress">' +
+      t(dias === 1 ? 'adega.reservaMaisDescansouUm' : 'adega.reservaMaisDescansou').replace('{n}', dias) + '</p>';
   }
+  // Com garrafas feitas, a foto é a da que mais descansou (mesma classe e tamanho
+  // do barril; o ponto de foco desce para o rótulo, nas fotos de 512x512); sem
+  // nenhuma, fica o barril de sempre.
+  const g = dias !== null ? garrafaPorDias(dias) : null;
+  const fotoHtml = g
+    ? '<img class="reserva-foto" src="' + g.imagem + '" alt="' + garrafaLegenda(g) + '" style="object-position: center 69%">'
+    : '<img class="reserva-foto" src="' + CAVE_RESERVA_FOTO + '" alt="">';
   return '<div class="reserva-bloco">' +
-    '<img class="reserva-foto" src="' + CAVE_RESERVA_FOTO + '" alt="">' +
+    fotoHtml +
     '<p class="mini-bloco-titulo" data-i18n="adega.reservaTitulo"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto1"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto2"></p>' +
