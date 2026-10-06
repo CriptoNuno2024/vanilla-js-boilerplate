@@ -802,7 +802,7 @@ const TRANSLATIONS = {
     'objetivos.titulo': 'Hoy en la Quinta',
     'visita.linha': 'Hoy: {nome} está en la Quinta',
     'visita.nome.valentim': 'el Sr. Valentim',
-    'visita.nome.marisa': 'la Marisa',
+    'visita.nome.marisa': 'Marisa',
     'visita.nome.henrique': 'el Dr. Henrique',
     'ronda.label': 'Encargo del día',
     'ronda.tituloPedido': 'Ronda de Chizo',
