@@ -215,8 +215,8 @@ const FESTAS_STRINGS = {
 
       provaTitulo: 'La Prueba del Vino Nuevo',
       provaJaFeitaHoje: 'Ya has probado el vino hoy. Vuelve mañana para probar más.',
-      provaSemVinho: 'Todavía no hay vino reposando en la Bodega. Fortifica un lote en la Bodega de vinificación para tener algo que probar en el próximo San Martín.',
-      provaComVinho: '¡Cuando el YoshiCat llega a la Bodega, los Fygmos ya están allí, copa en pata, probando el vino nuevo sin pedir permiso!'
+      provaSemVinho: 'Todavía no hay vino reposando en la Cava. Fortifica un lote en la Bodega de vinificación para tener algo que probar en el próximo San Martín.',
+      provaComVinho: '¡Cuando el YoshiCat llega a la Cava, los Fygmos ya están allí, copa en pata, probando el vino nuevo sin pedir permiso!'
     }
   }
 };

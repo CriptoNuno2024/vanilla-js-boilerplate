@@ -158,7 +158,7 @@ const CAPITULOS_STRINGS = {
     cap2: { titulo: 'Guardianes de la Cosecha', objetivo: 'Haz tu primera cosecha.' },
     cap3: { titulo: 'El primer Moscatel', objetivo: 'Haz tu primera botella.' },
     cap4: { titulo: 'La invitación de la villa', objetivo: 'Descubre 6 entradas de la Enciclopedia.' },
-    cap5: { titulo: 'Lo que más reposa', objetivo: 'Deja reposar una botella 3 días o más en la Bodega.' },
+    cap5: { titulo: 'Lo que más reposa', objetivo: 'Deja reposar una botella 3 días o más en la Cava.' },
     cap6: { titulo: 'Historias más antiguas', objetivo: 'Descubre todas las entradas de la Enciclopedia.' }
   }
 };
