@@ -821,6 +821,31 @@
       overflow-y: auto;
     }
 
+    /* Livro de Conquistas: cabeçalho decorativo (imagem larga, sem texto) entre
+       o cartão do topo e a lista. Fixo como os outros painéis; a lista desce por
+       baixo dele e encolhe para o botão Voltar ficar sempre visível. */
+    .livro-cabecalho {
+      --livro-cab-larg: min(var(--coluna), 100vw - 20px);
+      --livro-cab-alt: calc(var(--livro-cab-larg) * 0.357); /* proporção do recorte (720x257) */
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      top: calc(var(--topo-altura) + 53px);
+      width: var(--livro-cab-larg);
+      height: var(--livro-cab-alt);
+      object-fit: cover;
+      border: 1px solid rgba(245, 215, 110, 0.4);
+      border-radius: 14px;
+      z-index: 14;
+      pointer-events: none;
+    }
+
+    .scroll-panel.conquistas-lista {
+      margin: 0;
+      top: calc(var(--topo-altura) + 53px + min(var(--coluna), 100vw - 20px) * 0.357 + 8px);
+      max-height: min(48vh, calc(100vh - var(--topo-altura) - 53px - min(var(--coluna), 100vw - 20px) * 0.357 - 8px - var(--nav-altura) - 66px));
+    }
+
     .encyclopedia-card {
       background: rgba(12, 14, 22, 0.55);
       border: 1px solid rgba(245, 215, 110, 0.4);
@@ -1962,7 +1987,7 @@
   <script src="js/objetivos.js?v=49"></script>
   <script src="js/capitulos.js?v=8"></script>
   <script src="js/ronda.js?v=4"></script>
-  <script src="js/conquistas.js?v=1"></script>
+  <script src="js/conquistas.js?v=2"></script>
   <script src="js/visitas.js?v=5"></script>
   <script src="js/main.js?v=62"></script>
 </body>
