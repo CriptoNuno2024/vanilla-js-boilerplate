@@ -18,6 +18,6 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 
 # Visitas à Quinta
 
-`node scripts/verificar-visitas.js [--final]` — dados e funções puras de js/visitas.js (ainda sem uso no jogo): abaixo do nível 4 nunca há visita; 60 dias × contextos respeitam as condições; no máximo 1 por dia; estável; reputação 1 a 3; sem repetir até esgotar as possíveis (depois ciclo); ~1 em 4 dias sem visita. `--final` falha enquanto houver "[por escrever]" (36 textos hoje). `VISITAS_JS=ficheiro` testa outra versão do ficheiro.
+`node scripts/verificar-visitas.js [--final]` — dados e funções puras de js/visitas.js (a linha no cartão da Quinta usa-as): abaixo do nível 4 nunca há visita; 60 dias × contextos respeitam as condições; no máximo 1 por dia; estável; reputação 1 a 3; sem repetir até esgotar as possíveis (depois ciclo: sai a feita há mais tempo e nunca a do dia anterior, simulado em 40 dias); ~1 em 4 dias sem visita. `--final` falha enquanto houver "[por escrever]" (36 textos hoje). `VISITAS_JS=ficheiro` testa outra versão do ficheiro.
 
 `node scripts/verificar-visitas-estado.js` — estado e pagamento das Visitas com o state.js, niveis.js e visitas.js reais em vm: conta antiga carrega, nível < 4 nunca grava, a visita de hoje é estável e repõe-se, o pagamento é único (toque duplo) e exato, o modo de teste não grava nem paga, o resto do estado fica igual, sem repetir até esgotar. `VISITAS_JS=ficheiro` testa outra versão de js/visitas.js.

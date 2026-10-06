@@ -543,6 +543,7 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
     if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
+    if (typeof atualizarLinhaVisitaQuinta === 'function') atualizarLinhaVisitaQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
     let mostrouHistoria = false;
