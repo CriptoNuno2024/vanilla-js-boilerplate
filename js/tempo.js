@@ -177,21 +177,11 @@ function tempoCacheValida(cache, agora) {
   return idade < (cache.ok === true ? TEMPO_CONFIG.cacheSucessoMs : TEMPO_CONFIG.cacheFalhaMs);
 }
 
-// DIAGNOSTICO TEMPORARIO - remover (junto com perfilDiagTempo() e a linha
-// #perfil-diag-tempo em js/perfil.js). Só em memória: de onde veio o último
-// resultado ('rede', 'cache', 'falha' ou 'teste') e a que horas (Date.now()).
-let _tempoDiag = null;
-
-function tempoDiagnostico() {
-  return _tempoDiag;
-}
-
 // Vai buscar o tempo à Open-Meteo, respeitando os prazos da cache
 // (guardada em TEMPO_CACHE_KEY, ver tempoCacheValida). Nunca lança erro
 // para fora: se falhar, o jogo fica só sem a linha do tempo real.
 async function garantirTempoAtualizado() {
   if (tempoForcadoNoEndereco()) { // em teste, nunca pede à API
-    _tempoDiag = { fonte: 'teste', em: Date.now() };
     return;
   }
 
@@ -200,7 +190,6 @@ async function garantirTempoAtualizado() {
 
   if (tempoCacheValida(cache, agora)) {
     _tempoAtual = cache.ok ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : (cache.stale || condicaoIndisponivel());
-    _tempoDiag = { fonte: cache.ok ? 'cache' : 'falha', em: cache.fetchedAt };
     return;
   }
 
@@ -224,12 +213,10 @@ async function garantirTempoAtualizado() {
 
     _tempoAtual = condicaoDeTeste(tempC, ventoKmh, ceu);
     guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu });
-    _tempoDiag = { fonte: 'rede', em: agora };
   } catch (e) {
     // Sem internet ou serviço em baixo: mantém os dados antigos (se
     // havia) e não volta a tentar antes de passarem cacheFalhaMs.
     guardarTempoCache({ fetchedAt: agora, ok: false, stale: tempoCacheComDados(cache) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : null });
-    _tempoDiag = { fonte: 'falha', em: agora };
     if (!tempoCacheComDados(cache)) _tempoAtual = condicaoIndisponivel();
   }
 }
