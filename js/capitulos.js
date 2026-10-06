@@ -18,6 +18,9 @@
 //   contarChaves   — o objeto em "caminho" tem pelo menos "alvo" chaves
 //   contarLista    — a lista em "caminho" tem pelo menos "alvo" elementos
 //   algumaEntrada  — alguma entrada da lista em "caminho" tem campo >= alvo
+//   coresColecao   — número de cores (jovem, dourado, ambar, cobre) já feitas
+//                    na Coleção, por colecaoCoresFeitas() (js/garrafa.js);
+//                    não usa "caminho"; alvo 4 = as quatro
 // "alvo" pode ser um número ou o nome de um alvo calculado (ver
 // capitulosResolverAlvo()).
 //
@@ -38,12 +41,12 @@ const CAPITULOS_CONFIG = [
   { id: 'cap3', nivel: 3, criterio: [{ tipo: 'numero', caminho: 'garrafas', alvo: 1 }] },
   { id: 'cap4', nivel: 4, criterio: [{ tipo: 'contarLista', caminho: 'encyclopedia.unlocked', alvo: 6 }] },
   { id: 'cap5', nivel: 5, falante: 'Chizo', criterio: [{ tipo: 'algumaEntrada', caminho: 'adega.historico', campo: 'diasDescanso', alvo: 3 }] },
-  { id: 'cap6', nivel: 6, criterio: [{ tipo: 'contarLista', caminho: 'encyclopedia.unlocked', alvo: 'totalEnciclopedia' }] }
+  { id: 'cap6', nivel: 6, criterio: [{ tipo: 'coresColecao', alvo: 4 }] }
 ];
 
 // Alvos que não são um número fixo. "totalEnciclopedia" lê o tamanho da
 // Enciclopédia (js/explorar.js), para continuar certo se entrarem entradas
-// novas.
+// novas (já nenhum capítulo o usa; fica disponível).
 function capitulosResolverAlvo(alvo) {
   if (typeof alvo === 'number') return alvo;
   if (alvo === 'totalEnciclopedia') {
@@ -64,7 +67,7 @@ function capitulosValorNoEstado(caminho) {
 
 // Lê UMA alternativa. Devolve { atual, total, cumprido }.
 function capitulosLerAlternativa(c) {
-  const valor = capitulosValorNoEstado(c.caminho);
+  const valor = c.caminho ? capitulosValorNoEstado(c.caminho) : undefined;
   const total = c.tipo === 'booleano' ? 1 : capitulosResolverAlvo(c.alvo);
   let atual = 0;
 
@@ -76,6 +79,10 @@ function capitulosLerAlternativa(c) {
     atual = (valor && typeof valor === 'object') ? Object.keys(valor).length : 0;
   } else if (c.tipo === 'contarLista') {
     atual = Array.isArray(valor) ? valor.length : 0;
+  } else if (c.tipo === 'coresColecao') {
+    // Com a nota a null (ainda não se chegou ao nível 6) não há cores: 0.
+    const cores = typeof colecaoCoresFeitas === 'function' ? colecaoCoresFeitas(state) : {};
+    atual = Object.keys(cores).filter(function (k) { return cores[k] === true; }).length;
   } else if (c.tipo === 'algumaEntrada') {
     const lista = Array.isArray(valor) ? valor : [];
     lista.forEach(function (e) {
@@ -141,7 +148,7 @@ const CAPITULOS_STRINGS = {
     cap3: { titulo: 'O primeiro Moscatel', objetivo: 'Faz a primeira garrafa.' },
     cap4: { titulo: 'O convite da vila', objetivo: 'Descobre 6 entradas da Enciclopédia.' },
     cap5: { titulo: 'O que descansa mais tempo', objetivo: 'Deixa uma garrafa descansar 3 dias ou mais na Cave.' },
-    cap6: { titulo: 'Histórias mais antigas', objetivo: 'Descobre todas as entradas da Enciclopédia.' }
+    cap6: { titulo: 'A Coleção', objetivo: 'Junta à tua Coleção uma garrafa de cada cor: jovem, dourada, âmbar e cobre.' }
   },
   en: {
     ui: { rotulo: 'Chapter', proximo: 'Next chapter at Level {n}', todos: 'All chapters completed' },
@@ -150,7 +157,7 @@ const CAPITULOS_STRINGS = {
     cap3: { titulo: 'The first Moscatel', objetivo: 'Make your first bottle.' },
     cap4: { titulo: "The village's invitation", objetivo: 'Discover 6 Encyclopedia entries.' },
     cap5: { titulo: 'What rests the longest', objetivo: 'Let a bottle rest in the Cellar for 3 days or more.' },
-    cap6: { titulo: 'Older stories', objetivo: 'Discover every Encyclopedia entry.' }
+    cap6: { titulo: 'The Collection', objetivo: 'Add one bottle of each colour to your Collection: young, golden, amber and copper.' }
   },
   es: {
     ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo en el Nivel {n}', todos: 'Todos los capítulos cumplidos' },
@@ -159,7 +166,7 @@ const CAPITULOS_STRINGS = {
     cap3: { titulo: 'El primer Moscatel', objetivo: 'Haz tu primera botella.' },
     cap4: { titulo: 'La invitación de la villa', objetivo: 'Descubre 6 entradas de la Enciclopedia.' },
     cap5: { titulo: 'Lo que más reposa', objetivo: 'Deja reposar una botella 3 días o más en la Cava.' },
-    cap6: { titulo: 'Historias más antiguas', objetivo: 'Descubre todas las entradas de la Enciclopedia.' }
+    cap6: { titulo: 'La Colección', objetivo: 'Suma a tu Colección una botella de cada color: joven, dorada, ámbar y cobre.' }
   }
 };
 

@@ -140,7 +140,7 @@ const TRANSLATIONS = {
     'capitulo.cap3.conclusao': 'A prensa rangeu, mas cumpriu. A primeira garrafa da Quinta está feita.',
     'capitulo.cap4.conclusao': 'Quem vai às festas tem de conhecer a terra. Já li seis histórias da nossa.',
     'capitulo.cap5.conclusao': 'Este Moscatel teve paciência. Mas os porcos também já lhe farejaram o cheiro.',
-    'capitulo.cap6.conclusao': 'Esta terra tem mais histórias do que garrafas.',
+    'capitulo.cap6.conclusao': 'Quatro cores, quatro esperas. Agora sim, parece uma coleção.',
 
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
@@ -375,7 +375,7 @@ const TRANSLATIONS = {
     'conquista.curioso.nome': 'Curioso',
     'conquista.curioso.desc': 'Descobre 6 entradas da Enciclopédia.',
     'conquista.sabio.nome': 'Sábio',
-    'conquista.sabio.desc': 'Descobre todas as entradas da Enciclopédia.',
+    'conquista.sabio.desc': 'Descobre todas as entradas da Enciclopédia (algumas só aparecem em certas épocas do ano).',
     'conquista.primeiro_selo.nome': 'Primeiro selo',
     'conquista.primeiro_selo.desc': 'Cumpre os 3 objetivos de um dia e ganha o teu primeiro selo.',
     'conquista.cinco_selos.nome': 'Cinco selos',
@@ -515,7 +515,7 @@ const TRANSLATIONS = {
     'capitulo.cap3.conclusao': 'The press creaked, but it worked. The first bottle is done.',
     'capitulo.cap4.conclusao': "Those who go to the festivals must know the land. I've read six of its stories.",
     'capitulo.cap5.conclusao': 'This Moscatel was patient. But the pigs have sniffed it out too.',
-    'capitulo.cap6.conclusao': 'This land has more stories than bottles.',
+    'capitulo.cap6.conclusao': 'Four colours, four waits. Now it looks like a collection.',
 
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
@@ -739,7 +739,7 @@ const TRANSLATIONS = {
     'conquista.curioso.nome': 'Curious',
     'conquista.curioso.desc': 'Discover 6 Encyclopedia entries.',
     'conquista.sabio.nome': 'Sage',
-    'conquista.sabio.desc': 'Discover every Encyclopedia entry.',
+    'conquista.sabio.desc': 'Discover every Encyclopedia entry (some only appear at certain times of the year).',
     'conquista.primeiro_selo.nome': 'First seal',
     'conquista.primeiro_selo.desc': 'Complete the 3 objectives of one day and earn your first seal.',
     'conquista.cinco_selos.nome': 'Five seals',
@@ -879,7 +879,7 @@ const TRANSLATIONS = {
     'capitulo.cap3.conclusao': 'La prensa crujió, pero cumplió. La primera botella de la Quinta está hecha.',
     'capitulo.cap4.conclusao': 'Quien va a las fiestas debe conocer la tierra. Ya leí seis historias de la nuestra.',
     'capitulo.cap5.conclusao': 'Este Moscatel tuvo paciencia. Pero los cerdos ya le olfatearon el aroma.',
-    'capitulo.cap6.conclusao': 'Esta tierra tiene más historias que botellas.',
+    'capitulo.cap6.conclusao': 'Cuatro colores, cuatro esperas. Ahora sí parece una colección.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',
@@ -1103,7 +1103,7 @@ const TRANSLATIONS = {
     'conquista.curioso.nome': 'Curioso',
     'conquista.curioso.desc': 'Descubre 6 entradas de la Enciclopedia.',
     'conquista.sabio.nome': 'Sabio',
-    'conquista.sabio.desc': 'Descubre todas las entradas de la Enciclopedia.',
+    'conquista.sabio.desc': 'Descubre todas las entradas de la Enciclopedia (algunas solo aparecen en ciertas épocas del año).',
     'conquista.primeiro_selo.nome': 'Primer sello',
     'conquista.primeiro_selo.desc': 'Cumple los 3 objetivos de un día y gana tu primer sello.',
     'conquista.cinco_selos.nome': 'Cinco sellos',

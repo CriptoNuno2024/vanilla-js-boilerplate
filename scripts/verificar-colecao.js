@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// "Nota" da chegada ao nível 6 (state.niveis.garrafasAoNivel6) e as funções puras
+// Capítulo 6 "A Coleção" (js/capitulos.js) e "nota" da chegada ao nível 6 (state.niveis.garrafasAoNivel6) e as funções puras
 // colecaoGarrafasNovas / colecaoCoresFeitas. Corre state.js, niveis.js e garrafa.js
 // REAIS num ambiente simulado (vm), sem browser nem conta real.
 //
@@ -44,7 +44,7 @@ function abrir(guardadoInicial) {
     function formatarTempoVinha() { return ''; } function randInt(a) { return a; }
     var DIAS_FORCADOS = 0;
   `, cx);
-  ['niveis.js', 'garrafa.js'].forEach(function (f) {
+  ['niveis.js', 'garrafa.js', 'capitulos.js'].forEach(function (f) {
     vm.runInContext(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'), cx, { filename: f });
   });
   vm.runInContext('renderAdega = function () {}', cx); // só desenha: fora deste teste
@@ -139,6 +139,52 @@ function engarrafar(rep, historico, nota) {
   ok(cores(est(0, [h(3, { festa: 'saomartinho' })])) === nada, 'garrafa de festa nunca conta, mesmo com dias');
   ok(cores(est(0, [h(null), h(undefined), h('x'), null])) === nada, 'entradas sem dias válidos não contam');
   ok(cores(est(1, [h(4), h(1)])) === JSON.stringify({ jovem: true, dourado: false, ambar: false, cobre: false }), 'garrafas antes da posição ficam de fora');
+})();
+
+// --- Capítulo 6 "A Coleção": critério coresColecao, "x / 4" ---
+(function () {
+  const cap6 = "CAPITULOS_CONFIG.filter(function (c) { return c.id === 'cap6'; })[0]";
+  const lido = function (g) { return JSON.parse(g.ev('JSON.stringify(capitulosLerCriterio(' + cap6 + '))')); };
+  const com = function (nota, hist, extra) {
+    return abrir(Object.assign({ reputacao: 700, niveis: { nivelMostrado: 6, garrafasAoNivel6: nota }, adega: { historico: hist } }, extra || {}));
+  };
+  const todas = [h(1), h(2), h(3), h(4)];
+
+  [0, 1, 2, 3, 4].forEach(function (n) {
+    const r = lido(com(0, todas.slice(0, n)));
+    ok(r.atual === n && r.total === 4, n + ' cor(es): progresso ' + n + ' / 4 (deu ' + r.atual + ' / ' + r.total + ')');
+    ok(r.cumprido === (n === 4), n + ' cor(es): cumprido só com as 4');
+  });
+  ok(lido(com(0, [h(1), h(1), h(1)])).atual === 1, 'a mesma cor repetida conta uma vez');
+  ok(lido(com(0, [h(9), h(4)])).atual === 1, '4 ou mais dias são todos Cobre');
+
+  const nulo = lido(com(null, todas));
+  ok(nulo.atual === 0 && nulo.total === 4 && !nulo.cumprido, 'nota null: 0 / 4 mesmo com 4 cores no historico');
+  const antes = lido(com(4, todas));
+  ok(antes.atual === 0 && !antes.cumprido, 'garrafas feitas antes da nota não contam');
+  ok(lido(com(2, todas)).atual === 2, 'só contam as garrafas a partir da nota (2 cores)');
+  ok(lido(com(0, [h(1), h(0, { festa: 'saomartinho' }), h(3, { festa: 'saomartinho' })])).atual === 1, 'garrafa de festa não conta');
+
+  // Capítulo 6 já concluído continua concluído, mesmo sem cores e sem nota.
+  const fechado = abrir({ reputacao: 700, niveis: { nivelMostrado: 6 },
+    capitulos: { iniciado: true, celebradosMigrado: true, concluidos: { cap6: true }, celebrados: { cap6: true } } });
+  ok(fechado.ev('state.capitulos.concluidos.cap6') === true && fechado.ev('state.capitulos.celebrados.cap6') === true, 'cap6 concluído e celebrado mantém-se');
+  ok(fechado.ev('capituloEstaCumprido(' + cap6 + ')') === true, 'cap6 já concluído continua cumprido com 0 cores');
+  ok(fechado.ev('capitulosAvaliarCelebracao()') === false, 'cap6 já celebrado não volta a celebrar');
+  // Um cap6 por fechar, mesmo com a Enciclopédia toda descoberta, segue o critério novo.
+  const aberto = abrir({ reputacao: 700, niveis: { nivelMostrado: 6 }, encyclopedia: { unlocked: Array.from({ length: 60 }, function (_, i) { return 'e' + i; }) } });
+  ok(aberto.ev('capituloEstaCumprido(' + cap6 + ')') === false, 'cap6 por fechar: a Enciclopédia já não o fecha');
+  ok(aberto.ev('state.capitulos.concluidos.cap6') !== true, 'cap6 por fechar não é marcado na migração silenciosa');
+
+  // Textos (PT, EN, ES).
+  const g = abrir();
+  ['pt', 'en', 'es'].forEach(function (l) {
+    const s = g.ev('CAPITULOS_STRINGS.' + l + '.cap6');
+    ok(s && s.titulo && s.objetivo, l + ': cap6 tem título e objetivo');
+  });
+  ok(g.ev('CAPITULOS_STRINGS.pt.cap6.titulo') === 'A Coleção', 'PT: título');
+  ok(g.ev('CAPITULOS_STRINGS.en.cap6.titulo') === 'The Collection', 'EN: título');
+  ok(g.ev('CAPITULOS_STRINGS.es.cap6.titulo') === 'La Colección', 'ES: título');
 })();
 
 if (falhas) { console.log(falhas + ' falha(s)'); process.exit(1); }
