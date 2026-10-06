@@ -70,6 +70,19 @@ function atualizarCartaoNivelQuinta() {
     '</div>';
 }
 
+// Guarda quantas garrafas já existem em state.adega.historico no momento
+// de chegar ao nível 6 — só se ainda for null, e nunca volta a mudar. Não
+// grava: quem chama grava. Devolve true se escreveu. `tamanho` opcional: o
+// Engarrafar passa o tamanho ANTES de a garrafa nova entrar no historico.
+function carimbarGarrafasAoNivel6(tamanho) {
+  if (state.niveis.garrafasAoNivel6 !== null && state.niveis.garrafasAoNivel6 !== undefined) return false;
+  if (typeof tamanho !== 'number') {
+    tamanho = Array.isArray(state.adega && state.adega.historico) ? state.adega.historico.length : 0;
+  }
+  state.niveis.garrafasAoNivel6 = tamanho;
+  return true;
+}
+
 // Chamada só quando se entra na Quinta (ver goTo() em js/main.js) — se o
 // nível calculado agora for maior do que o último mostrado, mostra a
 // história desse(s) nível(eis) (ver mostrarHistoriaSubidaNivel() em
@@ -81,7 +94,14 @@ function atualizarCartaoNivelQuinta() {
 function verificarSubidaNivel() {
   const nivelAntigo = state.niveis.nivelMostrado;
   const nivelAtual = nivelPelaReputacao(state.reputacao);
-  if (nivelAtual <= nivelAntigo) return false;
+  // Nota invisível (ver carimbarGarrafasAoNivel6): também apanha quem já está
+  // no nível 6 sem nota. Se o nível não subiu, grava-se aqui; se subiu, o
+  // saveState() mais abaixo já grava.
+  const carimbou = nivelAtual >= 6 && carimbarGarrafasAoNivel6();
+  if (nivelAtual <= nivelAntigo) {
+    if (carimbou) saveState(state);
+    return false;
+  }
 
   state.niveis.nivelMostrado = nivelAtual;
   saveState(state);

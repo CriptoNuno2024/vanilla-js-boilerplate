@@ -284,6 +284,33 @@ function contarColecao() {
   return c;
 }
 
+// Coleção do capítulo 6 (só leitura, sem ecrã): as garrafas feitas a partir
+// do nível 6, isto é, do historico desde a posição guardada em
+// state.niveis.garrafasAoNivel6. Vazia enquanto o campo for null.
+function colecaoGarrafasNovas(estado) {
+  const n = estado && estado.niveis ? estado.niveis.garrafasAoNivel6 : null;
+  const h = estado && estado.adega && estado.adega.historico;
+  if (typeof n !== 'number' || !Number.isFinite(n) || !Array.isArray(h)) return [];
+  return h.slice(Math.max(0, n));
+}
+
+// Cores (jovem, dourado, ambar, cobre) já feitas entre essas garrafas, pelos
+// dias de descanso (garrafaPorDias). Garrafas de festa (jeropiga) não contam.
+function colecaoCoresFeitas(estado) {
+  const cores = { jovem: false, dourado: false, ambar: false, cobre: false };
+  const nomes = {
+    'adega.garrafaJovem': 'jovem', 'adega.garrafaDourado': 'dourado',
+    'adega.garrafaAmbar': 'ambar', 'adega.garrafaCobre': 'cobre'
+  };
+  colecaoGarrafasNovas(estado).forEach(function (e) {
+    if (!e || typeof e !== 'object' || e.festa) return;
+    const g = garrafaPorDias(e.diasDescanso);
+    if (g.dias === null) return; // sem dias válidos: não conta
+    cores[nomes[g.nomeKey]] = true;
+  });
+  return cores;
+}
+
 function colecaoHtml() {
   if (!colecaoVisivel()) return '';
   const c = contarColecao();
@@ -456,6 +483,9 @@ function executarAcaoAdega(acao) {
     const repGanha = reputacaoDaCave(diasCompletos);
     state.garrafas += 1;
     state.reputacao += repGanha;
+    // Se esta garrafa fez chegar ao nível 6, ela já conta para a Coleção:
+    // guarda-se o tamanho ANTES de entrar (ver carimbarGarrafasAoNivel6, js/niveis.js).
+    if (nivelPelaReputacao(state.reputacao) >= 6) carimbarGarrafasAoNivel6(a.historico.length);
     state.ultimaGarrafaData = new Date().toLocaleDateString(localeAtual());
     a.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: diasCompletos });
     a.lote = null;
