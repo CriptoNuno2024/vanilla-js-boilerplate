@@ -47,8 +47,10 @@ const TEMPO_CONFIG = {
     nevoeiro: 'assets/ecras/nevoeiro_1.jpg',
     trovoada: 'assets/ecras/trovoada_chizo.jpg',
     vento: 'assets/ecras/vento.jpg',
+    // Frio forte: fundo da Vinha (YoshiCat e Chizo) e foto depois da tarefa Frio.
+    frio: 'assets/ecras/yoshi_cat_e_chizo_geada.jpg',
     repararEstacas: 'assets/ecras/tempestade.jpg',
-    protegerFrio: 'assets/ecras/proteger.jpg'
+    protegerFrio: 'assets/ecras/yoshi_cat_geada.jpg'
   }
 };
 
