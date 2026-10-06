@@ -11,6 +11,14 @@ const PERSONAGENS_CARAS = {
   'Fygmo2': 'assets/personagens/fygmo2.jpg'
 };
 
+// Visitas à Quinta (js/visitas.js): a cara procura-se pelo id da personagem, não pelo nome,
+// que muda com a língua ("el Sr. Valentim", "Mr. Valentim").
+const PERSONAGENS_CARAS_POR_ID = {
+  'valentim': 'assets/personagens/valentim.jpg',
+  'marisa': 'assets/personagens/marisa.jpg',
+  'henrique': 'assets/personagens/henrique.jpg'
+};
+
 // Caminho da cara de uma personagem, ou null se não houver.
 function caraDoPersonagem(nome) {
   return Object.prototype.hasOwnProperty.call(PERSONAGENS_CARAS, nome) ? PERSONAGENS_CARAS[nome] : null;
@@ -18,15 +26,18 @@ function caraDoPersonagem(nome) {
 
 // Pré-carga (são pequenas): não bloqueia nada.
 Object.keys(PERSONAGENS_CARAS).forEach(function (nome) { new Image().src = PERSONAGENS_CARAS[nome]; });
+Object.keys(PERSONAGENS_CARAS_POR_ID).forEach(function (id) { new Image().src = PERSONAGENS_CARAS_POR_ID[id]; });
 
 // Põe a cara de "nome" no círculo do balão (#dialogue-avatar). O gradiente
 // dourado do CSS fica por trás como reserva: sem cara para esse nome, ou se
 // a imagem falhar, nada é acrescentado. A cada fala recalcula-se tudo, por
 // isso nunca fica a cara da fala anterior.
-function mostrarCaraNoBalao(nome) {
+// idPersonagem (opcional, ver PERSONAGENS_CARAS_POR_ID) vence o nome.
+function mostrarCaraNoBalao(nome, idPersonagem) {
   const avatar = document.getElementById('dialogue-avatar');
   if (!avatar) return;
-  const caminho = caraDoPersonagem(nome);
+  const porId = idPersonagem && Object.prototype.hasOwnProperty.call(PERSONAGENS_CARAS_POR_ID, idPersonagem) ? PERSONAGENS_CARAS_POR_ID[idPersonagem] : null;
+  const caminho = porId || caraDoPersonagem(nome);
   if (avatar.dataset.cara === (caminho || '')) return; // já está certa (ou continua só o dourado)
   avatar.dataset.cara = caminho || '';
   while (avatar.firstChild) avatar.removeChild(avatar.firstChild);
