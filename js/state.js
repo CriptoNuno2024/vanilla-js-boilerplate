@@ -103,8 +103,13 @@ function defaultState() {
     // a primeira vez que o jogo corre (mesmo para quem já tinha
     // progresso), calcula-se o nível real e guarda-se aqui sem mostrar
     // nenhum balão, para nunca "spammar" subidas de nível antigas.
+    // garrafasAoNivel6: nota invisível — quantas garrafas já havia em
+    // state.adega.historico quando se chegou ao nível 6 (null até lá; escreve-se
+    // uma só vez, ver carimbarGarrafasAoNivel6() em js/niveis.js). Fica aqui e
+    // não em state.capitulos (a nuvem reescreve essa parte com chaves fixas).
     niveis: {
-      nivelMostrado: null
+      nivelMostrado: null,
+      garrafasAoNivel6: null
     },
     // Objetivos diários "Hoje na Quinta" (ver js/objetivos.js). dia usa
     // sempre o dia em Lisboa. selosTotal nunca desce, mesmo que um dia
