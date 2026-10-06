@@ -196,6 +196,8 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
   });
 
   const mensagemFinal = function (g) { return g.reg.falas[g.reg.falas.length - 1][0]; };
+  // A fala engraçada da derrota com pista. No nevoeiro vem DEPOIS do resultado do minijogo ('perdeu' nos testes).
+  const falaDaDerrota = function (g) { const f = g.reg.falas[g.reg.falas.length - 1]; return f[0] === 'perdeu' && f.length > 2 ? f[1] : f[0]; };
   const doAlvo = function (g, a) { return g.ev('pStr().derrotaPista.' + a); };
 
   // (c) derrota na ronda 1 com pista: usa uma fala do alvo e NÃO altera nenhum campo do estado.
@@ -203,16 +205,18 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
     const g = abrir({ isco: { dia: HOJE, indice: 0, alvo: a } }); g.visita();
     const antes = todas(g);
     g.ev("finishProteger(false, 'perdeu')");
-    ok(doAlvo(g, a).indexOf(mensagemFinal(g)) !== -1, a + ': a derrota devia usar uma das 2 falas do alvo, usou ' + JSON.stringify(mensagemFinal(g)));
+    ok(doAlvo(g, a).indexOf(falaDaDerrota(g)) !== -1, a + ': a derrota devia usar uma das 2 falas do alvo, usou ' + JSON.stringify(falaDaDerrota(g)));
+    const f0 = g.reg.falas[g.reg.falas.length - 1][0];
+    ok(a === 'nevoeiro' ? f0 === 'perdeu' : f0 !== 'perdeu', a + ': ordem da derrota errada (o resultado do minijogo só vem primeiro no nevoeiro): ' + JSON.stringify(f0));
     ok(todas(g) === antes && g.reg.saves === 0, a + ': a derrota não devia alterar nenhum campo do estado nem gravar');
   });
   {
     const g = abrir({ search: '?pista=nevoeiro', feitas: 0, isco: null }); g.visita(); g.ev('protegerIscoResponder(false)');
     g.ev("finishProteger(false, 'perdeu')");
-    ok(doAlvo(g, 'nevoeiro').indexOf(mensagemFinal(g)) !== -1, '?pista= (teste) pode mostrar a fala do alvo');
+    ok(doAlvo(g, 'nevoeiro').indexOf(falaDaDerrota(g)) !== -1, '?pista= (teste) pode mostrar a fala do alvo');
     // Mesma pista, mesmo dia: a mesma fala ao tentar outra vez.
-    const m1 = mensagemFinal(g); g.visita(); g.ev('protegerIscoResponder(false)'); g.ev("finishProteger(false, 'perdeu')");
-    ok(mensagemFinal(g) === m1, 'a fala devia ser estável no mesmo dia');
+    const m1 = falaDaDerrota(g); g.visita(); g.ev('protegerIscoResponder(false)'); g.ev("finishProteger(false, 'perdeu')");
+    ok(falaDaDerrota(g) === m1, 'a fala devia ser estável no mesmo dia');
   }
 
   // (d) sem pista, adega, ronda extra e vitória: ficam as mensagens de sempre.

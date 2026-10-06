@@ -196,8 +196,8 @@ const PROTEGER_STRINGS = {
     tentarOutraVez: 'Intentar de Nuevo',
     fechadura: [
       { situacao: 'El Fygmo2 saca el monóculo y mide la cerradura de la Reserva Especial al milímetro, buscando el punto débil.', opcoes: ['Cambiar la cerradura por un candado reforzado', 'Irte y volver mañana', 'Gritar "¿quién anda ahí?" a oscuras'], correta: 0 },
-      { situacao: 'Un ruido metálico resuena en la bodega — el Fygmo2 está probando ganzúas distintas en la cerradura.', opcoes: ['Irte a dormir, debe de ser el viento', 'Poner un cerrojo extra en la puerta', 'Abrir la puerta para ver quién es'], correta: 1 },
-      { situacao: 'Escondido en las escaleras de la bodega, el Fygmo apunta los prismáticos y hace señas al Fygmo2 para que avance.', opcoes: ['Encender de repente las luces de la bodega', 'Cerrar los ojos y esperar que pase', 'Llamar al Fygmo por su nombre, riendo'], correta: 0 },
+      { situacao: 'Un ruido metálico resuena en la cava — el Fygmo2 está probando ganzúas distintas en la cerradura.', opcoes: ['Irte a dormir, debe de ser el viento', 'Poner un cerrojo extra en la puerta', 'Abrir la puerta para ver quién es'], correta: 1 },
+      { situacao: 'Escondido en las escaleras de la cava, el Fygmo apunta los prismáticos y hace señas al Fygmo2 para que avance.', opcoes: ['Encender de repente las luces de la bodega', 'Cerrar los ojos y esperar que pase', 'Llamar al Fygmo por su nombre, riendo'], correta: 0 },
       { situacao: 'Con el monóculo puesto, el Fygmo2 pega la oreja a la cerradura de la Reserva Especial para escuchar los engranajes.', opcoes: ['Distraerlo con un cubo que cae haciendo ruido', 'Dejarle una nota simpática', 'Ignorarlo y volver a dormir'], correta: 0 }
     ],
     // Sem a Cave de Reserva aberta (ver caveReservaAberta() em js/garrafa.js) a Fechadura fala da adega.
@@ -213,11 +213,11 @@ const PROTEGER_STRINGS = {
     fechaduraDerrota: 'Demasiado tarde… el Fygmo2 abre la cerradura, tropieza con un barril y huye sin llevarse nada.',
     fechaduraReservaFygmo: 'Hmpf… la Reserva se salvó. ¡Pero ya le olemos!',
     fechaduraReservaFygmo2: '¡Ja! Por un hocico… la Reserva Especial sigue ahí. ¡Volveremos!',
-    fechaduraDerrotaGarrafa: 'El Fygmo2 huye con las manos vacías. Tu Reserva {cor} sigue a salvo en la Bodega.',
+    fechaduraDerrotaGarrafa: 'El Fygmo2 huye con las manos vacías. Tu Reserva {cor} sigue a salvo en la Cava.',
     fechaduraReservaFygmoCor: 'Hmpf… tu Reserva {cor} se salvó. ¡Pero ya le olemos!',
     fechaduraReservaFygmo2Cor: '¡Ja! Una Reserva {cor} así no se desperdicia. ¡A la próxima es nuestra!',
-    fechaduraReservaFygmoCobre: 'Hmpf… la Reserva Cobre se salvó. La más oscura de la Bodega… ¡aún vamos a por ella!',
-    fechaduraReservaFygmo2Cobre: '¡Ja! La Reserva Cobre es la más rara de la Bodega. ¡A la próxima es nuestra!',
+    fechaduraReservaFygmoCobre: 'Hmpf… la Reserva Cobre se salvó. La más oscura de la Cava… ¡aún vamos a por ella!',
+    fechaduraReservaFygmo2Cobre: '¡Ja! La Reserva Cobre es la más rara de la Cava. ¡A la próxima es nuestra!',
     disfarceVitoria: function (porco) { return '¡Debajo de las hojas estaba el ' + porco + ', atrapado con las manos en la masa intentando huir con la cosecha!'; },
     disfarceDerrota: function (porco) { return 'Era solo uva de verdad… El ' + porco + ' huye riendo, con el cesto vacío y el orgullo lleno.'; },
     chizoTurnos: [
@@ -850,6 +850,16 @@ function protegerMensagemDerrota(mensagem) {
   } catch (e) { return mensagem; }
 }
 
+// Nevoeiro perdido na ronda 1 com pista: primeiro o resultado do minijogo ("Falso alarme" ou
+// "Tarde demais") e só depois a fala engraçada da derrota. Nos outros alvos fica só a fala
+// de sempre. Devolve uma fala ou uma lista de falas.
+function protegerMensagensDerrota(mensagem) {
+  const fala = protegerMensagemDerrota(mensagem);
+  let nevoeiro = false;
+  try { nevoeiro = !!protegerCaderno && protegerCaderno.alvo === 'nevoeiro'; } catch (e) {}
+  return (nevoeiro && fala !== mensagem) ? [mensagem, fala] : fala;
+}
+
 function finishProteger(venceu, mensagem) {
   if (venceu) {
     const ganhaPremio = vitoriasProtegerComPremioRestantesHoje() > 0;
@@ -886,7 +896,7 @@ function finishProteger(venceu, mensagem) {
 
     showResultProteger(true, protegerRecompensaAcumulada.uvas, protegerRecompensaAcumulada.gotas, protegerRecompensaAcumulada.rep, mensagem, ganhaPremio);
   } else {
-    showResultProteger(false, 0, 0, 0, protegerMensagemDerrota(mensagem));
+    showResultProteger(false, 0, 0, 0, protegerMensagensDerrota(mensagem));
   }
 }
 
@@ -915,9 +925,9 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
   const falaFygmo2 = g ? (cobre ? S.fechaduraReservaFygmo2Cobre : S.fechaduraReservaFygmo2Cor.replace('{cor}', cor))
     : (daReserva ? S.fechaduraReservaFygmo2 : t('proteger.fala.fygmo2Ganha'));
   // Com isco (e um porco chamado), é esse porco quem fala, ganhe ou perca.
-  const falas = [mensagem, venceu
+  const falas = [].concat(mensagem, venceu
     ? { texto: falaFygmo, falante: protegerPorcoIsco || 'Fygmo' }
-    : { texto: falaFygmo2, falante: protegerPorcoIsco || 'Fygmo2' }];
+    : { texto: falaFygmo2, falante: protegerPorcoIsco || 'Fygmo2' });
   // Caderno (só texto): página nova, ou o alvo já tem todas. Depois do porco e antes do prémio.
   if (protegerCadernoFala) {
     falas.push(protegerCadernoFala === 'pagina' ? S.cadernoPagina : S.cadernoCompleto);

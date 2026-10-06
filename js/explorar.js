@@ -84,7 +84,7 @@ const ENCYCLOPEDIA_ENTRIES = {
 
 // Campo opcional "meses" (números 1 a 12): só a Ronda do Chizo o lê (ver
 // rondaChizoCandidatas em js/ronda.js) para não contar a poda em outubro.
-// Não afeta o Explorar, os desbloqueios nem a Enciclopédia.
+// Não afeta os desbloqueios nem a Enciclopédia. O Explorar usa EXPLORAR_EPOCA_POR_ID.
 
 // As entradas são guardadas por id (independente da língua), para que
 // o progresso desbloqueado se mantenha ao trocar de idioma.
@@ -97,13 +97,28 @@ function encyclopediaEntries() {
 // estação — ver Parte D das estações do ano; uma entrada "manual" nunca
 // entra aqui, só se desbloqueia por uma ação específica — ver a Adega
 // em js/garrafa.js).
+// Entradas que o Explorar só oferece na sua época, pelas mesmas leituras do jogo que as
+// Visitas usam: estacaoAtual() e faseRealAtual() (js/estacoes.js). A poda só no inverno; a
+// vindima só nas fases de vindima. Fora da época a entrada continua na Enciclopédia ("???").
+const EXPLORAR_EPOCA_POR_ID = {
+  poda: { estacao: 'inverno' },
+  vindima: { fases: ['vindima', 'fimVindima'] }
+};
+
+function exploravelNestaEpoca(e) {
+  const r = Object.prototype.hasOwnProperty.call(EXPLORAR_EPOCA_POR_ID, e.id) ? EXPLORAR_EPOCA_POR_ID[e.id] : null;
+  if (!r) return true;
+  if (r.estacao) return estacaoAtual() === r.estacao;
+  return r.fases.indexOf(faseRealAtual()) !== -1;
+}
+
 function entradasBloqueadas() {
   const estacao = estacaoAtual();
   return encyclopediaEntries().filter(function (e) {
     if (state.encyclopedia.unlocked.indexOf(e.id) !== -1) return false;
     if (e.manual) return false;
     if (e.estacao && e.estacao !== estacao) return false;
-    return true;
+    return exploravelNestaEpoca(e);
   });
 }
 
