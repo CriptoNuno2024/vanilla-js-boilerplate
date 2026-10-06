@@ -151,8 +151,8 @@ const FESTAS_STRINGS = {
       provaComVinho: 'Quando o YoshiCat chega à Cave, os Fygmos já lá estão, copo na mão, a provar o vinho novo sem pedir licença!'
     },
     en: {
-      faixa: "It's St. Martin's Day on the Farm!",
-      titulo: "St. Martin's Day on the Farm",
+      faixa: "It's St. Martin's Day on the Quinta!",
+      titulo: "St. Martin's Day on the Quinta",
       subtitulo: 'From November 8 to 14, with the big day on the 11th.',
       diaGrandeAviso: "Today is St. Martin's Day! Prizes count double.",
       veraoAviso: "It's St. Martin's summer! ☀️",

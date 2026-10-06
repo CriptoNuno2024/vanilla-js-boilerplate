@@ -100,7 +100,7 @@ const CADERNO_PAGINAS = [
   { id: 'nevoeiro_rara', alvo: 'nevoeiro', raridade: 'rara', autor: 'Fygmo2',
     pt: { titulo: 'Mapa da Quinta (incompleto)',
       corpo: 'Ali há uma coisa. Acolá há outra. Ao centro há algo grande que pode ser a adega ou o cão. Em caso de dúvida, não pisar.' },
-    en: { titulo: 'Map of the Farm (incomplete)',
+    en: { titulo: 'Map of the Quinta (incomplete)',
       corpo: 'Over there is a thing. Over here is another. In the middle is something big that could be the winery or the dog. When in doubt, don\'t step.' },
     es: { titulo: 'Mapa de la Quinta (incompleto)',
       corpo: 'Ahí hay una cosa. Allá hay otra. En el centro hay algo grande que puede ser la bodega o el perro. En caso de duda, no pisar.' } },
