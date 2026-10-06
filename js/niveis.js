@@ -130,7 +130,8 @@ const NIVEL_NECESSARIO_POR_ECRA = {
   explorar: 4,
   enciclopedia: 4,
   festa: 4,
-  colecao: 6
+  colecao: 6,
+  garrafas: 6
 };
 
 function ecraDesbloqueado(screen) {

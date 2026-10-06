@@ -345,6 +345,57 @@ function renderColecao() {
     '</div>' +
     '<div class="colecao-painel">' + celulas + '</div>' +
     '<div class="action-panel">' +
+      '<button type="button" class="btn-ghost" onclick="goTo(\'garrafas\')" data-i18n="garrafas.btn"></button>' +
+      '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
+    '</div>';
+
+  atualizarDialogo('', '');
+  applyTranslations();
+}
+
+// Ecrã "As Garrafas" (Nível 6; ver ecraDesbloqueado('garrafas') em js/niveis.js): lista só de
+// leitura de TODAS as garrafas de state.adega.historico, a mais recente primeiro. Nada é gravado.
+// Número = posição no historico (1.ª = 1); a de festa não leva número, leva a etiqueta da edição.
+// Ano lido do fim do texto da data; sem ano ou sem estação válidos, a linha sai sem eles.
+const GARRAFAS_ESTACOES = ['inverno', 'primavera', 'verao', 'outono'];
+
+function garrafasLinhas() {
+  const h = state.adega && state.adega.historico;
+  if (!Array.isArray(h)) return [];
+  const linhas = [];
+  h.forEach(function (e, i) {
+    if (!e || typeof e !== 'object') return;
+    const partes = [];
+    if (e.festa) {
+      partes.push(t('adega.colecaoSaoMartinho').replace(/\s*[:：]?\s*\{n\}\s*$/, ''));
+    } else {
+      const g = garrafaPorDias(e.diasDescanso);
+      if (g.dias === null) return; // garrafa antiga, sem dias válidos: ignorada
+      partes.push(String(i + 1), t(g.nomeKey), t(g.dias === 1 ? 'adega.garrafaDiasUm' : 'adega.garrafaDias').replace('{n}', g.dias));
+    }
+    if (GARRAFAS_ESTACOES.indexOf(e.estacao) !== -1) partes.push(t('estacao.' + e.estacao));
+    const ano = typeof e.data === 'string' ? e.data.match(/(\d{4})\s*$/) : null;
+    if (ano) partes.push(ano[1]);
+    linhas.push(partes);
+  });
+  return linhas.reverse();
+}
+
+function renderGarrafas() {
+  const container = document.getElementById('garrafas-container');
+  const linhas = garrafasLinhas();
+  const corpo = linhas.length
+    ? linhas.map(function (p) {
+        return '<div class="encyclopedia-card garrafa-linha">' + p.map(cadernoEscapar).join(' · ') + '</div>';
+      }).join('')
+    : '<p class="info-text">' + t('adega.colecaoVazia') + '</p>';
+
+  container.innerHTML =
+    '<div class="topcard">' +
+      '<p class="mini-title" data-i18n="garrafas.title"></p>' +
+    '</div>' +
+    '<div class="scroll-panel garrafas-lista">' + corpo + '</div>' +
+    '<div class="action-panel">' +
       '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
     '</div>';
 
