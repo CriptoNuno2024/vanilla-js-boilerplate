@@ -276,8 +276,10 @@ function botaoVinha(actionKey, i18nKey, bloqueadoExtra, sufixoBloqueado) {
   const sufixo = restante > 0 ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') :
     (bloqueadoExtra && sufixoBloqueado ? (' (' + sufixoBloqueado + ')') : '');
   const temBonusTempo = actionKey === 'regar' && tempoAtual().calorForte;
+  // O rótulo diz a causa real: com calor forte o Regar mostra o do calor (mesmo que também seja verão).
+  const rotuloBonus = temBonusTempo ? 'vinha.bonusCalor' : VINHA_BONUS_LABEL_KEY[actionKey];
   const bonusHtml = ((acaoTemBonusEstacao(actionKey) || temBonusTempo)
-    ? ' <span class="bonus-suffix">' + t(VINHA_BONUS_LABEL_KEY[actionKey]) + '</span>'
+    ? ' <span class="bonus-suffix">' + t(rotuloBonus) + '</span>'
     : '') +
     (actionKey === 'colher' && vindimaPontoCerto()
       ? ' <span class="bonus-suffix">' + t('vinha.bonusVindima') + '</span>'
