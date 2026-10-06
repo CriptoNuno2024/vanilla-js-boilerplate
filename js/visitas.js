@@ -6,7 +6,9 @@
 // visitas (12 no total), com uma condição opcional ligada ao jogo (estação, fase
 // da vinha, festa, Cave, garrafa a descansar) e uma "reputacao" de 1 a 3.
 //
-// NADA chama estas funções ainda: sem ecrã, sem estado, sem nuvem. Os textos são
+// NADA chama estas funções ainda: sem ecrã e sem nuvem. As funções de dados e de escolha
+// são puras; as do fim do ficheiro (PR 2) leem e gravam state.visitas (ver js/state.js).
+// Os textos são
 // provisórios ("[por escrever]" em todas as línguas) até serem escritos e
 // aprovados; `node scripts/verificar-visitas.js --final` falha enquanto restar
 // essa marca. As funções são puras: tudo vem por parâmetro (nada de Math.random
@@ -111,4 +113,98 @@ function escolherVisitaDoDia(feitasIds, contexto, diaLisboa) {
   const comCondicao = base.filter(function (v) { return v.condicao !== null; });
   const candidatas = comCondicao.length > 0 ? comCondicao : base;
   return { visita: candidatas[visitasHash(diaLisboa + '#visita#escolha') % candidatas.length] };
+}
+
+// ---------------------------------------------------------------------
+// ESTADO E PAGAMENTO (PR 2; ainda sem ecrã: nada as chama).
+// state.visitas = { feitas: { idVisita: 'AAAA-MM-DD' }, hoje: { dia, id, feita } | null }.
+// A Reputação só sobe, e só por visitaFazerHoje(). Em modo de teste (parâmetros de
+// endereço) nada se grava nem se paga. Quem chamar ainda tem de refrescar o ecrã
+// (updateStatsDisplays); a subida de nível é detetada depois por verificarSubidaNivel()
+// ao entrar na Quinta, como com qualquer outra Reputação.
+// ---------------------------------------------------------------------
+
+// Parâmetros de teste do endereço que existem no jogo (+ ?visita=, reservado para esta).
+const VISITAS_PARAMETROS_TESTE = ['estacao', 'festa', 'dia', 'dias', 'pista', 'tempo', 'pedido',
+  'capitulo', 'falante', 'garrafaescura', 'nuvem', 'demora', 'convites', 'visita'];
+
+function visitaEmModoTeste() {
+  try {
+    const params = new URLSearchParams(location.search);
+    return VISITAS_PARAMETROS_TESTE.some(function (p) { return params.has(p); });
+  } catch (e) { return false; }
+}
+
+// Contexto atual a partir das leituras do jogo; cada uma isolada: se falhar, esse
+// campo fica nulo ou falso (nunca rebenta).
+function visitaContextoAtual() {
+  const c = { nivel: null, estacao: null, fase: null, festaAtiva: false, caveAberta: false, garrafaDias: null };
+  try { c.nivel = nivelPelaReputacao(state.reputacao); } catch (e) {}
+  try { c.estacao = estacaoAtual(); } catch (e) {}
+  try { c.fase = faseRealAtual(); } catch (e) {}
+  try { c.festaAtiva = festaAtual() !== null; } catch (e) {}
+  try { c.caveAberta = caveReservaAberta() === true; } catch (e) {}
+  try { c.garrafaDias = garrafaQueMaisDescansou(); } catch (e) {}
+  return c;
+}
+
+// state.visitas com a forma certa (uma nuvem ou um save estranho podem trazer
+// null ou outro tipo). Repara só em memória; grava-se com o próximo saveState.
+function visitasEstado() {
+  let v = state.visitas;
+  if (!v || typeof v !== 'object' || Array.isArray(v)) v = state.visitas = { feitas: {}, hoje: null };
+  if (!v.feitas || typeof v.feitas !== 'object' || Array.isArray(v.feitas)) v.feitas = {};
+  if (v.hoje === undefined || (v.hoje !== null && (typeof v.hoje !== 'object' || Array.isArray(v.hoje)))) v.hoje = null;
+  return v;
+}
+
+function visitaPorId(id) {
+  return VISITAS.filter(function (x) { return x.id === id; })[0] || null;
+}
+
+// Resolve a visita de hoje sem gravar: { visita, feita, nova } (nova = escolhida agora,
+// ainda não guardada em state.visitas.hoje) ou { visita: null }.
+function visitaResolverHoje() {
+  const v = visitasEstado();
+  const hoje = diaLisboaDeHoje();
+  const nivel = (function () { try { return nivelPelaReputacao(state.reputacao); } catch (e) { return 0; } })();
+  if (!(nivel >= VISITAS_NIVEL_MINIMO)) return { visita: null };
+
+  const h = v.hoje;
+  if (h && h.dia === hoje) {
+    const guardada = visitaPorId(h.id);
+    if (guardada) return { visita: guardada, feita: h.feita === true, nova: false };
+  }
+  const r = escolherVisitaDoDia(v.feitas, visitaContextoAtual(), hoje);
+  return r.visita ? { visita: r.visita, feita: false, nova: true } : { visita: null };
+}
+
+// A visita de hoje: { visita, feita } ou { visita: null }. Se state.visitas.hoje já é
+// de hoje (dia de Lisboa), usa-se (estável mesmo que o contexto mude durante o dia).
+// Senão escolhe com escolherVisitaDoDia() e, havendo visita e não sendo modo de teste,
+// guarda hoje = { dia, id, feita: false } com um saveState.
+function visitaDeHoje() {
+  const r = visitaResolverHoje();
+  if (!r.visita) return { visita: null };
+  if (r.nova && !visitaEmModoTeste()) {
+    visitasEstado().hoje = { dia: diaLisboaDeHoje(), id: r.visita.id, feita: false };
+    saveState(state);
+  }
+  return { visita: r.visita, feita: r.feita };
+}
+
+// Faz a visita de hoje: marca feita, regista em feitas, soma visita.reputacao e grava
+// UMA vez (tudo junto, mesmo que a visita ainda não estivesse guardada). { ok: true,
+// visita } ou { ok: false }. Idempotente (hoje.feita); em modo de teste não grava nem paga.
+function visitaFazerHoje() {
+  if (visitaEmModoTeste()) return { ok: false };
+  const r = visitaResolverHoje();
+  if (!r.visita || r.feita) return { ok: false };
+  const dia = diaLisboaDeHoje();
+  const v = visitasEstado();
+  v.hoje = { dia: dia, id: r.visita.id, feita: true };
+  v.feitas[r.visita.id] = dia;
+  state.reputacao += r.visita.reputacao;
+  saveState(state);
+  return { ok: true, visita: r.visita };
 }

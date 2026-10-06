@@ -146,6 +146,14 @@ function defaultState() {
     // 'AAAA-MM-DD' (dia em Lisboa em que se ganhou). A nuvem junta-as por união.
     caderno: {
       paginas: {}
+    },
+    // Visitas à Quinta (ver js/visitas.js). feitas: { idVisita: 'AAAA-MM-DD' } (dia em
+    // Lisboa da última vez que se fez); hoje: { dia, id, feita } com a visita escolhida
+    // para o dia, ou null. NÃO se junta na nuvem: segue o estado inteiro que ganhar,
+    // junto da Reputação (ver nuvemTratarLeitura() em js/nuvem.js).
+    visitas: {
+      feitas: {},
+      hoje: null
     }
   };
 }
