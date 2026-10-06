@@ -109,7 +109,9 @@ function renderConquistas() {
       '<p class="mini-title" data-i18n="conquistas.title"></p>' +
       '<p class="mini-sub">' + conquistasResumo() + '</p>' +
     '</div>' +
-    '<div class="scroll-panel encyclopedia-grid">' + cardsHtml + '</div>' +
+    // Cabeçalho decorativo (alt vazio): só pedido quando o ecrã se desenha.
+    '<img class="livro-cabecalho" src="assets/ecras/livro_cabecalho.jpg" alt="" decoding="async">' +
+    '<div class="scroll-panel encyclopedia-grid conquistas-lista">' + cardsHtml + '</div>' +
     '<div class="action-panel">' +
       '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
     '</div>';
