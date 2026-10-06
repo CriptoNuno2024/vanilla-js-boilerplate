@@ -15,3 +15,7 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 # Página do Caderno na vitória do Proteger
 
 `node scripts/verificar-caderno-vitoria.js` — fluxo em vm: vitória com prémio na ronda 1 e pista dá 1 página (data de Lisboa), sem duplicar; treino, perda, ronda extra, ?pista=, nível < 3, adega e Cave fechada não dão; alvo completo dá só a fala; o resto do estado não muda.
+
+# Visitas à Quinta
+
+`node scripts/verificar-visitas.js [--final]` — dados e funções puras de js/visitas.js (ainda sem uso no jogo): abaixo do nível 4 nunca há visita; 60 dias × contextos respeitam as condições; no máximo 1 por dia; estável; reputação 1 a 3; sem repetir até esgotar as possíveis (depois ciclo); ~1 em 4 dias sem visita. `--final` falha enquanto houver "[por escrever]" (36 textos hoje). `VISITAS_JS=ficheiro` testa outra versão do ficheiro.
