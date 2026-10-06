@@ -96,9 +96,6 @@ function renderPerfil() {
         '<span data-i18n="perfil.som"></span></label>' +
       '</p>' +
       '<p class="info-text nuvem-estado" id="perfil-nuvem-estado"></p>' +
-      '<p class="info-text nuvem-estado" id="perfil-diag-capitulos"></p>' + // DIAGNOSTICO TEMPORARIO - remover
-      '<p class="info-text nuvem-estado" id="perfil-diag-arranque"></p>' + // DIAGNOSTICO TEMPORARIO - remover
-      '<p class="info-text nuvem-estado" id="perfil-diag-tempo"></p>' + // DIAGNOSTICO TEMPORARIO - remover
       '<p class="info-text" id="perfil-apagar-aviso" data-i18n="perfil.apagarAviso" hidden></p>' +
     '</div>' +
     '<div class="action-panel">' +
@@ -116,59 +113,6 @@ function renderPerfil() {
   atualizarDialogo('', '');
   applyTranslations();
   if (typeof nuvemAtualizarLinhaPerfil === 'function') nuvemAtualizarLinhaPerfil();
-  perfilDiagCapitulos(); // DIAGNOSTICO TEMPORARIO - remover
-  perfilDiagArranque(); // DIAGNOSTICO TEMPORARIO - remover
-  perfilDiagTempo(); // DIAGNOSTICO TEMPORARIO - remover
-}
-
-// DIAGNOSTICO TEMPORARIO - remover (esta função e a linha #perfil-diag-capitulos
-// em renderPerfil). Só LÊ o state e escreve texto técnico no ecrã.
-function perfilDiagCapitulos() {
-  const el = document.getElementById('perfil-diag-capitulos');
-  if (!el) return;
-  const cap = state && state.capitulos;
-  const lista = function (o) {
-    return (o && typeof o === 'object') ? '[' + Object.keys(o).filter(function (k) { return o[k] === true; }).join(',') + ']' : '?';
-  };
-  const migrado = cap && typeof cap.celebradosMigrado === 'boolean' ? (cap.celebradosMigrado ? 'sim' : 'nao') : '?';
-  const mostrado = state && state.niveis && state.niveis.nivelMostrado !== null && state.niveis.nivelMostrado !== undefined ? state.niveis.nivelMostrado : '?';
-  const rep = state && typeof state.reputacao === 'number' ? state.reputacao : null;
-  const real = (rep !== null && typeof nivelPelaReputacao === 'function') ? nivelPelaReputacao(rep) : '?';
-  el.textContent = 'Cap: concluidos=' + lista(cap && cap.concluidos) + ' celebrados=' + lista(cap && cap.celebrados) +
-    ' migrado=' + migrado + ' \u00b7 nivelMostrado=' + mostrado + ' \u00b7 nivelReal=' + real + ' \u00b7 rep=' + (rep !== null ? rep : '?');
-}
-
-// DIAGNOSTICO TEMPORARIO - remover (esta função e a linha #perfil-diag-arranque
-// em renderPerfil, e nuvemAtualizarDiagPerfil() em js/nuvem.js). Só LÊ o que
-// ficou em memória em "arranque" (js/state.js); não escreve nada no estado.
-function perfilDiagArranque() {
-  const el = document.getElementById('perfil-diag-arranque');
-  if (!el || typeof arranque === 'undefined') return;
-  const hora = function (ms) {
-    if (typeof ms !== 'number' || !ms) return '?';
-    const d = new Date(ms);
-    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-  };
-  const rep = function (r) { return typeof r === 'number' ? r : '?'; };
-  el.textContent = 'Arranque: local ' + hora(arranque.localEm) + ' (rep ' + rep(arranque.localRep) + ')' +
-    ' | nuvem ' + hora(arranque.nuvemEm) + ' (rep ' + rep(arranque.nuvemRep) + ')' +
-    ' | leitura ' + (arranque.nuvemEstatus || '?') + ' | ganhou: ' + (arranque.ganhou || 'a aguardar') +
-    ' | resposta em ' + (typeof arranque.respostaMs === 'number' ? (arranque.respostaMs / 1000).toFixed(1) + ' s' : '?') +
-    ' | 1.ª gravação nuvem ' + hora(arranque.primeiraGravacaoEm);
-}
-
-// DIAGNOSTICO TEMPORARIO - remover (esta função, a linha #perfil-diag-tempo em
-// renderPerfil e tempoDiagnostico()/_tempoDiag em js/tempo.js). Só LÊ o que
-// ficou em memória sobre o último resultado do tempo; não escreve nada.
-function perfilDiagTempo() {
-  const el = document.getElementById('perfil-diag-tempo');
-  if (!el) return;
-  const d = typeof tempoDiagnostico === 'function' ? tempoDiagnostico() : null;
-  if (!d) { el.textContent = 'Tempo: ainda sem resultado'; return; }
-  const x = new Date(d.em);
-  const hora = ('0' + x.getHours()).slice(-2) + ':' + ('0' + x.getMinutes()).slice(-2);
-  const fonte = { rede: 'rede', cache: 'cache', falha: 'falha', teste: 'teste (?tempo=)' }[d.fonte] || '?';
-  el.textContent = 'Tempo: ' + fonte + ' \u00b7 ' + hora;
 }
 
 function alternarVibracao(ligada) {
