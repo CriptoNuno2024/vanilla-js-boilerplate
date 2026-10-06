@@ -571,10 +571,8 @@
     /* Cave de Reserva (vitrine dentro do cartão da Adega — ver reservaHtml()
        em js/garrafa.js) */
     .reserva-bloco { margin-top: 10px; }
-    /* Prateleira da Coleção (Nível 6 — ver colecaoHtml() em js/garrafa.js):
-       uma linha por faixa, dentro do bloco da Cave de Reserva. */
-    .colecao-bloco { margin-top: 10px; }
-    .colecao-linha { font-size: 12.5px; margin: 2px 0; }
+    /* Botão de entrada em "A Coleção" (Nível 6 — ver colecaoBotaoEntradaHtml() em js/garrafa.js) */
+    .reserva-bloco .colecao-entrada { margin: 0 0 8px; }
     .reserva-foto {
       display: block;
       width: 100%;
@@ -844,6 +842,50 @@
       margin: 0;
       top: calc(var(--topo-altura) + 53px + min(var(--coluna), 100vw - 20px) * 0.357 + 8px);
       max-height: min(48vh, calc(100vh - var(--topo-altura) - 53px - min(var(--coluna), 100vw - 20px) * 0.357 - 8px - var(--nav-altura) - 66px));
+    }
+
+    /* Ecrã "A Coleção" (ver renderColecao() em js/garrafa.js): grelha 2x2 fixa entre o
+       cartão do topo e o botão Voltar, sem deslizar; as fotos ocupam a altura que sobra. */
+    .colecao-painel {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      top: calc(var(--topo-altura) + 60px);
+      bottom: calc(var(--nav-altura) + 8px + 44px + 16px);
+      width: var(--coluna);
+      max-width: calc(100vw - 20px);
+      z-index: 14;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+    }
+    .colecao-cor {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+      background: rgba(12, 14, 22, 0.55);
+      border: 1px solid rgba(245, 215, 110, 0.4);
+      border-radius: 14px;
+      padding: 6px;
+    }
+    .colecao-cor.por-fazer { opacity: 0.4; }
+    .colecao-cor img {
+      flex: 1 1 0;
+      min-height: 0;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .colecao-nome {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 6px 0 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f5d76e;
     }
 
     .encyclopedia-card {
@@ -1669,6 +1711,7 @@
     body.jogo-cheio #screen-perfil.content,
     body.jogo-cheio #screen-conquistas.content,
     body.jogo-cheio #screen-caderno.content,
+    body.jogo-cheio #screen-colecao.content,
     body.jogo-cheio #screen-festa.content {
       background: none;
       border: none;
@@ -1939,6 +1982,11 @@
     <div id="conquistas-container"></div>
   </div>
 
+  <!-- ECRÃ: A COLEÇÃO (Nível 6; só leitura; aberto a partir da Adega e do Perfil) -->
+  <div id="screen-colecao" class="screen content">
+    <div id="colecao-container"></div>
+  </div>
+
   <!-- ECRÃ: CADERNO DOS FYGMOS (só leitura; aberto a partir do Perfil) -->
   <div id="screen-caderno" class="screen content">
     <div id="caderno-container"></div>
@@ -1970,7 +2018,7 @@
   <script src="js/state.js?v=59"></script>
   <script src="js/som.js?v=48"></script>
   <script src="js/nuvem.js?v=56"></script>
-  <script src="js/i18n.js?v=72"></script>
+  <script src="js/i18n.js?v=73"></script>
   <script src="js/estacoes.js?v=41"></script>
   <script src="js/tempo.js?v=49"></script>
   <script src="js/festas.js?v=48"></script>
@@ -1979,16 +2027,16 @@
   <script src="js/assaltos.js?v=4"></script>
   <script src="js/caderno.js?v=4"></script>
   <script src="js/proteger.js?v=59"></script>
-  <script src="js/garrafa.js?v=55"></script>
+  <script src="js/garrafa.js?v=56"></script>
   <script src="js/personagens.js?v=2"></script>
-  <script src="js/perfil.js?v=57"></script>
-  <script src="js/niveis.js?v=51"></script>
+  <script src="js/perfil.js?v=58"></script>
+  <script src="js/niveis.js?v=52"></script>
   <script src="js/historia.js?v=50"></script>
   <script src="js/objetivos.js?v=49"></script>
   <script src="js/capitulos.js?v=8"></script>
   <script src="js/ronda.js?v=4"></script>
   <script src="js/conquistas.js?v=2"></script>
   <script src="js/visitas.js?v=5"></script>
-  <script src="js/main.js?v=62"></script>
+  <script src="js/main.js?v=63"></script>
 </body>
 </html>

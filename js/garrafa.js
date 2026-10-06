@@ -264,6 +264,11 @@ function garrafaQueMaisDescansou() {
 // state.adega.historico (nada é gravado). As garrafas de festa (Edição São
 // Martinho) contam à parte; as outras, por dias de descanso: 1, 2, 3 ou mais.
 // Entradas sem campos (garrafas antigas) são ignoradas.
+const COLECAO_COR_POR_NOME = {
+  'adega.garrafaJovem': 'jovem', 'adega.garrafaDourado': 'dourado',
+  'adega.garrafaAmbar': 'ambar', 'adega.garrafaCobre': 'cobre'
+};
+
 function colecaoVisivel() {
   return !!state.acesso.jogadorAntigo || nivelPelaReputacao(state.reputacao) >= 6;
 }
@@ -298,10 +303,7 @@ function colecaoGarrafasNovas(estado) {
 // dias de descanso (garrafaPorDias). Garrafas de festa (jeropiga) não contam.
 function colecaoCoresFeitas(estado) {
   const cores = { jovem: false, dourado: false, ambar: false, cobre: false };
-  const nomes = {
-    'adega.garrafaJovem': 'jovem', 'adega.garrafaDourado': 'dourado',
-    'adega.garrafaAmbar': 'ambar', 'adega.garrafaCobre': 'cobre'
-  };
+  const nomes = COLECAO_COR_POR_NOME;
   colecaoGarrafasNovas(estado).forEach(function (e) {
     if (!e || typeof e !== 'object' || e.festa) return;
     const g = garrafaPorDias(e.diasDescanso);
@@ -311,21 +313,43 @@ function colecaoCoresFeitas(estado) {
   return cores;
 }
 
-function colecaoHtml() {
+// Botão de entrada no ecrã "A Coleção" (Nível 6): no cartão da Adega (Cave de Reserva).
+function colecaoBotaoEntradaHtml() {
   if (!colecaoVisivel()) return '';
-  const c = contarColecao();
-  const linhas = [
-    ['adega.colecaoDias1', c.dias1],
-    ['adega.colecaoDias2', c.dias2],
-    ['adega.colecaoDias3', c.dias3],
-    ['adega.colecaoSaoMartinho', c.saoMartinho]
-  ].filter(function (l) { return l[1] > 0; }).map(function (l) {
-    return '<p class="colecao-linha">' + t(l[0]).replace('{n}', l[1]) + '</p>';
-  });
-  return '<div class="colecao-bloco">' +
-    '<p class="mini-bloco-titulo">' + t('adega.colecaoTitulo') + '</p>' +
-    (linhas.length ? linhas.join('') : '<p class="colecao-linha">' + t('adega.colecaoVazia') + '</p>') +
-  '</div>';
+  return '<button type="button" class="btn-ghost colecao-entrada" onclick="goTo(\'colecao\')" data-i18n="colecao.btn"></button>';
+}
+
+// "x / 4" do ecrã e do cartão do Perfil: cores feitas desde o nível 6.
+function colecaoResumo() {
+  const cores = colecaoCoresFeitas(state);
+  return GARRAFAS_POR_DIAS.filter(function (g) { return cores[COLECAO_COR_POR_NOME[g.nomeKey]]; }).length + ' / ' + GARRAFAS_POR_DIAS.length;
+}
+
+// Ecrã "A Coleção" (só leitura, Nível 6; ver ecraDesbloqueado('colecao') em js/niveis.js):
+// grelha 2x2 com as 4 cores; as que ainda não foram feitas aparecem apagadas.
+function renderColecao() {
+  const container = document.getElementById('colecao-container');
+  const cores = colecaoCoresFeitas(state);
+  const celulas = GARRAFAS_POR_DIAS.map(function (g) {
+    const feita = !!cores[COLECAO_COR_POR_NOME[g.nomeKey]];
+    return '<div class="colecao-cor' + (feita ? '' : ' por-fazer') + '">' +
+      '<img src="' + g.imagem + '" alt="" decoding="async">' +
+      '<p class="colecao-nome"><span>' + t(g.nomeKey) + '</span>' + (feita ? '<span class="colecao-visto" aria-hidden="true">✓</span>' : '') + '</p>' +
+    '</div>';
+  }).join('');
+
+  container.innerHTML =
+    '<div class="topcard">' +
+      '<p class="mini-title" data-i18n="colecao.title"></p>' +
+      '<p class="mini-sub">' + colecaoResumo() + '</p>' +
+    '</div>' +
+    '<div class="colecao-painel">' + celulas + '</div>' +
+    '<div class="action-panel">' +
+      '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
+    '</div>';
+
+  atualizarDialogo('', '');
+  applyTranslations();
 }
 
 function reservaHtml() {
@@ -347,11 +371,11 @@ function reservaHtml() {
     : '<img class="reserva-foto" src="' + CAVE_RESERVA_FOTO + '" alt="">';
   return '<div class="reserva-bloco">' +
     fotoHtml +
+    colecaoBotaoEntradaHtml() +
     '<p class="mini-bloco-titulo" data-i18n="adega.reservaTitulo"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto1"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto2"></p>' +
     linha +
-    colecaoHtml() +
   '</div>';
 }
 
