@@ -95,7 +95,7 @@ const PROTEGER_STRINGS = {
   },
 
   en: {
-    titulo: 'Protect the Farm',
+    titulo: 'Protect the Quinta',
     fechaduraSubtitulo: 'The Special Reserve Lock',
     disfarcesSubtitulo: 'Where are the grape disguises hiding?',
     disfarcesIntro: "One of the grape piles up ahead... doesn't look quite right.",
@@ -109,7 +109,7 @@ const PROTEGER_STRINGS = {
     iscoSem: 'Carry on without bait',
     iscoFala: function (porco) { return porco ? 'The bait has already caught ' + porco + "'s attention. Here he comes." : 'The smell of pomace is already going from snout to snout. Company is coming.'; },
     chizoBotao: 'Wake Chizo!',
-    protegida: 'The Farm is protected!',
+    protegida: 'The Quinta is protected!',
     naoCorreuBem: "It didn't go well this time...",
     jogarNovamente: 'Play Again',
     tentarOutraVez: 'Try Again',
