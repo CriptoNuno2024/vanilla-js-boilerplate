@@ -20,11 +20,12 @@
 const REGRAS_DESCANSO_CAVE = {
   diasMinimos: 1,
   // Ordenado por dias crescente. Aplica-se o ÚLTIMO cujo "dias" seja
-  // <= aos dias reais de descanso (3 dias ou mais usa sempre os +50).
+  // <= aos dias reais de descanso (4 dias ou mais usa sempre os +60).
   reputacaoPorDias: [
     { dias: 1, reputacao: 30 },
     { dias: 2, reputacao: 40 },
-    { dias: 3, reputacao: 50 }
+    { dias: 3, reputacao: 50 },
+    { dias: 4, reputacao: 60 }
   ],
   // No inverno o vinho descansa melhor.
   bonusInvernoReputacao: 10
