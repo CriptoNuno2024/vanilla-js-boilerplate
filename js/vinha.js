@@ -170,6 +170,7 @@ function fundoTempoVinha() {
   if (tempo.ceu === 'trovoada') return TEMPO_CONFIG.imagens.trovoada;
   if (tempo.ceu === 'nevoeiro') return TEMPO_CONFIG.imagens.nevoeiro;
   if (tempo.ventoForte) return TEMPO_CONFIG.imagens.vento;
+  if (tempo.frioForte) return TEMPO_CONFIG.imagens.frio;
   if (tempo.calorForte) return TEMPO_CONFIG.imagens.calor;
   if (tempo.ceu === 'chuva') return TEMPO_CONFIG.imagens.chuva;
   return null;
