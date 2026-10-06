@@ -880,12 +880,13 @@
       flex-direction: column;
       min-height: 0;
       min-width: 0;
-      background: rgba(12, 14, 22, 0.55);
+      background: rgba(12, 14, 22, 0.88);
       border: 1px solid rgba(245, 215, 110, 0.4);
       border-radius: 14px;
       padding: 6px;
     }
-    .colecao-cor.por-fazer { opacity: 0.4; }
+    /* Por fazer: só a foto se esbate; o cartão e o nome ficam normais. */
+    .colecao-cor.por-fazer img { opacity: 0.4; filter: grayscale(0.6); }
     .colecao-cor img {
       flex: 1 1 0;
       min-height: 0;
