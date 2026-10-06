@@ -278,7 +278,7 @@ function visitaLinhaToque() {
   const r = visitaParaLinha();
   if (!r.visita) { atualizarLinhaVisitaQuinta(); return; }
   const fala = visitaFalaDe(r.visita);
-  mostrarFalas([fala.texto], fala.nome);
+  mostrarFalas([{ texto: fala.texto, personagem: r.visita.personagem }], fala.nome);
   const pago = visitaFazerHoje();
   if (pago.ok) {
     vibrar('sucesso');

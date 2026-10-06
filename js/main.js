@@ -213,7 +213,9 @@ let dialogoComFotoPropria = false;
 // trocar a foto de fundo em falas certas, sem afetar nenhuma das
 // chamadas antigas, que continuam a passar só texto. Pode ainda ter
 // falante (nome de PERSONAGENS_CARAS): essa fala mostra esse nome e essa
-// cara; sem falante, vale o nome da fila (o 2.º argumento de mostrarFalas).
+// cara; sem falante, vale o nome da fila (o 2.º argumento de mostrarFalas). Com
+// personagem (id de PERSONAGENS_CARAS_POR_ID, ex.: 'valentim') a cara vem desse id e o
+// nome mostrado continua a ser o da fila.
 function textoDaFala(entrada) {
   return (entrada && typeof entrada === 'object') ? entrada.texto : entrada;
 }
@@ -243,7 +245,7 @@ function mostrarFalaAtual() {
 
   const falante = (entrada && typeof entrada === 'object' && entrada.falante) ? entrada.falante : dialogoNomeAtual;
   nomeEl.textContent = falante;
-  if (typeof mostrarCaraNoBalao === 'function') mostrarCaraNoBalao(falante);
+  if (typeof mostrarCaraNoBalao === 'function') mostrarCaraNoBalao(falante, (entrada && typeof entrada === 'object') ? entrada.personagem : undefined);
   msgEl.textContent = textoDaFala(entrada);
   bolha.hidden = false;
   if (setaEl) setaEl.classList.toggle('oculto', dialogoIndice >= dialogoFila.length - 1);
