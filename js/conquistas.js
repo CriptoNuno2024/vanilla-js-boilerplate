@@ -12,8 +12,8 @@
 //
 // NOTA: as entradas de state.adega.historico não distinguem uma estação
 // real de uma forçada por ?estacao= (nem um descanso forçado por ?dias=),
-// por isso estes testes também contam como progresso nas "Quatro estações"
-// e na "Paciência". Só se resolve guardando essa marca no state.
+// por isso estes testes também contam como progresso nas "Quatro estações",
+// na "Paciência" e na "Reserva Especial". Só se resolve guardando essa marca no state.
 // ---------------------------------------------------------------------
 
 const CONQUISTAS_ESTACOES = ['inverno', 'primavera', 'verao', 'outono'];
@@ -59,6 +59,10 @@ const CONQUISTAS_CONFIG = [
   { id: 'paciencia', nomeKey: 'conquista.paciencia.nome', descKey: 'conquista.paciencia.desc',
     cumprida: function () {
       return conquistasHistorico().some(function (e) { return e && e.diasDescanso >= 3; });
+    } },
+  { id: 'reserva_especial', nomeKey: 'conquista.reserva_especial.nome', descKey: 'conquista.reserva_especial.desc',
+    cumprida: function () {
+      return conquistasHistorico().some(function (e) { return e && e.diasDescanso >= 4; });
     } },
   { id: 'quatro_estacoes', nomeKey: 'conquista.quatro_estacoes.nome', descKey: 'conquista.quatro_estacoes.desc',
     cumprida: function () { return conquistasEstacoesFeitas() >= CONQUISTAS_ESTACOES.length; } },
