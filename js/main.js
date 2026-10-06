@@ -107,6 +107,7 @@ const NAV_ATIVO_POR_ECRA = {
   explorar: 'explorar',
   enciclopedia: 'explorar',
   caderno: 'quinta',
+  colecao: 'garrafa',
   festa: 'quinta'
 };
 
@@ -585,6 +586,7 @@ function goTo(screen, opcoes) {
   if (screen === 'perfil') renderPerfil();
   if (screen === 'conquistas') renderConquistas();
   if (screen === 'caderno') renderCaderno();
+  if (screen === 'colecao') renderColecao();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
 

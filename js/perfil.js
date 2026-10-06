@@ -26,6 +26,13 @@ const PERFIL_MEDALHA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="current
 
 const PERFIL_GARRAFA_PEQUENA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M10 2h4v3.8l1.8 2.7c.4.6.7 1.4.7 2.2V20a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2V10.7c0-.8.2-1.6.7-2.2L10 5.8V2z"></path><path d="M10 11.5h4"></path></svg>';
 
+// Cartão "A Coleção x / 4": só a partir do nível 6 (colecaoVisivel, js/garrafa.js).
+function colecaoCartaoPerfil() {
+  if (typeof colecaoVisivel !== 'function' || !colecaoVisivel()) return '';
+  return perfilCard(PERFIL_ICONES.garrafas, colecaoResumo(), 'colecao.title',
+    ' role="button" tabindex="0" onclick="goTo(\'colecao\')" onkeydown="if (event.key === \'Enter\') goTo(\'colecao\')"');
+}
+
 function perfilCard(icone, value, i18nKey, atributos) {
   return '<div class="profile-card"' + (atributos || '') + '><div class="stat-icon">' + icone + '</div><div class="stat-value">' + value +
     '</div><div class="stat-label" data-i18n="' + i18nKey + '"></div></div>';
@@ -74,6 +81,7 @@ function renderPerfil() {
         perfilCard(PERFIL_ICONES.conquistas, conquistasResumo(), 'perfil.conquistas',
           ' role="button" tabindex="0" onclick="goTo(\'conquistas\')" onkeydown="if (event.key === \'Enter\') goTo(\'conquistas\')"') +
         cadernoCartaoPerfil() +
+        colecaoCartaoPerfil() +
       '</div>' +
       tituloHtml +
       '<h2 data-i18n="perfil.galeriaTitulo"></h2>' +
