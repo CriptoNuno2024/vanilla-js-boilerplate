@@ -68,7 +68,30 @@ const PROTEGER_STRINGS = {
     chizoCedo: 'Falso alarme: o Chizo volta a dormir. Os porcos riem-se, mas não levam nada.',
     chizoTarde: 'Tarde demais… os porcos já se foram. Ficaram só as pegadas.',
     cadernoPagina: 'Página nova no Caderno (Perfil).',
-    cadernoCompleto: 'Os porcos já não têm papéis para perder.'
+    cadernoCompleto: 'Os porcos já não têm papéis para perder.',
+    // Derrota da ronda 1 com pista (2 por alvo; ver protegerMensagemDerrota()): narração, sem castigo.
+    derrotaPista: {
+      vinha: [
+        'Afinal o monte de uvas era o porco. Foge a rir, e a vinha fica intacta.',
+        'O disfarce era bom demais. O porco ficou com a pose, mas não levou um cacho.'
+      ],
+      adega: [
+        'Seguiste o barril errado: era só água. Os porcos riem-se, e a aguardente fica intacta.',
+        'O barril certo mudou de sítio outra vez. Os porcos fingem inspeção e saem de mãos vazias.'
+      ],
+      cave: [
+        'A fechadura aguentou. O monóculo embaciou, e o Fygmo2 retirou-se com dignidade.',
+        'Três trancas, um palito partido, zero garrafas. A Reserva dorme descansada.'
+      ],
+      nevoeiro: [
+        'No nevoeiro, todos os vultos parecem porcos. Desta vez eram mesmo, mas foram-se sem nada.',
+        'O Chizo acordou, o nevoeiro não. Os porcos passaram, tropeçaram e desistiram.'
+      ],
+      trovoada: [
+        'A trovoada trouxe confusão, e os porcos trouxeram cestos vazios. Foram-se embora molhados.',
+        'Um relâmpago, dois porcos, nenhum cacho. O Fygmo jura que foi o trovão.'
+      ]
+    }
   },
 
   en: {
@@ -126,7 +149,30 @@ const PROTEGER_STRINGS = {
     chizoCedo: 'False alarm: Chizo goes back to sleep. The pigs laugh, but they take nothing.',
     chizoTarde: 'Too late… the pigs are gone. Only the footprints remain.',
     cadernoPagina: 'New page in the Notebook (Profile).',
-    cadernoCompleto: 'The pigs have no papers left to lose.'
+    cadernoCompleto: 'The pigs have no papers left to lose.',
+    // Derrota da ronda 1 com pista (2 por alvo; ver protegerMensagemDerrota()): narração, sem castigo.
+    derrotaPista: {
+      vinha: [
+        'The pile of grapes turned out to be the pig. He runs off laughing, and the vineyard stays untouched.',
+        'The disguise was too good. The pig kept the pose, but didn\'t take a single bunch.'
+      ],
+      adega: [
+        'You followed the wrong barrel: it was only water. The pigs laugh, and the brandy stays untouched.',
+        'The right barrel moved again. The pigs pretend it\'s an inspection and leave empty-handed.'
+      ],
+      cave: [
+        'The lock held. The monocle fogged up, and Fygmo2 withdrew with dignity.',
+        'Three locks, one broken toothpick, zero bottles. The Reserve sleeps peacefully.'
+      ],
+      nevoeiro: [
+        'In the fog, every shape looks like a pig. This time they really were, but they left with nothing.',
+        'Chizo woke up, the fog didn\'t. The pigs walked past, tripped, and gave up.'
+      ],
+      trovoada: [
+        'The storm brought chaos, and the pigs brought empty baskets. They left soaking wet.',
+        'One lightning flash, two pigs, no bunches. Fygmo swears it was the thunder.'
+      ]
+    }
   },
 
   es: {
@@ -184,7 +230,30 @@ const PROTEGER_STRINGS = {
     chizoCedo: 'Falsa alarma: Chizo vuelve a dormirse. Los cerdos se ríen, pero no se llevan nada.',
     chizoTarde: 'Demasiado tarde… los cerdos ya se han ido. Solo quedan las huellas.',
     cadernoPagina: 'Página nueva en el Cuaderno (Perfil).',
-    cadernoCompleto: 'Los cerdos ya no tienen papeles que perder.'
+    cadernoCompleto: 'Los cerdos ya no tienen papeles que perder.',
+    // Derrota da ronda 1 com pista (2 por alvo; ver protegerMensagemDerrota()): narração, sem castigo.
+    derrotaPista: {
+      vinha: [
+        'El montón de uvas resultó ser el cerdo. Huye riéndose, y el viñedo queda intacto.',
+        'El disfraz era demasiado bueno. El cerdo se quedó con la pose, pero no se llevó ni un racimo.'
+      ],
+      adega: [
+        'Seguiste el barril equivocado: era solo agua. Los cerdos se ríen, y el aguardiente queda intacto.',
+        'El barril correcto cambió de sitio otra vez. Los cerdos fingen una inspección y se van con las manos vacías.'
+      ],
+      cave: [
+        'La cerradura aguantó. El monóculo se empañó, y Fygmo2 se retiró con dignidad.',
+        'Tres cerrojos, un palillo roto, cero botellas. La Reserva duerme tranquila.'
+      ],
+      nevoeiro: [
+        'En la niebla, todas las siluetas parecen cerdos. Esta vez lo eran, pero se fueron sin nada.',
+        'Chizo se despertó, la niebla no. Los cerdos pasaron, tropezaron y desistieron.'
+      ],
+      trovoada: [
+        'La tormenta trajo confusión, y los cerdos trajeron cestos vacíos. Se fueron empapados.',
+        'Un relámpago, dos cerdos, ningún racimo. Fygmo jura que fue el trueno.'
+      ]
+    }
   }
 };
 
@@ -758,6 +827,29 @@ function protegerDarPaginaCaderno() {
   } catch (e) { /* sem página, a vitória segue */ }
 }
 
+// Qual das 2 falas de derrota do alvo (0 ou 1). Pura: o mesmo (alvo, dia de Lisboa,
+// índice da pista) dá sempre a mesma, para não mudar ao tentar outra vez no mesmo dia.
+function protegerFalaDerrotaIndice(alvo, dia, indice) {
+  const semente = dia + '#derrota#' + alvo + '#' + indice;
+  let h = 0;
+  for (let i = 0; i < semente.length; i++) h = (h * 31 + semente.charCodeAt(i)) >>> 0;
+  return h % 2;
+}
+
+// Mensagem da derrota. Na ronda 1 com pista capturada (protegerCaderno), em vez da
+// mensagem do minijogo usa uma das 2 falas do alvo. Sem pista (protegerCaderno null:
+// sem pista, alvo sem minijogo como a adega, ou já gasta numa vitória com prémio) e
+// nas rondas extra, fica a mensagem de sempre. Só texto: não grava nem muda nada.
+function protegerMensagemDerrota(mensagem) {
+  try {
+    const c = protegerCaderno;
+    if (protegerRondaAtual !== 1 || !c) return mensagem;
+    const falas = pStr().derrotaPista && pStr().derrotaPista[c.alvo];
+    if (!falas || falas.length !== 2) return mensagem;
+    return falas[protegerFalaDerrotaIndice(c.alvo, diaLisboaDeHoje(), c.indice)];
+  } catch (e) { return mensagem; }
+}
+
 function finishProteger(venceu, mensagem) {
   if (venceu) {
     const ganhaPremio = vitoriasProtegerComPremioRestantesHoje() > 0;
@@ -794,7 +886,7 @@ function finishProteger(venceu, mensagem) {
 
     showResultProteger(true, protegerRecompensaAcumulada.uvas, protegerRecompensaAcumulada.gotas, protegerRecompensaAcumulada.rep, mensagem, ganhaPremio);
   } else {
-    showResultProteger(false, 0, 0, 0, mensagem);
+    showResultProteger(false, 0, 0, 0, protegerMensagemDerrota(mensagem));
   }
 }
 
@@ -827,7 +919,10 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
     ? { texto: falaFygmo, falante: protegerPorcoIsco || 'Fygmo' }
     : { texto: falaFygmo2, falante: protegerPorcoIsco || 'Fygmo2' }];
   // Caderno (só texto): página nova, ou o alvo já tem todas. Depois do porco e antes do prémio.
-  if (protegerCadernoFala) falas.push(protegerCadernoFala === 'pagina' ? S.cadernoPagina : S.cadernoCompleto);
+  if (protegerCadernoFala) {
+    falas.push(protegerCadernoFala === 'pagina' ? S.cadernoPagina : S.cadernoCompleto);
+    protegerCadernoFala = ''; // mostrada uma só vez: não se repete noutro resultado da visita
+  }
   if (venceu && ganhaPremio) {
     falas.push('+' + uvas + ' ' + t('stat.uvas') + ', +' + gotas + ' ' + t('stat.gotas') + ', +' + rep + ' ' + t('stat.reputacao'));
   } else if (venceu && !ganhaPremio) {

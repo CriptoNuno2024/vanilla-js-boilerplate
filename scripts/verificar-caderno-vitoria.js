@@ -163,5 +163,87 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
   ok(Object.keys(vistos).length === 6, 'as 6 falas deviam ser todas diferentes');
 }
 
+// 8. PR D — derrota da ronda 1 com pista: fala do alvo (10 por língua, <= 110), estável no dia, sem tocar no estado.
+{
+  const ALVOS = ['vinha', 'adega', 'cave', 'nevoeiro', 'trovoada'];
+  // (a) as 10 falas existem nas 3 línguas, não vazias, <= 110 caracteres, todas diferentes.
+  const todasFalas = [];
+  ['pt', 'en', 'es'].forEach(function (l) {
+    const g = abrir({ lang: l });
+    ALVOS.forEach(function (a) {
+      const f = g.ev('pStr().derrotaPista && pStr().derrotaPista.' + a);
+      ok(Array.isArray(f) && f.length === 2, l + ' ' + a + ': devia ter 2 falas de derrota');
+      (f || []).forEach(function (x) {
+        ok(typeof x === 'string' && x.trim() !== '' && x.length <= 110, l + ' ' + a + ': fala vazia ou > 110 (' + (x && x.length) + ')');
+        todasFalas.push(x);
+      });
+    });
+  });
+  ok(todasFalas.length === 30 && new Set(todasFalas).size === 30, 'as 30 falas (10 x 3 línguas) deviam ser todas diferentes');
+
+  // (b) função pura: 0 ou 1, estável no mesmo dia, e ambas as falas saem ao longo dos dias.
+  const g0 = abrir({});
+  ALVOS.forEach(function (a) {
+    const vistos = {};
+    for (let d = 1; d <= 60; d++) [0, 1].forEach(function (i) {
+      const dia = '2026-' + String(1 + Math.floor((d - 1) / 28)).padStart(2, '0') + '-' + String(1 + (d - 1) % 28).padStart(2, '0');
+      const x = g0.ev("protegerFalaDerrotaIndice('" + a + "', '" + dia + "', " + i + ')');
+      const y = g0.ev("protegerFalaDerrotaIndice('" + a + "', '" + dia + "', " + i + ')');
+      ok((x === 0 || x === 1) && x === y, a + ' ' + dia + ' #' + i + ': devia dar 0 ou 1, sempre o mesmo');
+      vistos[x] = 1;
+    });
+    ok(Object.keys(vistos).length === 2, a + ': as duas falas deviam aparecer ao longo dos dias');
+  });
+
+  const mensagemFinal = function (g) { return g.reg.falas[g.reg.falas.length - 1][0]; };
+  const doAlvo = function (g, a) { return g.ev('pStr().derrotaPista.' + a); };
+
+  // (c) derrota na ronda 1 com pista: usa uma fala do alvo e NÃO altera nenhum campo do estado.
+  ALVOS.filter(function (a) { return a !== 'adega'; }).forEach(function (a) {
+    const g = abrir({ isco: { dia: HOJE, indice: 0, alvo: a } }); g.visita();
+    const antes = todas(g);
+    g.ev("finishProteger(false, 'perdeu')");
+    ok(doAlvo(g, a).indexOf(mensagemFinal(g)) !== -1, a + ': a derrota devia usar uma das 2 falas do alvo, usou ' + JSON.stringify(mensagemFinal(g)));
+    ok(todas(g) === antes && g.reg.saves === 0, a + ': a derrota não devia alterar nenhum campo do estado nem gravar');
+  });
+  {
+    const g = abrir({ search: '?pista=nevoeiro', feitas: 0, isco: null }); g.visita(); g.ev('protegerIscoResponder(false)');
+    g.ev("finishProteger(false, 'perdeu')");
+    ok(doAlvo(g, 'nevoeiro').indexOf(mensagemFinal(g)) !== -1, '?pista= (teste) pode mostrar a fala do alvo');
+    // Mesma pista, mesmo dia: a mesma fala ao tentar outra vez.
+    const m1 = mensagemFinal(g); g.visita(); g.ev('protegerIscoResponder(false)'); g.ev("finishProteger(false, 'perdeu')");
+    ok(mensagemFinal(g) === m1, 'a fala devia ser estável no mesmo dia');
+  }
+
+  // (d) sem pista, adega, ronda extra e vitória: ficam as mensagens de sempre.
+  {
+    let g = abrir({ feitas: 0, isco: null }); g.visita(); g.ev("finishProteger(false, 'perdeu')");
+    ok(mensagemFinal(g) === 'perdeu', 'sem pista devia manter a mensagem do minijogo');
+    g = abrir({ isco: { dia: HOJE, indice: 0, alvo: 'adega' } }); g.visita(); g.ev("finishProteger(false, 'perdeu')");
+    ok(mensagemFinal(g) === 'perdeu', 'adega (sem minijogo) devia manter a mensagem do minijogo');
+    g = abrir({ ceu: 'nevoeiro' }); g.visita(); g.ganha(); g.ev("finishProteger(false, 'perdeu')"); // perde na ronda 2
+    ok(g.ev('protegerRondaAtual') === 2 && mensagemFinal(g) === 'perdeu', 'ronda extra devia manter a mensagem do minijogo');
+    g = abrir({ vitorias: 2, ceu: 'nevoeiro' }); g.visita(); g.ganha(); g.ev("finishProteger(false, 'perdeu')"); // ronda 1 ganha sem prémio, perde na 2
+    ok(mensagemFinal(g) === 'perdeu', 'ronda 2 depois de uma vitória sem prémio devia manter a mensagem do minijogo');
+    g = abrir({}); g.visita(); g.ganha();
+    ok(g.reg.falas[g.reg.falas.length - 1][0] === 'ganhou', 'a vitória não devia usar as falas de derrota');
+  }
+
+  // (e) "Página nova" aparece uma só vez: não se repete no resultado seguinte da visita.
+  {
+    const g = abrir({ ceu: 'nevoeiro' }); g.visita(); g.ganha();            // ronda 1: página gravada
+    g.ev("finishProteger(false, 'perdeu')");                                // resultado (derrota na ronda 2)
+    const ultimo = function () { return g.reg.falas[g.reg.falas.length - 1]; };
+    const temPagina = function (f) { return f.some(function (x) { return typeof x === 'string' && /Caderno/.test(x); }); };
+    ok(temPagina(ultimo()), 'a fala "Página nova" devia aparecer no resultado da visita');
+    ok(g.ev('protegerCadernoFala') === '', 'a fala devia ficar apagada depois de mostrada');
+    g.ev("finishProteger(false, 'perdeu')");                                // outro resultado na mesma visita
+    ok(!temPagina(ultimo()), 'a fala "Página nova" não devia repetir-se no resultado seguinte');
+    g.ev("showResultProteger(true, 1, 1, 1, 'ganhou', true)");
+    ok(!temPagina(ultimo()), 'nem num resultado de vitória seguinte');
+    ok(g.ids().length === 1, 'continua a haver só 1 página');
+  }
+}
+
 console.log(falhas === 0 ? 'OK' : falhas + ' FALHA(S)');
 process.exit(falhas === 0 ? 0 : 1);
