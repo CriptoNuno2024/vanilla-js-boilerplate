@@ -11,3 +11,7 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 # Curiosidades da Ronda por época
 
 `node scripts/verificar-ronda-curiosidades.js` — teste puro: em outubro a 'poda' nunca é escolhida e a 'vindima' pode ser; em janeiro o contrário; nos outros meses nenhuma das duas; as candidatas nunca ficam a 0. Imprime `OK` (código 0) ou o que falhou (código 1).
+
+# Página do Caderno na vitória do Proteger
+
+`node scripts/verificar-caderno-vitoria.js` — fluxo em vm: vitória com prémio na ronda 1 e pista dá 1 página (data de Lisboa), sem duplicar; treino, perda, ronda extra, ?pista=, nível < 3, adega e Cave fechada não dão; alvo completo dá só a fala; o resto do estado não muda.
