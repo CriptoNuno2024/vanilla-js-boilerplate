@@ -159,6 +159,16 @@ function defaultState() {
     visitas: {
       feitas: {},
       hoje: null
+    },
+    // Despensa da Estrada (Nível 7, ver js/despensa.js; ainda sem uso no jogo). recebidos:
+    // quantas unidades de cada bem já recebeu (só sobe). primeiraTroca: para cada bem, o dia
+    // (Lisboa, 'AAAA-MM-DD') da 1.ª troca. hoje: o dia (Lisboa) e os vizinhos com quem já
+    // trocou nesse dia, { dia, feitas: { idVizinho: true } }. NÃO se junta na nuvem: segue o
+    // estado inteiro que ganhar, como state.visitas.
+    despensa: {
+      recebidos: {},
+      primeiraTroca: {},
+      hoje: { dia: null, feitas: {} }
     }
   };
 }

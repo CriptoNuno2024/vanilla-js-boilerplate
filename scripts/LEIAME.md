@@ -29,3 +29,7 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 # Estrada (vizinhos e bens, só dados)
 
 `node scripts/verificar-estrada.js [--final]` — dados de js/estrada-dados.js (ainda não carregado pelo jogo): 3 vizinhos com 3 falas e a fala de troca em pt/en/es, 3 bens com nome nas 3 línguas, cada fala com facto tem "fonte" (só as fontes e endereços aprovados) ou "semFacto: true", a troca provisória sem gotas, e que nada usa estes dados. Se uma cara tem caraPendente: false, o ficheiro tem de existir; se for true, pode faltar. `--final` falha enquanto houver "[por escrever]". `ESTRADA_JS=ficheiro` testa outra versão.
+
+# Despensa da Estrada (estado e funções puras, sem uso)
+
+`node scripts/verificar-despensa.js` — `state.despensa` em js/state.js e as funções de js/despensa.js (ainda não carregado pelo jogo), com state.js, estrada-dados.js e despensa.js reais em vm: campo vazio por omissão; save antigo e estado da nuvem ganham-no vazio (mergeDeep, sem migração); "Apagar o meu progresso" leva o estado inteiro; 1.ª troca (primeiraVez), 2.ª no mesmo dia com o mesmo vizinho recusada, outro vizinho aceite, dia novo reinicia `hoje`; ids e dias inválidos recusados sem alterar nada; o estado só sobe (400 trocas); estado estranho é reparado; despensa.js é puro (sem Math.random, Date.now, gravação, Reputação nem uvas) e nada mais no jogo (index.html e restantes JS) o usa. `DESPENSA_JS=ficheiro` testa outra versão de js/despensa.js.
