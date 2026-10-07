@@ -16,9 +16,9 @@
 // Um texto provisório escreve-se "[por escrever]" (em pt, en e es);
 // `node scripts/verificar-estrada.js --final` falha enquanto restar essa marca.
 //
-// "cara": caminho previsto da cara de cada vizinho. "caraPendente: true"
-// = o ficheiro ainda NÃO existe (ver PERSONAGENS_CARAS em js/personagens.js
-// quando as caras chegarem).
+// "cara": caminho da cara de cada vizinho (128 x 128, como as de js/personagens.js).
+// "caraPendente: false" = o ficheiro existe; "true" = ainda não existe. As caras
+// ainda NÃO estão em PERSONAGENS_CARAS (js/personagens.js): isso fica para um PR seguinte.
 // ---------------------------------------------------------------------
 
 const ESTRADA_POR_ESCREVER = '[por escrever]';
@@ -54,8 +54,8 @@ const ESTRADA_VIZINHOS = [
     id: 'dona_amelia',
     nome: { pt: 'Dona Amélia', en: 'Dona Amélia', es: 'Dona Amélia' },
     papel: { pt: 'queijeira de Azeitão', en: 'Azeitão cheesemaker', es: 'quesera de Azeitão' },
-    cara: 'assets/personagens/vizinho_amelia.jpg',
-    caraPendente: true,
+    cara: 'assets/personagens/vizinha_amelia.jpg',
+    caraPendente: false,
     bem: 'queijo_azeitao',
     falas: [
       {
@@ -70,11 +70,11 @@ const ESTRADA_VIZINHOS = [
       {
         id: 'dona_amelia_2',
         texto: {
-          pt: 'Dizem que foi um senhor da Beira que trouxe as ovelhas, com saudades da Serra da Estrela.',
-          en: 'They say a gentleman from the Beira brought the sheep, homesick for the Serra da Estrela.',
-          es: 'Dicen que fue un señor de la Beira quien trajo las ovejas, con morriña de la Sierra de la Estrela.'
+          pt: 'Dizem que foi um senhor da Beira que trouxe as ovelhas, com saudades da sua terra.',
+          en: 'They say a gentleman from the Beira brought the sheep, homesick for his homeland.',
+          es: 'Dicen que fue un señor de la Beira quien trajo las ovejas, con morriña de su tierra.'
         },
-        fonte: ['agroportal_988711']
+        fonte: ['agroportal_988711', 'agroportal_dop']
       },
       {
         id: 'dona_amelia_3',
@@ -83,7 +83,7 @@ const ESTRADA_VIZINHOS = [
           en: 'A buttery paste with a little kick at the end. Whoever tastes it comes back.',
           es: 'Pasta mantecosa y un picante al final. Quien lo prueba, vuelve.'
         },
-        fonte: ['kiwa_queijos_dop']
+        fonte: ['kiwa_queijos_dop', 'agroportal_dop']
       }
     ],
     troca: {
@@ -100,7 +100,7 @@ const ESTRADA_VIZINHOS = [
     nome: { pt: 'Sr. Joaquim', en: 'Mr. Joaquim', es: 'Sr. Joaquim' },
     papel: { pt: 'salineiro do Sado', en: 'Sado salt worker', es: 'salinero del Sado' },
     cara: 'assets/personagens/vizinho_joaquim.jpg',
-    caraPendente: true,
+    caraPendente: false,
     bem: 'sal_sado',
     falas: [
       {
@@ -145,14 +145,12 @@ const ESTRADA_VIZINHOS = [
     nome: { pt: 'Tomás', en: 'Tomás', es: 'Tomás' },
     papel: { pt: 'apicultor de Sesimbra', en: 'Sesimbra beekeeper', es: 'apicultor de Sesimbra' },
     cara: 'assets/personagens/vizinho_tomas.jpg',
-    caraPendente: true,
+    caraPendente: false,
     bem: 'mel_sesimbra',
     falas: [
       {
         id: 'tomas_1',
-        // A lista de plantas (alecrim, tomilho, orégãos, murta, esteva, rosmaninho) NÃO
-        // foi confirmada nesta fonte: a ficha do Zimbramel só refere "plantas e produtos".
-        // A confirmar antes do --final.
+        // Lista de plantas confirmada na página da Zimbramel (Viral Agenda) pelo Claude.ai a 07/10/2026.
         texto: {
           pt: 'O mel daqui sabe ao que as abelhas encontram: alecrim, tomilho, orégãos, murta, esteva e rosmaninho.',
           en: 'The honey here tastes of whatever the bees find: rosemary, thyme, oregano, myrtle, rockrose and lavender.',
@@ -226,14 +224,15 @@ const ESTRADA_BENS = [
 // PROPOSTA DE TROCA — PROVISÓRIA E SEM USO: números só para discutir, nenhum
 // código a lê. Podem mudar por completo nos PRs das trocas.
 //   custoUvas              cerca de 40 uvas por bem
-//   custoMinimoUvas        nunca abaixo das 10 uvas do Prensar (ADEGA_CUSTO_UVAS_PRENSAR)
+//   uvasMinimasDepoisDaTroca  o jogador nunca fica com menos de 10 uvas depois de trocar,
+//                          para poder sempre usar o Prensar (ADEGA_CUSTO_UVAS_PRENSAR)
 //   trocasPorVizinhoPorDia 1 troca por vizinho por dia (dia de Lisboa)
 //   reputacaoPrimeiraTroca +2 de Reputação só na 1.ª troca de cada bem
 //   sem gotas, sem castigos, sem dinheiro
 const ESTRADA_TROCA_PROVISORIA = {
   provisoria: true,
   custoUvas: 40,
-  custoMinimoUvas: 10,
+  uvasMinimasDepoisDaTroca: 10,
   trocasPorVizinhoPorDia: 1,
   reputacaoPrimeiraTroca: 2
 };
