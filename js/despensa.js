@@ -7,8 +7,11 @@
 //
 // state.despensa (ver defaultState() em js/state.js):
 //   recebidos      { idBem: n }        unidades já recebidas (só sobe)
+//   entregues      { idBem: n }        unidades já entregues (só sobe)
 //   primeiraTroca  { idBem: 'AAAA-MM-DD' }  dia (Lisboa) da 1.ª troca desse bem
 //   hoje           { dia, feitas: { idVizinho: true } }  vizinhos com quem já trocou hoje
+//
+// O que o jogador tem de um bem é recebidos menos entregues (nunca abaixo de 0).
 //
 // Os dados dos vizinhos e dos bens vêm de js/estrada-dados.js (ESTRADA_VIZINHOS,
 // ESTRADA_BENS). O dia chega sempre por argumento, 'AAAA-MM-DD' no calendário de
@@ -37,13 +40,16 @@ function despensaBemExiste(id) {
   return ESTRADA_BENS.some(function (b) { return b.id === id; });
 }
 
-// Quantas unidades do bem tem (0 se nunca recebeu, se o id não existe ou se o valor
-// guardado não é um inteiro >= 0). Só lê: nunca altera o estado.
+// Quantas unidades do bem tem: recebidos menos entregues, nunca abaixo de 0 (0 se nunca
+// recebeu, se o id não existe ou se um valor guardado não é um inteiro >= 0). Só lê: nunca
+// altera o estado.
 function despensaQuantos(estado, bemId) {
   if (!despensaBemExiste(bemId)) return 0;
   const d = estado && estado.despensa;
-  const r = d && typeof d === 'object' ? d.recebidos : null;
-  return despensaTemChave(r, bemId) ? despensaInteiroValido(r[bemId]) : 0;
+  if (!d || typeof d !== 'object') return 0;
+  const recebidos = despensaTemChave(d.recebidos, bemId) ? despensaInteiroValido(d.recebidos[bemId]) : 0;
+  const entregues = despensaTemChave(d.entregues, bemId) ? despensaInteiroValido(d.entregues[bemId]) : 0;
+  return Math.max(0, recebidos - entregues);
 }
 
 // state.despensa com a forma certa (uma nuvem ou um save estranho podem trazer null ou
@@ -53,6 +59,8 @@ function despensaEstado(estado) {
   if (!d || typeof d !== 'object' || Array.isArray(d)) d = estado.despensa = {};
   if (!d.recebidos || typeof d.recebidos !== 'object' || Array.isArray(d.recebidos)) d.recebidos = {};
   Object.keys(d.recebidos).forEach(function (k) { d.recebidos[k] = despensaInteiroValido(d.recebidos[k]); });
+  if (!d.entregues || typeof d.entregues !== 'object' || Array.isArray(d.entregues)) d.entregues = {};
+  Object.keys(d.entregues).forEach(function (k) { d.entregues[k] = despensaInteiroValido(d.entregues[k]); });
   if (!d.primeiraTroca || typeof d.primeiraTroca !== 'object' || Array.isArray(d.primeiraTroca)) d.primeiraTroca = {};
   if (!d.hoje || typeof d.hoje !== 'object' || Array.isArray(d.hoje)) d.hoje = { dia: null, feitas: {} };
   if (!d.hoje.feitas || typeof d.hoje.feitas !== 'object' || Array.isArray(d.hoje.feitas)) d.hoje.feitas = {};
@@ -84,4 +92,21 @@ function despensaRegistarTroca(estado, vizinhoId, bemId, diaLisboa) {
   if (primeiraVez) d.primeiraTroca[bemId] = diaLisboa;
   d.hoje.feitas[vizinhoId] = true;
   return { ok: true, primeiraVez: primeiraVez };
+}
+
+// Regista a entrega de "n" unidades do bem "bemId" (tira-as da despensa).
+//   - o bem não existe em ESTRADA_BENS:     { ok: false, motivo: 'id_invalido' }
+//   - n não é um inteiro maior que 0:       { ok: false, motivo: 'n_invalido' }
+//   - tem menos de n unidades:              { ok: false, motivo: 'sem_stock' }
+//   - senão soma n a entregues[bemId] e devolve { ok: true }.
+// Nos casos recusados não mexe em nada. Não paga nada em troca (sem uvas, sem Reputação)
+// e não grava: quem chamar é que grava.
+function despensaRegistarEntrega(estado, bemId, n) {
+  if (!despensaBemExiste(bemId)) return { ok: false, motivo: 'id_invalido' };
+  if (typeof n !== 'number' || !Number.isInteger(n) || n <= 0 || n > Number.MAX_SAFE_INTEGER) return { ok: false, motivo: 'n_invalido' };
+  if (despensaQuantos(estado, bemId) < n) return { ok: false, motivo: 'sem_stock' };
+
+  const d = despensaEstado(estado);
+  d.entregues[bemId] = despensaInteiroValido(d.entregues[bemId]) + n;
+  return { ok: true };
 }
