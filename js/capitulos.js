@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // CAPÍTULOS DA QUINTA — motor (sem nada visível no ecrã).
 //
-// Um capítulo por nível (1 a 6), escritos como DADOS em CAPITULOS_CONFIG
+// Um capítulo por nível (1 a 7), escritos como DADOS em CAPITULOS_CONFIG
 // (estilo FESTAS_CONFIG em js/festas.js). Cada capítulo tem um critério
 // verificável só com contadores que já existem no estado (ver
 // js/state.js). Os capítulos nunca travam a subida de nível: os níveis
@@ -41,7 +41,9 @@ const CAPITULOS_CONFIG = [
   { id: 'cap3', nivel: 3, criterio: [{ tipo: 'numero', caminho: 'garrafas', alvo: 1 }] },
   { id: 'cap4', nivel: 4, criterio: [{ tipo: 'contarLista', caminho: 'encyclopedia.unlocked', alvo: 6 }] },
   { id: 'cap5', nivel: 5, falante: 'Chizo', criterio: [{ tipo: 'algumaEntrada', caminho: 'adega.historico', campo: 'diasDescanso', alvo: 3 }] },
-  { id: 'cap6', nivel: 6, criterio: [{ tipo: 'coresColecao', alvo: 4 }] }
+  { id: 'cap6', nivel: 6, criterio: [{ tipo: 'coresColecao', alvo: 4 }] },
+  // Nível 7: ter recebido o bem dos 3 vizinhos (state.despensa.recebidos tem uma chave por bem, só criada na 1.ª troca).
+  { id: 'cap7', nivel: 7, criterio: [{ tipo: 'contarChaves', caminho: 'despensa.recebidos', alvo: 3 }] }
 ];
 
 // Alvos que não são um número fixo. "totalEnciclopedia" lê o tamanho da
@@ -148,7 +150,8 @@ const CAPITULOS_STRINGS = {
     cap3: { titulo: 'O primeiro Moscatel', objetivo: 'Faz a primeira garrafa.' },
     cap4: { titulo: 'O convite da vila', objetivo: 'Descobre 6 entradas da Enciclopédia.' },
     cap5: { titulo: 'O que descansa mais tempo', objetivo: 'Deixa uma garrafa descansar 3 dias ou mais na Cave.' },
-    cap6: { titulo: 'A Coleção', objetivo: 'Junta à tua Coleção uma garrafa de cada cor: jovem, dourada, âmbar e cobre.' }
+    cap6: { titulo: 'A Coleção', objetivo: 'Junta à tua Coleção uma garrafa de cada cor: jovem, dourada, âmbar e cobre.' },
+    cap7: { titulo: 'Vizinhos à porta', objetivo: 'Troca uvas com os 3 vizinhos e guarda na Despensa o queijo, o sal e o mel.' }
   },
   en: {
     ui: { rotulo: 'Chapter', proximo: 'Next chapter at Level {n}', todos: 'All chapters completed' },
@@ -157,7 +160,8 @@ const CAPITULOS_STRINGS = {
     cap3: { titulo: 'The first Moscatel', objetivo: 'Make your first bottle.' },
     cap4: { titulo: "The village's invitation", objetivo: 'Discover 6 Encyclopedia entries.' },
     cap5: { titulo: 'What rests the longest', objetivo: 'Let a bottle rest in the Cellar for 3 days or more.' },
-    cap6: { titulo: 'The Collection', objetivo: 'Add one bottle of each colour to your Collection: young, golden, amber and copper.' }
+    cap6: { titulo: 'The Collection', objetivo: 'Add one bottle of each colour to your Collection: young, golden, amber and copper.' },
+    cap7: { titulo: 'Neighbours at the door', objetivo: 'Trade grapes with the 3 neighbours and keep the cheese, the salt and the honey in the Pantry.' }
   },
   es: {
     ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo en el Nivel {n}', todos: 'Todos los capítulos cumplidos' },
@@ -166,7 +170,8 @@ const CAPITULOS_STRINGS = {
     cap3: { titulo: 'El primer Moscatel', objetivo: 'Haz tu primera botella.' },
     cap4: { titulo: 'La invitación de la villa', objetivo: 'Descubre 6 entradas de la Enciclopedia.' },
     cap5: { titulo: 'Lo que más reposa', objetivo: 'Deja reposar una botella 3 días o más en la Cava.' },
-    cap6: { titulo: 'La Colección', objetivo: 'Suma a tu Colección una botella de cada color: joven, dorada, ámbar y cobre.' }
+    cap6: { titulo: 'La Colección', objetivo: 'Suma a tu Colección una botella de cada color: joven, dorada, ámbar y cobre.' },
+    cap7: { titulo: 'Vecinos a la puerta', objetivo: 'Intercambia uvas con los 3 vecinos y guarda en la Despensa el queso, la sal y la miel.' }
   }
 };
 
@@ -248,7 +253,7 @@ let _capitulosTesteMostrado = false;
 function capitulosParametrosTeste() {
   let params;
   try { params = new URLSearchParams(location.search); } catch (e) { return null; }
-  const m = /^(?:cap)?([1-6])$/i.exec(params.get('capitulo') || '');
+  const m = /^(?:cap)?([1-7])$/i.exec(params.get('capitulo') || '');
   if (!m) return null;
   const id = 'cap' + m[1];
   if (!CAPITULOS_CONFIG.some(function (x) { return x.id === id; })) return null;

@@ -21,7 +21,7 @@ const HISTORIA_INTRO = [
   { chave: 'historia.intro.2' }
 ];
 
-// Por nível (2 a 6): cada fala pode trazer a sua própria foto — a que
+// Por nível (2 a 7): cada fala pode trazer a sua própria foto — a que
 // não tiver "foto" mantém a última que já estava a mostrar-se.
 const HISTORIA_NIVEIS = {
   2: [
@@ -48,6 +48,11 @@ const HISTORIA_NIVEIS = {
     { chave: 'historia.nivel6.1' },
     { chave: 'historia.nivel6.2' },
     { chave: 'historia.nivel6.3' }
+  ],
+  7: [
+    { chave: 'historia.nivel7.1' },
+    { chave: 'historia.nivel7.2' },
+    { chave: 'historia.nivel7.3' }
   ]
 };
 

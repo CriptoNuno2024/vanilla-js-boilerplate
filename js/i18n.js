@@ -55,6 +55,7 @@ const TRANSLATIONS = {
     'nivel.nome.4': 'Quinta Conhecida',
     'nivel.nome.5': 'Quinta Afamada',
     'nivel.nome.6': 'Casa do Moscatel',
+    'nivel.nome.7': 'Quinta Estimada',
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
@@ -133,6 +134,9 @@ const TRANSLATIONS = {
     'historia.nivel6.1': 'Já ninguém lhe chama Quinta Esquecida. Agora é a Casa do Moscatel.',
     'historia.nivel6.2': 'Mas o YoshiCat sabe que esta terra guarda histórias muito mais antigas… e esta foi só a primeira.',
     'historia.nivel6.3': 'Abriu: as Garrafas de Coleção.',
+    'historia.nivel7.1': 'A estrada que passa à porta da Quinta voltou a ter gente. Os vizinhos já ouviram falar do nosso Moscatel.',
+    'historia.nivel7.2': 'Chegam com o que a sua terra dá: queijo, sal e mel. E ficam contentes com umas uvas da Quinta em troca.',
+    'historia.nivel7.3': 'Abriu: a Estrada.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Quatro tarefas e a Vinha já não parece abandonada.',
@@ -141,6 +145,7 @@ const TRANSLATIONS = {
     'capitulo.cap4.conclusao': 'Quem vai às festas tem de conhecer a terra. Já li seis histórias da nossa.',
     'capitulo.cap5.conclusao': 'Este Moscatel teve paciência. Mas os porcos também já lhe farejaram o cheiro.',
     'capitulo.cap6.conclusao': 'Quatro cores, quatro esperas. Agora sim, parece uma coleção.',
+    'capitulo.cap7.conclusao': 'Queijo, sal e mel na Despensa. A boa vizinhança também se faz com uvas.',
 
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
@@ -389,9 +394,11 @@ const TRANSLATIONS = {
     'conquista.meio_caminho.nome': 'Meio caminho',
     'conquista.meio_caminho.desc': 'Cumpre 3 capítulos da Quinta.',
     'conquista.quinta_completa.nome': 'Quinta completa',
-    'conquista.quinta_completa.desc': 'Cumpre todos os capítulos da Quinta.',
+    'conquista.quinta_completa.desc': 'Cumpre os 6 primeiros capítulos da Quinta.',
     'conquista.casa_do_moscatel.nome': 'Casa do Moscatel',
     'conquista.casa_do_moscatel.desc': 'Chega ao nível 6.',
+    'conquista.boa_vizinhanca.nome': 'Boa vizinhança',
+    'conquista.boa_vizinhanca.desc': 'Troca com os 3 vizinhos da Estrada.',
     'perfil.ultimaLabel': 'última',
 
     'lingua.title': 'Escolher Língua',
@@ -442,6 +449,7 @@ const TRANSLATIONS = {
     'nivel.nome.4': 'Known Quinta',
     'nivel.nome.5': 'Famous Quinta',
     'nivel.nome.6': 'House of Moscatel',
+    'nivel.nome.7': 'Esteemed Quinta',
 
     'objetivos.titulo': 'Today on the Quinta',
     'visita.linha': 'Today: {nome} is at the Quinta',
@@ -514,6 +522,9 @@ const TRANSLATIONS = {
     'historia.nivel6.1': 'No one calls it the Forgotten Quinta anymore. Now it\'s the House of Moscatel.',
     'historia.nivel6.2': 'But YoshiCat knows this land holds much older stories... and this was only the first.',
     'historia.nivel6.3': 'Unlocked: the Collector\'s Bottles.',
+    'historia.nivel7.1': 'The road that passes the Quinta\'s door has people on it again. The neighbours have already heard about our Moscatel.',
+    'historia.nivel7.2': 'They arrive with what their land gives: cheese, salt and honey. And they are glad to get some of the Quinta\'s grapes in return.',
+    'historia.nivel7.3': 'Unlocked: the Road.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Four tasks done and the Vineyard no longer looks abandoned.',
@@ -522,6 +533,7 @@ const TRANSLATIONS = {
     'capitulo.cap4.conclusao': "Those who go to the festivals must know the land. I've read six of its stories.",
     'capitulo.cap5.conclusao': 'This Moscatel was patient. But the pigs have sniffed it out too.',
     'capitulo.cap6.conclusao': 'Four colours, four waits. Now it looks like a collection.',
+    'capitulo.cap7.conclusao': 'Cheese, salt and honey in the Pantry. Good neighbours are made with grapes too.',
 
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
@@ -759,9 +771,11 @@ const TRANSLATIONS = {
     'conquista.meio_caminho.nome': 'Halfway there',
     'conquista.meio_caminho.desc': 'Complete 3 chapters of the Quinta.',
     'conquista.quinta_completa.nome': 'Complete Quinta',
-    'conquista.quinta_completa.desc': 'Complete every chapter of the Quinta.',
+    'conquista.quinta_completa.desc': 'Complete the first 6 chapters of the Quinta.',
     'conquista.casa_do_moscatel.nome': 'House of Moscatel',
     'conquista.casa_do_moscatel.desc': 'Reach level 6.',
+    'conquista.boa_vizinhanca.nome': 'Good neighbours',
+    'conquista.boa_vizinhanca.desc': 'Trade with the 3 neighbours on the Road.',
     'perfil.ultimaLabel': 'latest',
 
     'lingua.title': 'Choose Language',
@@ -812,6 +826,7 @@ const TRANSLATIONS = {
     'nivel.nome.4': 'Quinta Conocida',
     'nivel.nome.5': 'Quinta Afamada',
     'nivel.nome.6': 'Casa del Moscatel',
+    'nivel.nome.7': 'Quinta Estimada',
 
     'objetivos.titulo': 'Hoy en la Quinta',
     'visita.linha': 'Hoy: {nome} está en la Quinta',
@@ -884,6 +899,9 @@ const TRANSLATIONS = {
     'historia.nivel6.1': 'Ya nadie la llama Quinta Olvidada. Ahora es la Casa del Moscatel.',
     'historia.nivel6.2': 'Pero el YoshiCat sabe que esta tierra guarda historias mucho más antiguas… y esta fue solo la primera.',
     'historia.nivel6.3': 'Se abrió: las Botellas de Colección.',
+    'historia.nivel7.1': 'El camino que pasa por la puerta de la Quinta vuelve a tener gente. Los vecinos ya han oído hablar de nuestro Moscatel.',
+    'historia.nivel7.2': 'Llegan con lo que da su tierra: queso, sal y miel. Y se alegran de recibir a cambio unas uvas de la Quinta.',
+    'historia.nivel7.3': 'Se abrió: el Camino.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Cuatro tareas y el Viñedo ya no parece abandonado.',
@@ -892,6 +910,7 @@ const TRANSLATIONS = {
     'capitulo.cap4.conclusao': 'Quien va a las fiestas debe conocer la tierra. Ya leí seis historias de la nuestra.',
     'capitulo.cap5.conclusao': 'Este Moscatel tuvo paciencia. Pero los cerdos ya le olfatearon el aroma.',
     'capitulo.cap6.conclusao': 'Cuatro colores, cuatro esperas. Ahora sí parece una colección.',
+    'capitulo.cap7.conclusao': 'Queso, sal y miel en la Despensa. La buena vecindad también se hace con uvas.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',
@@ -1129,9 +1148,11 @@ const TRANSLATIONS = {
     'conquista.meio_caminho.nome': 'A medio camino',
     'conquista.meio_caminho.desc': 'Cumple 3 capítulos de la Quinta.',
     'conquista.quinta_completa.nome': 'Quinta completa',
-    'conquista.quinta_completa.desc': 'Cumple todos los capítulos de la Quinta.',
+    'conquista.quinta_completa.desc': 'Cumple los 6 primeros capítulos de la Quinta.',
     'conquista.casa_do_moscatel.nome': 'Casa del Moscatel',
     'conquista.casa_do_moscatel.desc': 'Llega al nivel 6.',
+    'conquista.boa_vizinhanca.nome': 'Buena vecindad',
+    'conquista.boa_vizinhanca.desc': 'Intercambia con los 3 vecinos del Camino.',
     'perfil.ultimaLabel': 'última',
 
     'lingua.title': 'Elegir Idioma',
