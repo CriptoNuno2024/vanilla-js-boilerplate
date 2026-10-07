@@ -22,12 +22,14 @@ const MARCA = '[por escrever]';
 const ctx = vm.createContext({});
 vm.runInContext('Math.random = function () { throw new Error("Math.random proibido"); }; Date.now = function () { throw new Error("Date.now proibido"); };', ctx);
 vm.runInContext(fs.readFileSync(FICHEIRO, 'utf8') +
-  '\n;this.VIZINHOS = ESTRADA_VIZINHOS; this.BENS = ESTRADA_BENS; this.FONTES = ESTRADA_FONTES; this.TROCA = ESTRADA_TROCA; this.PEDIDOS = ESTRADA_PEDIDOS;', ctx, { filename: 'estrada-dados.js' });
+  '\n;this.VIZINHOS = ESTRADA_VIZINHOS; this.BENS = ESTRADA_BENS; this.FONTES = ESTRADA_FONTES; this.TROCA = ESTRADA_TROCA; this.PEDIDOS = ESTRADA_PEDIDOS; this.OFERTA = ESTRADA_OFERTA; this.OFERTA_FALAS = ESTRADA_OFERTA_FALAS;', ctx, { filename: 'estrada-dados.js' });
 const VIZINHOS = ctx.VIZINHOS;
 const BENS = ctx.BENS;
 const FONTES = ctx.FONTES;
 const TROCA = ctx.TROCA;
 const PEDIDOS = ctx.PEDIDOS;
+const OFERTA = ctx.OFERTA;
+const OFERTA_FALAS = ctx.OFERTA_FALAS;
 
 let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
@@ -162,6 +164,28 @@ function verificarFonte(item, onde, obrigatoria) {
   ok(JSON.stringify(PEDIDOS.sr_joaquim) === '["uvas"]' && JSON.stringify(PEDIDOS.tomas) === '["uvas"]', 'o Sr. Joaquim e o Tomás pedem sempre uvas');
 }
 
+// ----- Ofertas a uma visita (PR 5C): regras e falas especiais (9: 3 visitas x 3 bens) -----
+{
+  ok(OFERTA.reputacao === 1 && OFERTA.porDia === 1, 'a oferta devia dar +1 de Reputação, 1 vez por dia');
+  ok(JSON.stringify(OFERTA.ordemEmpate) === '["queijo_azeitao","mel_sesimbra","sal_sado"]', 'empate: queijo, mel, sal');
+  ok(Object.keys(OFERTA).sort().join() === 'ordemEmpate,porDia,reputacao', 'a oferta não devia ter outros campos: ' + Object.keys(OFERTA));
+  ok(Object.keys(OFERTA_FALAS).sort().join() === 'henrique,marisa,valentim', 'falas de oferta para as 3 visitas');
+  Object.keys(OFERTA_FALAS).forEach(function (pers) {
+    ok(Object.keys(OFERTA_FALAS[pers]).sort().join() === 'mel_sesimbra,queijo_azeitao,sal_sado', pers + ': uma fala por bem');
+    Object.keys(OFERTA_FALAS[pers]).forEach(function (bem) {
+      const f = OFERTA_FALAS[pers][bem];
+      ok(f.semFacto === true && f.fonte === undefined, pers + '/' + bem + ': a fala de oferta é só carinho (semFacto: true, sem fonte)');
+      ok(Object.keys(f).sort().join() === 'semFacto,texto', pers + '/' + bem + ': campos inesperados: ' + Object.keys(f));
+      textosEmTresLinguas(f.texto, 'oferta ' + pers + '/' + bem);
+      LINGUAS.forEach(function (l) {
+        const t = f.texto[l] || '';
+        ok((t.replace(/\b(Sr|Dr|Mr|Sra)\./g, '').match(/[.!?:]/g) || []).length <= 3 && t.length <= 130, pers + '/' + bem + ' (' + l + '): fala curta (1 a 2 frases, até 130 caracteres): ' + t.length);
+        ok(!/Moscatel/.test(t), pers + '/' + bem + ' (' + l + '): não diz qual Moscatel vai com qual produto');
+      });
+    });
+  });
+}
+
 // ----- Carregado e só de leitura (PR 4: ecrã "A Estrada"; sem trocas, sem custos, sem Reputação) -----
 if (!process.env.ESTRADA_JS) {
   const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
@@ -176,7 +200,7 @@ if (!process.env.ESTRADA_JS) {
   const semComentarios = function (src) { return src.split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n'); };
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && ['estrada-dados.js', 'despensa.js', 'estrada.js'].indexOf(f) === -1; }).forEach(function (f) {
     const src = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8');
-    ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA|PEDIDOS)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada');
+    ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA|PEDIDOS|OFERTA)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada');
   });
 
   // Só de leitura: nenhum ficheiro do jogo regista trocas ou entregas, e o ecrã não grava, não cobra
@@ -195,17 +219,19 @@ if (!process.env.ESTRADA_JS) {
     const falhasEcra = [];
     const ok = function (cond, msg) { if (!cond) falhasEcra.push(msg); };
     const ecra = semComentarios(srcEcra);
-    // Só o clique troca e grava: despensaTrocar e saveState aparecem uma vez cada, dentro de estradaTrocarClique.
-    const m = /function estradaTrocarClique\([^)]*\) \{[\s\S]*?\n\}\n/.exec(ecra);
-    const corpoClique = m ? m[0] : '';
-    const fora = m ? ecra.replace(corpoClique, '') : ecra;
-    ok(!!m, 'devia existir estradaTrocarClique');
-    ok((ecra.match(/despensaTrocar\(/g) || []).length === 1 && corpoClique.indexOf('despensaTrocar(') !== -1 && fora.indexOf('despensaTrocar') === -1, 'só o clique (estradaTrocarClique) pode chamar despensaTrocar');
-    ok((ecra.match(/saveState\(/g) || []).length === 1 && corpoClique.indexOf('saveState(') !== -1 && fora.indexOf('saveState') === -1, 'só o clique (estradaTrocarClique) pode chamar saveState, uma vez');
+    // Só os dois cliques gravam: estradaTrocarClique (troca) e estradaOferecerClique (oferta, PR 5C). Cada um chama a sua
+    // regra (despensaTrocar / despensaOferecer) e saveState uma vez, e só eles atualizam a barra de cima.
+    const corpoDe = function (nome) { const m = new RegExp('function ' + nome + '\\([^)]*\\) \\{[\\s\\S]*?\\n\\}\\n').exec(ecra); return m ? m[0] : ''; };
+    const corpoTroca = corpoDe('estradaTrocarClique'), corpoOferta = corpoDe('estradaOferecerClique');
+    const fora = ecra.replace(corpoTroca, '').replace(corpoOferta, '');
+    ok(corpoTroca !== '' && corpoOferta !== '', 'devia existir estradaTrocarClique e estradaOferecerClique');
+    ok((ecra.match(/despensaTrocar\(/g) || []).length === 1 && corpoTroca.indexOf('despensaTrocar(') !== -1 && fora.indexOf('despensaTrocar') === -1, 'só o clique (estradaTrocarClique) pode chamar despensaTrocar');
+    ok((ecra.match(/despensaOferecer\(/g) || []).length === 1 && corpoOferta.indexOf('despensaOferecer(') !== -1 && fora.indexOf('despensaOferecer') === -1, 'só o clique (estradaOferecerClique) pode chamar despensaOferecer');
+    ok((ecra.match(/saveState\(/g) || []).length === 2 && (corpoTroca.match(/saveState\(/g) || []).length === 1 && (corpoOferta.match(/saveState\(/g) || []).length === 1 && fora.indexOf('saveState') === -1, 'só os cliques (estradaTrocarClique e estradaOferecerClique) podem chamar saveState, uma vez cada');
     ok(!/localStorage|nuvem|marcarObjetivo|despensaEstado|despensaRegistar|ESTRADA_PEDIDOS/.test(ecra), 'estrada.js não devia usar localStorage, a nuvem, objetivos, despensaEstado, despensaRegistar* nem ESTRADA_PEDIDOS');
     ok(!/\b(state|estado)\.(uvas|reputacao|garrafas|gotas|despensa|adega)[\w.\[\]'"]*\s*(=[^=]|[-+*\/]=|\+\+|--)/.test(ecra), 'estrada.js não devia escrever em uvas, Reputação, garrafas, gotas, despensa nem adega (quem altera é despensaTrocar)');
     ok(!/Math\.random|Date\.now|new Date/.test(ecra), 'estrada.js não devia usar Math.random, Date.now nem new Date');
-    ok(!/updateStatsDisplays/.test(fora), 'a barra de cima só se atualiza no clique');
+    ok(!/updateStatsDisplays/.test(fora), 'a barra de cima só se atualiza nos cliques');
 
   // Comportamento: desenha o ecrã com o estado REAL de um save, sem alterar nada nem gravar.
   const gravacoes = [];

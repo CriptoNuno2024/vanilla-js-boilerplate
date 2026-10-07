@@ -7,6 +7,10 @@
 // está apagado) calcula-se só a ler. Só o clique (estradaTrocarClique) chama despensaTrocar e
 // grava, UMA vez, se a troca correr bem.
 //
+// PR 5C: "Oferecer {bem}" a uma visita da Quinta. A linha desenha-se por baixo da linha da visita
+// (ver atualizarLinhaVisitaQuinta() em js/visitas.js, que chama estradaOfertaHtml()), também sem gravar;
+// só o clique (estradaOferecerClique) chama despensaOferecer e grava, UMA vez.
+//
 // Abre-se a partir da Quinta (linha no cartão, só com o ecrã desbloqueado: ver
 // ecraDesbloqueado('estrada') em js/niveis.js; um jogador antigo vê-a sempre).
 // ---------------------------------------------------------------------
@@ -200,4 +204,82 @@ function estradaTrocarClique(vizinhoId) {
     estradaOcupado = false;
   }
   estradaDesenhar();
+}
+
+// ---------------------------------------------------------------------
+// OFERECER UM BEM A UMA VISITA (PR 5C), no cartão da Quinta.
+// ---------------------------------------------------------------------
+
+// Só em memória: a oferta feita (para mostrar o agradecimento) até se sair da app. Guardam-se códigos, não textos.
+let estradaOfertaResultado = null; // { dia, personagem, bem, reputacaoGanha }
+let estradaOfertaOcupado = false;
+
+// A visita de hoje, SÓ SE já se tocou nela (state.visitas.hoje.feita) e não estamos em modo de teste; senão null.
+// Só lê (visitaResolverHoje não grava).
+function estradaVisitaTocadaHoje() {
+  try {
+    if (typeof visitaEmModoTeste === 'function' && visitaEmModoTeste()) return null;
+    const r = visitaResolverHoje();
+    if (!r.visita || r.feita !== true || r.nova || visitaTextoPorEscrever(r.visita)) return null;
+    return r.visita;
+  } catch (e) { return null; }
+}
+
+function estradaNomeBem(bemId) {
+  const bem = ESTRADA_BENS.filter(function (b) { return b.id === bemId; })[0];
+  return bem ? estradaTexto(bem.nome) : '';
+}
+
+// O que se vê no cartão da Quinta, por baixo da linha da visita (só lê; devolve '' se não houver nada a mostrar):
+//   oferta feita agora: "Ofereceste {bem} {a quem}", "+1 de Reputação" e a fala dessa visita para esse bem;
+//   oferta de hoje já feita: "Já ofereceste hoje";
+//   senão, havendo bens: o botão "Oferecer {bem}".
+// Só com a visita de hoje já tocada e a Estrada desbloqueada; sem bens e sem oferta feita, não mostra nada.
+function estradaOfertaHtml() {
+  if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('estrada')) return '';
+  const visita = estradaVisitaTocadaHoje();
+  if (!visita) return '';
+  const dia = estradaDiaDeHoje();
+  const res = estradaOfertaResultado;
+  if (res && res.dia === dia && res.personagem === visita.personagem) {
+    const fala = ESTRADA_OFERTA_FALAS[res.personagem] && ESTRADA_OFERTA_FALAS[res.personagem][res.bem];
+    return '<div class="mini-bloco"><div class="oferta-resultado">' +
+      '<p>' + cadernoEscapar(t('oferta.ofereceste').replace('{bem}', estradaNomeBem(res.bem)).replace('{nome}', t('oferta.a.' + res.personagem))) + '</p>' +
+      '<p>' + t('oferta.rep').replace('{n}', res.reputacaoGanha) + '</p>' +
+      (fala ? '<p class="oferta-fala">«' + cadernoEscapar(estradaTexto(fala.texto)) + '»</p>' : '') +
+    '</div></div>';
+  }
+  const ultima = despensaOfertaDia(state);
+  if (ultima !== null && ultima >= dia) return '<div class="mini-bloco"><p class="oferta-linha">' + t('oferta.jaHoje') + '</p></div>';
+  const bem = despensaBemParaOferecer(state);
+  if (bem === null) return '';
+  return '<div class="mini-bloco"><button type="button" class="btn-pill pill-main oferta-botao" onclick="estradaOferecerClique()">' +
+    cadernoEscapar(t('oferta.btn').replace('{bem}', estradaNomeBem(bem))) + '</button></div>';
+}
+
+// O ÚNICO sítio que oferece e grava. Toque no botão: desativa-o logo (clique duplo), oferece (despensaOferecer) e,
+// se correu bem, grava UMA vez e atualiza a barra de cima (updateStatsDisplays). Se recusou, não grava.
+function estradaOferecerClique() {
+  if (estradaOfertaOcupado) return;
+  estradaOfertaOcupado = true;
+  try {
+    const botao = document.querySelector('.oferta-botao');
+    if (botao) botao.disabled = true;
+    const visita = estradaVisitaTocadaHoje();
+    if (visita) {
+      const dia = estradaDiaDeHoje();
+      const r = despensaOferecer(state, dia);
+      if (r.ok) {
+        saveState(state);
+        updateStatsDisplays();
+        estradaOfertaResultado = { dia: dia, personagem: visita.personagem, bem: r.bem, reputacaoGanha: r.reputacaoGanha };
+      }
+    }
+  } finally {
+    estradaOfertaOcupado = false;
+  }
+  // Redesenha o cartão da Quinta (a barra de cima já foi atualizada).
+  if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
+  if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+  if (typeof atualizarLinhaVisitaQuinta === 'function') atualizarLinhaVisitaQuinta();
 }
