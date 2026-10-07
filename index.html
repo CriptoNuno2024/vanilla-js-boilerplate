@@ -875,6 +875,46 @@
     }
     .garrafa-linha { padding: 10px 14px; font-size: 14px; flex: 0 0 auto; }
 
+    /* Ecrã "A Estrada" (ver renderEstrada() em js/estrada.js): cartões dos vizinhos numa lista
+       que desliza entre o cartão do topo e o botão Voltar, como "As Garrafas". */
+    .scroll-panel.estrada-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: calc(100vh - var(--topo-altura) - 60px - var(--nav-altura) - 8px - 52px - 8px);
+    }
+    @supports (height: 100dvh) {
+      .scroll-panel.estrada-lista {
+        max-height: calc(100dvh - var(--topo-altura) - 60px - var(--nav-altura) - 8px - 52px - 8px);
+      }
+    }
+    .estrada-cartao {
+      flex: 0 0 auto;
+      background: rgba(12, 14, 22, 0.55);
+      border: 1px solid rgba(245, 215, 110, 0.4);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .estrada-cena { position: relative; height: 84px; }
+    .estrada-cena .estrada-foto { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .estrada-cena .estrada-cara {
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f5d76e;
+      background: #2a1a1a;
+    }
+    .estrada-texto { padding: 8px 10px 10px; font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
+    .estrada-nome { margin: 0; font-size: 14px; font-weight: 700; color: #f5d76e; }
+    .estrada-papel { font-weight: 400; color: #e8e8e8; }
+    .estrada-texto p { margin: 2px 0 0; }
+    .estrada-fala { margin-top: 6px; font-style: italic; color: #fff; }
+    .estrada-aviso { margin: 0; padding: 4px 4px 2px; text-align: center; font-size: 13px; color: #f5d76e; }
+
     .colecao-cor {
       display: flex;
       flex-direction: column;
@@ -1737,6 +1777,7 @@
     body.jogo-cheio #screen-conquistas.content,
     body.jogo-cheio #screen-caderno.content,
     body.jogo-cheio #screen-colecao.content,
+    body.jogo-cheio #screen-estrada.content,
     body.jogo-cheio #screen-garrafas.content,
     body.jogo-cheio #screen-festa.content {
       background: none;
@@ -1961,6 +2002,7 @@
         <div id="festa-faixa" class="festa-faixa" onclick="goTo('festa')"></div>
         <div id="nivel-container"></div>
         <div id="visita-container"></div>
+        <div id="estrada-linha-container"></div>
         <div id="capitulo-container"></div>
         <div id="objetivos-container"></div>
       </div>
@@ -2013,6 +2055,11 @@
     <div id="colecao-container"></div>
   </div>
 
+  <!-- ECRÃ: A ESTRADA (Nível 7; só leitura; aberto a partir da Quinta) -->
+  <div id="screen-estrada" class="screen content">
+    <div id="estrada-container"></div>
+  </div>
+
   <!-- ECRÃ: AS GARRAFAS (Nível 6; lista só de leitura; aberto a partir de "A Coleção") -->
   <div id="screen-garrafas" class="screen content">
     <div id="garrafas-container"></div>
@@ -2049,7 +2096,7 @@
   <script src="js/state.js?v=59"></script>
   <script src="js/som.js?v=48"></script>
   <script src="js/nuvem.js?v=56"></script>
-  <script src="js/i18n.js?v=77"></script>
+  <script src="js/i18n.js?v=78"></script>
   <script src="js/estacoes.js?v=41"></script>
   <script src="js/tempo.js?v=50"></script>
   <script src="js/festas.js?v=49"></script>
@@ -2061,13 +2108,16 @@
   <script src="js/garrafa.js?v=58"></script>
   <script src="js/personagens.js?v=2"></script>
   <script src="js/perfil.js?v=59"></script>
-  <script src="js/niveis.js?v=54"></script>
+  <script src="js/niveis.js?v=55"></script>
   <script src="js/historia.js?v=51"></script>
   <script src="js/objetivos.js?v=49"></script>
   <script src="js/capitulos.js?v=9"></script>
   <script src="js/ronda.js?v=4"></script>
   <script src="js/conquistas.js?v=4"></script>
   <script src="js/visitas.js?v=5"></script>
-  <script src="js/main.js?v=64"></script>
+  <script src="js/estrada-dados.js?v=1"></script>
+  <script src="js/despensa.js?v=1"></script>
+  <script src="js/estrada.js?v=1"></script>
+  <script src="js/main.js?v=65"></script>
 </body>
 </html>

@@ -69,6 +69,8 @@ function atualizarCartaoNivelQuinta() {
       '<p class="mini-bloco-titulo">' + t('nivel.label') + ' ' + nivelAtual + ' · ' + t(infoAtual.nomeKey) + '</p>' +
       progressoHtml +
     '</div>';
+  // A linha da Estrada depende do nível: acompanha o cartão (ver js/estrada.js).
+  if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
 }
 
 // Guarda quantas garrafas já existem em state.adega.historico no momento
@@ -132,7 +134,8 @@ const NIVEL_NECESSARIO_POR_ECRA = {
   enciclopedia: 4,
   festa: 4,
   colecao: 6,
-  garrafas: 6
+  garrafas: 6,
+  estrada: 7
 };
 
 function ecraDesbloqueado(screen) {

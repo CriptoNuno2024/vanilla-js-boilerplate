@@ -2,8 +2,8 @@
 // Estado e funções da Despensa da Estrada (PR 3): state.despensa em js/state.js e
 // despensaQuantos / despensaRegistarTroca em js/despensa.js. Corre o state.js, o
 // estrada-dados.js e o despensa.js REAIS num ambiente simulado (vm), sem browser nem conta
-// real. Confirma também que o despensa.js é puro (sem Math.random nem Date.now) e que nada
-// no jogo o usa ainda.
+// real. Confirma também que o despensa.js é puro (sem Math.random nem Date.now) e que no
+// jogo só é carregado e lido (despensaQuantos no ecrã da Estrada): sem trocas, sem entregas.
 //
 // Uso: node scripts/verificar-despensa.js
 // DESPENSA_JS=caminho  corre sobre outra versão de js/despensa.js (para provar que os testes
@@ -301,17 +301,23 @@ const entregar = function (estado, bem, n) { PURO.__e = estado; PURO.__b = bem; 
   ok(!/state\.(reputacao|uvas|gotas|garrafas)|marcarObjetivo|nuvem/i.test(src.replace(/\/\/.*$/gm, '')), 'despensa.js não devia tocar em Reputação, uvas, gotas, garrafas, objetivos nem nuvem');
 }
 
-// 8. Nada no jogo usa a despensa (só state.js e o próprio despensa.js).
+// 8. Carregada, mas só de leitura (PR 4: ecrã "A Estrada"): despensa.js está no index.html e o
+//    único uso no jogo é despensaQuantos em js/estrada.js; ninguém regista trocas nem entregas.
 if (!process.env.DESPENSA_JS) {
   const html = ler(path.join(RAIZ, 'index.html'));
-  ok(!/despensa/i.test(html), 'index.html não devia carregar nem referir a despensa');
-  // Permitido (nível 7): js/capitulos.js só LÊ o caminho 'despensa.recebidos' como dado do critério do
-  // capítulo 7, e os textos (js/i18n.js, js/capitulos.js) dizem "Despensa" com maiúscula. Nada mais.
+  ok(/<script src="js\/despensa\.js\?v=\d+"><\/script>/.test(html), 'index.html devia carregar js/despensa.js (com ?v=)');
+  ok(/<script src="js\/estrada-dados\.js\?v=\d+"><\/script>/.test(html), 'index.html devia carregar js/estrada-dados.js (com ?v=)');
+  const pos = function (f) { return html.indexOf('<script src="js/' + f + '?v='); };
+  ok(pos('despensa.js') !== -1 && pos('despensa.js') < pos('estrada.js') && pos('estrada.js') < pos('main.js'), 'despensa.js devia carregar antes de estrada.js e main.js');
+  // Permitido: js/capitulos.js só LÊ o caminho 'despensa.recebidos' como dado do critério do capítulo 7,
+  // os textos (js/i18n.js, js/capitulos.js) dizem "Despensa" com maiúscula, e js/estrada.js só chama despensaQuantos.
   const PERMITIDOS_TEXTO = ['capitulos.js', 'i18n.js'];
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'state.js' && f !== 'despensa.js'; }).forEach(function (f) {
     let codigo = ler(path.join(RAIZ, 'js', f)).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
     if (PERMITIDOS_TEXTO.indexOf(f) !== -1) codigo = codigo.replace(/'despensa\.recebidos'/g, '').replace(/Despensa/g, '');
-    ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js e a palavra "Despensa" nos textos)');
+    if (f === 'estrada.js') codigo = codigo.replace(/despensaQuantos\(state, v\.bem\)/g, '').replace(/naDespensa/g, '');
+    ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js, a palavra "Despensa" nos textos e despensaQuantos em estrada.js)');
+    ok(!/despensaRegistarTroca|despensaRegistarEntrega/.test(codigo), 'js/' + f + ' não devia registar trocas nem entregas');
   });
   const stateSrc = ler(path.join(RAIZ, 'js', 'state.js')).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
   ok((stateSrc.match(/despensa/gi) || []).length === 1, 'state.js só devia ter o campo despensa em defaultState()');
