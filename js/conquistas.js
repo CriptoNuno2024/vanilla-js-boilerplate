@@ -80,12 +80,18 @@ const CONQUISTAS_CONFIG = [
   { id: 'meio_caminho', nomeKey: 'conquista.meio_caminho.nome', descKey: 'conquista.meio_caminho.desc',
     cumprida: function () { return conquistasCapitulosConcluidos() >= 3; } },
   { id: 'quinta_completa', nomeKey: 'conquista.quinta_completa.nome', descKey: 'conquista.quinta_completa.desc',
+    // Conta só os capítulos de nível 6 ou menos, para quem já a tinha não a perder quando há capítulos novos.
     cumprida: function () {
-      return CAPITULOS_CONFIG.length > 0 && conquistasCapitulosConcluidos() >= CAPITULOS_CONFIG.length;
+      const antigos = CAPITULOS_CONFIG.filter(function (c) { return c.nivel <= 6; });
+      const concluidos = (state.capitulos && state.capitulos.concluidos) || {};
+      return antigos.length > 0 && antigos.every(function (c) { return concluidos[c.id] === true; });
     } },
   // Calculado pela Reputação (nunca por state.niveis.nivelMostrado).
   { id: 'casa_do_moscatel', nomeKey: 'conquista.casa_do_moscatel.nome', descKey: 'conquista.casa_do_moscatel.desc',
-    cumprida: function () { return nivelPelaReputacao(state.reputacao) >= 6; } }
+    cumprida: function () { return nivelPelaReputacao(state.reputacao) >= 6; } },
+  // Nível 7: cumprida quando o capítulo 7 fica concluído (ver js/capitulos.js).
+  { id: 'boa_vizinhanca', nomeKey: 'conquista.boa_vizinhanca.nome', descKey: 'conquista.boa_vizinhanca.desc',
+    cumprida: function () { return !!(state.capitulos && state.capitulos.concluidos && state.capitulos.concluidos.cap7 === true); } }
 ];
 
 function conquistasCumpridas() {

@@ -305,9 +305,13 @@ const entregar = function (estado, bem, n) { PURO.__e = estado; PURO.__b = bem; 
 if (!process.env.DESPENSA_JS) {
   const html = ler(path.join(RAIZ, 'index.html'));
   ok(!/despensa/i.test(html), 'index.html não devia carregar nem referir a despensa');
+  // Permitido (nível 7): js/capitulos.js só LÊ o caminho 'despensa.recebidos' como dado do critério do
+  // capítulo 7, e os textos (js/i18n.js, js/capitulos.js) dizem "Despensa" com maiúscula. Nada mais.
+  const PERMITIDOS_TEXTO = ['capitulos.js', 'i18n.js'];
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'state.js' && f !== 'despensa.js'; }).forEach(function (f) {
-    const codigo = ler(path.join(RAIZ, 'js', f)).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
-    ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa neste PR');
+    let codigo = ler(path.join(RAIZ, 'js', f)).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
+    if (PERMITIDOS_TEXTO.indexOf(f) !== -1) codigo = codigo.replace(/'despensa\.recebidos'/g, '').replace(/Despensa/g, '');
+    ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js e a palavra "Despensa" nos textos)');
   });
   const stateSrc = ler(path.join(RAIZ, 'js', 'state.js')).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
   ok((stateSrc.match(/despensa/gi) || []).length === 1, 'state.js só devia ter o campo despensa em defaultState()');
