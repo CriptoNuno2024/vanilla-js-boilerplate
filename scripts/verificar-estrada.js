@@ -2,7 +2,7 @@
 // Verifica os dados da Estrada (js/estrada-dados.js): 3 vizinhos, falas, bens, fontes e a
 // proposta de troca provisória. Só LÊ o ficheiro e corre-o num ambiente simulado (vm), onde
 // Math.random e Date.now ficam proibidos. Só exige que a cara exista em disco quando
-// caraPendente é false (se for true, o ficheiro pode faltar) e confirma que o ficheiro ainda não é carregado por nada (PR 1: só dados).
+// caraPendente é false (se for true, o ficheiro pode faltar) e confirma que o ecrã (js/estrada.js) é só de leitura: carregado no index.html, sem gravar, sem cobrar uvas, sem Reputação e sem registar trocas.
 //
 // Uso: node scripts/verificar-estrada.js [--final]
 //   (sem --final) aceita os textos provisórios "[por escrever]";
@@ -156,14 +156,103 @@ function verificarFonte(item, onde, obrigatoria) {
     'a troca não devia ter outros campos (sem gotas, sem dinheiro): ' + Object.keys(TROCA));
 }
 
-// ----- Sem uso: nada carrega este ficheiro; só js/despensa.js (também sem uso, ver verificar-despensa.js) lê os dados -----
+// ----- Carregado e só de leitura (PR 4: ecrã "A Estrada"; sem trocas, sem custos, sem Reputação) -----
 if (!process.env.ESTRADA_JS) {
   const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
-  ok(html.indexOf('estrada-dados') === -1, 'index.html não devia carregar js/estrada-dados.js neste PR');
-  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'estrada-dados.js' && f !== 'despensa.js'; }).forEach(function (f) {
+  const posicao = function (f) { return html.search(new RegExp('<script src="js/' + f + '\\?v=\\d+"></script>')); };
+  ok(posicao('estrada-dados.js') !== -1, 'index.html devia carregar js/estrada-dados.js (com ?v=)');
+  ok(posicao('despensa.js') !== -1, 'index.html devia carregar js/despensa.js (com ?v=)');
+  ok(posicao('estrada.js') !== -1, 'index.html devia carregar js/estrada.js (com ?v=)');
+  ok(posicao('estrada-dados.js') < posicao('despensa.js') && posicao('despensa.js') < posicao('estrada.js') && posicao('estrada.js') < posicao('main.js'),
+    'ordem de carga: estrada-dados.js, despensa.js, estrada.js, main.js');
+
+  // Quem pode usar os dados da Estrada: o próprio ficheiro, despensa.js e o ecrã (estrada.js).
+  const semComentarios = function (src) { return src.split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n'); };
+  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && ['estrada-dados.js', 'despensa.js', 'estrada.js'].indexOf(f) === -1; }).forEach(function (f) {
     const src = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8');
-    ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA_PROVISORIA)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada neste PR');
+    ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA_PROVISORIA)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada');
   });
+
+  // Só de leitura: nenhum ficheiro do jogo regista trocas ou entregas, e o ecrã não grava, não cobra
+  // uvas, não dá Reputação e não usa a troca provisória.
+  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'despensa.js'; }).forEach(function (f) {
+    ok(!/despensaRegistarTroca|despensaRegistarEntrega/.test(semComentarios(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'))), 'js/' + f + ' não devia chamar despensaRegistarTroca nem despensaRegistarEntrega');
+  });
+  const ecra = semComentarios(fs.readFileSync(path.join(RAIZ, 'js', 'estrada.js'), 'utf8'));
+  ok(!/saveState|localStorage|nuvem|marcarObjetivo|despensaEstado|ESTRADA_TROCA_PROVISORIA/.test(ecra), 'estrada.js não devia gravar, usar a nuvem, objetivos, despensaEstado nem a troca provisória');
+  ok(!/state\.(reputacao|uvas|gotas|garrafas|despensa)|reputacao|uvas/i.test(ecra), 'estrada.js não devia tocar em Reputação, uvas, gotas, garrafas nem na despensa (só despensaQuantos)');
+  ok(!/Math\.random|Date\.now|new Date/.test(ecra), 'estrada.js não devia usar Math.random, Date.now nem new Date');
+
+  // Comportamento: desenha o ecrã com o estado REAL de um save, sem alterar nada nem gravar.
+  const gravacoes = [];
+  const elementos = {};
+  const el = function (id) { return elementos[id] || (elementos[id] = { innerHTML: '' }); };
+  const sb = {
+    console: { log() {}, warn() {}, error() {} },
+    localStorage: { getItem: function () { return null; }, setItem: function (k) { gravacoes.push(k); }, removeItem: function (k) { gravacoes.push(k); } },
+    location: { search: '' }, URLSearchParams: URLSearchParams, Date: Date, setTimeout: function () {}, Image: function () {},
+    document: { querySelectorAll: function () { return []; }, getElementById: el, addEventListener: function () {} },
+    Telegram: { WebApp: {} }
+  };
+  sb.window = sb;
+  const cx = vm.createContext(sb);
+  ['state.js', 'i18n.js', 'niveis.js', 'caderno.js', 'estrada-dados.js', 'despensa.js', 'estrada.js'].forEach(function (f) {
+    vm.runInContext(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'), cx, { filename: 'js/' + f });
+  });
+  vm.runInContext('this.diaLisboaDeHoje = function () { return __dia; }; this.atualizarDialogo = function () {}; this.__dia = "2026-10-07";', cx);
+  const desenhar = function (lingua, dia) {
+    vm.runInContext('currentLang = ' + JSON.stringify(lingua) + '; __dia = ' + JSON.stringify(dia) + '; renderEstrada();', cx);
+    return el('estrada-container').innerHTML;
+  };
+  vm.runInContext('state.despensa.recebidos = { queijo_azeitao: 3 }; state.despensa.entregues = { queijo_azeitao: 1 };', cx);
+  const com = vm.runInContext('JSON.stringify(state)', cx);
+  const falasVistas = {};
+  LINGUAS.forEach(function (l) {
+    const h = desenhar(l, '2026-10-07');
+    VIZINHOS.forEach(function (v) {
+      ok(h.indexOf(v.nome[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o nome de ' + v.id);
+      ok(h.indexOf(v.papel[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o papel de ' + v.id);
+      ok(h.indexOf(v.cara) !== -1, 'o ecrã (' + l + ') devia mostrar a cara de ' + v.id);
+      const bem = BENS.filter(function (b) { return b.id === v.bem; })[0];
+      ok(h.indexOf(bem.nome[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o bem de ' + v.id);
+      const falas = v.falas.filter(function (f) { return f.fonte || f.semFacto === true; });
+      ok(falas.filter(function (f) { return h.indexOf(f.texto[l].replace(/'/g, '&#39;')) !== -1 || h.indexOf(f.texto[l]) !== -1; }).length === 1, 'o ecrã (' + l + ') devia mostrar exatamente 1 fala de ' + v.id);
+      ok(v.falas.concat([v.troca]).every(function (f) { return f === v.troca ? h.indexOf(f.texto[l]) === -1 : true; }), 'o ecrã não devia mostrar falas de troca');
+    });
+    ok(/>\s*$/.test(h) && h.indexOf('estrada-aviso') !== -1, 'o ecrã devia ter o aviso "Em breve: as trocas"');
+  });
+  // "Na Despensa: n" lê recebidos - entregues (queijo 2) e 0 nos outros.
+  const hpt = desenhar('pt', '2026-10-07');
+  ok((hpt.match(/Na Despensa: 2/g) || []).length === 1 && (hpt.match(/Na Despensa: 0/g) || []).length === 2, 'Na Despensa devia ser 2, 0 e 0');
+  // Fala do dia: estável no mesmo dia e a rodar de um dia para o outro.
+  ok(desenhar('pt', '2026-10-07') === desenhar('pt', '2026-10-07'), 'a fala do dia devia ser a mesma o dia todo');
+  for (let d = 1; d <= 28; d++) {
+    const h = desenhar('pt', '2026-11-' + (d < 10 ? '0' : '') + d);
+    VIZINHOS.forEach(function (v) { v.falas.forEach(function (f) { if (h.indexOf(f.texto.pt) !== -1) falasVistas[f.id] = true; }); });
+  }
+  VIZINHOS.forEach(function (v) { ok(v.falas.filter(function (f) { return falasVistas[f.id]; }).length >= 2, v.id + ': a fala devia mudar ao longo dos dias'); });
+  ok(vm.runInContext('JSON.stringify(state)', cx) === com, 'desenhar o ecrã não devia alterar o estado');
+  ok(gravacoes.length === 0, 'desenhar o ecrã não devia gravar nada (localStorage): ' + gravacoes);
+  // Textos da interface: as mesmas chaves estrada.* em pt, en e es, todas com texto.
+  const T = vm.runInContext('TRANSLATIONS', cx);
+  const chaves = function (l) { return Object.keys(T[l]).filter(function (k) { return k.indexOf('estrada.') === 0; }).sort(); };
+  ok(chaves('pt').length === 5, 'devia haver 5 chaves estrada.* em pt: ' + chaves('pt'));
+  LINGUAS.forEach(function (l) {
+    ok(chaves(l).join() === chaves('pt').join(), 'as chaves estrada.* de ' + l + ' devem ser as mesmas de pt');
+    chaves(l).forEach(function (k) { ok(temTexto(T[l][k]), 'estrada.* (' + l + ') ' + k + ' sem texto'); });
+  });
+  // A linha da Quinta: só com o ecrã desbloqueado.
+  const linha = function (extra) {
+    vm.runInContext('state.acesso.jogadorAntigo = false; state.reputacao = 300; ' + extra + '; atualizarLinhaEstradaQuinta();', cx);
+    return el('estrada-linha-container').innerHTML;
+  };
+  vm.runInContext('state.reputacao = 0;', cx);
+  ok(linha('') === '', 'no nível 5 (jogador novo) a linha da Quinta não devia aparecer');
+  ok(linha('state.reputacao = 999') === '', 'no nível 6 (jogador novo) a linha da Quinta não devia aparecer');
+  ok(linha('state.reputacao = 1000').indexOf("goTo('estrada')") !== -1, 'no nível 7 a linha da Quinta devia aparecer');
+  vm.runInContext('state.acesso.jogadorAntigo = true; state.reputacao = 300; atualizarLinhaEstradaQuinta();', cx);
+  ok(el('estrada-linha-container').innerHTML.indexOf("goTo('estrada')") !== -1, 'um jogador antigo devia ver a linha da Quinta já no nível 5');
+  ok(gravacoes.length === 0, 'a linha da Quinta não devia gravar nada');
 }
 
 // ----- "[por escrever]" -----

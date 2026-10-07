@@ -109,7 +109,8 @@ const NAV_ATIVO_POR_ECRA = {
   caderno: 'quinta',
   colecao: 'garrafa',
   garrafas: 'garrafa',
-  festa: 'quinta'
+  festa: 'quinta',
+  estrada: 'quinta'
 };
 
 // "Limpeza ao sair" por ecrã — um minijogo com temporizador (ex: o
@@ -548,6 +549,7 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarLinhaVisitaQuinta === 'function') atualizarLinhaVisitaQuinta();
+    if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
     let mostrouHistoria = false;
@@ -588,6 +590,7 @@ function goTo(screen, opcoes) {
   if (screen === 'conquistas') renderConquistas();
   if (screen === 'caderno') renderCaderno();
   if (screen === 'colecao') renderColecao();
+  if (screen === 'estrada') renderEstrada();
   if (screen === 'garrafas') renderGarrafas();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
