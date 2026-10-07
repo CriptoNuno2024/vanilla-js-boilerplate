@@ -298,7 +298,7 @@ const entregar = function (estado, bem, n) { PURO.__e = estado; PURO.__b = bem; 
 {
   const src = ler(DESPENSA_JS);
   ok(!/Math\.random|Date\.now|new Date|saveState|localStorage/.test(src.replace(/\/\/.*$/gm, '')), 'despensa.js não devia usar Math.random, Date.now, new Date, saveState nem localStorage');
-  ok(!/state\.(reputacao|uvas|gotas|garrafas)|marcarObjetivo|nuvem/i.test(src.replace(/\/\/.*$/gm, '')), 'despensa.js não devia tocar em Reputação, uvas, gotas, garrafas, objetivos nem nuvem');
+  ok(!/state\.(reputacao|uvas|gotas|garrafas)|gotas|marcarObjetivo|nuvem|historico/i.test(src.replace(/\/\/.*$/gm, '')), 'despensa.js não devia tocar em gotas, objetivos, nuvem nem no historico (as uvas e a Reputação só mudam em despensaTrocar, sobre o estado recebido; ver verificar-trocas.js)');
 }
 
 // 8. Carregada, mas só de leitura (PR 4: ecrã "A Estrada"): despensa.js está no index.html e o
@@ -317,7 +317,7 @@ if (!process.env.DESPENSA_JS) {
     if (PERMITIDOS_TEXTO.indexOf(f) !== -1) codigo = codigo.replace(/'despensa\.recebidos'/g, '').replace(/Despensa/g, '');
     if (f === 'estrada.js') codigo = codigo.replace(/despensaQuantos\(state, v\.bem\)/g, '').replace(/naDespensa/g, '');
     ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js, a palavra "Despensa" nos textos e despensaQuantos em estrada.js)');
-    ok(!/despensaRegistarTroca|despensaRegistarEntrega/.test(codigo), 'js/' + f + ' não devia registar trocas nem entregas');
+    ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaTrocar/.test(codigo), 'js/' + f + ' não devia registar trocas nem entregas (PR 5A: só scripts chamam despensaTrocar)');
   });
   const stateSrc = ler(path.join(RAIZ, 'js', 'state.js')).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
   ok((stateSrc.match(/despensa/gi) || []).length === 1, 'state.js só devia ter o campo despensa em defaultState()');

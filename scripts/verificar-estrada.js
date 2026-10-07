@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Verifica os dados da Estrada (js/estrada-dados.js): 3 vizinhos, falas, bens, fontes e a
-// proposta de troca provisória. Só LÊ o ficheiro e corre-o num ambiente simulado (vm), onde
+// regras das trocas (PR 5A) e pedidos. Só LÊ o ficheiro e corre-o num ambiente simulado (vm), onde
 // Math.random e Date.now ficam proibidos. Só exige que a cara exista em disco quando
 // caraPendente é false (se for true, o ficheiro pode faltar) e confirma que o ecrã (js/estrada.js) é só de leitura: carregado no index.html, sem gravar, sem cobrar uvas, sem Reputação e sem registar trocas.
 //
@@ -22,11 +22,12 @@ const MARCA = '[por escrever]';
 const ctx = vm.createContext({});
 vm.runInContext('Math.random = function () { throw new Error("Math.random proibido"); }; Date.now = function () { throw new Error("Date.now proibido"); };', ctx);
 vm.runInContext(fs.readFileSync(FICHEIRO, 'utf8') +
-  '\n;this.VIZINHOS = ESTRADA_VIZINHOS; this.BENS = ESTRADA_BENS; this.FONTES = ESTRADA_FONTES; this.TROCA = ESTRADA_TROCA_PROVISORIA;', ctx, { filename: 'estrada-dados.js' });
+  '\n;this.VIZINHOS = ESTRADA_VIZINHOS; this.BENS = ESTRADA_BENS; this.FONTES = ESTRADA_FONTES; this.TROCA = ESTRADA_TROCA; this.PEDIDOS = ESTRADA_PEDIDOS;', ctx, { filename: 'estrada-dados.js' });
 const VIZINHOS = ctx.VIZINHOS;
 const BENS = ctx.BENS;
 const FONTES = ctx.FONTES;
 const TROCA = ctx.TROCA;
+const PEDIDOS = ctx.PEDIDOS;
 
 let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
@@ -144,16 +145,21 @@ function verificarFonte(item, onde, obrigatoria) {
   });
 }
 
-// ----- Proposta de troca provisória (sem uso) -----
+// ----- Regras das trocas e pedidos (PR 5A: só dados; as contas estão em js/despensa.js) -----
 {
-  ok(TROCA.provisoria === true, 'a troca devia estar marcada como provisória');
-  ok(Number.isInteger(TROCA.custoUvas) && TROCA.custoUvas >= 30 && TROCA.custoUvas <= 50, 'o custo devia rondar as 40 uvas: ' + TROCA.custoUvas);
-  ok(Number.isInteger(TROCA.custoUvas) && TROCA.custoUvas >= 10, 'o custo nunca devia ser abaixo das 10 uvas do Prensar');
+  ok(TROCA.provisoria === undefined, 'as regras das trocas já não são provisórias (sem o campo "provisoria")');
+  ok(TROCA.custoUvas === 25, 'o custo devia ser 25 uvas: ' + TROCA.custoUvas);
   ok(TROCA.uvasMinimasDepoisDaTroca === 10, 'o jogador devia ficar sempre com pelo menos 10 uvas depois de trocar (uvasMinimasDepoisDaTroca: 10)');
+  ok(TROCA.prateleiraMaxima === 3, 'a prateleira devia ter no máximo 3 de cada bem');
+  ok(TROCA.trocasPorDiaTeto === 3, 'o teto devia ser 3 trocas por dia');
   ok(TROCA.trocasPorVizinhoPorDia === 1, 'devia ser 1 troca por vizinho por dia');
   ok(TROCA.reputacaoPrimeiraTroca === 2, 'devia ser +2 de Reputação só na 1.ª troca de cada bem');
-  ok(Object.keys(TROCA).sort().join() === ['custoUvas', 'provisoria', 'reputacaoPrimeiraTroca', 'trocasPorVizinhoPorDia', 'uvasMinimasDepoisDaTroca'].sort().join(),
+  ok(TROCA.custoUvas >= TROCA.uvasMinimasDepoisDaTroca, 'o custo nunca devia ser abaixo das 10 uvas do Prensar');
+  ok(Object.keys(TROCA).sort().join() === ['custoUvas', 'prateleiraMaxima', 'reputacaoPrimeiraTroca', 'trocasPorDiaTeto', 'trocasPorVizinhoPorDia', 'uvasMinimasDepoisDaTroca'].sort().join(),
     'a troca não devia ter outros campos (sem gotas, sem dinheiro): ' + Object.keys(TROCA));
+  ok(PEDIDOS && Object.keys(PEDIDOS).sort().join() === 'dona_amelia,sr_joaquim,tomas', 'ESTRADA_PEDIDOS devia ter os 3 vizinhos');
+  ok(JSON.stringify(PEDIDOS.dona_amelia) === '["uvas","sal_sado"]', 'a Dona Amélia devia pedir uvas ou sal (o bagaço está em pausa)');
+  ok(JSON.stringify(PEDIDOS.sr_joaquim) === '["uvas"]' && JSON.stringify(PEDIDOS.tomas) === '["uvas"]', 'o Sr. Joaquim e o Tomás pedem sempre uvas');
 }
 
 // ----- Carregado e só de leitura (PR 4: ecrã "A Estrada"; sem trocas, sem custos, sem Reputação) -----
@@ -170,16 +176,16 @@ if (!process.env.ESTRADA_JS) {
   const semComentarios = function (src) { return src.split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n'); };
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && ['estrada-dados.js', 'despensa.js', 'estrada.js'].indexOf(f) === -1; }).forEach(function (f) {
     const src = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8');
-    ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA_PROVISORIA)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada');
+    ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA|PEDIDOS)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada');
   });
 
   // Só de leitura: nenhum ficheiro do jogo regista trocas ou entregas, e o ecrã não grava, não cobra
-  // uvas, não dá Reputação e não usa a troca provisória.
+  // uvas, não dá Reputação e não usa as regras das trocas.
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'despensa.js'; }).forEach(function (f) {
-    ok(!/despensaRegistarTroca|despensaRegistarEntrega/.test(semComentarios(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'))), 'js/' + f + ' não devia chamar despensaRegistarTroca nem despensaRegistarEntrega');
+    ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaTrocar/.test(semComentarios(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'))), 'js/' + f + ' não devia chamar despensaRegistarTroca, despensaRegistarEntrega nem despensaTrocar');
   });
   const ecra = semComentarios(fs.readFileSync(path.join(RAIZ, 'js', 'estrada.js'), 'utf8'));
-  ok(!/saveState|localStorage|nuvem|marcarObjetivo|despensaEstado|ESTRADA_TROCA_PROVISORIA/.test(ecra), 'estrada.js não devia gravar, usar a nuvem, objetivos, despensaEstado nem a troca provisória');
+  ok(!/saveState|localStorage|nuvem|marcarObjetivo|despensaEstado|ESTRADA_TROCA|ESTRADA_PEDIDOS|despensaPedidoDoDia|despensaGarrafasDisponiveis/.test(ecra), 'estrada.js não devia gravar, usar a nuvem, objetivos, despensaEstado nem as regras das trocas');
   ok(!/state\.(reputacao|uvas|gotas|garrafas|despensa)|reputacao|uvas/i.test(ecra), 'estrada.js não devia tocar em Reputação, uvas, gotas, garrafas nem na despensa (só despensaQuantos)');
   ok(!/Math\.random|Date\.now|new Date/.test(ecra), 'estrada.js não devia usar Math.random, Date.now nem new Date');
 
