@@ -156,11 +156,11 @@ function verificarFonte(item, onde, obrigatoria) {
     'a troca não devia ter outros campos (sem gotas, sem dinheiro): ' + Object.keys(TROCA));
 }
 
-// ----- Sem uso: nada carrega nem lê este ficheiro (PR 1 é só dados) -----
+// ----- Sem uso: nada carrega este ficheiro; só js/despensa.js (também sem uso, ver verificar-despensa.js) lê os dados -----
 if (!process.env.ESTRADA_JS) {
   const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
   ok(html.indexOf('estrada-dados') === -1, 'index.html não devia carregar js/estrada-dados.js neste PR');
-  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'estrada-dados.js'; }).forEach(function (f) {
+  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'estrada-dados.js' && f !== 'despensa.js'; }).forEach(function (f) {
     const src = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8');
     ok(!/ESTRADA_(VIZINHOS|BENS|FONTES|TROCA_PROVISORIA)/.test(src), 'js/' + f + ' não devia usar os dados da Estrada neste PR');
   });
