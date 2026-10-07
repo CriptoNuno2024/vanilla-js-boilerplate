@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Verifica os dados da Estrada (js/estrada-dados.js): 3 vizinhos, falas, bens, fontes e a
 // proposta de troca provisória. Só LÊ o ficheiro e corre-o num ambiente simulado (vm), onde
-// Math.random e Date.now ficam proibidos. NÃO exige que as caras existam em disco (estão
-// pendentes) e confirma que o ficheiro ainda não é carregado por nada (PR 1: só dados).
+// Math.random e Date.now ficam proibidos. Só exige que a cara exista em disco quando
+// caraPendente é false (se for true, o ficheiro pode faltar) e confirma que o ficheiro ainda não é carregado por nada (PR 1: só dados).
 //
 // Uso: node scripts/verificar-estrada.js [--final]
 //   (sem --final) aceita os textos provisórios "[por escrever]";
@@ -34,7 +34,7 @@ const temTexto = function (s) { return typeof s === 'string' && s.trim() !== '';
 
 // Decidido à parte (não lido do ficheiro).
 const ESPERADO = {
-  dona_amelia: { bem: 'queijo_azeitao', cara: 'assets/personagens/vizinho_amelia.jpg' },
+  dona_amelia: { bem: 'queijo_azeitao', cara: 'assets/personagens/vizinha_amelia.jpg' },
   sr_joaquim: { bem: 'sal_sado', cara: 'assets/personagens/vizinho_joaquim.jpg' },
   tomas: { bem: 'mel_sesimbra', cara: 'assets/personagens/vizinho_tomas.jpg' }
 };
@@ -103,7 +103,9 @@ function verificarFonte(item, onde, obrigatoria) {
     textosEmTresLinguas(v.nome, v.id + ': nome');
     textosEmTresLinguas(v.papel, v.id + ': papel');
     ok(v.cara === esp.cara, v.id + ': cara devia ser ' + esp.cara + ', é ' + v.cara);
-    ok(v.caraPendente === true, v.id + ': caraPendente devia ser true (os ficheiros ainda não existem)');
+    ok(typeof v.caraPendente === 'boolean', v.id + ': caraPendente devia ser true ou false');
+    // Cara pendente: o ficheiro pode não existir. Cara não pendente: tem de existir em disco.
+    if (v.caraPendente === false) ok(typeof v.cara === 'string' && fs.existsSync(path.join(RAIZ, v.cara)), v.id + ': caraPendente é false mas o ficheiro não existe: ' + v.cara);
     ok(v.bem === esp.bem, v.id + ': bem devia ser ' + esp.bem + ', é ' + v.bem);
     ok(Array.isArray(v.falas) && v.falas.length === 3, v.id + ': devia ter 3 falas');
     (v.falas || []).forEach(function (f, i) {
@@ -146,11 +148,11 @@ function verificarFonte(item, onde, obrigatoria) {
 {
   ok(TROCA.provisoria === true, 'a troca devia estar marcada como provisória');
   ok(Number.isInteger(TROCA.custoUvas) && TROCA.custoUvas >= 30 && TROCA.custoUvas <= 50, 'o custo devia rondar as 40 uvas: ' + TROCA.custoUvas);
-  ok(Number.isInteger(TROCA.custoMinimoUvas) && TROCA.custoMinimoUvas >= 10, 'o custo mínimo nunca devia ser abaixo das 10 uvas do Prensar');
-  ok(TROCA.custoUvas >= TROCA.custoMinimoUvas, 'o custo devia ser pelo menos o mínimo');
+  ok(Number.isInteger(TROCA.custoUvas) && TROCA.custoUvas >= 10, 'o custo nunca devia ser abaixo das 10 uvas do Prensar');
+  ok(TROCA.uvasMinimasDepoisDaTroca === 10, 'o jogador devia ficar sempre com pelo menos 10 uvas depois de trocar (uvasMinimasDepoisDaTroca: 10)');
   ok(TROCA.trocasPorVizinhoPorDia === 1, 'devia ser 1 troca por vizinho por dia');
   ok(TROCA.reputacaoPrimeiraTroca === 2, 'devia ser +2 de Reputação só na 1.ª troca de cada bem');
-  ok(Object.keys(TROCA).sort().join() === ['custoMinimoUvas', 'custoUvas', 'provisoria', 'reputacaoPrimeiraTroca', 'trocasPorVizinhoPorDia'].sort().join(),
+  ok(Object.keys(TROCA).sort().join() === ['custoUvas', 'provisoria', 'reputacaoPrimeiraTroca', 'trocasPorVizinhoPorDia', 'uvasMinimasDepoisDaTroca'].sort().join(),
     'a troca não devia ter outros campos (sem gotas, sem dinheiro): ' + Object.keys(TROCA));
 }
 
