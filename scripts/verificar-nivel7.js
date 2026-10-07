@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Nível 7 "Quinta Estimada" (só nível, história, capítulo 7 e conquistas; sem ecrã nem trocas):
+// Nível 7 "Quinta Estimada" (nível, história, capítulo 7 e conquistas; as regras das trocas existem mas só scripts as chamam):
 // NIVEIS_CONFIG (js/niveis.js), cap7 (js/capitulos.js) e as conquistas "Quinta completa" e
 // "Boa vizinhança" (js/conquistas.js). Corre state.js, niveis.js, capitulos.js, conquistas.js,
 // estrada-dados.js e despensa.js REAIS num ambiente simulado (vm), sem browser nem conta real.
@@ -103,6 +103,18 @@ const savePossuiNivel6 = function (extra) {
     let x; try { x = JSON.parse(h.ev('JSON.stringify(capitulosLerCriterio(CAPITULOS_CONFIG[6]))')); h.ev('atualizarCapituloQuinta()'); } catch (e) { x = 'ERRO ' + e.message; }
     ok(x && x.atual === 0 && x.total === 3 && x.cumprido === false, 'despensa ' + JSON.stringify(d) + ' devia dar 0 / 3 sem rebentar: ' + JSON.stringify(x));
   });
+}
+
+// 2b. Capítulo 7 com as trocas a sério (despensaTrocar, PR 5A): 3 bens diferentes cumprem; 3 trocas ao mesmo vizinho não.
+{
+  const g = abrir(savePossuiNivel6({ uvas: 1000 }));
+  const lido = function () { return JSON.parse(g.ev('JSON.stringify(capitulosLerCriterio(CAPITULOS_CONFIG[6]))')); };
+  ['2026-10-08', '2026-10-09', '2026-10-10'].forEach(function (d) { g.ev("despensaTrocar(state, 'dona_amelia', '" + d + "')"); });
+  ok(g.ev('state.despensa.recebidos.queijo_azeitao') === 3 && lido().atual === 1 && lido().cumprido === false, '3 trocas ao mesmo vizinho dão 1 bem: o cap7 não se cumpre');
+  g.ev("despensaTrocar(state, 'sr_joaquim', '2026-10-10')");
+  ok(lido().atual === 2 && lido().cumprido === false, '2 bens: 2 / 3');
+  g.ev("despensaTrocar(state, 'tomas', '2026-10-10')");
+  ok(lido().atual === 3 && lido().cumprido === true, '3 bens diferentes cumprem o cap7');
 }
 
 // 3. O capítulo 7 nunca trava a subida de nível (os níveis só dependem da Reputação).

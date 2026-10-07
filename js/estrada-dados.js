@@ -1,9 +1,8 @@
 // ---------------------------------------------------------------------
 // ESTRADA — vizinhos e bens (Nível 7 "Vizinhos e Estrada"): PR 1, SÓ DADOS E TEXTOS.
 //
-// Este ficheiro NÃO está carregado no index.html e nada o usa: ao jogador
-// não muda nada. Fica pronto para os PRs seguintes (estado da Despensa,
-// ecrã, trocas), que o vão ler como js/visitas.js é lido pela Quinta.
+// Dados lidos por js/estrada.js (ecrã só de leitura) e por js/despensa.js (regras das
+// trocas, PR 5A: ainda sem ecrã que as chame), como js/visitas.js é lido pela Quinta.
 //
 // Três vizinhos (a Dona Amélia, o Sr. Joaquim e o Tomás), cada um com 3 falas
 // e 1 fala de troca; e três bens, um por vizinho. Os textos são pt/en/es.
@@ -221,18 +220,40 @@ const ESTRADA_BENS = [
   }
 ];
 
-// PROPOSTA DE TROCA — PROVISÓRIA E SEM USO: números só para discutir, nenhum
-// código a lê. Podem mudar por completo nos PRs das trocas.
-//   custoUvas              cerca de 40 uvas por bem
-//   uvasMinimasDepoisDaTroca  o jogador nunca fica com menos de 10 uvas depois de trocar,
-//                          para poder sempre usar o Prensar (ADEGA_CUSTO_UVAS_PRENSAR)
-//   trocasPorVizinhoPorDia 1 troca por vizinho por dia (dia de Lisboa)
-//   reputacaoPrimeiraTroca +2 de Reputação só na 1.ª troca de cada bem
-//   sem gotas, sem castigos, sem dinheiro
-const ESTRADA_TROCA_PROVISORIA = {
-  provisoria: true,
-  custoUvas: 40,
-  uvasMinimasDepoisDaTroca: 10,
-  trocasPorVizinhoPorDia: 1,
-  reputacaoPrimeiraTroca: 2
+// REGRAS DAS TROCAS (PR 5A: só regras e contas em js/despensa.js; nenhum ecrã as chama ainda).
+// Tudo o que rege as trocas está só aqui, com nomes claros.
+//   custoUvas                 uvas pagas por uma troca (a 1.ª troca de cada bem, a "prova", paga com
+//                             1 garrafa disponível se houver; senão com estas uvas)
+//   uvasMinimasDepoisDaTroca  o jogador nunca fica com menos de 10 uvas depois de pagar em uvas
+//                             (só troca com custoUvas + este piso = 35 ou mais), para poder usar o Prensar
+//   prateleiraMaxima          no máximo 3 de cada bem na Despensa; com 3 não se cobra nada
+//   trocasPorDiaTeto          teto de trocas por dia, somando todos os vizinhos (dia de Lisboa)
+//   trocasPorVizinhoPorDia    1 troca por vizinho por dia
+//   reputacaoPrimeiraTroca    +2 de Reputação só na 1.ª troca de cada bem (nunca nas repetidas)
+// Sem gotas e sem castigos: uma troca recusada não tira nada.
+const ESTRADA_TROCA_CUSTO_UVAS = 25;
+const ESTRADA_TROCA_UVAS_MINIMAS_DEPOIS = 10;
+const ESTRADA_TROCA_PRATELEIRA_MAXIMA = 3;
+const ESTRADA_TROCA_TETO_POR_DIA = 3;
+const ESTRADA_TROCA_POR_VIZINHO_POR_DIA = 1;
+const ESTRADA_TROCA_REPUTACAO_PRIMEIRA = 2;
+
+const ESTRADA_TROCA = {
+  custoUvas: ESTRADA_TROCA_CUSTO_UVAS,
+  uvasMinimasDepoisDaTroca: ESTRADA_TROCA_UVAS_MINIMAS_DEPOIS,
+  prateleiraMaxima: ESTRADA_TROCA_PRATELEIRA_MAXIMA,
+  trocasPorDiaTeto: ESTRADA_TROCA_TETO_POR_DIA,
+  trocasPorVizinhoPorDia: ESTRADA_TROCA_POR_VIZINHO_POR_DIA,
+  reputacaoPrimeiraTroca: ESTRADA_TROCA_REPUTACAO_PRIMEIRA
+};
+
+// PEDIDO DO DIA (só nas trocas repetidas): o que cada vizinho pode pedir em vez das uvas. O dia
+// escolhe, pelo hash de (dia + ':' + id do vizinho), um destes pedidos; é igual nas 3 línguas.
+//   'uvas'     paga as uvas do costume (custoUvas)
+//   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
+// A Dona Amélia pede uvas ou sal; o Sr. Joaquim e o Tomás pedem sempre uvas. (O bagaço está em pausa.)
+const ESTRADA_PEDIDOS = {
+  dona_amelia: ['uvas', 'sal_sado'],
+  sr_joaquim: ['uvas'],
+  tomas: ['uvas']
 };
