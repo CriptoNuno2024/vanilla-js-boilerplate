@@ -389,13 +389,13 @@ const reais = correrTestes(SRC_DESPENSA, SRC_DADOS);
 reais.forEach(function (m) { console.log('FALHA: ' + m); });
 falhou += reais.length;
 
-// Nada no jogo chama as trocas ainda (PR 5A): só scripts.
+// Só o clique do ecrã (js/estrada.js, ver verificar-estrada.js) chama as trocas; mais nada no jogo.
 {
   const html = ler('index.html');
   if (/despensaTrocar|despensaPedidoDoDia|despensaGarrafasDisponiveis/.test(html)) { console.log('FALHA: index.html não devia chamar as trocas'); falhou++; }
-  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'despensa.js'; }).forEach(function (f) {
+  fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'despensa.js' && f !== 'estrada.js'; }).forEach(function (f) {
     const codigo = ler('js/' + f).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
-    if (/despensaTrocar|despensaPedidoDoDia|despensaGarrafasDisponiveis/.test(codigo)) { console.log('FALHA: js/' + f + ' não devia chamar as trocas (PR 5A: só regras e contas)'); falhou++; }
+    if (/despensaTrocar|despensaPedidoDoDia|despensaGarrafasDisponiveis/.test(codigo)) { console.log('FALHA: js/' + f + ' não devia chamar as trocas (só o clique de js/estrada.js)'); falhou++; }
   });
 }
 
