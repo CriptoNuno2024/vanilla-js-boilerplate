@@ -1,14 +1,16 @@
 // ---------------------------------------------------------------------
 // DESPENSA DA ESTRADA — funções sobre state.despensa (Nível 7, PR 3 e PR 5A).
 //
-// PR 5A: regras e contas das trocas (despensaTrocar, no fim). Nenhum ecrã as chama ainda: ao
-// jogador não muda nada. Sem gotas, sem castigos (recusar não tira nada) e sem gravar.
+// PR 5A: regras e contas das trocas (despensaTrocar). PR 5C: oferecer um bem a uma visita
+// (despensaOferecer). Sem gotas, sem castigos (recusar não tira nada) e sem gravar: quem chama grava.
 //
 // state.despensa (ver defaultState() em js/state.js):
 //   recebidos      { idBem: n }        unidades já recebidas (só sobe)
 //   entregues      { idBem: n }        unidades já entregues (só sobe)
 //   primeiraTroca  { idBem: 'AAAA-MM-DD' }  dia (Lisboa) da 1.ª troca desse bem
 //   hoje           { dia, feitas: { idVizinho: true } }  vizinhos com quem já trocou hoje
+//   ofertaDia      'AAAA-MM-DD' (PR 5C)   dia (Lisboa) da última oferta a uma visita; sem o campo, nunca ofereceu.
+//                                      NÃO fica em state.visitas.hoje (visitaFazerHoje reescreve esse objeto).
 //   garrafasDadas  n (PR 5A)           garrafas dadas nas "provas" (só sobe). Não está no defaultState:
 //                                      um save sem o campo conta 0 e o mergeDeep e a despensaEstado
 //                                      mantêm-no/reparam-no. NUNCA se mexe em state.garrafas nem em
@@ -229,4 +231,57 @@ function despensaTrocar(estado, vizinhoId, dia) {
     estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + reputacaoGanha;
   }
   return { ok: true, motivo: null, pagou: pagou, uvasGastas: uvasGastas, bem: bem, reputacaoGanha: reputacaoGanha, primeiraVez: primeiraVez };
+}
+
+// ---------------------------------------------------------------------
+// OFERTAS A UMA VISITA (PR 5C). Só regras e contas; o botão está em js/estrada.js.
+// ---------------------------------------------------------------------
+
+// O bem que se oferece: o de que há mais na Despensa (despensaQuantos); em caso de empate, pela ordem de
+// ESTRADA_OFERTA.ordemEmpate (e, para bens fora dessa lista, pela ordem de ESTRADA_BENS). null se não houver
+// nenhum. Só lê.
+function despensaBemParaOferecer(estado) {
+  if (typeof ESTRADA_BENS === 'undefined') return null;
+  const ordem = ESTRADA_OFERTA.ordemEmpate;
+  const lista = ESTRADA_BENS.map(function (b, i) {
+    const pos = ordem.indexOf(b.id);
+    return { id: b.id, n: despensaQuantos(estado, b.id), pos: pos === -1 ? ordem.length + i : pos };
+  }).filter(function (x) { return x.n >= 1; });
+  if (lista.length === 0) return null;
+  lista.sort(function (a, b) { return b.n - a.n || a.pos - b.pos; });
+  return lista[0].id;
+}
+
+// O dia (Lisboa) da última oferta, só lendo; null se nunca houve (ou se o campo for inválido).
+function despensaOfertaDia(estado) {
+  const d = estado && estado.despensa;
+  const dia = d && typeof d === 'object' ? d.ofertaDia : null;
+  return typeof dia === 'string' && DESPENSA_DIA_REGEX.test(dia) ? dia : null;
+}
+
+// Oferece 1 bem a uma visita no dia "dia". Devolve { ok, motivo, bem, reputacaoGanha }.
+// VALIDA TUDO antes de alterar QUALQUER coisa, por esta ordem:
+//   'estado_invalido'  o estado não é um objeto
+//   'dia_invalido'     o dia não é 'AAAA-MM-DD'
+//   'ja_ofereceu'      ofertaDia >= dia (já ofereceu hoje, ou o relógio está atrás da última oferta)
+//   'sem_bens'         não há nenhum bem na Despensa
+// Recusar NUNCA altera nada. Se ok: gasta 1 do bem escolhido (despensaRegistarEntrega: só sobe "entregues";
+// "recebidos" e por isso o capítulo 7 não mudam), regista ofertaDia = dia e soma +ESTRADA_OFERTA.reputacao de
+// Reputação (estado.reputacao += n, como as outras fontes). Não grava, não toca em garrafas nem no historico.
+function despensaOferecer(estado, dia) {
+  const recusa = function (motivo) { return { ok: false, motivo: motivo, bem: null, reputacaoGanha: 0 }; };
+  if (!estado || typeof estado !== 'object') return recusa('estado_invalido');
+  if (typeof dia !== 'string' || !DESPENSA_DIA_REGEX.test(dia)) return recusa('dia_invalido');
+  const ultima = despensaOfertaDia(estado);
+  if (ultima !== null && ultima >= dia) return recusa('ja_ofereceu');
+  const bem = despensaBemParaOferecer(estado);
+  if (bem === null) return recusa('sem_bens');
+
+  const e = despensaEstado(estado);
+  const r = despensaRegistarEntrega(estado, bem, 1);
+  if (!r.ok) return recusa('sem_bens');
+  e.ofertaDia = dia;
+  const rep = ESTRADA_OFERTA.reputacao;
+  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + rep;
+  return { ok: true, motivo: null, bem: bem, reputacaoGanha: rep };
 }

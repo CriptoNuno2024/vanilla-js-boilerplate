@@ -257,3 +257,63 @@ const ESTRADA_PEDIDOS = {
   sr_joaquim: ['uvas'],
   tomas: ['uvas']
 };
+
+// OFERTAS A UMA VISITA (PR 5C): oferecer 1 bem da Despensa a uma visita da Quinta (js/visitas.js).
+//   reputacao   +1 de Reputação por oferta
+//   porDia      no máximo 1 oferta por dia (dia de Lisboa; a marca é state.despensa.ofertaDia)
+//   ordemEmpate o bem oferecido é o de que há mais; em caso de empate, por esta ordem
+const ESTRADA_OFERTA_REPUTACAO = 1;
+const ESTRADA_OFERTA_POR_DIA = 1;
+const ESTRADA_OFERTA = {
+  reputacao: ESTRADA_OFERTA_REPUTACAO,
+  porDia: ESTRADA_OFERTA_POR_DIA,
+  ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado']
+};
+
+// Fala especial de cada visita (id de VISITAS_PERSONAGENS) para cada bem oferecido: só gratidão, curiosidade e
+// carinho, sem factos (por isso "semFacto: true", como as outras falas de humor). Sem dizer qual Moscatel vai com
+// qual produto.
+const ESTRADA_OFERTA_FALAS = {
+  valentim: {
+    queijo_azeitao: { semFacto: true, texto: {
+      pt: 'Queijo para um velho enólogo? Aceito e agradeço. Hoje o almoço vai ser bom.',
+      en: 'Cheese for an old winemaker? I accept, and I thank you. Lunch will be good today.',
+      es: '¿Queso para un viejo enólogo? Lo acepto y te lo agradezco. Hoy el almuerzo será bueno.' } },
+    sal_sado: { semFacto: true, texto: {
+      pt: 'Sal! Até a conversa fica com mais sabor. Obrigado, há prendas que sabem bem só de as receber.',
+      en: 'Salt! Even the conversation tastes better. Thank you, some gifts feel good just to receive.',
+      es: '¡Sal! Hasta la conversación tiene más sabor. Gracias, hay regalos que saben bien solo de recibirlos.' } },
+    mel_sesimbra: { semFacto: true, texto: {
+      pt: 'Mel para mim? Vou guardá-lo para as manhãs frias. Obrigado, de coração.',
+      en: 'Honey for me? I\'ll keep it for the cold mornings. Thank you, from the heart.',
+      es: '¿Miel para mí? La guardaré para las mañanas frías. Gracias, de corazón.' } }
+  },
+  marisa: {
+    queijo_azeitao: { semFacto: true, texto: {
+      pt: 'Queijo! Salvaste-me o almoço. E o Sr. Valentim não precisa de saber.',
+      en: 'Cheese! You saved my lunch. And Mr. Valentim doesn\'t need to know.',
+      es: '¡Queso! Me has salvado el almuerzo. Y el Sr. Valentim no tiene por qué enterarse.' } },
+    sal_sado: { semFacto: true, texto: {
+      pt: 'Sal! Pouco glamour, muita gratidão. A marmita de amanhã agradece.',
+      en: 'Salt! Not much glamour, a lot of gratitude. Tomorrow\'s lunchbox says thanks.',
+      es: '¡Sal! Poco glamur, mucha gratitud. La fiambrera de mañana te lo agradece.' } },
+    mel_sesimbra: { semFacto: true, texto: {
+      pt: 'Mel! Vou pô-lo no pão e fingir que é domingo. Obrigada, a sério.',
+      en: 'Honey! I\'ll put it on my bread and pretend it\'s Sunday. Thank you, truly.',
+      es: '¡Miel! La pondré en el pan y fingiré que es domingo. Gracias, de verdad.' } }
+  },
+  henrique: {
+    queijo_azeitao: { semFacto: true, texto: {
+      pt: 'Queijo oferecido sem eu pedir: a melhor maneira de me conquistar. Obrigado, com todo o rigor do meu paladar.',
+      en: 'Cheese offered without my asking: the best way to win me over. Thank you, with all the rigour of my palate.',
+      es: 'Queso ofrecido sin pedirlo: la mejor manera de conquistarme. Gracias, con todo el rigor de mi paladar.' } },
+    sal_sado: { semFacto: true, texto: {
+      pt: 'Sal: o mais humilde dos presentes e o mais indispensável. Aceito com elegância.',
+      en: 'Salt: the humblest of gifts and the most indispensable. I accept with elegance.',
+      es: 'Sal: el más humilde de los regalos y el más indispensable. Lo acepto con elegancia.' } },
+    mel_sesimbra: { semFacto: true, texto: {
+      pt: 'Mel! Vou prová-lo devagar e com a seriedade que merece. Obrigado, é um gesto muito amável.',
+      en: 'Honey! I will taste it slowly and with the seriousness it deserves. Thank you, that is a very kind gesture.',
+      es: '¡Miel! La probaré despacio y con la seriedad que merece. Gracias, es un gesto muy amable.' } }
+  }
+};

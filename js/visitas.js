@@ -271,7 +271,9 @@ function atualizarLinhaVisitaQuinta() {
       '<button type="button" class="visita-linha' + (r.feita ? ' feita' : '') + '" onclick="visitaLinhaToque()">' +
         texto + (r.feita ? ' ✓' : '') +
       '</button>' +
-    '</div>';
+    '</div>' +
+    // Oferecer um bem da Despensa a esta visita (Estrada, nível 7): ver estradaOfertaHtml() em js/estrada.js.
+    (function () { try { return typeof estradaOfertaHtml === 'function' ? estradaOfertaHtml() : ''; } catch (e) { return ''; } })();
 }
 
 function visitaLinhaToque() {
