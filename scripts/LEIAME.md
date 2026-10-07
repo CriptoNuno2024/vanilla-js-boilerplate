@@ -25,3 +25,7 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 # Nota do nível 6 e Coleção
 
 `node scripts/verificar-colecao.js` — também o capítulo 6 «A Coleção» (0 a 4 cores, nota null, garrafas anteriores à nota, festa, cap6 já concluído, textos); `state.niveis.garrafasAoNivel6` e `colecaoGarrafasNovas` / `colecaoCoresFeitas` (js/garrafa.js), com state.js, niveis.js e garrafa.js reais em vm: campo null por omissão e na migração; carimbo ao entrar na Quinta já no nível 6 (e na subida 5 → 6); carimbo no Engarrafar com a garrafa a contar; nunca muda depois de escrito; cada cor detetada; garrafas de festa não contam; lista vazia com o campo null.
+
+# Estrada (vizinhos e bens, só dados)
+
+`node scripts/verificar-estrada.js [--final]` — dados de js/estrada-dados.js (ainda não carregado pelo jogo): 3 vizinhos com 3 falas e a fala de troca em pt/en/es, 3 bens com nome nas 3 línguas, cada fala com facto tem "fonte" (só as fontes e endereços aprovados) ou "semFacto: true", a troca provisória sem gotas, e que nada usa estes dados. Não exige que as caras existam (estão pendentes). `--final` falha enquanto houver "[por escrever]". `ESTRADA_JS=ficheiro` testa outra versão.
