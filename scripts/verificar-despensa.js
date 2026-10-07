@@ -315,9 +315,13 @@ if (!process.env.DESPENSA_JS) {
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'state.js' && f !== 'despensa.js'; }).forEach(function (f) {
     let codigo = ler(path.join(RAIZ, 'js', f)).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
     if (PERMITIDOS_TEXTO.indexOf(f) !== -1) codigo = codigo.replace(/'despensa\.recebidos'/g, '').replace(/Despensa/g, '');
-    if (f === 'estrada.js') codigo = codigo.replace(/despensaQuantos\(state, v\.bem\)/g, '').replace(/naDespensa/g, '');
-    ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js, a palavra "Despensa" nos textos e despensaQuantos em estrada.js)');
-    ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaTrocar/.test(codigo), 'js/' + f + ' não devia registar trocas nem entregas (PR 5A: só scripts chamam despensaTrocar)');
+    if (f === 'estrada.js') {
+      // O ecrã (PR 5B) usa a despensa: lê para mostrar e, no clique, chama despensaTrocar (ver verificar-estrada.js).
+      ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaEstado/.test(codigo), 'js/estrada.js não devia usar despensaRegistarTroca, despensaRegistarEntrega nem despensaEstado (só despensaTrocar, no clique)');
+      return;
+    }
+    ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js e a palavra "Despensa" nos textos)');
+    ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaTrocar/.test(codigo), 'js/' + f + ' não devia registar trocas nem entregas (só despensa.js e o clique de js/estrada.js)');
   });
   const stateSrc = ler(path.join(RAIZ, 'js', 'state.js')).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
   ok((stateSrc.match(/despensa/gi) || []).length === 1, 'state.js só devia ter o campo despensa em defaultState()');
