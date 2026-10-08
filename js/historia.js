@@ -50,7 +50,7 @@ const HISTORIA_NIVEIS = {
     { chave: 'historia.nivel6.3' }
   ],
   7: [
-    { chave: 'historia.nivel7.1' },
+    { chave: 'historia.nivel7.1', foto: 'assets/mapa/mapa_quinta.jpg' },
     { chave: 'historia.nivel7.2' },
     { chave: 'historia.nivel7.3' }
   ]

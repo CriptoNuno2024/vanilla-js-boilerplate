@@ -87,6 +87,7 @@ const FUNDO_DOS_ECRAS = {
   enciclopedia: { src: 'assets/ecras/enciclopedia_yoshi_cat_2.jpg' },
   caderno: { src: 'assets/ecras/fygmos_fazem_das_suas.jpg' },
   perfil: { src: 'assets/ecras/yoshi_cat_varanda.jpg' },
+  conquistas: { src: 'assets/ecras/livro_conquistas.jpg' },
   lingua: null
 };
 
