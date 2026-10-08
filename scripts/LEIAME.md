@@ -12,6 +12,10 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 
 `node scripts/verificar-ronda-curiosidades.js` — teste puro: em outubro a 'poda' nunca é escolhida e a 'vindima' pode ser; em janeiro o contrário; nos outros meses nenhuma das duas; as candidatas nunca ficam a 0. Imprime `OK` (código 0) ou o que falhou (código 1).
 
+# Ronda do Chizo a meio ao mudar o dia
+
+`node scripts/verificar-ronda-pendente.js` — com state.js, niveis.js, ronda.js, objetivos.js e nuvem.js reais em vm: uma ronda mandada num dia paga na 1.ª visita do dia seguinte, uma só vez (+2 Reputação, +2 gotas, uvas iguais) e conta como a 1.ª do dia novo; passa a meia-noite (23:50 → 00:30), 3 dias seguidos a abrir uma vez, vários dias sem abrir (1 pagamento), relógio a recuar antes e depois de pagar, dados inválidos ou antigos repostos, limite de 2 por dia e espera de 4 h, estado de ontem vindo da nuvem, e `ronda.js` antes de `objetivos.js` no index.html. `RONDA_JS=ficheiro` / `OBJETIVOS_JS=ficheiro` testam outras versões (provas negativas). Imprime `OK` (código 0) ou o que falhou (código 1).
+
 # Página do Caderno na vitória do Proteger
 
 `node scripts/verificar-caderno-vitoria.js` — fluxo em vm: vitória com prémio na ronda 1 e pista dá 1 página (data de Lisboa), sem duplicar; treino, perda, ronda extra, ?pista=, nível < 3, adega e Cave fechada não dão; alvo completo dá só a fala; o resto do estado não muda.

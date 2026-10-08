@@ -9,7 +9,9 @@
 // depois de a 1.ª terminar. Sem castigos: quem não fizer não perde nada.
 //
 // O estado vive em state.objetivos.ronda, que se repõe com os objetivos à
-// meia-noite de Lisboa (ver gerarObjetivosDoDia() em js/objetivos.js).
+// meia-noite de Lisboa (ver gerarObjetivosDoDia() em js/objetivos.js), MAS uma
+// ronda que ficou a meio (Chizo ainda fora) passa para o dia novo, para quem
+// abre o jogo só uma vez por dia também receber (ver rondaChizoReporDia()).
 // Chamada em goTo('quinta') (js/main.js), só se nenhuma história de nível
 // nem festa de capítulo apareceu nessa visita.
 //
@@ -51,6 +53,30 @@ function rondaChizoFeitasHoje() {
     if (!o || o.dia !== diaLisboaDeHoje() || !o.ronda || typeof o.ronda !== 'object') return 0;
     return Number.isFinite(o.ronda.feitas) && o.ronda.feitas > 0 ? o.ronda.feitas : 0;
   } catch (e) { return 0; }
+}
+
+// Estado da ronda para o dia novo (função pura, chamada por gerarObjetivosDoDia()
+// em js/objetivos.js). feitas e ultimoFimEm repõem-se; saidaEm/fimEm só se
+// mantêm se houver uma ronda a meio e válida: números finitos, fimEm depois de
+// saidaEm, no máximo duracaoMs depois, não mais de 2 dias à frente de "agora"
+// (relógio atrás: a fase fica "fora") nem há mais de 30 dias. Senão repõe-se tudo, como
+// antes. Pagar limpa saidaEm, por isso a mesma ronda nunca paga duas vezes, e
+// vários dias sem abrir deixam sempre uma só ronda pendente.
+function rondaChizoReporDia(anterior, agora) {
+  const nova = { feitas: 0, saidaEm: null, fimEm: null, ultimoFimEm: null };
+  try {
+    const a = anterior;
+    if (!a || typeof a !== 'object') return nova;
+    const dur = RONDA_CHIZO_CONFIG.duracaoMs;
+    const maxIdadeMs = 30 * 24 * 60 * 60 * 1000;
+    const maxFuturoMs = 2 * 24 * 60 * 60 * 1000;
+    if (!Number.isFinite(a.saidaEm) || !Number.isFinite(a.fimEm) || !Number.isFinite(agora)) return nova;
+    if (a.fimEm <= a.saidaEm || a.fimEm - a.saidaEm > dur) return nova;
+    if (a.fimEm - agora > maxFuturoMs || agora - a.fimEm > maxIdadeMs) return nova;
+    nova.saidaEm = a.saidaEm;
+    nova.fimEm = a.fimEm;
+  } catch (e) { /* dados estranhos: repõe-se */ }
+  return nova;
 }
 
 // 'fora' (em ronda), 'volta' (já pode regressar), 'espera' (2.ª ronda ainda
