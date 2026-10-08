@@ -426,7 +426,7 @@ const TRANSLATIONS = {
     'conquista.casa_do_moscatel.nome': 'Casa do Moscatel',
     'conquista.casa_do_moscatel.desc': 'Chega ao nível 6.',
     'conquista.boa_vizinhanca.nome': 'Boa vizinhança',
-    'conquista.boa_vizinhanca.desc': 'Troca com os 3 vizinhos da Estrada.',
+    'conquista.boa_vizinhanca.desc': 'Troca com os vizinhos da Estrada.',
     'perfil.ultimaLabel': 'última',
 
     'lingua.title': 'Escolher Língua',
@@ -831,7 +831,7 @@ const TRANSLATIONS = {
     'conquista.casa_do_moscatel.nome': 'House of Moscatel',
     'conquista.casa_do_moscatel.desc': 'Reach level 6.',
     'conquista.boa_vizinhanca.nome': 'Good neighbours',
-    'conquista.boa_vizinhanca.desc': 'Trade with the 3 neighbours on the Road.',
+    'conquista.boa_vizinhanca.desc': 'Trade with the neighbours on the Road.',
     'perfil.ultimaLabel': 'latest',
 
     'lingua.title': 'Choose Language',
@@ -1236,7 +1236,7 @@ const TRANSLATIONS = {
     'conquista.casa_do_moscatel.nome': 'Casa del Moscatel',
     'conquista.casa_do_moscatel.desc': 'Llega al nivel 6.',
     'conquista.boa_vizinhanca.nome': 'Buena vecindad',
-    'conquista.boa_vizinhanca.desc': 'Intercambia con los 3 vecinos del Camino.',
+    'conquista.boa_vizinhanca.desc': 'Intercambia con los vecinos del Camino.',
     'perfil.ultimaLabel': 'última',
 
     'lingua.title': 'Elegir Idioma',

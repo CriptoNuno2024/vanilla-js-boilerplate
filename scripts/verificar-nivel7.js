@@ -7,12 +7,15 @@
 // Os textos nas 3 línguas e a história do nível 7 são verificados por scripts/verificar-niveis.js.
 //
 // Uso: node scripts/verificar-nivel7.js
+// CAPITULOS_JS=caminho  corre sobre outra versão de js/capitulos.js (para provar que os testes apanham o critério antigo,
+//   que só contava chaves e deixava um 4.º bem substituir o mel).
 // Sai com código 0 se estiver tudo OK e 1 se alguma verificação falhar.
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
 const RAIZ = path.join(__dirname, '..');
+const CAPITULOS_JS = process.env.CAPITULOS_JS || path.join(RAIZ, 'js', 'capitulos.js');
 let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
 
@@ -44,7 +47,7 @@ function abrir(guardadoInicial) {
     var currentLang = 'pt';
   `, cx);
   ['niveis.js', 'capitulos.js', 'conquistas.js', 'estrada-dados.js', 'despensa.js'].forEach(function (f) {
-    vm.runInContext(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'), cx, { filename: f });
+    vm.runInContext(fs.readFileSync(f === 'capitulos.js' ? CAPITULOS_JS : path.join(RAIZ, 'js', f), 'utf8'), cx, { filename: f });
   });
   const g = { cx: cx, guardado: guardado };
   g.ev = function (c) { return vm.runInContext(c, cx); };
@@ -76,11 +79,14 @@ const savePossuiNivel6 = function (extra) {
   ok(g.ev("state.reputacao = 300; state.acesso.jogadorAntigo = true; ecraDesbloqueado('estrada')") === true, 'um jogador antigo devia ver a Estrada já no nível 5');
 }
 
-// 2. Capítulo 7: dado, critério (3 chaves em despensa.recebidos) e leitura sem estoirar.
+// 2. Capítulo 7: dado, critério (queijo, sal e mel em despensa.recebidos, pelos ids) e leitura sem estoirar.
 {
   const g = abrir(savePossuiNivel6());
   ok(g.ev('CAPITULOS_CONFIG.length') === 7 && g.ev("CAPITULOS_CONFIG[6].id") === 'cap7' && g.ev('CAPITULOS_CONFIG[6].nivel') === 7, 'devia haver o cap7 no nível 7');
-  ok(JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio')) === JSON.stringify([{ tipo: 'contarChaves', caminho: 'despensa.recebidos', alvo: 3 }]), 'critério do cap7');
+  ok(JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio')) === JSON.stringify([{ tipo: 'temChaves', caminho: 'despensa.recebidos', chaves: ['queijo_azeitao', 'sal_sado', 'mel_sesimbra'] }]), 'critério do cap7');
+  // Os ids do critério são os ids REAIS dos 3 bens de origem em ESTRADA_BENS.
+  ok(JSON.stringify(g.ev('ESTRADA_BENS.map(function (b) { return b.id; })')) === JSON.stringify(['queijo_azeitao', 'sal_sado', 'mel_sesimbra']) &&
+    JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio[0].chaves')) === JSON.stringify(g.ev('ESTRADA_BENS.map(function (b) { return b.id; })')), 'os ids do cap7 têm de ser os dos 3 bens de ESTRADA_BENS');
   const cap7 = "CAPITULOS_CONFIG[6]";
   const lido = function () { return JSON.parse(g.ev('JSON.stringify(capitulosLerCriterio(' + cap7 + '))')); };
   let r = lido();
@@ -96,6 +102,33 @@ const savePossuiNivel6 = function (extra) {
   g.ev("despensaRegistarTroca(state, 'tomas', 'mel_sesimbra', '2026-10-08')");
   r = lido(); ok(r.atual === 3 && r.total === 3 && r.cumprido === true, '3 bens: 3 / 3 cumprido: ' + JSON.stringify(r));
   ok(g.ev('capituloEstaCumprido(' + cap7 + ')') === true, 'cap7 cumprido com os 3 bens recebidos');
+  // Um 4.º bem NÃO substitui o mel (prova negativa; o bem de teste só existe em memória, neste teste).
+  {
+    const k = abrir(savePossuiNivel6());
+    const lk = function () { return JSON.parse(k.ev('JSON.stringify(capitulosLerCriterio(CAPITULOS_CONFIG[6]))')); };
+    k.ev("state.despensa.recebidos = { queijo_azeitao: 1, sal_sado: 1, bem_teste: 1 }");
+    let x = lk(); ok(x.atual === 2 && x.total === 3 && x.cumprido === false, 'queijo + sal + 4.º bem: NÃO cumpre (2 / 3): ' + JSON.stringify(x));
+    ok(k.ev('capituloEstaCumprido(CAPITULOS_CONFIG[6])') === false, 'cap7 por cumprir com queijo, sal e um 4.º bem');
+    k.ev("state.despensa.recebidos = { queijo_azeitao: 1, sal_sado: 1, bem_teste: 1, outro_teste: 1, mel_sesimbra: 1 }");
+    x = lk(); ok(x.atual === 3 && x.cumprido === true, 'queijo + sal + mel (com outros bens de teste) cumpre: ' + JSON.stringify(x));
+    k.ev("state.despensa.recebidos = { queijo_azeitao: 1, sal_sado: 1, mel_sesimbra: 0 }");
+    x = lk(); ok(x.atual === 2 && x.cumprido === false, 'uma chave com valor 0 não conta: ' + JSON.stringify(x));
+    k.ev("state.despensa.recebidos = { queijo_azeitao: 1, sal_sado: 1, mel_sesimbra: '1' }");
+    x = lk(); ok(x.atual === 2 && x.cumprido === false, 'uma chave com valor que não é número não conta: ' + JSON.stringify(x));
+    k.ev("state.despensa.recebidos = { queijo_azeitao: 1, sal_sado: 1, mel_sesimbra: -1 }");
+    x = lk(); ok(x.atual === 2, 'uma chave com valor negativo não conta');
+    // Lista de chaves vazia ou inválida nunca se cumpre.
+    ['[]', 'undefined', '"x"'].forEach(function (l) {
+      const r = JSON.parse(k.ev("JSON.stringify(capitulosLerAlternativa({ tipo: 'temChaves', caminho: 'despensa.recebidos', chaves: " + l + " }))"));
+      ok(r.cumprido === false, 'temChaves com chaves ' + l + ' nunca devia cumprir: ' + JSON.stringify(r));
+    });
+    // Quem já concluiu o cap7 não perde nada (concluidos é permanente), mesmo com a despensa vazia ou com outro critério.
+    const c = abrir(savePossuiNivel6({ capitulos: { iniciado: true, celebradosMigrado: true, concluidos: Object.assign({ cap7: true }, SEIS), celebrados: Object.assign({ cap7: true }, SEIS) } }));
+    ok(c.ev('state.despensa.recebidos && Object.keys(state.despensa.recebidos).length') === 0, 'premissa: despensa vazia');
+    ok(c.ev('capituloEstaCumprido(CAPITULOS_CONFIG[6])') === true, 'cap7 já concluído continua cumprido com a despensa vazia');
+    c.ev('capitulosAvaliarEmSilencio()');
+    ok(c.ev('state.capitulos.concluidos.cap7') === true && c.conq('boa_vizinhanca') === true, 'cap7 concluído e "Boa vizinhança" continuam depois da avaliação');
+  }
   // Estados estranhos: sem despensa, despensa null, recebidos com tipo errado: nunca rebenta.
   [undefined, null, 5, { recebidos: null }, { recebidos: [] }, { recebidos: 'x' }].forEach(function (d) {
     const h = abrir(savePossuiNivel6());
