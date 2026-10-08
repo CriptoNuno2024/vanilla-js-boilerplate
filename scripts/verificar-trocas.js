@@ -326,6 +326,11 @@ function correrTestes(srcDespensa, srcDados) {
     // Prateleira cheia ou entregar não tira o capítulo.
     correr('despensaRegistarEntrega(state, "queijo_azeitao", 3)', 'e');
     ok(lido().cumprido === true, 'entregar tudo não descumpre o cap7');
+    // Um 4.º bem (só em memória, neste teste) não substitui o mel: queijo + sal + bem de teste não cumpre.
+    correr('state = mergeDeep(defaultState(), { uvas: 1000, acesso: { jogadorAntigo: true }, despensa: { recebidos: { queijo_azeitao: 1, sal_sado: 1, bem_teste: 1 } } });', 's4');
+    ok(lido().atual === 2 && lido().cumprido === false && correr('capituloEstaCumprido(CAPITULOS_CONFIG[6])', 'c') === false, 'queijo + sal + 4.º bem NÃO cumprem o cap7: ' + J(lido()));
+    correr('state.despensa.recebidos.mel_sesimbra = 1;', 's5');
+    ok(lido().atual === 3 && lido().cumprido === true, 'com o mel também cumpre');
   }
 
   // 13. Conquistas, A Coleção, As Garrafas e capítulos 5 e 6 não mudam depois de uma prova.

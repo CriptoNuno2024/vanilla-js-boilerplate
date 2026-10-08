@@ -16,6 +16,8 @@
 //   numero         — o campo numérico em "caminho" é >= alvo
 //   booleano       — o campo em "caminho" é true
 //   contarChaves   — o objeto em "caminho" tem pelo menos "alvo" chaves
+//   temChaves      — o objeto em "caminho" tem TODAS as chaves da lista "chaves"
+//                    (cada uma com valor numérico maior que 0); total = nº de chaves
 //   contarLista    — a lista em "caminho" tem pelo menos "alvo" elementos
 //   algumaEntrada  — alguma entrada da lista em "caminho" tem campo >= alvo
 //   coresColecao   — número de cores (jovem, dourado, ambar, cobre) já feitas
@@ -42,8 +44,9 @@ const CAPITULOS_CONFIG = [
   { id: 'cap4', nivel: 4, criterio: [{ tipo: 'contarLista', caminho: 'encyclopedia.unlocked', alvo: 6 }] },
   { id: 'cap5', nivel: 5, falante: 'Chizo', criterio: [{ tipo: 'algumaEntrada', caminho: 'adega.historico', campo: 'diasDescanso', alvo: 3 }] },
   { id: 'cap6', nivel: 6, criterio: [{ tipo: 'coresColecao', alvo: 4 }] },
-  // Nível 7: ter recebido o bem dos 3 vizinhos (state.despensa.recebidos tem uma chave por bem, só criada na 1.ª troca).
-  { id: 'cap7', nivel: 7, criterio: [{ tipo: 'contarChaves', caminho: 'despensa.recebidos', alvo: 3 }] }
+  // Nível 7: ter recebido os 3 bens de origem (queijo, sal e mel; state.despensa.recebidos tem uma chave por bem, só criada na 1.ª
+  // troca). Pelos ids, não pela contagem: um bem novo na Estrada não substitui nenhum destes.
+  { id: 'cap7', nivel: 7, criterio: [{ tipo: 'temChaves', caminho: 'despensa.recebidos', chaves: ['queijo_azeitao', 'sal_sado', 'mel_sesimbra'] }] }
 ];
 
 // Alvos que não são um número fixo. "totalEnciclopedia" lê o tamanho da
@@ -70,7 +73,10 @@ function capitulosValorNoEstado(caminho) {
 // Lê UMA alternativa. Devolve { atual, total, cumprido }.
 function capitulosLerAlternativa(c) {
   const valor = c.caminho ? capitulosValorNoEstado(c.caminho) : undefined;
-  const total = c.tipo === 'booleano' ? 1 : capitulosResolverAlvo(c.alvo);
+  // temChaves: o total é o tamanho da lista (lista vazia ou inválida nunca se cumpre).
+  const total = c.tipo === 'booleano' ? 1
+    : c.tipo === 'temChaves' ? (Array.isArray(c.chaves) && c.chaves.length > 0 ? c.chaves.length : Infinity)
+    : capitulosResolverAlvo(c.alvo);
   let atual = 0;
 
   if (c.tipo === 'numero') {
@@ -79,6 +85,12 @@ function capitulosLerAlternativa(c) {
     atual = valor === true ? 1 : 0;
   } else if (c.tipo === 'contarChaves') {
     atual = (valor && typeof valor === 'object') ? Object.keys(valor).length : 0;
+  } else if (c.tipo === 'temChaves') {
+    if (valor && typeof valor === 'object' && Array.isArray(c.chaves)) {
+      atual = c.chaves.filter(function (k) {
+        return Object.prototype.hasOwnProperty.call(valor, k) && typeof valor[k] === 'number' && valor[k] > 0;
+      }).length;
+    }
   } else if (c.tipo === 'contarLista') {
     atual = Array.isArray(valor) ? valor.length : 0;
   } else if (c.tipo === 'coresColecao') {
@@ -151,7 +163,7 @@ const CAPITULOS_STRINGS = {
     cap4: { titulo: 'O convite da vila', objetivo: 'Descobre 6 entradas da Enciclopédia.' },
     cap5: { titulo: 'O que descansa mais tempo', objetivo: 'Deixa uma garrafa descansar 3 dias ou mais na Cave.' },
     cap6: { titulo: 'A Coleção', objetivo: 'Junta à tua Coleção uma garrafa de cada cor: jovem, dourada, âmbar e cobre.' },
-    cap7: { titulo: 'Vizinhos à porta', objetivo: 'Troca uvas com os 3 vizinhos e guarda na Despensa o queijo, o sal e o mel.' }
+    cap7: { titulo: 'Vizinhos à porta', objetivo: 'Troca uvas com os vizinhos e guarda na Despensa o queijo, o sal e o mel.' }
   },
   en: {
     ui: { rotulo: 'Chapter', proximo: 'Next chapter at Level {n}', todos: 'All chapters completed' },
@@ -161,7 +173,7 @@ const CAPITULOS_STRINGS = {
     cap4: { titulo: "The village's invitation", objetivo: 'Discover 6 Encyclopedia entries.' },
     cap5: { titulo: 'What rests the longest', objetivo: 'Let a bottle rest in the Cellar for 3 days or more.' },
     cap6: { titulo: 'The Collection', objetivo: 'Add one bottle of each colour to your Collection: young, golden, amber and copper.' },
-    cap7: { titulo: 'Neighbours at the door', objetivo: 'Trade grapes with the 3 neighbours and keep the cheese, the salt and the honey in the Pantry.' }
+    cap7: { titulo: 'Neighbours at the door', objetivo: 'Trade grapes with the neighbours and keep the cheese, the salt and the honey in the Pantry.' }
   },
   es: {
     ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo en el Nivel {n}', todos: 'Todos los capítulos cumplidos' },
@@ -171,7 +183,7 @@ const CAPITULOS_STRINGS = {
     cap4: { titulo: 'La invitación de la villa', objetivo: 'Descubre 6 entradas de la Enciclopedia.' },
     cap5: { titulo: 'Lo que más reposa', objetivo: 'Deja reposar una botella 3 días o más en la Cava.' },
     cap6: { titulo: 'La Colección', objetivo: 'Suma a tu Colección una botella de cada color: joven, dorada, ámbar y cobre.' },
-    cap7: { titulo: 'Vecinos a la puerta', objetivo: 'Intercambia uvas con los 3 vecinos y guarda en la Despensa el queso, la sal y la miel.' }
+    cap7: { titulo: 'Vecinos a la puerta', objetivo: 'Intercambia uvas con los vecinos y guarda en la Despensa el queso, la sal y la miel.' }
   }
 };
 
