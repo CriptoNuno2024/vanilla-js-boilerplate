@@ -140,7 +140,11 @@ function gerarObjetivosDoDia() {
   state.objetivos.dia = diaLisboaDeHoje();
   state.objetivos.lista = escolhidos.map(function (id) { return { id: id, cumprido: false }; });
   state.objetivos.bonusDiaDado = false;
-  state.objetivos.ronda = { feitas: 0, saidaEm: null, fimEm: null, ultimoFimEm: null }; // Ronda do Chizo (js/ronda.js): repõe-se com o dia
+  // Ronda do Chizo (js/ronda.js): repõe-se com o dia, mas uma ronda a meio
+  // passa para o dia novo (senão quem abre uma vez por dia nunca recebia).
+  state.objetivos.ronda = typeof rondaChizoReporDia === 'function'
+    ? rondaChizoReporDia(state.objetivos.ronda, Date.now())
+    : { feitas: 0, saidaEm: null, fimEm: null, ultimoFimEm: null };
   // Jogador ainda sem qualquer gravação nem progresso (ex.: logo depois de
   // "Apagar o meu progresso"): os objetivos ficam só em memória e gravam-se
   // com a 1.ª ação real, para não criar estado novo na nuvem só por abrir.
