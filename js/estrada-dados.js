@@ -4,8 +4,8 @@
 // Dados lidos por js/estrada.js (ecrã só de leitura) e por js/despensa.js (regras das
 // trocas, PR 5A: ainda sem ecrã que as chame), como js/visitas.js é lido pela Quinta.
 //
-// Três vizinhos (a Dona Amélia, o Sr. Joaquim e o Tomás), cada um com 3 falas
-// e 1 fala de troca; e três bens, um por vizinho. Os textos são pt/en/es.
+// Quatro vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo), cada um com 3 falas
+// e 1 fala de troca; e quatro bens, um por vizinho. Os textos são pt/en/es.
 // Os de EN e ES foram escritos a partir do PT e NÃO foram revistos por um
 // falante nativo.
 //
@@ -45,6 +45,22 @@ const ESTRADA_FONTES = {
   zimbramel: {
     titulo: 'Viral Agenda — Zimbramel, Feira do Mel da Península de Setúbal (criada em 1999, em Sesimbra; plantas e produtos)',
     url: 'https://www.viralagenda.com/pt/events/1821332/zimbramel-feira-do-mel-da-peninsula-de-setubal'
+  },
+  turismo_lisboa_choco: {
+    titulo: 'Visit Lisboa — Choco Frito de Setúbal (o prato mais famoso de Setúbal, o choco frito)',
+    url: 'https://www.visitlisboa.com/pt-pt/locais/choco-frito-de-setubal'
+  },
+  deco_choco_frito: {
+    titulo: 'DECO Proteste — Choco frito de Setúbal: os melhores restaurantes (choco do Sado pequeno, mais rijo; muitas vezes congelado nos restaurantes)',
+    url: 'https://www.deco.proteste.pt/familia-consumo/ferias-lazer/noticias/choco-frito-setubal-melhores-restaurantes-ricardo-dias-felner'
+  },
+  awards35_sado: {
+    titulo: '35 Awards 2021 — Portugal (pescadores do Sado, na zona de Possanco; poucos e envelhecidos, o estuário ainda dá de comer)',
+    url: 'https://35awards.com/winners2021/country/PT/'
+  },
+  atma_salga_sado: {
+    titulo: 'ATMA (Universidad de Jaén) — artigo sobre a salga de peixe na foz do Sado (o sal já era usado no tempo dos romanos)',
+    url: 'https://revistaselectronicas.ujaen.es/index.php/atma/article/view/7925/9254'
   }
 };
 
@@ -184,6 +200,51 @@ const ESTRADA_VIZINHOS = [
       },
       semFacto: true
     }
+  },
+  {
+    id: 'sr_armindo',
+    nome: { pt: 'Sr. Armindo', en: 'Mr. Armindo', es: 'Sr. Armindo' },
+    papel: { pt: 'pescador do Sado', en: 'Sado fisherman', es: 'pescador del Sado' },
+    cara: 'assets/personagens/vizinho_armindo.jpg',
+    caraPendente: false,
+    bem: 'choco_sado',
+    falas: [
+      {
+        id: 'sr_armindo_1',
+        texto: {
+          pt: 'Bom dia, vizinho. Pesco no Sado desde miúdo, cá pelos lados do Possanco. Já somos poucos e de cabelo branco, mas o estuário ainda dá de comer a muita gente.',
+          en: 'Good morning, neighbour. I\'ve fished the Sado since I was a boy, around Possanco. There are few of us left, and white-haired, but the estuary still feeds many people.',
+          es: 'Buenos días, vecino. Pesco en el Sado desde niño, por los lados de Possanco. Quedamos pocos y de pelo blanco, pero el estuario aún da de comer a mucha gente.'
+        },
+        fonte: ['awards35_sado']
+      },
+      {
+        id: 'sr_armindo_2',
+        texto: {
+          pt: 'O choco do Sado é pequeno e pede mais mastigação do que o que se vê por aí. Mas é daqui. Nos restaurantes, muitas vezes já vem congelado.',
+          en: 'Sado cuttlefish is small and takes more chewing than the kind you see around. But it\'s ours. In restaurants, it often comes frozen.',
+          es: 'El choco del Sado es pequeño y pide más masticación que el que se ve por ahí. Pero es de aquí. En los restaurantes, muchas veces ya viene congelado.'
+        },
+        fonte: ['deco_choco_frito', 'turismo_lisboa_choco']
+      },
+      {
+        id: 'sr_armindo_3',
+        texto: {
+          pt: 'Para guardar o peixe não há nada como o sal, e a foz do Sado já o usava no tempo dos romanos. Se me trouxeres sal do Sr. Joaquim, agradeço.',
+          en: 'Nothing keeps fish like salt, and the Sado estuary was using it in Roman times. If you bring me salt from Mr. Joaquim, I\'d be grateful.',
+          es: 'Para conservar el pescado no hay nada como la sal, y la desembocadura del Sado ya la usaba en tiempos de los romanos. Si me traes sal del Sr. Joaquim, te lo agradezco.'
+        },
+        fonte: ['atma_salga_sado']
+      }
+    ],
+    troca: {
+      texto: {
+        pt: 'Um choco do Sado por umas uvas? Pequeno, mas é nosso.',
+        en: 'A Sado cuttlefish for some grapes? Small, but ours.',
+        es: '¿Un choco del Sado por unas uvas? Pequeño, pero nuestro.'
+      },
+      semFacto: true
+    }
   }
 ];
 
@@ -217,6 +278,16 @@ const ESTRADA_BENS = [
       es: 'Miel de la Península de Setúbal, que tiene feria propia en Sesimbra, la Zimbramel.'
     },
     fonte: ['zimbramel']
+  },
+  {
+    id: 'choco_sado',
+    nome: { pt: 'Choco do Sado', en: 'Sado cuttlefish', es: 'Choco del Sado' },
+    descricao: {
+      pt: 'Choco pescado no estuário do Sado, ligado ao prato mais famoso de Setúbal: o choco frito.',
+      en: 'Cuttlefish fished in the Sado estuary, tied to Setúbal\'s most famous dish: choco frito.',
+      es: 'Choco pescado en el estuario del Sado, ligado al plato más famoso de Setúbal: el choco frito.'
+    },
+    fonte: ['turismo_lisboa_choco']
   }
 ];
 
@@ -251,11 +322,12 @@ const ESTRADA_TROCA = {
 // escolhe, pelo hash de (dia + ':' + id do vizinho), um destes pedidos; é igual nas 3 línguas.
 //   'uvas'     paga as uvas do costume (custoUvas)
 //   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
-// A Dona Amélia pede uvas ou sal; o Sr. Joaquim e o Tomás pedem sempre uvas. (O bagaço está em pausa.)
+// A Dona Amélia e o Sr. Armindo pedem uvas ou sal; o Sr. Joaquim e o Tomás pedem sempre uvas. (O bagaço está em pausa.)
 const ESTRADA_PEDIDOS = {
   dona_amelia: ['uvas', 'sal_sado'],
   sr_joaquim: ['uvas'],
-  tomas: ['uvas']
+  tomas: ['uvas'],
+  sr_armindo: ['uvas', 'sal_sado']
 };
 
 // OFERTAS A UMA VISITA (PR 5C): oferecer 1 bem da Despensa a uma visita da Quinta (js/visitas.js).
@@ -267,7 +339,7 @@ const ESTRADA_OFERTA_POR_DIA = 1;
 const ESTRADA_OFERTA = {
   reputacao: ESTRADA_OFERTA_REPUTACAO,
   porDia: ESTRADA_OFERTA_POR_DIA,
-  ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado']
+  ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado', 'choco_sado']
 };
 
 // Fala especial de cada visita (id de VISITAS_PERSONAGENS) para cada bem oferecido: só gratidão, curiosidade e
@@ -286,7 +358,11 @@ const ESTRADA_OFERTA_FALAS = {
     mel_sesimbra: { semFacto: true, texto: {
       pt: 'Mel para mim? Vou guardá-lo para as manhãs frias. Obrigado, de coração.',
       en: 'Honey for me? I\'ll keep it for the cold mornings. Thank you, from the heart.',
-      es: '¿Miel para mí? La guardaré para las mañanas frías. Gracias, de corazón.' } }
+      es: '¿Miel para mí? La guardaré para las mañanas frías. Gracias, de corazón.' } },
+    choco_sado: { semFacto: true, texto: {
+      pt: 'Choco do Sado, pequeno, rijo e honesto. Como eu. Obrigado.',
+      en: 'Sado cuttlefish, small, tough and honest. Like me. Thank you.',
+      es: 'Choco del Sado, pequeño, duro y honesto. Como yo. Gracias.' } }
   },
   marisa: {
     queijo_azeitao: { semFacto: true, texto: {
@@ -300,7 +376,11 @@ const ESTRADA_OFERTA_FALAS = {
     mel_sesimbra: { semFacto: true, texto: {
       pt: 'Mel! Vou pô-lo no pão e fingir que é domingo. Obrigada, a sério.',
       en: 'Honey! I\'ll put it on my bread and pretend it\'s Sunday. Thank you, truly.',
-      es: '¡Miel! La pondré en el pan y fingiré que es domingo. Gracias, de verdad.' } }
+      es: '¡Miel! La pondré en el pan y fingiré que es domingo. Gracias, de verdad.' } },
+    choco_sado: { semFacto: true, texto: {
+      pt: 'Choco para o almoço? Até o Sr. Valentim vai calar-se. Obrigada.',
+      en: 'Cuttlefish for lunch? Even Mr. Valentim will go quiet. Thank you.',
+      es: '¿Choco para el almuerzo? Hasta el Sr. Valentim se callará. Gracias.' } }
   },
   henrique: {
     queijo_azeitao: { semFacto: true, texto: {
@@ -314,6 +394,10 @@ const ESTRADA_OFERTA_FALAS = {
     mel_sesimbra: { semFacto: true, texto: {
       pt: 'Mel! Vou prová-lo devagar e com a seriedade que merece. Obrigado, é um gesto muito amável.',
       en: 'Honey! I will taste it slowly and with the seriousness it deserves. Thank you, that is a very kind gesture.',
-      es: '¡Miel! La probaré despacio y con la seriedad que merece. Gracias, es un gesto muy amable.' } }
+      es: '¡Miel! La probaré despacio y con la seriedad que merece. Gracias, es un gesto muy amable.' } },
+    choco_sado: { semFacto: true, texto: {
+      pt: 'Um choco do Sado! Que presente tão maritimamente elegante. Aceito, com gratidão.',
+      en: 'A Sado cuttlefish! What an elegantly maritime gift. I accept, with gratitude.',
+      es: '¡Un choco del Sado! Qué regalo tan marítimamente elegante. Lo acepto, con gratitud.' } }
   }
 };

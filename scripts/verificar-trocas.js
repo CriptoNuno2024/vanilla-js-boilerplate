@@ -76,8 +76,8 @@ function correrTestes(srcDespensa, srcDados) {
     }, extra || {});
   };
   const D1 = '2026-10-08', D2 = '2026-10-09', D3 = '2026-10-10', D4 = '2026-10-11';
-  const AM = 'dona_amelia', JO = 'sr_joaquim', TO = 'tomas';
-  const BEM = { dona_amelia: 'queijo_azeitao', sr_joaquim: 'sal_sado', tomas: 'mel_sesimbra' };
+  const AM = 'dona_amelia', JO = 'sr_joaquim', TO = 'tomas', AR = 'sr_armindo';
+  const BEM = { dona_amelia: 'queijo_azeitao', sr_joaquim: 'sal_sado', tomas: 'mel_sesimbra', sr_armindo: 'choco_sado' };
   const diasDe = function (n) { const r = []; for (let i = 0; i < n; i++) { r.push(new Date(Date.UTC(2026, 9, 8 + i)).toISOString().slice(0, 10)); } return r; };
   // Recusa: o motivo certo e NADA alterado.
   const recusada = function (nome, estado, viz, dia, motivo) {
@@ -331,6 +331,45 @@ function correrTestes(srcDespensa, srcDados) {
     ok(lido().atual === 2 && lido().cumprido === false && correr('capituloEstaCumprido(CAPITULOS_CONFIG[6])', 'c') === false, 'queijo + sal + 4.º bem NÃO cumprem o cap7: ' + J(lido()));
     correr('state.despensa.recebidos.mel_sesimbra = 1;', 's5');
     ok(lido().atual === 3 && lido().cumprido === true, 'com o mel também cumpre');
+  }
+
+  // 12b. O Sr. Armindo (4.º vizinho, choco do Sado): mesmas regras; pede uvas ou sal; o teto de 3 por dia mantém-se com 4 vizinhos.
+  {
+    ok(J(correr("ESTRADA_VIZINHOS.map(function (v) { return v.id; }).filter(function (i) { return i.indexOf('teste') === -1; })", 'x')) === J([AM, JO, TO, AR]) && J(correr("ESTRADA_BENS.map(function (b) { return b.id; }).filter(function (i) { return i.indexOf('teste') === -1; })", 'x')) === J(['queijo_azeitao', 'sal_sado', 'mel_sesimbra', 'choco_sado']), 'devia haver 4 vizinhos e 4 bens');
+    const a = base({ uvas: 100 });
+    const r = trocar(a, AR, D1);
+    ok(r.ok && r.bem === 'choco_sado' && r.primeiraVez && r.pagou === 'uvas' && r.uvasGastas === 25 && r.reputacaoGanha === 2 && a.uvas === 75 && a.reputacao === 2 && quantos(a, 'choco_sado') === 1, 'prova com o Sr. Armindo: choco, 25 uvas e +2: ' + J(r));
+    const b = base({ garrafas: 1 });
+    const rb = trocar(b, AR, D1);
+    ok(rb.ok && rb.pagou === 'garrafa' && rb.reputacaoGanha === 2 && b.uvas === 100 && b.despensa.garrafasDadas === 1, 'prova com garrafa: sem uvas, +2: ' + J(rb));
+    // Trocas seguintes: sem Reputação; prateleira de 3.
+    [D2, D3].forEach(function (d) { ok(trocar(a, AR, d).ok, 'troca repetida com o Sr. Armindo em ' + d); });
+    ok(quantos(a, 'choco_sado') === 3 && a.reputacao === 2, '3 chocos e a Reputação não sobe nas repetidas');
+    recusada('prateleira cheia de choco', a, AR, D4, 'prateleira_cheia');
+    // Pedido do dia: uvas ou sal (os dois acontecem), igual o dia todo.
+    const dias = diasDe(60);
+    ok(dias.every(function (d) { return pedido(AR, d) === 'uvas' || pedido(AR, d) === 'sal_sado'; }), 'o Sr. Armindo só pede uvas ou sal');
+    const diaSalA = dias.filter(function (d) { return pedido(AR, d) === 'sal_sado'; }), diaUvasA = dias.filter(function (d) { return pedido(AR, d) === 'uvas'; });
+    ok(diaSalA.length >= 10 && diaUvasA.length >= 10, 'em 60 dias o Sr. Armindo pede sal e uvas várias vezes: ' + diaSalA.length + '/' + diaUvasA.length);
+    ok(pedido(AR, D1) === pedido(AR, D1), 'o pedido é o mesmo o dia todo');
+    const ant = '2026-01-01';
+    const comSal = base({ uvas: 100, despensa: { recebidos: { choco_sado: 1, sal_sado: 2 }, entregues: {}, primeiraTroca: { choco_sado: ant, sal_sado: ant }, hoje: { dia: null, feitas: {} } } });
+    const rs = trocar(comSal, AR, diaSalA[0]);
+    ok(rs.ok && rs.pagou === 'sal' && rs.uvasGastas === 0 && comSal.uvas === 100 && quantos(comSal, 'sal_sado') === 1 && quantos(comSal, 'choco_sado') === 2 && rs.reputacaoGanha === 0, 'dia de sal, com sal: paga com 1 sal: ' + J(rs));
+    const semSal = base({ uvas: 100, despensa: { recebidos: { choco_sado: 1 }, entregues: {}, primeiraTroca: { choco_sado: ant }, hoje: { dia: null, feitas: {} } } });
+    const ru = trocar(semSal, AR, diaSalA[0]);
+    ok(ru.ok && ru.pagou === 'uvas' && ru.uvasGastas === 25 && semSal.uvas === 75, 'dia de sal, sem sal: paga as uvas: ' + J(ru));
+    const prova = base({ uvas: 100, despensa: { recebidos: { sal_sado: 2 }, entregues: {}, primeiraTroca: { sal_sado: ant }, hoje: { dia: null, feitas: {} } } });
+    const rp = trocar(prova, AR, diaSalA[0]);
+    ok(rp.ok && rp.primeiraVez && rp.pagou === 'uvas' && quantos(prova, 'sal_sado') === 2, 'na prova o pedido do sal não conta: ' + J(rp));
+    // Teto de 3 por dia (somando os 4 vizinhos): a 4.ª troca do dia é recusada.
+    const t = base({ uvas: 1000 });
+    [AM, JO, TO].forEach(function (v) { ok(trocar(t, v, D1).ok, 'troca com ' + v + ' antes do teto'); });
+    recusada('4.ª troca do dia (teto 3)', t, AR, D1, 'teto_dia');
+    ok(trocar(t, AR, D2).ok, 'no dia seguinte já pode trocar com o Sr. Armindo');
+    // Um vizinho só dá o seu bem.
+    cx.__e = base({}); const er = clone(correr('despensaRegistarTroca(__e, "sr_armindo", "queijo_azeitao", "2026-10-08")', 'x'));
+    ok(er.ok === false && er.motivo === 'id_invalido', 'o Sr. Armindo só dá o choco: ' + J(er));
   }
 
   // 13. Conquistas, A Coleção, As Garrafas e capítulos 5 e 6 não mudam depois de uma prova.

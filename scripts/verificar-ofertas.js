@@ -84,7 +84,7 @@ function correrTestes(src) {
   };
 
   // 0. Dados.
-  ok(N('ESTRADA_OFERTA.reputacao') === 1 && N('ESTRADA_OFERTA.porDia') === 1 && J(N('ESTRADA_OFERTA.ordemEmpate')) === '["queijo_azeitao","mel_sesimbra","sal_sado"]', 'regras da oferta: +1, 1 por dia, empate queijo, mel, sal');
+  ok(N('ESTRADA_OFERTA.reputacao') === 1 && N('ESTRADA_OFERTA.porDia') === 1 && J(N('ESTRADA_OFERTA.ordemEmpate')) === '["queijo_azeitao","mel_sesimbra","sal_sado","choco_sado"]', 'regras da oferta: +1, 1 por dia, empate queijo, mel, sal, choco');
   ok(N('Object.prototype.hasOwnProperty.call(defaultState().despensa, "ofertaDia")') === false, 'state.js não devia ter ofertaDia (o campo em falta conta "nunca ofereceu")');
 
   // 1. +1 só uma vez por dia.
@@ -127,7 +127,7 @@ function correrTestes(src) {
     ['x', 5, null, '2026-13', {}].forEach(function (v) { const s = base({ queijo_azeitao: 1 }); s.despensa.ofertaDia = v; ok(oferecer(s, D1).ok === true, 'ofertaDia inválido (' + J(v) + ') conta como nunca ofereceu'); });
   }
 
-  // 4. Empate: queijo, depois mel, depois sal; e o de que há mais.
+  // 4. Empate: queijo, depois mel, depois sal, depois choco; e o de que há mais.
   {
     const q = function (rec) { return bemPara(base(rec)); };
     ok(q({ queijo_azeitao: 1, mel_sesimbra: 1, sal_sado: 1 }) === 'queijo_azeitao', 'empate a 3: queijo');
@@ -136,14 +136,18 @@ function correrTestes(src) {
     ok(q({ queijo_azeitao: 1, sal_sado: 2 }) === 'sal_sado', 'sal 2, queijo 1: o de que há mais (sal)');
     ok(q({ queijo_azeitao: 1, mel_sesimbra: 2, sal_sado: 2 }) === 'mel_sesimbra', 'mel 2, sal 2, queijo 1: empate mel/sal: mel');
     ok(q({ queijo_azeitao: 3, mel_sesimbra: 3, sal_sado: 3 }) === 'queijo_azeitao', 'empate a 3 bens iguais: queijo');
+    ok(q({ queijo_azeitao: 1, mel_sesimbra: 1, sal_sado: 1, choco_sado: 1 }) === 'queijo_azeitao', 'empate a 4: queijo');
+    ok(q({ sal_sado: 1, choco_sado: 1 }) === 'sal_sado', 'empate sal/choco: sal (o choco vem depois dos 3 originais)');
+    ok(q({ choco_sado: 1 }) === 'choco_sado', 'só choco: choco');
+    ok(q({ queijo_azeitao: 1, sal_sado: 1, choco_sado: 2 }) === 'choco_sado', 'choco 2, queijo 1, sal 1: o de que há mais (choco)');
     ok(q({}) === null, 'sem bens: nenhum');
     // Com entregues: o que conta é recebidos menos entregues.
     const e = base({ queijo_azeitao: 3, mel_sesimbra: 1 }); e.despensa.entregues = { queijo_azeitao: 3 };
     ok(bemPara(e) === 'mel_sesimbra', 'queijo todo entregue: passa para o mel');
     // Sequência real: a oferta gasta o bem escolhido, por dias.
-    const s = base({ queijo_azeitao: 1, mel_sesimbra: 1, sal_sado: 1 });
-    const bens = [D1, D2, '2026-10-22'].map(function (d) { return oferecer(s, d).bem; });
-    ok(J(bens) === '["queijo_azeitao","mel_sesimbra","sal_sado"]', 'ofertas em dias seguidos com empate: queijo, mel, sal: ' + J(bens));
+    const s = base({ queijo_azeitao: 1, mel_sesimbra: 1, sal_sado: 1, choco_sado: 1 });
+    const bens = [D1, D2, '2026-10-22', '2026-10-23'].map(function (d) { return oferecer(s, d).bem; });
+    ok(J(bens) === '["queijo_azeitao","mel_sesimbra","sal_sado","choco_sado"]', 'ofertas em dias seguidos com empate: queijo, mel, sal, choco: ' + J(bens));
   }
 
   // 5. Garrafas, historico, recebidos, primeiraTroca e capítulo 7 ficam iguais; a oferta é independente das trocas.
@@ -295,7 +299,8 @@ const MUTANTES = [
   ['relógio atrás deixa oferecer (>= passa a ===)', 'despensa', 'ultima !== null && ultima >= dia', 'ultima !== null && ultima === dia'],
   ['+2 de Reputação em vez de +1', 'dados', 'ESTRADA_OFERTA_REPUTACAO = 1', 'ESTRADA_OFERTA_REPUTACAO = 2'],
   ['valida "sem bens" depois de alterar', 'despensa', "  const bem = despensaBemParaOferecer(estado);\n  if (bem === null) return recusa('sem_bens');\n\n  const e = despensaEstado(estado);", "  const e = despensaEstado(estado);\n  const bem = despensaBemParaOferecer(estado);\n  if (bem === null) return recusa('sem_bens');\n"],
-  ['empate na ordem inversa', 'dados', "ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado']", "ordemEmpate: ['sal_sado', 'mel_sesimbra', 'queijo_azeitao']"],
+  ['empate na ordem inversa', 'dados', "ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado', 'choco_sado']", "ordemEmpate: ['choco_sado', 'sal_sado', 'mel_sesimbra', 'queijo_azeitao']"],
+  ['choco fora da ordem de empate', 'dados', "ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado', 'choco_sado']", "ordemEmpate: ['queijo_azeitao', 'mel_sesimbra', 'sal_sado']"],
   ['escolhe o bem de que há menos', 'despensa', 'return b.n - a.n || a.pos - b.pos;', 'return a.n - b.n || a.pos - b.pos;'],
   ['oferecer desce os recebidos (mexe no capítulo 7)', 'despensa', 'const r = despensaRegistarEntrega(estado, bem, 1);', 'const r = { ok: true }; e.recebidos[bem] = despensaInteiroValido(e.recebidos[bem]) - 1;'],
   ['oferecer desce state.garrafas', 'despensa', 'e.ofertaDia = dia;', 'e.ofertaDia = dia; estado.garrafas = estado.garrafas - 1;'],

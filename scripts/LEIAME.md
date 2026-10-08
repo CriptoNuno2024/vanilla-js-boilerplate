@@ -32,7 +32,7 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 
 # Estrada (vizinhos e bens, só dados)
 
-`node scripts/verificar-estrada.js [--final]` — dados de js/estrada-dados.js (ainda não carregado pelo jogo): 3 vizinhos com 3 falas e a fala de troca em pt/en/es, 3 bens com nome nas 3 línguas, cada fala com facto tem "fonte" (só as fontes e endereços aprovados) ou "semFacto: true", a troca provisória sem gotas, e que nada usa estes dados (só js/despensa.js, também sem uso). Se uma cara tem caraPendente: false, o ficheiro tem de existir; se for true, pode faltar. `--final` falha enquanto houver "[por escrever]". `ESTRADA_JS=ficheiro` testa outra versão.
+`node scripts/verificar-estrada.js [--final]` — dados de js/estrada-dados.js e o ecrã js/estrada.js: 4 vizinhos (Dona Amélia, Sr. Joaquim, Tomás e Sr. Armindo) com 3 falas e a fala de troca em pt/en/es, 4 bens (queijo, sal, mel e choco do Sado) com nome nas 3 línguas, o pedido do dia de cada vizinho, a ordem de empate das ofertas (queijo, mel, sal, choco) e 12 falas de oferta (3 visitas x 4 bens), a cena de cada vizinho (ESTRADA_CENAS em js/estrada.js e o ficheiro em assets/ecras), cada fala com facto tem "fonte" (só as fontes e endereços aprovados) ou "semFacto: true", a troca provisória sem gotas, e que nada usa estes dados fora de js/despensa.js e js/estrada.js. Se uma cara tem caraPendente: false, o ficheiro tem de existir; se for true, pode faltar. `--final` falha enquanto houver "[por escrever]". `ESTRADA_JS=ficheiro` testa outra versão.
 
 # Despensa da Estrada (estado e funções puras, sem uso)
 

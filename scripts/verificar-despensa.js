@@ -204,8 +204,8 @@ const entregar = function (estado, bem, n) { PURO.__e = estado; PURO.__b = bem; 
   ok(Object.keys(e.despensa).sort().join() === 'entregues,hoje,primeiraTroca,recebidos', 'a despensa não devia ganhar campos novos');
   ok(J(clone(e.despensa.entregues)) === '{}', 'trocar nunca devia mexer em entregues');
 
-  // Sem teto diário de trocas (é do PR 5): 3 vizinhos no mesmo dia já foi aceite acima; mais um dia e mais 3.
-  ['dona_amelia:queijo_azeitao', 'sr_joaquim:sal_sado', 'tomas:mel_sesimbra'].forEach(function (p) {
+  // Sem teto diário de trocas (é do PR 5): 3 vizinhos no mesmo dia já foi aceite acima; mais um dia e mais 4 (com o Sr. Armindo).
+  ['dona_amelia:queijo_azeitao', 'sr_joaquim:sal_sado', 'tomas:mel_sesimbra', 'sr_armindo:choco_sado'].forEach(function (p) {
     const x = p.split(':');
     ok(trocar(e, x[0], x[1], '2026-10-09').ok === true, 'sem teto diário: ' + x[0] + ' devia ser aceite no dia novo');
   });

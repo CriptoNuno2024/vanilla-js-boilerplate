@@ -85,8 +85,10 @@ const savePossuiNivel6 = function (extra) {
   ok(g.ev('CAPITULOS_CONFIG.length') === 7 && g.ev("CAPITULOS_CONFIG[6].id") === 'cap7' && g.ev('CAPITULOS_CONFIG[6].nivel') === 7, 'devia haver o cap7 no nível 7');
   ok(JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio')) === JSON.stringify([{ tipo: 'temChaves', caminho: 'despensa.recebidos', chaves: ['queijo_azeitao', 'sal_sado', 'mel_sesimbra'] }]), 'critério do cap7');
   // Os ids do critério são os ids REAIS dos 3 bens de origem em ESTRADA_BENS.
-  ok(JSON.stringify(g.ev('ESTRADA_BENS.map(function (b) { return b.id; })')) === JSON.stringify(['queijo_azeitao', 'sal_sado', 'mel_sesimbra']) &&
-    JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio[0].chaves')) === JSON.stringify(g.ev('ESTRADA_BENS.map(function (b) { return b.id; })')), 'os ids do cap7 têm de ser os dos 3 bens de ESTRADA_BENS');
+  // (A Estrada tem 4 bens: o choco do Sado não faz parte do capítulo 7.)
+  ok(JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio[0].chaves')) === JSON.stringify(['queijo_azeitao', 'sal_sado', 'mel_sesimbra']) &&
+    g.ev('CAPITULOS_CONFIG[6].criterio[0].chaves.every(function (k) { return ESTRADA_BENS.some(function (b) { return b.id === k; }); })') === true &&
+    g.ev("ESTRADA_BENS.some(function (b) { return b.id === 'choco_sado'; }) && CAPITULOS_CONFIG[6].criterio[0].chaves.indexOf('choco_sado') === -1") === true, 'os ids do cap7 têm de ser os 3 bens de origem (queijo, sal e mel), todos em ESTRADA_BENS, sem o choco');
   const cap7 = "CAPITULOS_CONFIG[6]";
   const lido = function () { return JSON.parse(g.ev('JSON.stringify(capitulosLerCriterio(' + cap7 + '))')); };
   let r = lido();

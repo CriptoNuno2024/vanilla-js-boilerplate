@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// A ESTRADA (Nível 7): os 3 vizinhos, o bem que dá cada um, quantos tens na Despensa, uma fala
+// A ESTRADA (Nível 7): os 4 vizinhos, o bem que dá cada um, quantos tens na Despensa, uma fala
 // do dia e (PR 5B) o botão "Trocar". As regras e as contas estão em js/despensa.js
 // (despensaTrocar) e js/estrada-dados.js (ESTRADA_TROCA); aqui só se mostra e se clica.
 //
@@ -116,11 +116,21 @@ function estradaResultadoHtml(v, bem) {
   '</div>';
 }
 
+// A cena de cada vizinho: ficheiro (assets/ecras/estrada_<ficheiro>.jpg) e posição vertical da imagem na faixa baixa
+// do cartão (84 px de altura; a imagem é alta, por isso só se vê uma tira: a % escolhe qual, para se ver o rosto).
+const ESTRADA_CENAS = {
+  dona_amelia: { ficheiro: 'amelia', y: '28%' },
+  sr_joaquim: { ficheiro: 'joaquim', y: '22%' },
+  tomas: { ficheiro: 'tomas', y: '28%' },
+  sr_armindo: { ficheiro: 'armindo', y: '18%' }
+};
+
 function estradaCartaoHtml(v, dia) {
   const bem = ESTRADA_BENS.filter(function (b) { return b.id === v.bem; })[0] || null;
   const fala = estradaFalaDoDia(v, dia);
   const nome = cadernoEscapar(estradaTexto(v.nome));
-  const cena = 'assets/ecras/estrada_' + { dona_amelia: 'amelia', sr_joaquim: 'joaquim', tomas: 'tomas' }[v.id] + '.jpg';
+  const cenaInfo = ESTRADA_CENAS[v.id] || { ficheiro: v.id, y: '28%' };
+  const cena = 'assets/ecras/estrada_' + cenaInfo.ficheiro + '.jpg';
   const cara = v.caraPendente === false && v.cara
     ? '<img class="estrada-cara" src="' + cadernoEscapar(v.cara) + '" alt="" decoding="async">'
     : '';
@@ -129,7 +139,7 @@ function estradaCartaoHtml(v, dia) {
   const rotulo = e.acao === 'garrafa' ? t('estrada.btnGarrafa')
     : e.acao === 'sal' ? t('estrada.btnSal')
     : t('estrada.btnUvas').replace('{n}', T.custoUvas);
-  // Só a Dona Amélia pede sal (ver ESTRADA_PEDIDOS): a linha só aparece nas trocas repetidas, quando ela pede sal hoje
+  // Só a Dona Amélia e o Sr. Armindo pedem sal (ver ESTRADA_PEDIDOS): a linha só aparece nas trocas repetidas, quando ela pede sal hoje
   // e o botão está ativo (com o botão apagado, a linha do motivo basta).
   let linhaPedido = '';
   if (!e.primeiraVez && e.pedido === 'sal_sado' && !e.motivo) {
@@ -137,7 +147,7 @@ function estradaCartaoHtml(v, dia) {
   }
   return '<div class="estrada-cartao">' +
     '<div class="estrada-cena">' +
-      '<img class="estrada-foto" src="' + cena + '" alt="" decoding="async" loading="lazy" style="object-position: center ' + (v.id === 'sr_joaquim' ? '22%' : '28%') + '">' +
+      '<img class="estrada-foto" src="' + cena + '" alt="" decoding="async" loading="lazy" style="object-position: center ' + cenaInfo.y + '">' +
       cara +
     '</div>' +
     '<div class="estrada-texto">' +

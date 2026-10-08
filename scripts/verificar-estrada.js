@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Verifica os dados da Estrada (js/estrada-dados.js): 3 vizinhos, falas, bens, fontes e a
+// Verifica os dados da Estrada (js/estrada-dados.js): 4 vizinhos, falas, bens, fontes e a
 // regras das trocas (PR 5A) e pedidos. Só LÊ o ficheiro e corre-o num ambiente simulado (vm), onde
 // Math.random e Date.now ficam proibidos. Só exige que a cara exista em disco quando
 // caraPendente é false (se for true, o ficheiro pode faltar) e confirma que o ecrã (js/estrada.js) é só de leitura: carregado no index.html, sem gravar, sem cobrar uvas, sem Reputação e sem registar trocas.
@@ -39,19 +39,25 @@ const temTexto = function (s) { return typeof s === 'string' && s.trim() !== '';
 const ESPERADO = {
   dona_amelia: { bem: 'queijo_azeitao', cara: 'assets/personagens/vizinha_amelia.jpg' },
   sr_joaquim: { bem: 'sal_sado', cara: 'assets/personagens/vizinho_joaquim.jpg' },
-  tomas: { bem: 'mel_sesimbra', cara: 'assets/personagens/vizinho_tomas.jpg' }
+  tomas: { bem: 'mel_sesimbra', cara: 'assets/personagens/vizinho_tomas.jpg' },
+  sr_armindo: { bem: 'choco_sado', cara: 'assets/personagens/vizinho_armindo.jpg' }
 };
 const NOMES_BENS = {
   queijo_azeitao: { en: 'Azeitão cheese', es: 'Queso de Azeitão' },
   sal_sado: { en: 'Sado salt', es: 'Sal del Sado' },
-  mel_sesimbra: { en: 'Sesimbra honey', es: 'Miel de Sesimbra' }
+  mel_sesimbra: { en: 'Sesimbra honey', es: 'Miel de Sesimbra' },
+  choco_sado: { en: 'Sado cuttlefish', es: 'Choco del Sado' }
 };
 // Só estes endereços foram aprovados como fontes.
 const URLS_APROVADOS = [
   'https://www.agroportal.pt/tudo-sobre-o-queijo-de-azeitao-dop/',
   'https://www.agroportal.pt/?p=988711',
   'https://www.kiwa.com/pt/pt/servicos/certificacao/queijos-dop-certificacao/',
-  'https://www.viralagenda.com/pt/events/1821332/zimbramel-feira-do-mel-da-peninsula-de-setubal'
+  'https://www.viralagenda.com/pt/events/1821332/zimbramel-feira-do-mel-da-peninsula-de-setubal',
+  'https://www.visitlisboa.com/pt-pt/locais/choco-frito-de-setubal',
+  'https://www.deco.proteste.pt/familia-consumo/ferias-lazer/noticias/choco-frito-setubal-melhores-restaurantes-ricardo-dias-felner',
+  'https://35awards.com/winners2021/country/PT/',
+  'https://revistaselectronicas.ujaen.es/index.php/atma/article/view/7925/9254'
 ];
 
 const textos = []; // { onde, texto } para contar os "[por escrever]"
@@ -99,7 +105,7 @@ function verificarFonte(item, onde, obrigatoria) {
 
 // ----- Vizinhos -----
 {
-  ok(VIZINHOS.length === 3 && VIZINHOS.map(function (v) { return v.id; }).join() === 'dona_amelia,sr_joaquim,tomas', 'devia haver 3 vizinhos: dona_amelia, sr_joaquim, tomas');
+  ok(VIZINHOS.length === 4 && VIZINHOS.map(function (v) { return v.id; }).join() === 'dona_amelia,sr_joaquim,tomas,sr_armindo', 'devia haver 4 vizinhos: dona_amelia, sr_joaquim, tomas, sr_armindo');
   const falasIds = [];
   VIZINHOS.forEach(function (v) {
     const esp = ESPERADO[v.id] || {};
@@ -131,7 +137,7 @@ function verificarFonte(item, onde, obrigatoria) {
 
 // ----- Bens -----
 {
-  ok(BENS.length === 3 && BENS.map(function (b) { return b.id; }).join() === 'queijo_azeitao,sal_sado,mel_sesimbra', 'devia haver 3 bens: queijo_azeitao, sal_sado, mel_sesimbra');
+  ok(BENS.length === 4 && BENS.map(function (b) { return b.id; }).join() === 'queijo_azeitao,sal_sado,mel_sesimbra,choco_sado', 'devia haver 4 bens: queijo_azeitao, sal_sado, mel_sesimbra, choco_sado');
   BENS.forEach(function (b) {
     textosEmTresLinguas(b.nome, b.id + ': nome');
     textosEmTresLinguas(b.descricao, b.id + ': descrição');
@@ -159,19 +165,20 @@ function verificarFonte(item, onde, obrigatoria) {
   ok(TROCA.custoUvas >= TROCA.uvasMinimasDepoisDaTroca, 'o custo nunca devia ser abaixo das 10 uvas do Prensar');
   ok(Object.keys(TROCA).sort().join() === ['custoUvas', 'prateleiraMaxima', 'reputacaoPrimeiraTroca', 'trocasPorDiaTeto', 'trocasPorVizinhoPorDia', 'uvasMinimasDepoisDaTroca'].sort().join(),
     'a troca não devia ter outros campos (sem gotas, sem dinheiro): ' + Object.keys(TROCA));
-  ok(PEDIDOS && Object.keys(PEDIDOS).sort().join() === 'dona_amelia,sr_joaquim,tomas', 'ESTRADA_PEDIDOS devia ter os 3 vizinhos');
+  ok(PEDIDOS && Object.keys(PEDIDOS).sort().join() === 'dona_amelia,sr_armindo,sr_joaquim,tomas', 'ESTRADA_PEDIDOS devia ter os 4 vizinhos');
   ok(JSON.stringify(PEDIDOS.dona_amelia) === '["uvas","sal_sado"]', 'a Dona Amélia devia pedir uvas ou sal (o bagaço está em pausa)');
+  ok(JSON.stringify(PEDIDOS.sr_armindo) === '["uvas","sal_sado"]', 'o Sr. Armindo devia pedir uvas ou sal');
   ok(JSON.stringify(PEDIDOS.sr_joaquim) === '["uvas"]' && JSON.stringify(PEDIDOS.tomas) === '["uvas"]', 'o Sr. Joaquim e o Tomás pedem sempre uvas');
 }
 
-// ----- Ofertas a uma visita (PR 5C): regras e falas especiais (9: 3 visitas x 3 bens) -----
+// ----- Ofertas a uma visita (PR 5C): regras e falas especiais (12: 3 visitas x 4 bens) -----
 {
   ok(OFERTA.reputacao === 1 && OFERTA.porDia === 1, 'a oferta devia dar +1 de Reputação, 1 vez por dia');
-  ok(JSON.stringify(OFERTA.ordemEmpate) === '["queijo_azeitao","mel_sesimbra","sal_sado"]', 'empate: queijo, mel, sal');
+  ok(JSON.stringify(OFERTA.ordemEmpate) === '["queijo_azeitao","mel_sesimbra","sal_sado","choco_sado"]', 'empate: queijo, mel, sal, choco');
   ok(Object.keys(OFERTA).sort().join() === 'ordemEmpate,porDia,reputacao', 'a oferta não devia ter outros campos: ' + Object.keys(OFERTA));
   ok(Object.keys(OFERTA_FALAS).sort().join() === 'henrique,marisa,valentim', 'falas de oferta para as 3 visitas');
   Object.keys(OFERTA_FALAS).forEach(function (pers) {
-    ok(Object.keys(OFERTA_FALAS[pers]).sort().join() === 'mel_sesimbra,queijo_azeitao,sal_sado', pers + ': uma fala por bem');
+    ok(Object.keys(OFERTA_FALAS[pers]).sort().join() === 'choco_sado,mel_sesimbra,queijo_azeitao,sal_sado', pers + ': uma fala por bem');
     Object.keys(OFERTA_FALAS[pers]).forEach(function (bem) {
       const f = OFERTA_FALAS[pers][bem];
       ok(f.semFacto === true && f.fonte === undefined, pers + '/' + bem + ': a fala de oferta é só carinho (semFacto: true, sem fonte)');
@@ -260,7 +267,7 @@ if (!process.env.ESTRADA_JS) {
   const falasVistas = {};
   LINGUAS.forEach(function (l) {
     const h = desenhar(l, '2026-10-07');
-    ok((h.match(/class="btn-pill pill-main estrada-botao"/g) || []).length === 3, 'o ecrã (' + l + ') devia ter 3 botões de trocar');
+    ok((h.match(/class="btn-pill pill-main estrada-botao"/g) || []).length === 4, 'o ecrã (' + l + ') devia ter 4 botões de trocar');
     VIZINHOS.forEach(function (v) {
       ok(h.indexOf(v.nome[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o nome de ' + v.id);
       ok(h.indexOf(v.papel[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o papel de ' + v.id);
@@ -276,7 +283,7 @@ if (!process.env.ESTRADA_JS) {
   });
   // "Na Despensa: n" lê recebidos - entregues (queijo 2) e 0 nos outros.
   const hpt = desenhar('pt', '2026-10-07');
-  ok((hpt.match(/Na Despensa: 2/g) || []).length === 1 && (hpt.match(/Na Despensa: 0/g) || []).length === 2, 'Na Despensa devia ser 2, 0 e 0');
+  ok((hpt.match(/Na Despensa: 2/g) || []).length === 1 && (hpt.match(/Na Despensa: 0/g) || []).length === 3, 'Na Despensa devia ser 2, 0, 0 e 0');
   // Fala do dia: estável no mesmo dia e a rodar de um dia para o outro.
   ok(desenhar('pt', '2026-10-07') === desenhar('pt', '2026-10-07'), 'a fala do dia devia ser a mesma o dia todo');
   for (let d = 1; d <= 28; d++) {
@@ -324,7 +331,7 @@ if (!process.env.ESTRADA_JS) {
   let h0 = desenhar('pt', '2026-10-20');
   const antesD = estadoJ();
   ok(lerN('__saves') === 0 && lerN('__trocas') === 0 && lerN('__barras') === 0 && gravacoes.length === 0 && estadoJ() === antesD, 'desenhar o ecrã não grava, não troca e não mexe no estado');
-  ok((h0.match(/Levar uma garrafa/g) || []).length === 3 && h0.indexOf(' disabled') === -1 && h0.indexOf('Garrafas para levar: 4') !== -1, 'com garrafas, as 3 provas oferecem "Levar uma garrafa" (sem botões apagados) e "Garrafas para levar: 4"');
+  ok((h0.match(/Levar uma garrafa/g) || []).length === 4 && h0.indexOf(' disabled') === -1 && h0.indexOf('Garrafas para levar: 4') !== -1, 'com garrafas, as 4 provas oferecem "Levar uma garrafa" (sem botões apagados) e "Garrafas para levar: 4"');
   // 1.ª troca com a Dona Amélia: prova com garrafa.
   const histAntes = vm.runInContext('JSON.stringify(state.adega.historico)', cx);
   let h1 = clicar('dona_amelia');
@@ -361,7 +368,7 @@ if (!process.env.ESTRADA_JS) {
   // 33 uvas e sem garrafas: faltam uvas.
   montar({ uvas: 33, garrafas: 0 });
   const hU = desenhar('pt', '2026-10-20');
-  ok((hU.match(/Trocar por 25 uvas/g) || []).length === 3 && (hU.match(/ disabled/g) || []).length === 3 && (hU.match(/Precisas de 35 uvas/g) || []).length === 3, '33 uvas sem garrafas: 3 botões apagados com "Precisas de 35 uvas"');
+  ok((hU.match(/Trocar por 25 uvas/g) || []).length === 4 && (hU.match(/ disabled/g) || []).length === 4 && (hU.match(/Precisas de 35 uvas/g) || []).length === 4, '33 uvas sem garrafas: 4 botões apagados com "Precisas de 35 uvas"');
   montar({ uvas: 35, garrafas: 0 });
   ok(desenhar('pt', '2026-10-20').indexOf(' disabled') === -1, '35 uvas: botões ativos');
 
@@ -396,6 +403,13 @@ if (!process.env.ESTRADA_JS) {
   };
 
   verificarEcra(ECRA_REAL).forEach(function (m) { ok(false, m); });
+
+  // Cada vizinho tem a sua cena em js/estrada.js (ESTRADA_CENAS: ficheiro e posição vertical) e o ficheiro existe em disco.
+  VIZINHOS.forEach(function (v) {
+    const m = new RegExp(v.id + ": \\{ ficheiro: '([a-z_]+)', y: '(\\d+)%' \\}").exec(ECRA_REAL);
+    ok(!!m, v.id + ': falta a entrada em ESTRADA_CENAS (js/estrada.js)');
+    if (m) ok(fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'estrada_' + m[1] + '.jpg')), v.id + ': falta o ficheiro assets/ecras/estrada_' + m[1] + '.jpg');
+  });
 
   // Provas negativas: estragar o ecrã de propósito tem de fazer o script falhar.
   [
