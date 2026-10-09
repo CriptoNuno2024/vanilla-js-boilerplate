@@ -21,7 +21,7 @@ const HISTORIA_INTRO = [
   { chave: 'historia.intro.2' }
 ];
 
-// Por nível (2 a 9): cada fala pode trazer a sua própria foto — a que
+// Por nível (2 a 10): cada fala pode trazer a sua própria foto — a que
 // não tiver "foto" mantém a última que já estava a mostrar-se.
 const HISTORIA_NIVEIS = {
   2: [
@@ -63,6 +63,11 @@ const HISTORIA_NIVEIS = {
     { chave: 'historia.nivel9.1', foto: 'assets/vinha/barril_dourado.jpg' },
     { chave: 'historia.nivel9.2', foto: 'assets/ecras/sao_martinho_prova.jpg' },
     { chave: 'historia.nivel9.3', foto: 'assets/ecras/yoshi_cat_fala_das_uvas.jpg' }
+  ],
+  10: [
+    { chave: 'historia.nivel10.1', foto: 'assets/ecras/cimo_da_colina_apontar.jpg' },
+    { chave: 'historia.nivel10.2', foto: 'assets/mapa/mapa_quinta.jpg' },
+    { chave: 'historia.nivel10.3', foto: 'assets/ecras/perfil_yoshi_cat_e_chizo.jpg' }
   ]
 };
 

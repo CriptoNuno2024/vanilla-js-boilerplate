@@ -191,6 +191,13 @@ function defaultState() {
     camara: {
       provaDia: null,
       dias: 0
+    },
+    // A Cepa Roxa (Nível 10, ver js/roxo.js). brindeDia: último dia (Lisboa, 'AAAA-MM-DD') em que
+    // brindou com o Moscatel Roxo (null = nunca). dias: em quantos dias diferentes já brindou (só sobe; o
+    // capítulo 10 lê-o). NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.camara, state.lagar e state.despensa.
+    roxo: {
+      brindeDia: null,
+      dias: 0
     }
   };
 }

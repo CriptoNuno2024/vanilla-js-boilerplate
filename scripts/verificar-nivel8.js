@@ -158,10 +158,10 @@ const saveNivel8 = function (extra) {
   // Quem já tinha o cap7 e nenhum Lagar não perde nada nem ganha o cap8 sem pisar.
   const v = abrir(saveNivel8()); v.ev('capitulosAvaliarEmSilencio()');
   ok(v.ev('state.capitulos.concluidos.cap8') === undefined && v.ev('state.capitulos.concluidos.cap7') === true, 'sem pisar, o cap8 não se marca; o cap7 fica');
-  // ?capitulo=8 passa; 10 e 0 não (o 9 passou a existir, ver verificar-camara.js).
+  // ?capitulo=8 passa; 11 e 0 não (o 9 e o 10 já existem, ver verificar-camara.js e verificar-roxo.js).
   ok((abrir(null, '?capitulo=8').json('capitulosParametrosTeste()') || {}).id === 'cap8', '?capitulo=8 é válido');
   ok((abrir(null, '?capitulo=cap8').json('capitulosParametrosTeste()') || {}).id === 'cap8', '?capitulo=cap8 é válido');
-  ok(abrir(null, '?capitulo=10').json('capitulosParametrosTeste()') === null && abrir(null, '?capitulo=0').json('capitulosParametrosTeste()') === null, '?capitulo=10 e 0 não são válidos');
+  ok(abrir(null, '?capitulo=11').json('capitulosParametrosTeste()') === null && abrir(null, '?capitulo=0').json('capitulosParametrosTeste()') === null, '?capitulo=11 e 0 não são válidos');
 }
 
 // 5. Textos do Lagar nas 3 línguas, e a ligação ao jogo (index.html, fundo, ficheiros).

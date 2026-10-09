@@ -89,6 +89,7 @@ const FUNDO_DOS_ECRAS = {
   perfil: { src: 'assets/ecras/yoshi_cat_varanda.jpg' },
   lagar: { src: 'assets/ecras/festa_vindima_todos_juntos.jpg' },
   camara: { src: 'assets/vinha/barril_dourado.jpg' },
+  roxo: { src: 'assets/ecras/poda_vinha.jpg' },
   conquistas: { src: 'assets/ecras/livro_conquistas.jpg' },
   lingua: null
 };
@@ -115,7 +116,8 @@ const NAV_ATIVO_POR_ECRA = {
   festa: 'quinta',
   estrada: 'quinta',
   lagar: 'quinta',
-  camara: 'quinta'
+  camara: 'quinta',
+  roxo: 'quinta'
 };
 
 // "Limpeza ao sair" por ecrã — um minijogo com temporizador (ex: o
@@ -557,6 +559,7 @@ function goTo(screen, opcoes) {
     if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
     if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
     if (typeof atualizarLinhaCamaraQuinta === 'function') atualizarLinhaCamaraQuinta();
+    if (typeof atualizarLinhaRoxoQuinta === 'function') atualizarLinhaRoxoQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
     let mostrouHistoria = false;
@@ -601,6 +604,7 @@ function goTo(screen, opcoes) {
   if (screen === 'estrada') renderEstrada();
   if (screen === 'lagar') renderLagar();
   if (screen === 'camara') renderCamara();
+  if (screen === 'roxo') renderRoxo();
   if (screen === 'garrafas') renderGarrafas();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();

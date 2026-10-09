@@ -15,7 +15,7 @@
 // nem de Date.now aqui dentro).
 //
 // Leituras do jogo de onde virá o contexto (só lidas, nunca alteradas):
-//   nivelPelaReputacao(state.reputacao)  1 a 9 (js/niveis.js)
+//   nivelPelaReputacao(state.reputacao)  1 a 10 (js/niveis.js)
 //   estacaoAtual()                       'inverno' | 'primavera' | 'verao' | 'outono' (js/estacoes.js)
 //   faseRealAtual()                      'repouso' | 'choro' | 'rebentacao' | 'floracao' |
 //                                        'vingamento' | 'pintor' | 'vindima' | 'fimVindima' |

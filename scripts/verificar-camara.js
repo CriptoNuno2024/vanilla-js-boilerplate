@@ -65,18 +65,18 @@ const saveNivel9 = function (extra) {
 // 1. Nível 9: limiar 2100, nome nas 3 línguas, tranca do ecrã "camara", o Lagar continua no 8.
 {
   const g = abrir();
-  ok(g.ev('NIVEIS_CONFIG.length') === 9, 'devia haver 9 níveis');
-  ok(JSON.stringify(g.json('NIVEIS_CONFIG.map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000,1500,2100]', 'limiares até 1500, 2100');
+  ok(g.ev('NIVEIS_CONFIG.length') >= 9, 'devia haver pelo menos 9 níveis (o 10 está em scripts/verificar-roxo.js)');
+  ok(JSON.stringify(g.json('NIVEIS_CONFIG.slice(0, 9).map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000,1500,2100]', 'limiares até 1500, 2100');
   ok(g.ev('NIVEIS_CONFIG[8].nomeKey') === 'nivel.nome.9', 'nomeKey do nível 9');
-  [[1500, 8], [2099, 8], [2100, 9], [9000, 9]].forEach(function (p) { ok(g.ev('nivelPelaReputacao(' + p[0] + ')') === p[1], 'Reputação ' + p[0] + ' devia dar nível ' + p[1]); });
+  [[1500, 8], [2099, 8], [2100, 9], [2799, 9]].forEach(function (p) { ok(g.ev('nivelPelaReputacao(' + p[0] + ')') === p[1], 'Reputação ' + p[0] + ' devia dar nível ' + p[1]); });
   ok(g.ev('NIVEL_NECESSARIO_POR_ECRA.camara') === 9 && g.ev('NIVEL_NECESSARIO_POR_ECRA.lagar') === 8, 'camara: 9 e o lagar continua no 8');
   ok(g.ev("state.acesso.jogadorAntigo = false; state.reputacao = 2099; ecraDesbloqueado('camara')") === false, 'a Câmara devia estar trancada no nível 8 (jogador novo)');
   ok(g.ev("state.reputacao = 2100; ecraDesbloqueado('camara')") === true, 'a Câmara devia abrir no nível 9');
   ok(g.ev("state.reputacao = 2099; ecraDesbloqueado('lagar')") === true, 'o Lagar continua aberto no nível 8');
   ok(g.ev("state.reputacao = 300; state.acesso.jogadorAntigo = true; ecraDesbloqueado('camara')") === true, 'um jogador antigo abre a Câmara antes do nível 9 (como o Lagar)');
   ok(g.ev('TRANSLATIONS.pt["nivel.nome.9"]') === 'Câmara de Provadores' && g.ev('TRANSLATIONS.en["nivel.nome.9"]') === 'Tasting Chamber' && g.ev('TRANSLATIONS.es["nivel.nome.9"]') === 'Cámara de Catadores', 'os 3 nomes do nível 9');
-  // O nível 9 é agora o último: a barra do cartão enche e diz "nível máximo".
-  ok(g.ev('NIVEIS_CONFIG[nivelPelaReputacao(9999) ]') === undefined, 'no nível 9 já não há nível seguinte');
+  // O nível 9 já não é o último: há o nível 10 (ver verificar-roxo.js).
+  ok(g.ev('NIVEIS_CONFIG[8].min') === 2100 && g.ev('NIVEIS_CONFIG.length') >= 10, 'depois do nível 9 há o nível 10');
 }
 
 // 2. História do nível 9: 3 falas com as 3 imagens pedidas, todas já existentes; textos nas 3 línguas.
@@ -157,7 +157,7 @@ const saveNivel9 = function (extra) {
 // 5. Capítulo 9: conta dias DIFERENTES; nunca trava o nível; celebração; ?capitulo=9.
 {
   const g = abrir(saveNivel9({ reputacao: 2100 }));
-  ok(g.ev('CAPITULOS_CONFIG.length') === 9 && g.ev('CAPITULOS_CONFIG[8].id') === 'cap9' && g.ev('CAPITULOS_CONFIG[8].nivel') === 9, 'devia haver o cap9 no nível 9');
+  ok(g.ev('CAPITULOS_CONFIG.length') >= 9 && g.ev('CAPITULOS_CONFIG[8].id') === 'cap9' && g.ev('CAPITULOS_CONFIG[8].nivel') === 9, 'devia haver o cap9 no nível 9');
   ok(JSON.stringify(g.json('CAPITULOS_CONFIG[8].criterio')) === JSON.stringify([{ tipo: 'numero', caminho: 'camara.dias', alvo: 3 }]), 'critério do cap9');
   const lido = function () { return g.json('capitulosLerCriterio(CAPITULOS_CONFIG[8])'); };
   let r = lido(); ok(r.atual === 0 && r.total === 3 && !r.cumprido, 'sem provar: 0 / 3');
@@ -177,10 +177,10 @@ const saveNivel9 = function (extra) {
   ok(v.ev('state.capitulos.concluidos.cap9') === undefined && v.ev('state.capitulos.concluidos.cap8') === true, 'sem provar, o cap9 não se marca; o cap8 fica');
   // O cap8 conta pisar no Lagar e continua a não contar provas (e vice-versa): campos diferentes.
   ok(g.ev('state.lagar.dias') === 3 && g.ev('CAPITULOS_CONFIG[7].criterio[0].caminho') === 'lagar.dias', 'o cap8 continua a ler lagar.dias');
-  // ?capitulo=1 a 9 passam; 10 e 0 não.
+  // ?capitulo=1 a 9 passam; 11 e 0 não (o 10 passou a existir, ver verificar-roxo.js).
   [1, 8, 9].forEach(function (n) { ok((abrir(null, '?capitulo=' + n).json('capitulosParametrosTeste()') || {}).id === 'cap' + n, '?capitulo=' + n + ' é válido'); });
   ok((abrir(null, '?capitulo=cap9').json('capitulosParametrosTeste()') || {}).id === 'cap9', '?capitulo=cap9 é válido');
-  ok(abrir(null, '?capitulo=10').json('capitulosParametrosTeste()') === null && abrir(null, '?capitulo=0').json('capitulosParametrosTeste()') === null, '?capitulo=10 e 0 não são válidos');
+  ok(abrir(null, '?capitulo=11').json('capitulosParametrosTeste()') === null && abrir(null, '?capitulo=0').json('capitulosParametrosTeste()') === null, '?capitulo=11 e 0 não são válidos');
 }
 
 // 6. Textos do capítulo e da Câmara nas 3 línguas; ligação ao jogo; imagens que já existem.
@@ -214,7 +214,7 @@ const saveNivel9 = function (extra) {
   ok(pos('lagar.js') > 0 && pos('camara.js') > pos('lagar.js') && pos('camara.js') < pos('main.js'), 'ordem de carga: lagar.js, camara.js, main.js');
   ok(/\.camara-botao:disabled/.test(html), 'index.html tem o estilo do botão');
   // Comentários desatualizados: nada diz "1 a 8" nos ficheiros do nível.
-  ['niveis.js', 'capitulos.js', 'historia.js', 'visitas.js'].forEach(function (f) { ok(!/\b(1|2) a 8\b/.test(ler(path.join(RAIZ, 'js', f))), 'js/' + f + ' ainda diz "1 a 8" ou "2 a 8"'); });
+  ['niveis.js', 'capitulos.js', 'historia.js', 'visitas.js'].forEach(function (f) { ok(!/\b(1|2) a (8|9)\b/.test(ler(path.join(RAIZ, 'js', f))), 'js/' + f + ' ainda diz "1 a 8", "1 a 9" ou "2 a 9"'); });
   // O comentário de state.js diz que não se junta na nuvem.
   const st = ler(path.join(RAIZ, 'js', 'state.js'));
   ok(/camara:\s*\{/.test(st) && /A Câmara \(Nível 9[\s\S]{0,400}NÃO se junta na nuvem/.test(st), 'state.js documenta que state.camara não se junta na nuvem');
