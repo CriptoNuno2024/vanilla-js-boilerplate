@@ -66,3 +66,14 @@ Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
 
 `node scripts/verificar-economia.js` — (1) a Compostagem da Vinha (`compostagemFonte` e `vinhaCompostar` em js/vinha.js) aceita 3 Resíduos OU 3 Bagaço e dá o mesmo adubo (1, ou 2 com o bónus da estação), gasta primeiro os Resíduos, recusa sem alterar nada com menos de 3 de cada, os textos dizem que servem as duas formas nas 3 línguas e o Bagaço continua a servir ao Alambique (3) e ao isco (1); (2) a prova da Câmara soma +1 de Reputação por cada 5 de Conhecimento até +4 (total de 8 a 12, valores em `CAMARA_CONFIG`), o Conhecimento inválido conta 0 e nunca se gasta, continua uma vez por dia e o texto diz o intervalo; (3) o prémio ÚNICO de +10 ao completar as 15 páginas do Caderno (`cadernoPremioCompleto` em js/caderno.js, regra pura): só com as 15 páginas reais, marca `state.caderno.premioCompleto` (sem o campo conta como "não dado"), nunca se repete, a nuvem junta o "já dado" por união (`nuvemJuntarCaderno`), e dentro do Proteger paga-se na vitória que dá a 15.ª página (ou na 1.ª vitória de um save antigo que já as tinha) no mesmo `saveState`, com a frase do prémio e uma só vez; (4) a nota do Conhecimento no Perfil e o texto dos selos (`objetivos.bonusLinha`). `VINHA_JS`, `CAMARA_JS`, `CADERNO_JS` e `PROTEGER_JS` = ficheiro testam outras versões (provas negativas).
 
+
+# Níveis 5 e 6: Visitar a Reserva e Arrumar a Coleção
+
+`node scripts/verificar-reserva-colecao.js` confirma as duas tarefas diárias de `js/reserva.js`:
+
+- **Visitar a Reserva** (nível 5): uma vez por dia de Lisboa, exige pelo menos 1 garrafa feita, não gasta nada, +3 de Reputação, `state.reserva.visitaDia`.
+- **Arrumar a Coleção** (nível 6): uma vez por dia, exige pelo menos 1 cor já feita (`colecaoCoresFeitas`), não gasta nada, +4 de Reputação, `state.colecao.arrumouDia`.
+- Regras puras (dia por argumento), campos reparados, fora da nuvem, só os 2 cliques gravam (uma vez), clique duplo protegido, textos PT/EN/ES, imagens existentes, ligação ao jogo, CSS com espaço para o 3.º botão.
+- Confirma que os critérios dos capítulos 5 e 6 e o prémio da Reserva Especial não mudaram.
+
+Prova negativa: `RESERVA_JS=/caminho/reserva_alterada.js node scripts/verificar-reserva-colecao.js` corre o teste contra uma cópia alterada de `js/reserva.js` (gastar garrafa, repetir no mesmo dia, ignorar a falta de garrafa/cor, prémio errado, não marcar o dia) e tem de falhar.
