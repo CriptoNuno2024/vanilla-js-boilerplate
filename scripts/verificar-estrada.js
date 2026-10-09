@@ -167,7 +167,8 @@ function verificarFonte(item, onde, obrigatoria) {
     'a troca não devia ter outros campos (sem gotas, sem dinheiro): ' + Object.keys(TROCA));
   ok(PEDIDOS && Object.keys(PEDIDOS).sort().join() === 'dona_amelia,sr_armindo,sr_joaquim,tomas', 'ESTRADA_PEDIDOS devia ter os 4 vizinhos');
   ok(JSON.stringify(PEDIDOS.dona_amelia) === '["uvas","sal_sado"]', 'a Dona Amélia devia pedir uvas ou sal (o bagaço está em pausa)');
-  ok(JSON.stringify(PEDIDOS.sr_armindo) === '["uvas","sal_sado"]', 'o Sr. Armindo devia pedir uvas ou sal');
+  ok(JSON.stringify(PEDIDOS.sr_armindo) === '["uvas","sal_sado","bagaceira"]', 'o Sr. Armindo devia pedir uvas, sal ou bagaceira');
+  ok(JSON.stringify(PEDIDOS.sr_joaquim) === '["uvas"]' && JSON.stringify(PEDIDOS.tomas) === '["uvas"]', 'o Sr. Joaquim e o Tomás continuam a pedir só uvas');
   ok(JSON.stringify(PEDIDOS.sr_joaquim) === '["uvas"]' && JSON.stringify(PEDIDOS.tomas) === '["uvas"]', 'o Sr. Joaquim e o Tomás pedem sempre uvas');
 }
 
@@ -216,8 +217,8 @@ if (!process.env.ESTRADA_JS) {
     ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaTrocar/.test(semComentarios(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'))), 'js/' + f + ' não devia chamar despensaRegistarTroca, despensaRegistarEntrega nem despensaTrocar');
   });
   const ECRA_REAL = fs.readFileSync(path.join(RAIZ, 'js', 'estrada.js'), 'utf8');
-  const CHAVES_ESPERADAS = ['estrada.btnGarrafa', 'estrada.btnSal', 'estrada.btnUvas', 'estrada.da', 'estrada.erro', 'estrada.faltamUvas', 'estrada.garrafasLevar',
-    'estrada.jaHoje', 'estrada.levouGarrafa', 'estrada.linha', 'estrada.naDespensa', 'estrada.pagouSal', 'estrada.pagouUvas', 'estrada.pedeSalNao', 'estrada.pedeSalTem',
+  const CHAVES_ESPERADAS = ['estrada.btnBagaceira', 'estrada.btnGarrafa', 'estrada.btnSal', 'estrada.btnUvas', 'estrada.da', 'estrada.erro', 'estrada.faltamUvas', 'estrada.garrafasLevar',
+    'estrada.jaHoje', 'estrada.levouGarrafa', 'estrada.linha', 'estrada.naDespensa', 'estrada.pagouBagaceira', 'estrada.pagouSal', 'estrada.pagouUvas', 'estrada.pedeBagaceiraNao', 'estrada.pedeBagaceiraTem', 'estrada.pedeSalNao', 'estrada.pedeSalTem',
     'estrada.prateleira', 'estrada.recebeste', 'estrada.relogio', 'estrada.repPrimeira', 'estrada.tetoDia', 'estrada.title'].sort();
 
   // Verificações do ecrã (js/estrada.js) sobre uma versão do ficheiro; devolve as falhas. Corre com o código real e

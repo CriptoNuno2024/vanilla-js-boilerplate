@@ -346,9 +346,9 @@ function correrTestes(srcDespensa, srcDados) {
     [D2, D3].forEach(function (d) { ok(trocar(a, AR, d).ok, 'troca repetida com o Sr. Armindo em ' + d); });
     ok(quantos(a, 'choco_sado') === 3 && a.reputacao === 2, '3 chocos e a Reputação não sobe nas repetidas');
     recusada('prateleira cheia de choco', a, AR, D4, 'prateleira_cheia');
-    // Pedido do dia: uvas ou sal (os dois acontecem), igual o dia todo.
+    // Pedido do dia: uvas, sal ou bagaceira (os três acontecem), igual o dia todo.
     const dias = diasDe(60);
-    ok(dias.every(function (d) { return pedido(AR, d) === 'uvas' || pedido(AR, d) === 'sal_sado'; }), 'o Sr. Armindo só pede uvas ou sal');
+    ok(dias.every(function (d) { return pedido(AR, d) === 'uvas' || pedido(AR, d) === 'sal_sado' || pedido(AR, d) === 'bagaceira'; }), 'o Sr. Armindo só pede uvas, sal ou bagaceira');
     const diaSalA = dias.filter(function (d) { return pedido(AR, d) === 'sal_sado'; }), diaUvasA = dias.filter(function (d) { return pedido(AR, d) === 'uvas'; });
     ok(diaSalA.length >= 10 && diaUvasA.length >= 10, 'em 60 dias o Sr. Armindo pede sal e uvas várias vezes: ' + diaSalA.length + '/' + diaUvasA.length);
     ok(pedido(AR, D1) === pedido(AR, D1), 'o pedido é o mesmo o dia todo');
