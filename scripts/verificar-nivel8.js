@@ -81,14 +81,14 @@ const saveNivel8 = function (extra) {
 // 2. state.lagar: valor por omissão seguro (jogo novo, save antigo, nuvem sem o campo) e nada mais muda.
 {
   const novo = abrir();
-  ok(JSON.stringify(novo.json('state.lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null}', 'jogo novo: lagar { ultimoDia: null, dias: 0 }');
+  ok(JSON.stringify(novo.json('state.lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null,"assaltoDia":null}', 'jogo novo: lagar { ultimoDia: null, dias: 0 }');
   const antigoSave = { uvas: 77, gotas: 5, reputacao: 1234, garrafas: 3, despensa: { recebidos: { sal_sado: 2 }, entregues: {}, primeiraTroca: {}, hoje: { dia: null, feitas: {} } }, tempo: { arcoirisDia: '2026-10-01' } };
   const g = abrir(antigoSave);
-  ok(JSON.stringify(g.json('state.lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null}', 'save antigo sem lagar ganha o valor por omissão');
+  ok(JSON.stringify(g.json('state.lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null,"assaltoDia":null}', 'save antigo sem lagar ganha o valor por omissão');
   ok(g.ev('state.uvas') === 77 && g.ev('state.reputacao') === 1234 && g.ev('state.garrafas') === 3 && g.ev('state.despensa.recebidos.sal_sado') === 2 && g.ev('state.tempo.arcoirisDia') === "2026-10-01", 'o resto do save antigo fica igual');
   // Estado vindo da nuvem (mergeDeep, como em nuvemTratarLeitura): sem o campo ganha-o; com o campo mantém-no.
-  ok(JSON.stringify(g.json('mergeDeep(defaultState(), { reputacao: 5 }).lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null}', 'estado da nuvem sem lagar ganha o valor por omissão');
-  ok(JSON.stringify(g.json('mergeDeep(defaultState(), { lagar: { ultimoDia: "2026-10-08", dias: 2 } }).lagar')) === '{"ultimoDia":"2026-10-08","dias":2,"mesaDia":null}', 'estado da nuvem com lagar (sem mesaDia) mantém-no e ganha mesaDia null');
+  ok(JSON.stringify(g.json('mergeDeep(defaultState(), { reputacao: 5 }).lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null,"assaltoDia":null}', 'estado da nuvem sem lagar ganha o valor por omissão');
+  ok(JSON.stringify(g.json('mergeDeep(defaultState(), { lagar: { ultimoDia: "2026-10-08", dias: 2 } }).lagar')) === '{"ultimoDia":"2026-10-08","dias":2,"mesaDia":null,"assaltoDia":null}', 'estado da nuvem com lagar (sem mesaDia) mantém-no e ganha mesaDia null');
   // Valores estranhos são reparados só ao pisar; ler nunca estoira.
   g.ev('state.lagar = null; state.uvas = 100');
   ok(g.json("lagarPodePisar(state, '2026-10-09')").ok === true, 'lagar null: pode pisar (nunca estoira)');
@@ -106,7 +106,7 @@ const saveNivel8 = function (extra) {
   ok(r.ok && r.uvasGastas === 30 && r.reputacaoGanha === 5, 'pisar: ' + JSON.stringify(r));
   ok(g.ev('state.uvas') === 70 && g.ev('state.reputacao') === 1505 && g.ev('state.lagar.dias') === 1 && g.ev('state.lagar.ultimoDia') === "2026-10-09", 'pisar: 70 uvas, 1505 de Reputação, 1 dia');
   const depois = JSON.parse(g.ev('JSON.stringify(state)'));
-  const igual = JSON.parse(antes); igual.uvas = 70; igual.reputacao = 1505; igual.lagar = { ultimoDia: '2026-10-09', dias: 1, mesaDia: null };
+  const igual = JSON.parse(antes); igual.uvas = 70; igual.reputacao = 1505; igual.lagar = { ultimoDia: '2026-10-09', dias: 1, mesaDia: null, assaltoDia: null };
   ok(JSON.stringify(depois) === JSON.stringify(igual), 'pisar só mexe em uvas, Reputação e lagar');
   // Segunda vez no mesmo dia: recusada, nada muda.
   const a = g.ev('JSON.stringify(state)');

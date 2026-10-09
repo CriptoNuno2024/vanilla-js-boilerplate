@@ -342,7 +342,7 @@ function despensaMesaVindima(estado, dia, receita) {
     if (!r.ok) return recusa('faltam_bens', [b.bem]);
     gastos.push({ bem: b.bem, n: b.n });
   }
-  if (!estado.lagar || typeof estado.lagar !== 'object' || Array.isArray(estado.lagar)) estado.lagar = { ultimoDia: null, dias: 0, mesaDia: null };
+  if (!estado.lagar || typeof estado.lagar !== 'object' || Array.isArray(estado.lagar)) estado.lagar = { ultimoDia: null, dias: 0, mesaDia: null, assaltoDia: null };
   estado.lagar.mesaDia = dia;
   estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + receita.reputacao;
   return { ok: true, motivo: null, faltam: [], reputacaoGanha: receita.reputacao, gastos: gastos };
