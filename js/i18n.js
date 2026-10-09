@@ -58,6 +58,7 @@ const TRANSLATIONS = {
     'nivel.nome.7': 'Quinta de Boa Vizinhança',
     'nivel.nome.8': 'Quinta de Portas Abertas',
     'nivel.nome.9': 'Câmara de Provadores',
+    'nivel.nome.10': 'Moscatel Roxo',
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
@@ -99,6 +100,16 @@ const TRANSLATIONS = {
     'camara.ok': 'Provaste um dos teus vinhos. +{rep} de Reputação.',
     'camara.fala': 'Notas de mel, uvas maduras e muita paciência. Esta Quinta sabe o que faz!',
     'camara.relogio': 'O relógio está atrás da última prova: tenta mais tarde.',
+    'roxo.title': 'A Cepa Roxa',
+    'roxo.linha': 'A Cepa Roxa: brinda com o Moscatel Roxo',
+    'roxo.desc': 'Com {n} garrafas feitas, brinda com o Moscatel Roxo e ganha +{rep} de Reputação. Não gastas nada. Uma vez por dia.',
+    'roxo.btn': 'Brindar com o Moscatel Roxo',
+    'roxo.faltam': 'Faltam {n} garrafas para brindar (tens {tem}). Faz mais garrafas na Adega.',
+    'roxo.jaHoje': 'Já brindaste hoje. Volta amanhã.',
+    'roxo.dias': 'Dias de brinde: {n}',
+    'roxo.ok': 'Brindaste com o Moscatel Roxo. +{rep} de Reputação.',
+    'roxo.fala': 'À Quinta, aos amigos e ao Moscatel Roxo! Saúde!',
+    'roxo.relogio': 'O relógio está atrás do último brinde: tenta mais tarde.',
     'lagar.assalto.cena1.sit': 'O Fygmo espreita por cima do muro, de nariz no ar, a cheirar o queijo e o mel da mesa.',
     'lagar.assalto.cena1.op1': 'Fingir que não o viste e continuar a servir',
     'lagar.assalto.cena1.op2': 'Assobiar bem alto para o Chizo vir a correr',
@@ -218,6 +229,9 @@ const TRANSLATIONS = {
     'historia.nivel9.1': 'A Quinta de Portas Abertas chamou tanta gente que o Dr. Henrique, o provador, já não cabe no pátio.',
     'historia.nivel9.2': 'Ele propõe uma Câmara só para provar os vinhos da Quinta. Até os porcos espreitam, de copo na mão.',
     'historia.nivel9.3': 'Abriu: a Câmara.',
+    'historia.nivel10.1': 'A Quinta cresceu: tem a casa aberta, a Câmara de Provadores e muitos amigos à porta.',
+    'historia.nivel10.2': 'Falta uma coisa: o Moscatel Roxo, a casta rara de Setúbal, que só se bebe em dia de festa.',
+    'historia.nivel10.3': 'Hoje brinda-se por tudo o que a Quinta já é. Obrigado por tudo, amigo!',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Quatro tarefas e a Vinha já não parece abandonada.',
@@ -229,6 +243,7 @@ const TRANSLATIONS = {
     'capitulo.cap7.conclusao': 'Queijo, sal e mel na Despensa. A boa vizinhança também se faz com uvas.',
     'capitulo.cap8.conclusao': 'Uvas pisadas, lagar a cantar. Em casa aberta, ninguém pisa sozinho.',
     'capitulo.cap9.conclusao': 'Três provas, três sorrisos. O Dr. Henrique diz que a Quinta já tem paladar.',
+    'capitulo.cap10.conclusao': 'Três brindes, uma Quinta cheia de amigos. O Moscatel Roxo sabe a casa.',
 
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
@@ -537,6 +552,7 @@ const TRANSLATIONS = {
     'nivel.nome.7': 'Good Neighbours Quinta',
     'nivel.nome.8': 'Open Doors Quinta',
     'nivel.nome.9': 'Tasting Chamber',
+    'nivel.nome.10': 'Moscatel Roxo',
 
     'objetivos.titulo': 'Today on the Quinta',
     'visita.linha': 'Today: {nome} is at the Quinta',
@@ -577,6 +593,16 @@ const TRANSLATIONS = {
     'camara.ok': 'You tasted one of your wines. +{rep} Reputation.',
     'camara.fala': 'Notes of honey, ripe grapes and a lot of patience. This Quinta knows what it is doing!',
     'camara.relogio': 'Your clock is behind the last tasting: try again later.',
+    'roxo.title': 'The Purple Vine',
+    'roxo.linha': 'The Purple Vine: toast with Moscatel Roxo',
+    'roxo.desc': 'With {n} bottles made, toast with Moscatel Roxo and earn +{rep} Reputation. It costs nothing. Once a day.',
+    'roxo.btn': 'Toast with Moscatel Roxo',
+    'roxo.faltam': 'You need {n} more bottles to toast (you have {tem}). Make more in the Winery.',
+    'roxo.jaHoje': 'You already toasted today. Come back tomorrow.',
+    'roxo.dias': 'Days you toasted: {n}',
+    'roxo.ok': 'You raised a glass of Moscatel Roxo. +{rep} Reputation.',
+    'roxo.fala': 'To the Quinta, to friends and to Moscatel Roxo! Cheers!',
+    'roxo.relogio': 'Your clock is behind the last toast: try again later.',
     'lagar.assalto.cena1.sit': 'Fygmo peeks over the wall, nose in the air, smelling the cheese and the honey on the table.',
     'lagar.assalto.cena1.op1': 'Pretend you did not see him and keep serving',
     'lagar.assalto.cena1.op2': 'Whistle loudly so Chizo comes running',
@@ -691,6 +717,9 @@ const TRANSLATIONS = {
     'historia.nivel9.1': 'The Open Doors Quinta has drawn so many people that Dr. Henrique, the taster, no longer fits in the courtyard.',
     'historia.nivel9.2': 'He proposes a Chamber just for tasting the Quinta\'s wines. Even the pigs peek in, glass in hand.',
     'historia.nivel9.3': 'Unlocked: the Chamber.',
+    'historia.nivel10.1': 'The Quinta has grown: it has an open house, the Tasting Chamber and many friends at the door.',
+    'historia.nivel10.2': 'One thing is missing: Moscatel Roxo, the rare grape of Setúbal, kept for feast days.',
+    'historia.nivel10.3': 'Today we toast everything the Quinta has become. Thank you for everything, friend!',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Four tasks done and the Vineyard no longer looks abandoned.',
@@ -702,6 +731,7 @@ const TRANSLATIONS = {
     'capitulo.cap7.conclusao': 'Cheese, salt and honey in the Pantry. Good neighbours are made with grapes too.',
     'capitulo.cap8.conclusao': 'Grapes trodden, lagar singing. In an open house, nobody treads alone.',
     'capitulo.cap9.conclusao': 'Three tastings, three smiles. Dr. Henrique says the Quinta now has a palate.',
+    'capitulo.cap10.conclusao': 'Three toasts, a Quinta full of friends. Moscatel Roxo tastes like home.',
 
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
@@ -999,6 +1029,7 @@ const TRANSLATIONS = {
     'nivel.nome.7': 'Quinta de Buena Vecindad',
     'nivel.nome.8': 'Quinta de Puertas Abiertas',
     'nivel.nome.9': 'Cámara de Catadores',
+    'nivel.nome.10': 'Moscatel Roxo',
 
     'objetivos.titulo': 'Hoy en la Quinta',
     'visita.linha': 'Hoy: {nome} está en la Quinta',
@@ -1039,6 +1070,16 @@ const TRANSLATIONS = {
     'camara.ok': 'Probaste uno de tus vinos. +{rep} de Reputación.',
     'camara.fala': 'Notas de miel, uvas maduras y mucha paciencia. ¡Esta Quinta sabe lo que hace!',
     'camara.relogio': 'Tu reloj va por detrás de la última cata: inténtalo más tarde.',
+    'roxo.title': 'La Cepa Morada',
+    'roxo.linha': 'La Cepa Morada: brinda con el Moscatel Roxo',
+    'roxo.desc': 'Con {n} botellas hechas, brinda con el Moscatel Roxo y gana +{rep} de Reputación. No gastas nada. Una vez al día.',
+    'roxo.btn': 'Brindar con el Moscatel Roxo',
+    'roxo.faltam': 'Faltan {n} botellas para brindar (tienes {tem}). Haz más en la Bodega.',
+    'roxo.jaHoje': 'Ya brindaste hoy. Vuelve mañana.',
+    'roxo.dias': 'Días de brindis: {n}',
+    'roxo.ok': 'Brindaste con el Moscatel Roxo. +{rep} de Reputación.',
+    'roxo.fala': '¡Por la Quinta, por los amigos y por el Moscatel Roxo! ¡Salud!',
+    'roxo.relogio': 'Tu reloj va por detrás del último brindis: inténtalo más tarde.',
     'lagar.assalto.cena1.sit': 'El Fygmo se asoma por encima del muro, con la nariz en alto, oliendo el queso y la miel de la mesa.',
     'lagar.assalto.cena1.op1': 'Fingir que no lo has visto y seguir sirviendo',
     'lagar.assalto.cena1.op2': 'Silbar bien fuerte para que el Chizo venga corriendo',
@@ -1153,6 +1194,9 @@ const TRANSLATIONS = {
     'historia.nivel9.1': 'La Quinta de Puertas Abiertas ha atraído a tanta gente que el Dr. Henrique, el catador, ya no cabe en el patio.',
     'historia.nivel9.2': 'Propone una Cámara solo para catar los vinos de la Quinta. Hasta los cerdos se asoman, copa en mano.',
     'historia.nivel9.3': 'Se abrió: la Cámara.',
+    'historia.nivel10.1': 'La Quinta ha crecido: tiene la casa abierta, la Cámara de Catadores y muchos amigos a la puerta.',
+    'historia.nivel10.2': 'Falta una cosa: el Moscatel Roxo, la uva rara de Setúbal, que solo se bebe en días de fiesta.',
+    'historia.nivel10.3': 'Hoy se brinda por todo lo que la Quinta ya es. ¡Gracias por todo, amigo!',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Cuatro tareas y el Viñedo ya no parece abandonado.',
@@ -1164,6 +1208,7 @@ const TRANSLATIONS = {
     'capitulo.cap7.conclusao': 'Queso, sal y miel en la Despensa. La buena vecindad también se hace con uvas.',
     'capitulo.cap8.conclusao': 'Uvas pisadas, lagar cantando. En casa abierta, nadie pisa solo.',
     'capitulo.cap9.conclusao': 'Tres catas, tres sonrisas. El Dr. Henrique dice que la Quinta ya tiene paladar.',
+    'capitulo.cap10.conclusao': 'Tres brindis, una Quinta llena de amigos. El Moscatel Roxo sabe a hogar.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',
