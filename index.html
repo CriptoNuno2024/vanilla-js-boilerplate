@@ -590,6 +590,11 @@
     .reserva-bloco { margin-top: 10px; }
     /* Botão de entrada em "A Coleção" (Nível 6 — ver colecaoBotaoEntradaHtml() em js/garrafa.js) */
     .reserva-bloco .colecao-entrada { margin: 0 0 8px; }
+    /* Botão "Visitar a Reserva" (nível 5 — ver reservaBotaoHtml() em js/reserva.js) */
+    .reserva-bloco .reserva-visita-botao { display: flex; width: 100%; margin: 0 0 8px; white-space: normal; text-align: center; justify-content: center; min-height: 40px; }
+    .reserva-visita-botao:disabled, .colecao-arrumar-botao:disabled { opacity: 0.55; cursor: default; }
+    /* A Adega com o cartão aberto mostra mais da Cave de Reserva (a foto, "Ver a Coleção" e "Visitar a Reserva" sem deslizar) */
+    #garrafa-container .topcard.aberto { max-height: 58vh; }
     .reserva-foto {
       display: block;
       width: 100%;
@@ -868,7 +873,7 @@
       left: 50%;
       transform: translateX(-50%);
       top: calc(var(--topo-altura) + 60px);
-      bottom: calc(var(--nav-altura) + 8px + 44px + 8px + 52px + 8px); /* Voltar + "As minhas garrafas" */
+      bottom: calc(var(--nav-altura) + 8px + 44px + 8px + 44px + 8px + 52px + 8px); /* Voltar + "Arrumar a Coleção" + "As minhas garrafas" */
       width: var(--coluna);
       max-width: calc(100vw - 20px);
       z-index: 14;
@@ -2169,10 +2174,10 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=67"></script>
+  <script src="js/state.js?v=68"></script>
   <script src="js/som.js?v=48"></script>
   <script src="js/nuvem.js?v=58"></script>
-  <script src="js/i18n.js?v=90"></script>
+  <script src="js/i18n.js?v=91"></script>
   <script src="js/estacoes.js?v=41"></script>
   <script src="js/tempo.js?v=51"></script>
   <script src="js/festas.js?v=49"></script>
@@ -2181,7 +2186,7 @@
   <script src="js/assaltos.js?v=4"></script>
   <script src="js/caderno.js?v=6"></script>
   <script src="js/proteger.js?v=61"></script>
-  <script src="js/garrafa.js?v=58"></script>
+  <script src="js/garrafa.js?v=59"></script>
   <script src="js/personagens.js?v=2"></script>
   <script src="js/perfil.js?v=61"></script>
   <script src="js/niveis.js?v=58"></script>
@@ -2198,6 +2203,7 @@
   <script src="js/lagar.js?v=3"></script>
   <script src="js/camara.js?v=2"></script>
   <script src="js/roxo.js?v=1"></script>
+  <script src="js/reserva.js?v=1"></script>
   <script src="js/main.js?v=70"></script>
 </body>
 </html>

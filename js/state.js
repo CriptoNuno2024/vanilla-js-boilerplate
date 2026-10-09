@@ -200,6 +200,15 @@ function defaultState() {
     roxo: {
       brindeDia: null,
       dias: 0
+    },
+    // Pequenas tarefas diárias dos níveis 5 e 6 (ver js/reserva.js). reserva.visitaDia: último dia (Lisboa, 'AAAA-MM-DD')
+    // em que visitou a Reserva (null = nunca). colecao.arrumouDia: último dia em que arrumou a Coleção (null = nunca).
+    // NÃO se juntam na nuvem: seguem o estado inteiro que ganhar, como state.camara, state.lagar e state.despensa.
+    reserva: {
+      visitaDia: null
+    },
+    colecao: {
+      arrumouDia: null
     }
   };
 }

@@ -328,7 +328,13 @@ function colecaoResumo() {
 
 // Ecrã "A Coleção" (só leitura, Nível 6; ver ecraDesbloqueado('colecao') em js/niveis.js):
 // grelha 2x2 com as 4 cores; as que ainda não foram feitas aparecem apagadas.
+// Ao entrar no ecrã (ver goTo() em js/main.js): esquece o resultado da arrumação anterior.
 function renderColecao() {
+  if (typeof colecaoResultado !== 'undefined') colecaoResultado = null;
+  renderColecaoDesenhar();
+}
+
+function renderColecaoDesenhar() {
   const container = document.getElementById('colecao-container');
   const cores = colecaoCoresFeitas(state);
   const celulas = GARRAFAS_POR_DIAS.map(function (g) {
@@ -347,10 +353,18 @@ function renderColecao() {
     '<div class="colecao-painel">' + celulas + '</div>' +
     '<div class="action-panel">' +
       '<button type="button" class="btn-ghost" onclick="goTo(\'garrafas\')" data-i18n="garrafas.btn"></button>' +
+      // Tarefa do dia "Arrumar a Coleção" (nível 6; ver js/reserva.js), por cima do "Voltar"
+      (typeof colecaoTarefaBotaoHtml === 'function' ? colecaoTarefaBotaoHtml() : '') +
       '<button type="button" class="btn-pill pill-main pill-grande" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
     '</div>';
 
-  atualizarDialogo('', '');
+  // Depois de arrumar: a garrafa de fundo e o agradecimento (ver colecaoArrumarClique() em js/reserva.js).
+  if (typeof colecaoResultado !== 'undefined' && colecaoResultado) {
+    definirFundo('foto', COLECAO_TAREFA_CONFIG.imagemResultado);
+    atualizarDialogo(t('colecao.arrumarOk').replace('{rep}', colecaoResultado.rep), 'YoshiCat');
+  } else {
+    atualizarDialogo('', '');
+  }
   applyTranslations();
 }
 
@@ -424,10 +438,13 @@ function reservaHtml() {
   return '<div class="reserva-bloco">' +
     fotoHtml +
     colecaoBotaoEntradaHtml() +
+    // Tarefa do dia "Visitar a Reserva" (nível 5; ver js/reserva.js): o botão logo a seguir, o texto no fim
+    (typeof reservaBotaoHtml === 'function' ? reservaBotaoHtml() : '') +
     '<p class="mini-bloco-titulo" data-i18n="adega.reservaTitulo"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto1"></p>' +
     '<p class="phase-desc" data-i18n="adega.reservaTexto2"></p>' +
     linha +
+    (typeof reservaDescHtml === 'function' ? reservaDescHtml() : '') +
   '</div>';
 }
 
