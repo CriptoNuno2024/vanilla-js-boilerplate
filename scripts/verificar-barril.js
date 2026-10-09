@@ -121,7 +121,7 @@ function suite(fontes) {
       caveReservaAberta: function () { return false; },
       garrafaQueMaisDescansou: function () { return 0; },
       rondaChizoFeitasHoje: function () { return 1; },
-      definirFundo: function (m, src) { reg.fundo = src; }, tocarSomFicheiro: function () {}, vibrar: function () {},
+      definirFundo: function (m, src, pos) { reg.fundo = src; reg.fundoPos = pos; }, tocarSomFicheiro: function () {}, vibrar: function () {},
       tocarSom: function (n) { reg.sons.push(n); },
       atualizarDialogo: function (m) { reg.falas.push([m]); },
       mostrarFalas: function (m) { reg.falas.push(Array.isArray(m) ? m : [m]); },
@@ -242,6 +242,24 @@ function suite(fontes) {
     const s1 = g.ev('barrilSementeAtual()'), s2 = g.ev('barrilSementeAtual()');
     ok(/^2026-10-09#barril#1#\d+$/.test(s1) && s1 !== s2, 'a semente devia ser dia + ronda + número que muda: ' + s1 + ' / ' + s2);
   }
+  // Imagem de fundo do resultado: a derrota dos Disfarces tem a sua (derrota.jpg, cortada à direita para se ver o gato),
+  // o Chizo a dele, a Fechadura e o barril partilham a de sempre; a vitória é a mesma para todos.
+  {
+    const casos = { fechadura: 'yoshi_cat_cruzados_derrota_3.jpg', barril: 'yoshi_cat_cruzados_derrota_3.jpg', disfarces: 'derrota.jpg', chizo: 'chizo_lenco.jpg' };
+    Object.keys(casos).forEach(function (tipo) {
+      const g = abrir({});
+      g.ev("ultimoTipoProteger = '" + tipo + "'; showResultProteger(false, 0, 0, 0, 'perdeu');");
+      ok(g.reg.fundo === 'assets/ecras/' + casos[tipo], 'derrota ' + tipo + ': devia usar ' + casos[tipo] + ', usou ' + g.reg.fundo);
+      ok(tipo === 'disfarces' ? g.reg.fundoPos === 'right center' : g.reg.fundoPos === undefined, 'derrota ' + tipo + ': posição do fundo inesperada: ' + g.reg.fundoPos);
+      const v = abrir({});
+      v.ev("ultimoTipoProteger = '" + tipo + "'; showResultProteger(true, 1, 1, 1, 'ganhou', true);");
+      ok(v.reg.fundo === 'assets/ecras/yoshi_cat_festejar_vitoria.jpg' && v.reg.fundoPos === undefined, 'vitória ' + tipo + ': devia usar a de sempre');
+    });
+    ['derrota.jpg', 'yoshi_cat_cruzados_derrota_3.jpg', 'chizo_lenco.jpg', 'yoshi_cat_festejar_vitoria.jpg', 'yoshi_cat_festa_vindima.jpg'].forEach(function (f) {
+      ok(fs.existsSync(path.join(RAIZ, 'assets', 'ecras', f)), 'a imagem ' + f + ' tem de existir');
+    });
+    ok(fs.statSync(path.join(RAIZ, 'assets', 'ecras', 'derrota.jpg')).size <= fs.statSync(path.join(RAIZ, 'assets', 'ecras', 'yoshi_cat_cruzados_derrota_3.jpg')).size, 'derrota.jpg não devia pesar mais do que a derrota que substitui');
+  }
   // Os outros alvos não usam a cena nova
   ['cave', 'vinha', 'nevoeiro', 'trovoada'].forEach(function (a) {
     const g = abrir({ search: '?pista=' + a }); g.ev('startProteger()'); g.ev('protegerIscoResponder(false)');
@@ -331,6 +349,9 @@ const MUTACOES = [
   ['sem som de troca', 'proteger.js', "tocarSom('cavar');", ''],
   ['som novo por ficheiro', 'proteger.js', "tocarSom('cavar');", "tocarSomFicheiro('assets/sons/prado_grilos_ras.mp3', 0.5);"],
   ['semente com Math.random dentro da regra de jogo (sem dia)', 'proteger.js', "diaLisboaDeHoje() + '#barril#' + protegerRondaAtual + '#' + randInt(0, 999999)", "'x'"],
+  ['derrota dos Disfarces volta à de sempre', 'proteger.js', "else if (ultimoTipoProteger === 'disfarces') {", "else if (false) {"],
+  ['derrota dos Disfarces sem cortar à direita', 'proteger.js', "pos: 'right center'", "pos: 'center'"],
+  ['derrota da Fechadura passa a usar a dos Disfarces', 'proteger.js', "else if (ultimoTipoProteger === 'disfarces') {", "else if (ultimoTipoProteger === 'disfarces' || ultimoTipoProteger === 'fechadura') {"],
   ['texto em falta (PT)', 'i18n.js', "'proteger.barrilMarca': 'Este é o do aguardente',", ''],
   ['texto em falta (ES)', 'i18n.js', "'proteger.barrilSegue': '¡Ahora síguelo!',", '']
 ];
