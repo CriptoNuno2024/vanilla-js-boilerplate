@@ -38,7 +38,9 @@ function mesForcadoNoEndereco() {
 
 function mesAtual() {
   const forcado = mesForcadoNoEndereco();
-  return forcado !== null ? forcado : new Date().getMonth();
+  if (forcado !== null) return forcado;
+  const p = diaLisboaPartes(diaLisboaDeHoje()); // mês do calendário de Lisboa, não do telemóvel
+  return p ? p.mes : new Date().getMonth();
 }
 
 function estacaoAtual() {

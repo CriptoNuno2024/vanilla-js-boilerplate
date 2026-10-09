@@ -13,12 +13,14 @@
 //
 // Uso: node scripts/verificar-tempo.js
 // Sai com código 0 se estiver tudo OK e 1 se alguma verificação falhar.
+// O aparelho está noutro fuso (Nova Zelândia, UTC+13 em novembro): o dia do aparelho adianta-se ao de Lisboa.
+process.env.TZ = 'Pacific/Auckland';
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
 const RAIZ = path.join(__dirname, '..');
-const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js', 'objetivos.js', 'assaltos.js', 'proteger.js', 'visitas.js'];
+const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js', 'objetivos.js', 'assaltos.js', 'proteger.js', 'visitas.js'];
 const FONTES = {};
 FICHEIROS.forEach(function (f) { FONTES[f] = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'); });
 const INDEX = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
@@ -70,7 +72,7 @@ function suite(fontes) {
       function garrafaQueMaisDescansou() { return 2; }
       function marcarObjetivoCumpridoTeste() {}
     `, cx);
-    ['state.js', 'estacoes.js', 'tempo.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js'].forEach(function (f) {
+    ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js'].forEach(function (f) {
       vm.runInContext(fontes[f], cx, { filename: f });
     });
     vm.runInContext(`
@@ -114,6 +116,11 @@ function suite(fontes) {
     ok(mudou('2026-10-09', null) === true && mudou('2026-10-09', undefined) === true && mudou('2026-10-09', '') === true && mudou('2026-10-09', 'lixo') === true && mudou('2026-10-09', 20261009) === true, 'dia guardado em falta ou inválido repõe (save antigo)');
     ok(mudou('', '2026-10-09') === false && mudou(null, null) === false, 'hoje inválido nunca repõe');
     ok(g.ev("diaLisboaEfetivo('2026-10-09', '2026-10-10')") === '2026-10-10' && g.ev("diaLisboaEfetivo('2026-10-09', '2026-10-08')") === '2026-10-09' && g.ev("diaLisboaEfetivo('2026-10-09', null)") === '2026-10-09' && g.ev("diaLisboaEfetivo('2026-10-09', 'lixo')") === '2026-10-09', 'dia efetivo: o guardado se for posterior, senão hoje');
+    ok(g.ev("diaLisboaEfetivo('2026-10-09', '2026-10-11')") === '2026-10-11' && g.ev("diaLisboaEfetivo('2026-10-09', '2026-10-12')") === '2026-10-09' && g.ev("diaLisboaEfetivo('2026-10-31', '2026-11-02')") === '2026-11-02' && g.ev("diaLisboaEfetivo('2026-10-31', '2026-11-03')") === '2026-10-31', 'dia efetivo: até 2 dias à frente mantém-se (também entre meses), 3 dias à frente conta como hoje');
+    ok(mudou('2026-10-09', '2026-10-11') === false && mudou('2026-10-09', '2026-10-12') === true, 'teto: guardado 2 dias à frente não repõe, 3 dias à frente repõe');
+    ok(mudou('2026-12-30', '2027-01-01') === false && mudou('2026-12-30', '2027-01-02') === true && mudou('2028-02-28', '2028-03-01') === false && mudou('2028-02-27', '2028-03-01') === true, 'teto: contas de dias certas na virada de ano e em ano bissexto');
+    ok(mudou('2026-10-09', '2026-13-45') === true && mudou('2026-10-09', '9/10/2026') === true && mudou('2026-10-09', '2026-1-9') === true && mudou('2026-10-09', {}) === true && mudou('2026-10-09', []) === true, 'valor antigo em formato estranho conta como dia diferente, sem rebentar');
+    ok(g.ev("diasEntreDiasLisboa('2026-10-09', '2026-10-12')") === 3 && g.ev("diasEntreDiasLisboa('2026-10-12', '2026-10-09')") === -3 && g.ev("diasEntreDiasLisboa('x', '2026-10-09')") === null, 'diasEntreDiasLisboa: diferença em dias e null se inválido');
   }
 
   // ---------------- A. Vinha: cooldowns ----------------
@@ -243,9 +250,15 @@ function suite(fontes) {
     });
     // Um dia antes do guardado, num mês/ano diferente
     const b = jogador(d(9, '10:00'));
+    b.ev("state.objetivos.dia = '2026-10-11'; state.objetivos.bonusDiaDado = true;");
+    b.ev('garantirObjetivosDoDia();');
+    ok(b.ev('state.objetivos.dia') === '2026-10-11' && b.ev('state.objetivos.bonusDiaDado') === true, 'teto: dia guardado 2 dias à frente mantém-se');
+    b.ev("state.objetivos.dia = '2026-10-12';");
+    b.ev('garantirObjetivosDoDia();');
+    ok(b.ev('state.objetivos.dia') === '2026-10-09' && b.ev('state.objetivos.bonusDiaDado') === false, 'teto: dia guardado 3 dias à frente repõe para hoje');
     b.ev("state.objetivos.dia = '2027-01-02'; state.objetivos.bonusDiaDado = true;");
     b.ev('garantirObjetivosDoDia();');
-    ok(b.ev('state.objetivos.dia') === '2027-01-02' && b.ev('state.objetivos.bonusDiaDado') === true, 'dia guardado noutro ano (futuro) também se mantém');
+    ok(b.ev('state.objetivos.dia') === '2026-10-09', 'teto: dia guardado noutro ano (muito à frente) repõe');
   }
 
   // ---------------- B. Proteger: 2 vitórias com prémio por dia ----------------
@@ -320,7 +333,70 @@ function suite(fontes) {
     ok(g.ev('diasDescansadosNaCave()') === 0, 'depois de voltar: o lote conta 0 dias e não negativos');
     g.ir(real + g.ev('COOLDOWN_MS.regar') + g.ev("ADEGA_COOLDOWN_MS.prensar"));
     ok(g.ev("tempoRestanteVinha('regar')") === 0 && g.ev("tempoRestanteAdega('prensar')") === 0, 'esperando o normal, tudo desbloqueia');
-    ok(g.ev('state.objetivos.dia') === '2026-10-29', 'depois de voltar: os objetivos continuam os do dia adiantado (nada se repõe)');
+    ok(g.ev('state.objetivos.dia') === '2026-10-09', 'depois de voltar de 20 dias à frente: os objetivos repõem-se (teto de 2 dias)');
+    ok(g.ev('state.proteger.diaVitoriasLisboa') === '2026-10-09' && g.ev('state.proteger.vitoriasComPremioHoje') === 0, 'depois de voltar de 20 dias à frente: o limite do Proteger repõe-se');
+  }
+
+  // ---------------- C. Dia, mês e ano de Lisboa (o aparelho está em Auckland, UTC+13) ----------------
+  {
+    const A = Date.parse('2026-11-07T20:00:00Z');   // Lisboa 7 nov 20:00; aparelho 8 nov 09:00
+    const B = Date.parse('2026-11-14T20:00:00Z');   // Lisboa 14 nov; aparelho 15 nov
+    const g = jogador(A);
+    ok(g.ev('new Date().getDate()') === 8 && g.ev('diaLisboaDeHoje()') === '2026-11-07', 'ambiente: aparelho um dia à frente de Lisboa');
+    ok(g.ev('festaAtivaPelaDataReal()') === null && g.ev('festaAtual()') === null, 'festa: dia 7 em Lisboa (8 no aparelho) NÃO está aberta');
+    g.ir(B);
+    ok(g.ev('festaAtual() && festaAtual().id') === 'saomartinho', 'festa: dia 14 em Lisboa (15 no aparelho) ainda está aberta');
+    g.ir(Date.parse('2026-11-11T20:00:00Z'));
+    ok(g.ev('estaNoDiaGrandeFesta(festaAtual())') === true, 'dia grande: 11 em Lisboa');
+    g.ir(Date.parse('2026-11-10T20:00:00Z'));
+    ok(g.ev('estaNoDiaGrandeFesta(festaAtual())') === false, 'dia grande: 10 em Lisboa (11 no aparelho) não é o dia grande');
+    // Estação pelo mês de Lisboa
+    g.ir(Date.parse('2026-11-30T20:00:00Z')); // Lisboa 30 nov, aparelho 1 dez
+    ok(g.ev('estacaoAtual()') === 'outono' && g.ev('mesAtual()') === 10, 'estação: 30 nov em Lisboa é outono (novembro), deu ' + g.ev('estacaoAtual()'));
+    g.ir(Date.parse('2026-11-30T23:30:00Z')); ok(g.ev('mesAtual()') === 10, 'estação: Lisboa ainda é novembro às 23:30');
+    g.ir(Date.parse('2026-12-01T00:30:00Z')); ok(g.ev('mesAtual()') === 11 && g.ev('estacaoAtual()') === 'inverno', 'estação: 1 dez em Lisboa é inverno');
+    ok(g.ev('idInvernoAtual()') === '2026-2027', 'ano do inverno: dezembro de 2026 é 2026-2027');
+    g.ir(Date.parse('2026-11-30T20:00:00Z'));
+    ok(g.ev('idInvernoAtual()') === '2025-2026', 'ano do inverno vem do mês de Lisboa (novembro), não do aparelho (dezembro)');
+    g.ir(Date.parse('2026-12-31T20:00:00Z')); // Lisboa 31 dez 2026, aparelho 1 jan 2027
+    ok(g.ev('idInvernoAtual()') === '2026-2027', 'ano do inverno: 31 dez em Lisboa usa o ano de Lisboa (2026), deu ' + g.ev('idInvernoAtual()'));
+    // ?estacao= continua a forçar
+    const e = abrir(A, null, '?estacao=verao');
+    ok(e.ev('estacaoAtual()') === 'verao' && e.ev('mesAtual()') === 5, '?estacao=verao continua a forçar o mês');
+    const f = abrir(A, null, '?festa=saomartinho&dia=11');
+    ok(f.ev('festaAtual().id') === 'saomartinho' && f.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=&dia= continua a forçar a festa e o dia grande');
+    // Tarefa da festa: uma vez por dia de Lisboa
+    const h = jogador(Date.parse('2026-11-08T10:00:00Z')); // Lisboa 8 nov 10:00; aparelho 8 nov 23:00
+    ok(h.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false, 'tarefa da festa: ainda não feita');
+    h.ev("festaRegistarTarefaHoje('saomartinho', 'castanhas')");
+    h.ir(Date.parse('2026-11-08T12:00:00Z'));          // Lisboa ainda 8 nov; o aparelho já passou para 9
+    ok(h.ev('new Date().getDate()') === 9, 'ambiente: o aparelho já está no dia 9');
+    ok(h.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === true, 'tarefa da festa NÃO repete na mesma data de Lisboa (mesmo com o aparelho noutro dia)');
+    h.ir(Date.parse('2026-11-09T00:30:00Z'));
+    ok(h.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false, 'tarefa da festa volta no dia seguinte de Lisboa');
+    // Tarefas do tempo (chuva, Estacas, Proteger do Frio) e arco-íris
+    h.ir(Date.parse('2026-11-08T10:00:00Z'));
+    h.ev("registarTarefaTempoHoje('chuvaRegouDia')");
+    h.ir(Date.parse('2026-11-08T12:00:00Z'));
+    ok(h.ev("jaFezTarefaTempoHoje('chuvaRegouDia')") === true, 'tarefa do tempo não repete na mesma data de Lisboa');
+    h.ev("tempoAtual = function () { return { disponivel: true, ceu: 'sol' }; }; arcoIrisCondicoes = function () { return true; }; definirFundo = function () {};");
+    const g0 = h.ev('state.gotas');
+    h.ir(Date.parse('2026-11-08T10:00:00Z')); h.ev('arcoIrisAvaliar()');
+    h.ir(Date.parse('2026-11-08T12:00:00Z')); const volta = h.ev('arcoIrisAvaliar()');
+    ok(volta === false && h.ev('state.gotas') === g0 + h.ev('TEMPO_CONFIG.arcoIris.gotas'), 'arco-íris: pago uma só vez na mesma data de Lisboa (aparelho já noutro dia)');
+    ok(h.ev('state.tempo.arcoirisDia') === '2026-11-08', 'arco-íris: guarda o dia de Lisboa');
+    h.ir(Date.parse('2026-11-09T00:30:00Z')); h.ev('arcoIrisAvaliar()');
+    ok(h.ev('state.gotas') === g0 + 2 * h.ev('TEMPO_CONFIG.arcoIris.gotas'), 'arco-íris: volta no dia seguinte de Lisboa');
+    // Valores antigos / estranhos: lêem-se sem erro e contam como dia diferente
+    ['null', "''", "'8/11/2026'", "'lixo'", '20261108', '{}', '[]', 'true'].forEach(function (v) {
+      const k = jogador(Date.parse('2026-11-08T10:00:00Z'));
+      k.ev('state.tempo.arcoirisDia = ' + v + '; state.tempo.chuvaRegouDia = ' + v + "; state.festas.tarefasDia['saomartinho_castanhas'] = " + v + ';');
+      let fez, tarefa, festa;
+      try { fez = k.ev("jaFezTarefaTempoHoje('chuvaRegouDia')"); festa = k.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')"); k.ev("tempoAtual = function () { return { disponivel: true, ceu: 'sol' }; }; arcoIrisCondicoes = function () { return true; }; definirFundo = function () {}; arcoIrisAvaliar()"); tarefa = k.ev('state.tempo.arcoirisDia'); } catch (err) { fez = 'ERRO ' + err.message; }
+      ok(fez === false && festa === false && tarefa === '2026-11-08', 'valor antigo ' + v + ' conta como dia diferente, sem rebentar (deu ' + fez + '/' + festa + '/' + tarefa + ')');
+    });
+    // Ninguém usa já o dia do aparelho
+    ok(!/diaLocalDeHoje/.test(Object.keys(fontes).map(function (k) { return fontes[k]; }).join('\n')), 'diaLocalDeHoje já não existe nem é usada');
   }
 
   // ---------------- Ligações: tempo.js carrega antes de quem usa as regras ----------------
@@ -354,11 +430,21 @@ const MUTACOES = [
   ['regra pura: carimbo normal também mexido', 'tempo.js', '!(n > agora)', 'false'],
   ['bónus repetido ao voltar a data atrás (objetivos repõem com !==)', 'objetivos.js', 'if (diaLisboaMudou(diaLisboaDeHoje(), state.objetivos.dia)) {', 'if (state.objetivos.dia !== diaLisboaDeHoje()) {'],
   ['limite do Proteger reposto ao voltar a data atrás', 'proteger.js', 'if (diaLisboaMudou(hoje, state.proteger.diaVitoriasLisboa)) {', 'if (state.proteger.diaVitoriasLisboa !== hoje) {'],
-  ['dia igual a repor por engano (>= em vez de >)', 'tempo.js', 'return hoje > guardado;', 'return hoje >= guardado;'],
-  ['dia guardado inválido deixa de repor', 'tempo.js', "if (typeof guardado !== 'string' || !formato.test(guardado)) return true;", "if (typeof guardado !== 'string' || !formato.test(guardado)) return false;"],
+  ['dia igual a repor por engano (dif < 0 passa a <= 0)', 'tempo.js', 'return dif < 0 || dif > DIAS_FUTURO_MAXIMO;', 'return dif <= 0 || dif > DIAS_FUTURO_MAXIMO;'],
+  ['teto de 2 dias retirado (repor)', 'tempo.js', 'return dif < 0 || dif > DIAS_FUTURO_MAXIMO;', 'return dif < 0;'],
+  ['teto de 2 dias errado (3 dias não repõe)', 'tempo.js', 'var DIAS_FUTURO_MAXIMO = 2;', 'var DIAS_FUTURO_MAXIMO = 3;'],
+  ['teto retirado no dia efetivo', 'tempo.js', 'dif > 0 && dif <= DIAS_FUTURO_MAXIMO ? guardado : hoje', 'dif > 0 ? guardado : hoje'],
+  ['dia guardado inválido deixa de repor', 'tempo.js', 'if (dif === null) return true;', 'if (dif === null) return false;'],
+  ['dia entre datas sem virada de mês', 'tempo.js', 'Date.UTC(pb.ano, pb.mes, pb.dia) - Date.UTC(pa.ano, pa.mes, pa.dia)', 'pb.dia - pa.dia'],
   ['visita do dia reposta ao voltar a data atrás', 'visitas.js', 'const hoje = visitaDiaEfetivo();', 'const hoje = diaLisboaDeHoje();'],
   ['visita paga no dia de hoje em vez do guardado', 'visitas.js', 'const dia = visitaDiaEfetivo();', 'const dia = diaLisboaDeHoje();'],
-  ['dia efetivo ignora o guardado posterior', 'tempo.js', 'guardado > hoje) return guardado;', 'guardado > hoje) return hoje;']
+  ['dia efetivo ignora o guardado posterior', 'tempo.js', 'dif > 0 && dif <= DIAS_FUTURO_MAXIMO ? guardado : hoje', 'hoje'],
+  ['festa pelo dia do aparelho', 'festas.js', 'if (p) return { mes: p.mes, dia: p.dia };', ''],
+  ['estação pelo mês do aparelho', 'estacoes.js', 'return p ? p.mes : new Date().getMonth();', 'return new Date().getMonth();'],
+  ['ano do inverno pelo aparelho', 'vinha.js', 'const ano = p ? p.ano : new Date().getFullYear();', 'const ano = new Date().getFullYear();'],
+  ['tarefa da festa pelo dia do aparelho', 'festas.js', "state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === diaLisboaDeHoje()", "state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()"],
+  ['tarefa do tempo pelo dia do aparelho', 'vinha.js', 'return state.tempo[campo] === diaLisboaDeHoje();', "return state.tempo[campo] === (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();"],
+  ['arco-íris pelo dia do aparelho', 'tempo.js', 'state.tempo.arcoirisDia === diaLisboaDeHoje()', "state.tempo.arcoirisDia === (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()"]
 ];
 MUTACOES.forEach(function (m) {
   const f = mutar(m[1], m[2], m[3]);
