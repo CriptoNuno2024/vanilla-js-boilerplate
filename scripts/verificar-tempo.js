@@ -20,7 +20,7 @@ const path = require('path');
 const vm = require('vm');
 
 const RAIZ = path.join(__dirname, '..');
-const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js', 'objetivos.js', 'assaltos.js', 'barril.js', 'proteger.js', 'visitas.js'];
+const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'alambique.js', 'garrafa.js', 'ronda.js', 'objetivos.js', 'assaltos.js', 'barril.js', 'proteger.js', 'visitas.js'];
 const FONTES = {};
 FICHEIROS.forEach(function (f) { FONTES[f] = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'); });
 const INDEX = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
@@ -72,7 +72,7 @@ function suite(fontes) {
       function garrafaQueMaisDescansou() { return 2; }
       function marcarObjetivoCumpridoTeste() {}
     `, cx);
-    ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js'].forEach(function (f) {
+    ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'alambique.js', 'garrafa.js', 'ronda.js'].forEach(function (f) {
       vm.runInContext(fontes[f], cx, { filename: f });
     });
     vm.runInContext(`

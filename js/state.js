@@ -68,7 +68,8 @@ function defaultState() {
     // reputacao, ultimaGarrafaData, ...) foi tocado ou renomeado.
     adega: {
       bagaco: 0,
-      aguardente: 0,
+      aguardente: 0,      // aguardente VÍNICA (a do Fortificar e da jeropiga); "Destilar vinho" em js/alambique.js
+      bagaceira: 0,       // aguardente de bagaço; "Destilar bagaço" em js/alambique.js (reparada em memória, não se junta na nuvem)
       cooldowns: {},
       lote: null,       // { iniciadoEm: <timestamp> } enquanto um lote descansa na Cave, ou null
       historico: []     // uma entrada por garrafa: { data, estacao, diasDescanso }

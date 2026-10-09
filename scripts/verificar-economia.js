@@ -78,8 +78,8 @@ const base = function (f, guardado) {
   const vinha = ler(VINHA_JS);
   ok(/botaoVinha\('compostagem', 'vinha\.pillCompostar', compostagemFonte\(/.test(vinha), 'o botão Compostar só fica apagado sem Resíduos nem Bagaço');
   ok(/adega\.recursoBagaco/.test(vinha), 'o cartão da Vinha mostra o Bagaço');
-  const adega = ler(JS('garrafa.js')), proteger = ler(JS('proteger.js'));
-  ok(/ADEGA_CUSTO_BAGACO_ALAMBIQUE = 3/.test(adega) && /a\.bagaco -= ADEGA_CUSTO_BAGACO_ALAMBIQUE/.test(adega) && /state\.adega\.bagaco -= 1/.test(proteger), 'o Bagaço continua a servir ao Alambique (3) e ao isco (1)');
+  const alambique = ler(JS('alambique.js')), proteger = ler(JS('proteger.js'));
+  ok(/bagacoBagaceira: 3/.test(alambique) && /a\.bagaco = bagaco - ALAMBIQUE_CONFIG\.bagacoBagaceira/.test(alambique) && /state\.adega\.bagaco -= 1/.test(proteger), 'o Bagaço continua a servir ao Alambique (3, "Destilar bagaço") e ao isco (1)');
 }
 
 // 2. Câmara: +1 de Reputação por cada 5 de Conhecimento, no máximo +4; só soma, nunca gasta.

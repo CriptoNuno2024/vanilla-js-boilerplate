@@ -143,7 +143,7 @@ const FESTAS_STRINGS = {
       castanhasBonusVerao: ' Com este sol de São Martinho, o assador rendeu ainda mais castanhas!',
 
       jeropigaTitulo: 'A Jeropiga de São Martinho',
-      jeropigaFalta: 'Ainda falta mosto ou aguardente para a jeropiga. Prensa mais Uvas e destila mais Bagaço no Alambique.',
+      jeropigaFalta: 'Ainda falta mosto ou aguardente para a jeropiga. Prensa mais Uvas e destila mais no Alambique.',
       jeropigaJaFeitaHoje: 'Já fizeste jeropiga hoje. Volta amanhã para fazer mais.',
       jeropigaSucesso: 'O mosto encontra a aguardente e nasce a jeropiga — doce, forte, cor de mel. Fica pronta uma garrafa de Edição São Martinho.',
 
@@ -177,7 +177,7 @@ const FESTAS_STRINGS = {
       castanhasBonusVerao: " With this St. Martin's summer sun, the roaster yielded even more chestnuts!",
 
       jeropigaTitulo: "St. Martin's Jeropiga",
-      jeropigaFalta: "You still need more must or spirit for the jeropiga. Press more Grapes and distil more Pomace in the Still.",
+      jeropigaFalta: "You still need more must or spirit for the jeropiga. Press more Grapes and distil more in the Still.",
       jeropigaJaFeitaHoje: "You've already made jeropiga today. Come back tomorrow to make more.",
       jeropigaSucesso: 'The must meets the spirit and jeropiga is born — sweet, strong, honey-coloured. A St. Martin Edition bottle is ready.',
 
@@ -211,7 +211,7 @@ const FESTAS_STRINGS = {
       castanhasBonusVerao: ' ¡Con este sol del veranillo de San Martín, el asador rindió todavía más castañas!',
 
       jeropigaTitulo: 'La Jeropiga de San Martín',
-      jeropigaFalta: 'Todavía falta mosto o aguardiente para la jeropiga. Prensa más Uvas y destila más Orujo en el Alambique.',
+      jeropigaFalta: 'Todavía falta mosto o aguardiente para la jeropiga. Prensa más Uvas y destila más en el Alambique.',
       jeropigaJaFeitaHoje: 'Ya has hecho jeropiga hoy. Vuelve mañana para hacer más.',
       jeropigaSucesso: 'El mosto se encuentra con el aguardiente y nace la jeropiga — dulce, fuerte, color de miel. Queda lista una botella de Edición San Martín.',
 
@@ -432,14 +432,15 @@ function fazerJeropiga(festa) {
   }
 
   const custo = festa.recompensas.jeropiga;
-  if (state.gotas < custo.custoGotas || state.adega.aguardente < custo.custoAguardente) {
+  // Pede 1 aguardente: aceita Bagaceira OU Aguardente vínica e gasta primeiro a bagaceira (ver js/alambique.js).
+  if (state.gotas < custo.custoGotas || !alambiqueTemParaJeropiga(state, custo.custoAguardente)) {
     festaMensagemAtual = S.jeropigaFalta;
     renderFestaHub();
     return;
   }
 
   state.gotas -= custo.custoGotas;
-  state.adega.aguardente -= custo.custoAguardente;
+  alambiqueGastarParaJeropiga(state, custo.custoAguardente);
   state.garrafas += 1;
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const repGanha = custo.reputacao * (diaGrande ? festa.recompensas.multiplicadorDiaGrande : 1);

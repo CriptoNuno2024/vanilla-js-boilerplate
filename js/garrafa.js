@@ -2,8 +2,9 @@
 // A ADEGA — o processo real do Moscatel de Setúbal
 //
 //   Prensar (Uvas -> Gotas de Moscatel + Bagaço)
-//     -> Alambique (Bagaço -> Aguardente)
-//     -> Fortificar (100 Gotas + 1 Aguardente -> um lote a descansar)
+//     -> Alambique, 2 produtos (regras em js/alambique.js, mesmo cooldown):
+//          Destilar vinho (10 Gotas -> Aguardente vínica) e Destilar bagaço (3 Bagaço -> Bagaceira)
+//     -> Fortificar (100 Gotas + 1 Aguardente vínica -> um lote a descansar)
 //     -> Cave (o lote descansa em tempo real; um lote de cada vez)
 //     -> Engarrafar (+1 Garrafa, +Reputação conforme os dias de descanso)
 //
@@ -128,7 +129,6 @@ function formatarFaltaGarrafa(ms) {
 // vontade: com o que o Prensar dá por cada uso, um jogador normal
 // nunca fica preso à espera de bagaço para o Alambique.
 const ADEGA_CUSTO_UVAS_PRENSAR = 10;
-const ADEGA_CUSTO_BAGACO_ALAMBIQUE = 3;
 const ADEGA_CUSTO_GOTAS_FORTIFICAR = 100;
 const ADEGA_CUSTO_AGUARDENTE_FORTIFICAR = 1;
 
@@ -140,7 +140,8 @@ const ADEGA_COOLDOWN_MS = {
 // Fotos de fundo de cada passo.
 const ADEGA_FOTOS = {
   prensar: 'assets/vinha/prensar.jpg',
-  alambique: 'assets/ecras/bagaco.jpg',
+  destilarVinho: 'assets/ecras/alambique.jpg',
+  destilarBagaco: 'assets/ecras/bagaco.jpg',
   fortificar: 'assets/vinha/mexer_mosto.jpg',
   cave: 'assets/ecras/cave_de_inverno.jpg',
   engarrafar: 'assets/vinha/engarrafar.jpg'
@@ -151,7 +152,11 @@ const ADEGA_FOTOS = {
 // foto em si não muda. As que não estão aqui continuam ao centro.
 const ADEGA_FOTO_POS = {};
 ADEGA_FOTO_POS[ADEGA_FOTOS.prensar] = 'center 15%';
-ADEGA_FOTO_POS[ADEGA_FOTOS.alambique] = 'center 10%';
+ADEGA_FOTO_POS[ADEGA_FOTOS.destilarVinho] = 'center 10%';
+ADEGA_FOTO_POS[ADEGA_FOTOS.destilarBagaco] = 'center 10%';
+
+// Os 2 botões do Alambique partilham o MESMO cooldown (state.adega.cooldowns.alambique).
+const ADEGA_CHAVE_COOLDOWN = { destilarVinho: 'alambique', destilarBagaco: 'alambique' };
 
 let adegaMensagemAtual = '';
 let adegaNovaEntrada = null;
@@ -222,12 +227,13 @@ function renderGarrafaScreen() {
   adegaGarrafaFeita = null;
   adegaCartaoAberto = false;
   preCarregarFotoAdega('prensar');
-  preCarregarFotoAdega('alambique');
+  preCarregarFotoAdega('destilarVinho');
+  preCarregarFotoAdega('destilarBagaco');
   renderAdega();
 }
 
 function botaoAdega(acao, i18nKey, bloqueado, sufixoExtra, aoClicar) {
-  const restante = tempoRestanteAdega(acao);
+  const restante = tempoRestanteAdega(ADEGA_CHAVE_COOLDOWN[acao] || acao);
   const emCooldown = restante > 0;
   const desabilitado = emCooldown || !!bloqueado;
   const sufixoCooldown = emCooldown ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') : (sufixoExtra || '');
@@ -452,12 +458,14 @@ function reservaHtml() {
 
 function renderAdega() {
   const container = document.getElementById('garrafa-container');
+  alambiqueEstado(state); // repara state.adega.bagaceira em memória (campo novo)
   const a = state.adega;
   const temLote = !!a.lote;
 
   let botoesHtml = '';
   botoesHtml += botaoAdega('prensar', 'adega.btnPrensar', state.uvas < ADEGA_CUSTO_UVAS_PRENSAR);
-  botoesHtml += botaoAdega('alambique', 'adega.btnAlambique', a.bagaco < ADEGA_CUSTO_BAGACO_ALAMBIQUE);
+  botoesHtml += botaoAdega('destilarVinho', 'adega.btnDestilarVinho', state.gotas < ALAMBIQUE_CONFIG.gotasVinho);
+  botoesHtml += botaoAdega('destilarBagaco', 'adega.btnDestilarBagaco', a.bagaco < ALAMBIQUE_CONFIG.bagacoBagaceira);
 
   let corpoHtml = '';
   if (temLote) {
@@ -494,6 +502,7 @@ function renderAdega() {
           '<span class="chrome-mini-stats">' +
             '<span class="resource-item">' + ADEGA_BAGACO_SVG + ' <span data-i18n="adega.recursoBagaco"></span> ' + a.bagaco + '</span>' +
             '<span class="resource-item">' + ADEGA_AGUARDENTE_SVG + ' <span data-i18n="adega.recursoAguardente"></span> ' + a.aguardente + '</span>' +
+            '<span class="resource-item">' + ADEGA_AGUARDENTE_SVG + ' <span data-i18n="adega.recursoBagaceira"></span> ' + a.bagaceira + '</span>' +
           '</span>' +
         '</span>' +
         '<svg class="cartao-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 9l6 6 6-6"></path></svg>' +
@@ -519,10 +528,12 @@ function executarAcaoAdega(acao) {
   adegaFotoAtual = null;
   adegaNovaEntrada = null;
   adegaGarrafaFeita = null;
+  alambiqueEstado(state);
   const a = state.adega;
+  const chaveCooldown = ADEGA_CHAVE_COOLDOWN[acao] || acao;
 
-  if (tempoRestanteAdega(acao) > 0) {
-    adegaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(tempoRestanteAdega(acao)));
+  if (tempoRestanteAdega(chaveCooldown) > 0) {
+    adegaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(tempoRestanteAdega(chaveCooldown)));
     renderAdega();
     return;
   }
@@ -543,18 +554,25 @@ function executarAcaoAdega(acao) {
     adegaMensagemAtual = t('garrafa.passo1') + ' ' +
       t('adega.resultadoPrensar').replace('{gotas}', gotasGanhas).replace('{bagaco}', bagacoGanho);
     adegaFotoAtual = ADEGA_FOTOS.prensar;
-  } else if (acao === 'alambique') {
-    if (a.bagaco < ADEGA_CUSTO_BAGACO_ALAMBIQUE) {
-      adegaMensagemAtual = t('adega.msgFaltaBagacoAlambique').replace('{n}', ADEGA_CUSTO_BAGACO_ALAMBIQUE);
+  } else if (acao === 'destilarVinho' || acao === 'destilarBagaco') {
+    // As regras (custos, produto, cooldown partilhado) estão em js/alambique.js; aqui só se mostra e se grava (mais abaixo).
+    const r = alambiqueDestilar(state, acao === 'destilarVinho' ? 'vinho' : 'bagaco', Date.now(), ADEGA_COOLDOWN_MS.alambique);
+    if (!r.ok) {
+      if (r.motivo === 'faltam_gotas') adegaMensagemAtual = t('adega.msgFaltaGotasDestilar').replace('{n}', ALAMBIQUE_CONFIG.gotasVinho);
+      else if (r.motivo === 'faltam_bagaco') adegaMensagemAtual = t('adega.msgFaltaBagacoAlambique').replace('{n}', ALAMBIQUE_CONFIG.bagacoBagaceira);
+      else if (r.motivo === 'cooldown') adegaMensagemAtual = t('vinha.msgCooldown').replace('{tempo}', formatarTempoVinha(r.restanteMs));
+      else return;
       renderAdega();
       return;
     }
-    a.bagaco -= ADEGA_CUSTO_BAGACO_ALAMBIQUE;
-    a.aguardente += 1;
-    registarCooldownAdega('alambique');
-    adegaMensagemAtual = t('adega.flavorAlambique') + ' ' + t('adega.resultadoAlambique');
-    adegaNovaEntrada = desbloquearEntradaEnciclopedia('bagacoAlambique');
-    adegaFotoAtual = ADEGA_FOTOS.alambique;
+    if (r.produto === 'vinica') {
+      adegaMensagemAtual = t('adega.flavorDestilarVinho') + ' ' + t('adega.resultadoDestilarVinho');
+      adegaFotoAtual = ADEGA_FOTOS.destilarVinho;
+    } else {
+      adegaMensagemAtual = t('adega.flavorDestilarBagaco') + ' ' + t('adega.resultadoDestilarBagaco');
+      adegaNovaEntrada = desbloquearEntradaEnciclopedia('bagacoAlambique'); // só o bagaço (a que fala da vínica abre no Fortificar)
+      adegaFotoAtual = ADEGA_FOTOS.destilarBagaco;
+    }
   } else if (acao === 'fortificar') {
     if (a.lote) {
       adegaMensagemAtual = t('adega.msgJaHaLote');
@@ -597,7 +615,7 @@ function executarAcaoAdega(acao) {
     return;
   }
 
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('adega_' + acao);
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido(acao === 'destilarVinho' || acao === 'destilarBagaco' ? 'adega_alambique' : 'adega_' + acao);
   saveState(state);
   updateStatsDisplays();
   renderAdega();
