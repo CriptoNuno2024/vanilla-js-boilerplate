@@ -285,3 +285,65 @@ function despensaOferecer(estado, dia) {
   estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + rep;
   return { ok: true, motivo: null, bem: bem, reputacaoGanha: rep };
 }
+
+// ---------------------------------------------------------------------
+// MESA DA VINDIMA (Nível 8, tarefa do ecrã "O Lagar", ver js/lagar.js). Só regras e contas; o botão está em js/lagar.js.
+// ---------------------------------------------------------------------
+
+// O dia (Lisboa) da última mesa posta, só lendo (state.lagar.mesaDia); null se nunca houve (ou se o campo for inválido).
+function despensaMesaDia(estado) {
+  const l = estado && estado.lagar;
+  const dia = l && typeof l === 'object' ? l.mesaDia : null;
+  return typeof dia === 'string' && DESPENSA_DIA_REGEX.test(dia) ? dia : null;
+}
+
+// A receita é { bens: [{ bem: idDoBem, n: inteiro > 0 }, ...], reputacao: inteiro >= 0 }: lista não vazia, cada bem existe
+// em ESTRADA_BENS e não se repete. Só lê.
+function despensaReceitaValida(receita) {
+  if (!receita || typeof receita !== 'object' || !Array.isArray(receita.bens) || receita.bens.length === 0) return false;
+  if (!Number.isInteger(receita.reputacao) || receita.reputacao < 0) return false;
+  const vistos = {};
+  for (let i = 0; i < receita.bens.length; i++) {
+    const b = receita.bens[i];
+    if (!b || typeof b !== 'object' || !despensaBemExiste(b.bem) || !Number.isInteger(b.n) || b.n <= 0) return false;
+    if (despensaTemChave(vistos, b.bem)) return false;
+    vistos[b.bem] = true;
+  }
+  return true;
+}
+
+// Põe a mesa da vindima no dia "dia". Devolve { ok, motivo, faltam, reputacaoGanha, gastos }.
+// VALIDA TUDO antes de alterar QUALQUER coisa, por esta ordem:
+//   'estado_invalido'  o estado não é um objeto
+//   'dia_invalido'     o dia não é 'AAAA-MM-DD'
+//   'receita_invalida' a receita não tem a forma certa (ver despensaReceitaValida)
+//   'dia_anterior'     o dia é anterior ao da última mesa (relógio atrás)
+//   'ja_hoje'          mesaDia === dia (uma vez por dia; independente do "Pisar as uvas")
+//   'faltam_bens'      falta stock de algum bem: "faltam" é a lista dos ids que faltam (despensaQuantos < n)
+// Recusar NUNCA altera nada. Se ok: gasta n de cada bem (despensaRegistarEntrega: só sobe "entregues"; "recebidos" e por
+// isso o capítulo 7 não mudam), regista state.lagar.mesaDia = dia e soma receita.reputacao de Reputação
+// (estado.reputacao += n, como as outras fontes). Não grava (quem chamar é que grava, uma vez, no fim).
+function despensaMesaVindima(estado, dia, receita) {
+  const recusa = function (motivo, faltam) { return { ok: false, motivo: motivo, faltam: faltam || [], reputacaoGanha: 0, gastos: [] }; };
+  if (!estado || typeof estado !== 'object') return recusa('estado_invalido');
+  if (typeof dia !== 'string' || !DESPENSA_DIA_REGEX.test(dia)) return recusa('dia_invalido');
+  if (!despensaReceitaValida(receita)) return recusa('receita_invalida');
+  const ultima = despensaMesaDia(estado);
+  if (ultima !== null && dia < ultima) return recusa('dia_anterior');
+  if (ultima !== null && dia === ultima) return recusa('ja_hoje');
+  const faltam = receita.bens.filter(function (b) { return despensaQuantos(estado, b.bem) < b.n; }).map(function (b) { return b.bem; });
+  if (faltam.length > 0) return recusa('faltam_bens', faltam);
+
+  // Tudo validado (e os bens da receita são todos diferentes): gasta cada um e só depois marca o dia e paga.
+  const gastos = [];
+  for (let i = 0; i < receita.bens.length; i++) {
+    const b = receita.bens[i];
+    const r = despensaRegistarEntrega(estado, b.bem, b.n);
+    if (!r.ok) return recusa('faltam_bens', [b.bem]);
+    gastos.push({ bem: b.bem, n: b.n });
+  }
+  if (!estado.lagar || typeof estado.lagar !== 'object' || Array.isArray(estado.lagar)) estado.lagar = { ultimoDia: null, dias: 0, mesaDia: null };
+  estado.lagar.mesaDia = dia;
+  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + receita.reputacao;
+  return { ok: true, motivo: null, faltam: [], reputacaoGanha: receita.reputacao, gastos: gastos };
+}

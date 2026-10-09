@@ -176,10 +176,12 @@ function defaultState() {
     },
     // O Lagar (Nível 8, ver js/lagar.js). ultimoDia: último dia (Lisboa, 'AAAA-MM-DD') em que
     // pisou as uvas (null = nunca). dias: em quantos dias diferentes já pisou (só sobe; o capítulo 8
-    // lê-o). NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.despensa.
+    // lê-o). mesaDia: último dia (Lisboa) em que pôs a "mesa da vindima" (null = nunca; ver despensaMesaVindima
+    // em js/despensa.js), independente do ultimoDia. NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.despensa.
     lagar: {
       ultimoDia: null,
-      dias: 0
+      dias: 0,
+      mesaDia: null
     }
   };
 }
