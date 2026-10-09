@@ -58,9 +58,9 @@ const ESTRADA_FONTES = {
     titulo: '35 Awards 2021 — Portugal (pescadores do Sado, na zona de Possanco; poucos e envelhecidos, o estuário ainda dá de comer)',
     url: 'https://35awards.com/winners2021/country/PT/'
   },
-  atma_salga_sado: {
-    titulo: 'ATMA (Universidad de Jaén) — artigo sobre a salga de peixe na foz do Sado (o sal já era usado no tempo dos romanos)',
-    url: 'https://revistaselectronicas.ujaen.es/index.php/atma/article/view/7925/9254'
+  ancient_history_troia: {
+    titulo: 'Ancient History Sites — Roman Ruins of Troia (Tróia, em frente a Setúbal; séculos I a VI; salga de peixe)',
+    url: 'https://www.ancient-history-sites.com/sites/roman-ruins-of-troia/'
   }
 };
 
@@ -230,11 +230,11 @@ const ESTRADA_VIZINHOS = [
       {
         id: 'sr_armindo_3',
         texto: {
-          pt: 'Para guardar o peixe não há nada como o sal, e a foz do Sado já o usava no tempo dos romanos. Se me trouxeres sal do Sr. Joaquim, agradeço.',
-          en: 'Nothing keeps fish like salt, and the Sado estuary was using it in Roman times. If you bring me salt from Mr. Joaquim, I\'d be grateful.',
-          es: 'Para conservar el pescado no hay nada como la sal, y la desembocadura del Sado ya la usaba en tiempos de los romanos. Si me traes sal del Sr. Joaquim, te lo agradezco.'
+          pt: 'Para guardar o peixe não há nada como o sal. Em Tróia, em frente a Setúbal, já os romanos salgavam peixe. Se me trouxeres sal do Sr. Joaquim, agradeço.',
+          en: 'Nothing keeps fish like salt. At Tróia, across from Setúbal, the Romans were already salting fish. If you bring me salt from Mr. Joaquim, I\'d be grateful.',
+          es: 'Para conservar el pescado no hay nada como la sal. En Tróia, frente a Setúbal, ya los romanos salaban pescado. Si me traes sal del Sr. Joaquim, te lo agradezco.'
         },
-        fonte: ['atma_salga_sado']
+        fonte: ['ancient_history_troia']
       }
     ],
     troca: {

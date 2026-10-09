@@ -57,7 +57,7 @@ const URLS_APROVADOS = [
   'https://www.visitlisboa.com/pt-pt/locais/choco-frito-de-setubal',
   'https://www.deco.proteste.pt/familia-consumo/ferias-lazer/noticias/choco-frito-setubal-melhores-restaurantes-ricardo-dias-felner',
   'https://35awards.com/winners2021/country/PT/',
-  'https://revistaselectronicas.ujaen.es/index.php/atma/article/view/7925/9254'
+  'https://www.ancient-history-sites.com/sites/roman-ruins-of-troia/'
 ];
 
 const textos = []; // { onde, texto } para contar os "[por escrever]"
