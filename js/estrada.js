@@ -120,7 +120,7 @@ function estradaResultadoHtml(v, bem) {
 // do cartão (84 px de altura; a imagem é alta, por isso só se vê uma tira: a % escolhe qual, para se ver o rosto).
 const ESTRADA_CENAS = {
   dona_amelia: { ficheiro: 'amelia', y: '28%' },
-  sr_joaquim: { ficheiro: 'joaquim', y: '22%' },
+  sr_joaquim: { ficheiro: 'joaquim', y: '10%' },
   tomas: { ficheiro: 'tomas', y: '28%' },
   sr_armindo: { ficheiro: 'armindo', y: '18%' }
 };
