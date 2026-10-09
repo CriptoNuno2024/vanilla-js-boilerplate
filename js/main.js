@@ -89,7 +89,7 @@ const FUNDO_DOS_ECRAS = {
   perfil: { src: 'assets/ecras/yoshi_cat_varanda.jpg' },
   lagar: { src: 'assets/ecras/festa_vindima_todos_juntos.jpg' },
   camara: { src: 'assets/vinha/barril_dourado.jpg' },
-  roxo: { src: 'assets/ecras/poda_vinha.jpg' },
+  roxo: { src: 'assets/ecras/yoshi_cat_festa_vindima.jpg' },
   conquistas: { src: 'assets/ecras/livro_conquistas.jpg' },
   lingua: null
 };

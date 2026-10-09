@@ -276,10 +276,13 @@ const PROTEGER_FUNDOS = {
 const PROTEGER_FUNDO_VITORIA = 'assets/ecras/yoshi_cat_festejar_vitoria.jpg';
 // Seguir o barril (pista Adega): a foto do YoshiCat na adega a deitar o aguardente (a mesma da história do nível 5).
 const PROTEGER_FUNDO_BARRIL = 'assets/vinha/barril.jpg';
-// Derrota: cada estilo tem a sua própria imagem (o Chizo já tem imagem
-// própria; os outros 2 continuam a partilhar a mesma de sempre).
+// Derrota: o Chizo e os Disfarces têm a sua própria imagem; a Fechadura e o
+// Seguir o barril partilham a de sempre.
 const PROTEGER_FUNDO_DERROTA = 'assets/ecras/yoshi_cat_cruzados_derrota_3.jpg';
 const PROTEGER_FUNDO_DERROTA_CHIZO = 'assets/ecras/chizo_lenco.jpg';
+// Disfarces: a vinha estragada pela chuva (paisagem 1104x973 com o gato em baixo à direita, por isso 'right center':
+// num ecrã de telemóvel em pé a foto fica cortada dos lados e assim ficam à vista o gato e a tabuleta).
+const PROTEGER_FUNDO_DERROTA_DISFARCES = { src: 'assets/ecras/derrota.jpg', pos: 'right center' };
 
 // Guarda qual foi o último estilo jogado, só para showResultProteger()
 // saber que imagem de derrota mostrar.
@@ -1071,7 +1074,10 @@ function showResultProteger(venceu, uvas, gotas, rep, mensagem, ganhaPremio) {
     protegerTopcardHtml(S, venceu ? S.protegida : S.naoCorreuBem, ultimoTipoProteger === 'fechadura' ? garrafaEscuraMiniaturaHtml() : '') +
     (venceu ? '' : '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="startProteger()">' + S.tentarOutraVez + '</button></div>');
 
-  const derrotaSrc = ultimoTipoProteger === 'chizo' ? PROTEGER_FUNDO_DERROTA_CHIZO : PROTEGER_FUNDO_DERROTA;
-  definirFundo('foto', venceu ? PROTEGER_FUNDO_VITORIA : derrotaSrc);
+  let derrotaSrc = PROTEGER_FUNDO_DERROTA, derrotaPos;
+  if (ultimoTipoProteger === 'chizo') derrotaSrc = PROTEGER_FUNDO_DERROTA_CHIZO;
+  else if (ultimoTipoProteger === 'disfarces') { derrotaSrc = PROTEGER_FUNDO_DERROTA_DISFARCES.src; derrotaPos = PROTEGER_FUNDO_DERROTA_DISFARCES.pos; }
+  if (venceu) definirFundo('foto', PROTEGER_FUNDO_VITORIA);
+  else definirFundo('foto', derrotaSrc, derrotaPos);
   mostrarFalas(falas, 'YoshiCat');
 }
