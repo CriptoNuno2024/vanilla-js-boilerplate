@@ -539,6 +539,23 @@
       #perfil-container .badge-title { margin-bottom: 10px; }
     }
 
+    /* Perfil: esbatido dourado no fundo do cartão = há mais por baixo;
+       some quando se chega ao fim (classe "fim", ver perfilAtualizarPainel()
+       em js/perfil.js). Ocupa 0 de altura (margem negativa). */
+    #perfil-container .scroll-panel::after {
+      content: '';
+      display: block;
+      position: sticky;
+      bottom: -10px;
+      height: 36px;
+      margin: -36px -12px -10px;
+      background: linear-gradient(to bottom, rgba(245, 215, 110, 0), rgba(245, 215, 110, 0.5));
+      border-radius: 0 0 14px 14px;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    #perfil-container .scroll-panel.fim::after { opacity: 0; }
+
     /* Fase atual da Vinha */
     .phase-card {
       background: rgba(12, 14, 22, 0.55);
@@ -2118,7 +2135,7 @@
   <script src="js/proteger.js?v=60"></script>
   <script src="js/garrafa.js?v=58"></script>
   <script src="js/personagens.js?v=2"></script>
-  <script src="js/perfil.js?v=59"></script>
+  <script src="js/perfil.js?v=60"></script>
   <script src="js/niveis.js?v=55"></script>
   <script src="js/historia.js?v=52"></script>
   <!-- ronda.js antes de objetivos.js: este chama rondaChizoReporDia() logo ao carregar -->

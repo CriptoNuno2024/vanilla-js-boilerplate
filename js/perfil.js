@@ -113,7 +113,39 @@ function renderPerfil() {
   atualizarDialogo('', '');
   applyTranslations();
   if (typeof nuvemAtualizarLinhaPerfil === 'function') nuvemAtualizarLinhaPerfil();
+  perfilLigarIndicadorScroll();
 }
+
+// ---------------------------------------------------------------------
+// INDICADOR DE "HÁ MAIS POR BAIXO" no cartão do Perfil (só aspeto):
+// o painel acaba sempre por cima do painel de ações (nunca por baixo
+// dele) e um esbatido dourado no fundo (CSS, "#perfil-container
+// .scroll-panel::after") mostra que se pode deslizar; a classe "fim"
+// apaga-o quando se chega ao fim. Nada aqui toca no estado.
+// ---------------------------------------------------------------------
+function perfilAtualizarPainel() {
+  const sp = document.querySelector('#perfil-container .scroll-panel');
+  const ap = document.querySelector('#perfil-container .action-panel');
+  if (!sp) return;
+  if (ap) {
+    const folga = ap.getBoundingClientRect().top - sp.getBoundingClientRect().top - 8;
+    if (folga > 120) sp.style.maxHeight = Math.floor(folga) + 'px';
+  }
+  sp.classList.toggle('fim', sp.scrollTop + sp.clientHeight >= sp.scrollHeight - 4);
+}
+
+function perfilLigarIndicadorScroll() {
+  const sp = document.querySelector('#perfil-container .scroll-panel');
+  if (!sp) return;
+  sp.addEventListener('scroll', perfilAtualizarPainel, { passive: true });
+  // Texto que muda depois (nuvem, aviso de apagar, língua) muda a altura.
+  if (typeof MutationObserver === 'function') {
+    new MutationObserver(perfilAtualizarPainel).observe(sp, { childList: true, subtree: true, characterData: true, attributes: true });
+  }
+  perfilAtualizarPainel();
+}
+
+window.addEventListener('resize', perfilAtualizarPainel);
 
 function alternarVibracao(ligada) {
   state.vibracao = ligada;
