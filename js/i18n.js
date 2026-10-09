@@ -56,6 +56,7 @@ const TRANSLATIONS = {
     'nivel.nome.5': 'Quinta Afamada',
     'nivel.nome.6': 'Casa do Moscatel',
     'nivel.nome.7': 'Quinta de Boa Vizinhança',
+    'nivel.nome.8': 'Quinta de Portas Abertas',
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
@@ -64,6 +65,15 @@ const TRANSLATIONS = {
     'visita.nome.marisa': 'a Marisa',
     'visita.nome.henrique': 'o Dr. Henrique',
     'estrada.title': 'A Estrada',
+    'lagar.title': 'O Lagar',
+    'lagar.linha': 'O Lagar: pisa as uvas',
+    'lagar.desc': 'Pisa {n} uvas no lagar e ganha +{rep} de Reputação. Uma vez por dia.',
+    'lagar.btn': 'Pisar as uvas · {n} uvas',
+    'lagar.faltam': 'Faltam {faltam} uvas para pisar (tens {tem}).',
+    'lagar.jaHoje': 'Já pisaste as uvas hoje. Volta amanhã.',
+    'lagar.dias': 'Dias em que pisaste: {n}',
+    'lagar.ok': 'Pisaste {n} uvas no lagar! +{rep} de Reputação.',
+    'lagar.relogio': 'O relógio está atrás do último dia de lagar: tenta mais tarde.',
     'estrada.linha': 'A Estrada: conhece os vizinhos',
     'estrada.da': 'Dá: {bem}',
     'estrada.naDespensa': 'Na Despensa: {n}',
@@ -165,6 +175,9 @@ const TRANSLATIONS = {
     'historia.nivel7.1': 'A estrada que passa à porta da Quinta voltou a ter gente. Os vizinhos já ouviram falar do nosso Moscatel.',
     'historia.nivel7.2': 'Chegam com o que a sua terra dá: queijo, sal e mel. E ficam contentes com umas uvas da Quinta em troca.',
     'historia.nivel7.3': 'Abriu: a Estrada.',
+    'historia.nivel8.1': 'A Quinta já tem as portas abertas. Os vizinhos do queijo, do sal e do mel agora querem ficar para a festa.',
+    'historia.nivel8.2': 'Na vindima ninguém trabalha sozinho: pisam-se as uvas no lagar e depois põe-se a mesa para todos.',
+    'historia.nivel8.3': 'Abriu: o Lagar.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Quatro tarefas e a Vinha já não parece abandonada.',
@@ -174,6 +187,7 @@ const TRANSLATIONS = {
     'capitulo.cap5.conclusao': 'Este Moscatel teve paciência. Mas os porcos também já lhe farejaram o cheiro.',
     'capitulo.cap6.conclusao': 'Quatro cores, quatro esperas. Agora sim, parece uma coleção.',
     'capitulo.cap7.conclusao': 'Queijo, sal e mel na Despensa. A boa vizinhança também se faz com uvas.',
+    'capitulo.cap8.conclusao': 'Uvas pisadas, lagar a cantar. Em casa aberta, ninguém pisa sozinho.',
 
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
@@ -480,6 +494,7 @@ const TRANSLATIONS = {
     'nivel.nome.5': 'Famous Quinta',
     'nivel.nome.6': 'House of Moscatel',
     'nivel.nome.7': 'Good Neighbours Quinta',
+    'nivel.nome.8': 'Open Doors Quinta',
 
     'objetivos.titulo': 'Today on the Quinta',
     'visita.linha': 'Today: {nome} is at the Quinta',
@@ -487,6 +502,15 @@ const TRANSLATIONS = {
     'visita.nome.marisa': 'Marisa',
     'visita.nome.henrique': 'Dr. Henrique',
     'estrada.title': 'The Road',
+    'lagar.title': 'The Lagar',
+    'lagar.linha': 'The Lagar: tread the grapes',
+    'lagar.desc': 'Tread {n} grapes in the lagar and earn +{rep} Reputation. Once a day.',
+    'lagar.btn': 'Tread the grapes · {n} grapes',
+    'lagar.faltam': 'You need {faltam} more grapes to tread (you have {tem}).',
+    'lagar.jaHoje': 'You already trod the grapes today. Come back tomorrow.',
+    'lagar.dias': 'Days you trod the grapes: {n}',
+    'lagar.ok': 'You trod {n} grapes in the lagar! +{rep} Reputation.',
+    'lagar.relogio': 'Your clock is behind the last lagar day: try again later.',
     'estrada.linha': 'The Road: meet the neighbours',
     'estrada.da': 'Gives: {bem}',
     'estrada.naDespensa': 'In the Pantry: {n}',
@@ -583,6 +607,9 @@ const TRANSLATIONS = {
     'historia.nivel7.1': 'The road that passes the Quinta\'s door has people on it again. The neighbours have already heard about our Moscatel.',
     'historia.nivel7.2': 'They arrive with what their land gives: cheese, salt and honey. And they are glad to get some of the Quinta\'s grapes in return.',
     'historia.nivel7.3': 'Unlocked: the Road.',
+    'historia.nivel8.1': 'The Quinta has its doors open now. The neighbours with the cheese, the salt and the honey want to stay for the party.',
+    'historia.nivel8.2': 'At harvest time nobody works alone: the grapes are trodden in the lagar and then the table is set for everyone.',
+    'historia.nivel8.3': 'Unlocked: the Lagar.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Four tasks done and the Vineyard no longer looks abandoned.',
@@ -592,6 +619,7 @@ const TRANSLATIONS = {
     'capitulo.cap5.conclusao': 'This Moscatel was patient. But the pigs have sniffed it out too.',
     'capitulo.cap6.conclusao': 'Four colours, four waits. Now it looks like a collection.',
     'capitulo.cap7.conclusao': 'Cheese, salt and honey in the Pantry. Good neighbours are made with grapes too.',
+    'capitulo.cap8.conclusao': 'Grapes trodden, lagar singing. In an open house, nobody treads alone.',
 
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
@@ -887,6 +915,7 @@ const TRANSLATIONS = {
     'nivel.nome.5': 'Quinta Afamada',
     'nivel.nome.6': 'Casa del Moscatel',
     'nivel.nome.7': 'Quinta de Buena Vecindad',
+    'nivel.nome.8': 'Quinta de Puertas Abiertas',
 
     'objetivos.titulo': 'Hoy en la Quinta',
     'visita.linha': 'Hoy: {nome} está en la Quinta',
@@ -894,6 +923,15 @@ const TRANSLATIONS = {
     'visita.nome.marisa': 'Marisa',
     'visita.nome.henrique': 'el Dr. Henrique',
     'estrada.title': 'El Camino',
+    'lagar.title': 'El Lagar',
+    'lagar.linha': 'El Lagar: pisa las uvas',
+    'lagar.desc': 'Pisa {n} uvas en el lagar y gana +{rep} de Reputación. Una vez al día.',
+    'lagar.btn': 'Pisar las uvas · {n} uvas',
+    'lagar.faltam': 'Faltan {faltam} uvas para pisar (tienes {tem}).',
+    'lagar.jaHoje': 'Ya pisaste las uvas hoy. Vuelve mañana.',
+    'lagar.dias': 'Días en que pisaste: {n}',
+    'lagar.ok': '¡Pisaste {n} uvas en el lagar! +{rep} de Reputación.',
+    'lagar.relogio': 'Tu reloj va por detrás del último día de lagar: inténtalo más tarde.',
     'estrada.linha': 'El Camino: conoce a los vecinos',
     'estrada.da': 'Da: {bem}',
     'estrada.naDespensa': 'En la Despensa: {n}',
@@ -990,6 +1028,9 @@ const TRANSLATIONS = {
     'historia.nivel7.1': 'El camino que pasa por la puerta de la Quinta vuelve a tener gente. Los vecinos ya han oído hablar de nuestro Moscatel.',
     'historia.nivel7.2': 'Llegan con lo que da su tierra: queso, sal y miel. Y se alegran de recibir a cambio unas uvas de la Quinta.',
     'historia.nivel7.3': 'Se abrió: el Camino.',
+    'historia.nivel8.1': 'La Quinta ya tiene las puertas abiertas. Los vecinos del queso, de la sal y de la miel ahora quieren quedarse a la fiesta.',
+    'historia.nivel8.2': 'En la vendimia nadie trabaja solo: se pisan las uvas en el lagar y después se pone la mesa para todos.',
+    'historia.nivel8.3': 'Se abrió: el Lagar.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Cuatro tareas y el Viñedo ya no parece abandonado.',
@@ -999,6 +1040,7 @@ const TRANSLATIONS = {
     'capitulo.cap5.conclusao': 'Este Moscatel tuvo paciencia. Pero los cerdos ya le olfatearon el aroma.',
     'capitulo.cap6.conclusao': 'Cuatro colores, cuatro esperas. Ahora sí parece una colección.',
     'capitulo.cap7.conclusao': 'Queso, sal y miel en la Despensa. La buena vecindad también se hace con uvas.',
+    'capitulo.cap8.conclusao': 'Uvas pisadas, lagar cantando. En casa abierta, nadie pisa solo.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',

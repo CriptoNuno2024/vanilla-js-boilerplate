@@ -173,6 +173,13 @@ function defaultState() {
       entregues: {},
       primeiraTroca: {},
       hoje: { dia: null, feitas: {} }
+    },
+    // O Lagar (Nível 8, ver js/lagar.js). ultimoDia: último dia (Lisboa, 'AAAA-MM-DD') em que
+    // pisou as uvas (null = nunca). dias: em quantos dias diferentes já pisou (só sobe; o capítulo 8
+    // lê-o). NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.despensa.
+    lagar: {
+      ultimoDia: null,
+      dias: 0
     }
   };
 }

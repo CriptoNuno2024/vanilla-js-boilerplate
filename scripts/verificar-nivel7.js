@@ -64,14 +64,14 @@ const savePossuiNivel6 = function (extra) {
 // 1. Nível 7: limiar 1000, sem tranca de ecrã nova, o resto igual.
 {
   const g = abrir();
-  ok(g.ev('NIVEIS_CONFIG.length') === 7, 'devia haver 7 níveis');
-  ok(JSON.stringify(g.ev('NIVEIS_CONFIG.map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000]', 'limiares 0, 15, 50, 120, 300, 600, 1000');
+  ok(g.ev('NIVEIS_CONFIG.length') >= 7, 'devia haver pelo menos 7 níveis (o 8 está em scripts/verificar-nivel8.js)');
+  ok(JSON.stringify(g.ev('NIVEIS_CONFIG.slice(0, 7).map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000]', 'limiares 0, 15, 50, 120, 300, 600, 1000');
   ok(g.ev('NIVEIS_CONFIG[6].nomeKey') === 'nivel.nome.7', 'nomeKey do nível 7');
-  [[0, 1], [14, 1], [15, 2], [49, 2], [50, 3], [119, 3], [120, 4], [299, 4], [300, 5], [599, 5], [600, 6], [999, 6], [1000, 7], [5000, 7]].forEach(function (p) {
+  [[0, 1], [14, 1], [15, 2], [49, 2], [50, 3], [119, 3], [120, 4], [299, 4], [300, 5], [599, 5], [600, 6], [999, 6], [1000, 7], [1499, 7]].forEach(function (p) {
     ok(g.ev('nivelPelaReputacao(' + p[0] + ')') === p[1], 'Reputação ' + p[0] + ' devia dar nível ' + p[1]);
   });
-  ok(JSON.stringify(g.ev('Object.keys(NIVEL_NECESSARIO_POR_ECRA).map(function (k) { return k + ":" + NIVEL_NECESSARIO_POR_ECRA[k]; })')) ===
-    JSON.stringify(['proteger:2', 'garrafa:3', 'caderno:3', 'explorar:4', 'enciclopedia:4', 'festa:4', 'colecao:6', 'garrafas:6', 'estrada:7']), 'só a Estrada (nível 7) é tranca nova');
+  ok(JSON.stringify(g.ev('Object.keys(NIVEL_NECESSARIO_POR_ECRA).slice(0, 9).map(function (k) { return k + ":" + NIVEL_NECESSARIO_POR_ECRA[k]; })')) ===
+    JSON.stringify(['proteger:2', 'garrafa:3', 'caderno:3', 'explorar:4', 'enciclopedia:4', 'festa:4', 'colecao:6', 'garrafas:6', 'estrada:7']), 'a Estrada (nível 7) é a tranca nova do nível 7');
   ok(g.ev("typeof ecraDesbloqueado('estrada')") === 'boolean', 'ecraDesbloqueado("estrada") devia dar true ou false');
   ok(g.ev("state.acesso.jogadorAntigo = false; state.reputacao = 300; ecraDesbloqueado('estrada')") === false, 'a Estrada devia estar trancada no nível 5 (jogador novo)');
   ok(g.ev("state.reputacao = 999; ecraDesbloqueado('estrada')") === false, 'a Estrada devia estar trancada no nível 6 (jogador novo)');
@@ -82,7 +82,7 @@ const savePossuiNivel6 = function (extra) {
 // 2. Capítulo 7: dado, critério (queijo, sal e mel em despensa.recebidos, pelos ids) e leitura sem estoirar.
 {
   const g = abrir(savePossuiNivel6());
-  ok(g.ev('CAPITULOS_CONFIG.length') === 7 && g.ev("CAPITULOS_CONFIG[6].id") === 'cap7' && g.ev('CAPITULOS_CONFIG[6].nivel') === 7, 'devia haver o cap7 no nível 7');
+  ok(g.ev('CAPITULOS_CONFIG.length') >= 7 && g.ev("CAPITULOS_CONFIG[6].id") === 'cap7' && g.ev('CAPITULOS_CONFIG[6].nivel') === 7, 'devia haver o cap7 no nível 7');
   ok(JSON.stringify(g.ev('CAPITULOS_CONFIG[6].criterio')) === JSON.stringify([{ tipo: 'temChaves', caminho: 'despensa.recebidos', chaves: ['queijo_azeitao', 'sal_sado', 'mel_sesimbra'] }]), 'critério do cap7');
   // Os ids do critério são os ids REAIS dos 3 bens de origem em ESTRADA_BENS.
   // (A Estrada tem 4 bens: o choco do Sado não faz parte do capítulo 7.)

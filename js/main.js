@@ -87,6 +87,7 @@ const FUNDO_DOS_ECRAS = {
   enciclopedia: { src: 'assets/ecras/enciclopedia_yoshi_cat_2.jpg' },
   caderno: { src: 'assets/ecras/fygmos_fazem_das_suas.jpg' },
   perfil: { src: 'assets/ecras/yoshi_cat_varanda.jpg' },
+  lagar: { src: 'assets/ecras/festa_vindima_todos_juntos.jpg' },
   conquistas: { src: 'assets/ecras/livro_conquistas.jpg' },
   lingua: null
 };
@@ -111,7 +112,8 @@ const NAV_ATIVO_POR_ECRA = {
   colecao: 'garrafa',
   garrafas: 'garrafa',
   festa: 'quinta',
-  estrada: 'quinta'
+  estrada: 'quinta',
+  lagar: 'quinta'
 };
 
 // "Limpeza ao sair" por ecrã — um minijogo com temporizador (ex: o
@@ -551,6 +553,7 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarLinhaVisitaQuinta === 'function') atualizarLinhaVisitaQuinta();
     if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
+    if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
     let mostrouHistoria = false;
@@ -593,6 +596,7 @@ function goTo(screen, opcoes) {
   if (screen === 'caderno') renderCaderno();
   if (screen === 'colecao') renderColecao();
   if (screen === 'estrada') renderEstrada();
+  if (screen === 'lagar') renderLagar();
   if (screen === 'garrafas') renderGarrafas();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
