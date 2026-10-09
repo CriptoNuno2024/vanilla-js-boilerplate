@@ -292,6 +292,8 @@ const TRANSLATIONS = {
     'tempo.ceu.nevoeiro': 'Nevoeiro',
     'tempo.ceu.trovoada': 'Trovoada',
     'tempo.msgChuvaRegou': 'A chuva regou por ti.',
+    'tempo.arcoirisFala': 'Saiu o sol depois da chuva: há um arco-íris sobre a Quinta!',
+    'tempo.arcoirisGotas': 'Ganhaste +3 gotas.',
     'tempo.avisoTrovoadaProteger': 'O Chizo escondeu-se com medo dos trovões.',
     'tempo.avisoNevoeiroProteger': 'O nevoeiro esconde os porcos — aparecem mais vezes.',
 
@@ -698,6 +700,8 @@ const TRANSLATIONS = {
     'tempo.ceu.nevoeiro': 'Fog',
     'tempo.ceu.trovoada': 'Thunderstorm',
     'tempo.msgChuvaRegou': 'The rain watered it for you.',
+    'tempo.arcoirisFala': 'The sun is out after the rain: there is a rainbow over the Quinta!',
+    'tempo.arcoirisGotas': 'You got +3 drops.',
     'tempo.avisoTrovoadaProteger': 'Chizo hid, scared of the thunder.',
     'tempo.avisoNevoeiroProteger': 'The fog hides the pigs — they show up more often.',
 
@@ -1103,6 +1107,8 @@ const TRANSLATIONS = {
     'tempo.ceu.nevoeiro': 'Niebla',
     'tempo.ceu.trovoada': 'Tormenta',
     'tempo.msgChuvaRegou': 'La lluvia la regó por ti.',
+    'tempo.arcoirisFala': '¡Salió el sol después de la lluvia: hay un arcoíris sobre la Quinta!',
+    'tempo.arcoirisGotas': 'Ganaste +3 gotas.',
     'tempo.avisoTrovoadaProteger': 'El Chizo se escondió, asustado por los truenos.',
     'tempo.avisoNevoeiroProteger': 'La niebla esconde a los cerdos — aparecen más veces.',
 
