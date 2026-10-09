@@ -190,7 +190,8 @@ function diasDescansadosNaCave() {
   if (!state.adega.lote) return 0;
   const forcado = diasForcadosNoEndereco();
   if (forcado !== null) return forcado;
-  return (Date.now() - state.adega.lote.iniciadoEm) / (24 * 60 * 60 * 1000);
+  const agora = Date.now();
+  return Math.max(0, agora - carimboCorrigirFuturo(state.adega.lote, 'iniciadoEm', agora)) / (24 * 60 * 60 * 1000);
 }
 
 function formatarDiasAdega(diasFracionarios) {
@@ -203,10 +204,11 @@ function formatarDiasAdega(diasFracionarios) {
 }
 
 function tempoRestanteAdega(acao) {
-  const ultima = state.adega.cooldowns[acao];
+  const agora = Date.now();
+  const ultima = carimboCorrigirFuturo(state.adega.cooldowns, acao, agora);
   if (!ultima) return 0;
   const cd = ADEGA_COOLDOWN_MS[acao] || 0;
-  return Math.max(0, cd - (Date.now() - ultima));
+  return Math.max(0, cd - (agora - ultima));
 }
 
 function registarCooldownAdega(acao) {

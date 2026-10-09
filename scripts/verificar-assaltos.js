@@ -141,6 +141,7 @@ function abrirProteger(opcoes) {
   };
   sb.window = sb;
   const cx = vm.createContext(sb);
+  require('./_regras-tempo').injetarRegrasTempo(cx);
   ['assaltos.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
   return { cx: cx, reg: reg, ev: function (c) { return vm.runInContext(c, cx); } };
 }

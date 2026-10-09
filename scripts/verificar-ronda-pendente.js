@@ -58,6 +58,7 @@ function abrir(inicioMs, estadoGuardado) {
   sb.window.addEventListener = function () {};
   sb.Telegram = { WebApp: {} };
   const cx = vm.createContext(sb);
+  require('./_regras-tempo').injetarRegrasTempo(cx);
   function carregar(ficheiro, nome) { vm.runInContext(fs.readFileSync(ficheiro, 'utf8'), cx, { filename: nome }); }
   carregar(path.join(RAIZ, 'js', 'state.js'), 'state.js');
   carregar(path.join(RAIZ, 'js', 'niveis.js'), 'niveis.js');

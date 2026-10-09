@@ -234,10 +234,11 @@ function preCarregarFotoVinha(actionKey) {
 }
 
 function tempoRestanteVinha(actionKey) {
-  const ultima = state.vinha.cooldowns[actionKey];
+  const agora = Date.now();
+  const ultima = carimboCorrigirFuturo(state.vinha.cooldowns, actionKey, agora);
   if (!ultima) return 0;
   const cd = COOLDOWN_MS[actionKey] || 0;
-  return Math.max(0, cd - (Date.now() - ultima));
+  return Math.max(0, cd - (agora - ultima));
 }
 
 function formatarTempoVinha(ms) {

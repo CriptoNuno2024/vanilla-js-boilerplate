@@ -36,6 +36,7 @@ function correrTestes(src) {
   sb.window = sb;
   sb.addEventListener = function () {};
   const cx = vm.createContext(sb);
+  require('./_regras-tempo').injetarRegrasTempo(cx);
   const correr = function (codigo, nome) { return vm.runInContext(codigo, cx, { filename: nome || 'x' }); };
   correr(ler('js/state.js'), 'state.js');
   correr(ler('js/i18n.js'), 'i18n.js');

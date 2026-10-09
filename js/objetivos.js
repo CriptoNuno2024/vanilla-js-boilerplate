@@ -155,7 +155,7 @@ function gerarObjetivosDoDia() {
 // se entra na Quinta ou se marca um objetivo — assim um dia novo é
 // detetado mesmo que o jogo fique aberto a passar da meia-noite.
 function garantirObjetivosDoDia() {
-  if (state.objetivos.dia !== diaLisboaDeHoje()) {
+  if (diaLisboaMudou(diaLisboaDeHoje(), state.objetivos.dia)) {
     gerarObjetivosDoDia();
   }
 }

@@ -103,6 +103,44 @@ function diaLisboaDeHoje() {
   }).format(new Date());
 }
 
+// ---------------------------------------------------------------------
+// >>> regras-relogio (scripts/_regras-tempo.js carrega só este bloco)
+// RELÓGIO ERRADO — regras puras, as únicas do jogo (Vinha, Adega, Ronda do
+// Chizo, objetivos, Proteger e Visitas usam estas). Só carimbos no futuro são
+// corrigidos; o resto do que está guardado nunca é alterado.
+// ---------------------------------------------------------------------
+
+// O dia de hoje já passou o dia guardado? Compara texto AAAA-MM-DD. Só então o
+// estado do dia se repõe. Dia guardado em falta ou inválido repõe (jogo novo, save
+// antigo); hoje igual ou ANTERIOR ao guardado (data atrás) não repõe.
+function diaLisboaMudou(hoje, guardado) {
+  const formato = /^\d{4}-\d{2}-\d{2}$/;
+  if (typeof hoje !== 'string' || !formato.test(hoje)) return false;
+  if (typeof guardado !== 'string' || !formato.test(guardado)) return true;
+  return hoje > guardado;
+}
+
+// O dia a usar como "hoje" para um estado do dia: o guardado se for posterior
+// ao de hoje (data atrás), senão o de hoje.
+function diaLisboaEfetivo(hoje, guardado) {
+  if (typeof guardado === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(guardado) && guardado > hoje) return guardado;
+  return hoje;
+}
+
+// Lê o carimbo obj[chave] já limitado a "agora". Se estava no futuro, escreve "agora" no
+// lugar dele (só carimbos no futuro; os normais nunca são tocados) e grava, porque só
+// ler o mínimo nunca deixaria o tempo avançar: o cooldown ficaria sempre inteiro.
+function carimboCorrigirFuturo(obj, chave, agora) {
+  if (!obj || typeof obj !== 'object') return undefined;
+  const valor = obj[chave];
+  const n = Number(valor);
+  if (!Number.isFinite(n) || !(n > agora)) return valor;
+  obj[chave] = agora;
+  try { if (typeof saveState === 'function' && typeof state !== 'undefined') saveState(state); } catch (e) { /* só em memória */ }
+  return agora;
+}
+// <<< regras-relogio
+
 function condicaoDeTeste(tempC, ventoKmh, ceu) {
   return {
     ceu: ceu,

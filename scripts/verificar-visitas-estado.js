@@ -38,6 +38,7 @@ function abrir(o) {
   sb.window = sb;
   sb.Telegram = { WebApp: {} };
   const cx = vm.createContext(sb);
+  require('./_regras-tempo').injetarRegrasTempo(cx);
   ['state.js', 'niveis.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'), cx, { filename: f }); });
   vm.runInContext(`
     var SAVES = 0, MODO = null;

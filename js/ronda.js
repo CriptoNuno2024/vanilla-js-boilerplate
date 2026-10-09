@@ -83,9 +83,17 @@ function rondaChizoReporDia(anterior, agora) {
 // não), 'fim' (as duas feitas) ou 'pedido' (há uma ronda para pedir).
 function rondaChizoFase(agora) {
   const r = rondaChizoEstado();
-  if (typeof r.saidaEm === 'number') return agora >= r.fimEm ? 'volta' : 'fora';
+  if (typeof r.saidaEm === 'number') {
+    // Saída no futuro (relógio adiantado que voltou): conta como agora, e a ronda
+    // dura o tempo normal a partir daí (fimEm - saidaEm); o carimbo futuro é corrigido.
+    if (r.saidaEm > agora && Number.isFinite(r.fimEm)) {
+      r.fimEm = agora + (r.fimEm - r.saidaEm);
+      carimboCorrigirFuturo(r, 'saidaEm', agora);
+    }
+    return agora >= r.fimEm ? 'volta' : 'fora';
+  }
   if (r.feitas >= RONDA_CHIZO_CONFIG.rondasPorDia) return 'fim';
-  if (r.feitas >= 1 && agora < (r.ultimoFimEm || 0) + RONDA_CHIZO_CONFIG.esperaEntreRondasMs) return 'espera';
+  if (r.feitas >= 1 && agora < (carimboCorrigirFuturo(r, 'ultimoFimEm', agora) || 0) + RONDA_CHIZO_CONFIG.esperaEntreRondasMs) return 'espera';
   return 'pedido';
 }
 
