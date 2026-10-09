@@ -70,7 +70,7 @@ dias(60).forEach(function (dia) {
 });
 
 // Alvo -> minijogo do Proteger (null = sorteio de hoje).
-const TIPOS = { cave: 'fechadura', vinha: 'disfarces', nevoeiro: 'chizo', trovoada: 'disfarces', adega: null };
+const TIPOS = { cave: 'fechadura', vinha: 'disfarces', nevoeiro: 'chizo', trovoada: 'disfarces', adega: 'barril' };
 Object.keys(TIPOS).forEach(function (a) { ok(tipoDeProtegerPelaPista(a) === TIPOS[a], 'tipo errado para ' + a); });
 ['porco', '', undefined, null, 42].forEach(function (v) { ok(tipoDeProtegerPelaPista(v) === null, 'valor inválido deve dar null: ' + v); });
 
@@ -142,7 +142,7 @@ function abrirProteger(opcoes) {
   sb.window = sb;
   const cx = vm.createContext(sb);
   require('./_regras-tempo').injetarRegrasTempo(cx);
-  ['assaltos.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
+  ['assaltos.js', 'barril.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
   return { cx: cx, reg: reg, ev: function (c) { return vm.runInContext(c, cx); } };
 }
 {
@@ -152,20 +152,17 @@ function abrirProteger(opcoes) {
   g = abrirProteger({ feitas: 0 }); g.ev('startProteger()');
   ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'sem pista não devia haver passo do isco');
 
-  // Só se pergunta quando a pista leva a um minijogo: adega = sem passo e sem gastar bagaço.
-  g = abrirProteger({ search: '?pista=adega' }); g.ev('startProteger()');
-  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, '?pista=adega não devia mostrar o passo do isco');
-  ok(g.ev('state.adega.bagaco') === 3 && g.reg.saves === 0, 'adega: não devia gastar nem gravar nada');
-  ['cave', 'vinha', 'nevoeiro', 'trovoada'].forEach(function (alvo) {
+  // Só se pergunta quando a pista leva a um minijogo (a adega leva ao "Seguir o barril", js/barril.js).
+  ['cave', 'vinha', 'nevoeiro', 'trovoada', 'adega'].forEach(function (alvo) {
     g = abrirProteger({ search: '?pista=' + alvo }); g.ev('startProteger()');
     ok(g.reg.html.indexOf('protegerIscoResponder(true)') !== -1, alvo + ' devia perguntar (com bagaço)');
     ok(g.ev('state.adega.bagaco') === 3, alvo + ': a pergunta não devia gastar bagaço');
   });
   // Alvo ao vivo 'adega' (sem ?pista=): primavera, sem garrafa escura e sem tempo especial
-  // dão SEMPRE 'adega'; então não há passo e não se gasta bagaço.
+  // dão SEMPRE 'adega'; leva ao "Seguir o barril": pergunta o isco, e nada se gasta nem grava até tocar numa pílula.
   g = abrirProteger({ ceu: null, estacao: 'primavera', garrafa: false }); g.ev('startProteger()');
   ok(g.ev('alvoParaProteger(0, null, diaLisboaDeHoje())') === 'adega', 'com leituras fixas o alvo ao vivo devia ser adega, deu ' + g.ev('alvoParaProteger(0, null, diaLisboaDeHoje())'));
-  ok(g.reg.html.indexOf('protegerIscoResponder') === -1, 'alvo adega ao vivo não devia perguntar');
+  ok(g.reg.html.indexOf('protegerIscoResponder(true)') !== -1, 'alvo adega ao vivo devia perguntar (com bagaço)');
   ok(g.ev('state.adega.bagaco') === 3 && g.reg.saves === 0, 'alvo adega ao vivo: não devia gastar nem gravar nada');
 
   // Com pista e bagaço: pergunta e NADA se gasta até tocar numa pílula.

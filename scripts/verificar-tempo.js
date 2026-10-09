@@ -20,7 +20,7 @@ const path = require('path');
 const vm = require('vm');
 
 const RAIZ = path.join(__dirname, '..');
-const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js', 'objetivos.js', 'assaltos.js', 'proteger.js', 'visitas.js'];
+const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'garrafa.js', 'ronda.js', 'objetivos.js', 'assaltos.js', 'barril.js', 'proteger.js', 'visitas.js'];
 const FONTES = {};
 FICHEIROS.forEach(function (f) { FONTES[f] = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'); });
 const INDEX = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
@@ -80,7 +80,7 @@ function suite(fontes) {
       var _saveReal = saveState; saveState = function (s) { SAVES++; return _saveReal(s); };
     `, cx);
     // objetivos.js chama garantirObjetivosDoDia() ao carregar; o resto depende dele.
-    ['objetivos.js', 'assaltos.js', 'proteger.js', 'visitas.js'].forEach(function (f) {
+    ['objetivos.js', 'assaltos.js', 'barril.js', 'proteger.js', 'visitas.js'].forEach(function (f) {
       vm.runInContext(fontes[f], cx, { filename: f });
     });
     vm.runInContext('renderAdega = function () {};', cx);

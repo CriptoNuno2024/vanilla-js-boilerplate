@@ -78,9 +78,11 @@ function textoDaPista(alvo, indice, leituras) {
 
 // Minijogo do Proteger que segue a pista: cave -> 'fechadura', vinha ->
 // 'disfarces', trovoada -> 'disfarces' (o Chizo tem medo e o jogador vigia
-// sozinho), nevoeiro -> 'chizo' (Acorda o Chizo). Adega ou valor desconhecido ->
-// null (o Proteger usa o sorteio de sempre, ver escolherTipoProteger()).
+// sozinho), nevoeiro -> 'chizo' (Acorda o Chizo), adega -> 'barril' (Seguir o
+// barril, ver js/barril.js). Valor desconhecido -> null (o Proteger usa o
+// sorteio de sempre, ver escolherTipoProteger()).
 function tipoDeProtegerPelaPista(alvo) {
+  if (alvo === 'adega') return 'barril';
   if (alvo === 'cave') return 'fechadura';
   if (alvo === 'vinha' || alvo === 'trovoada') return 'disfarces';
   if (alvo === 'nevoeiro') return 'chizo';

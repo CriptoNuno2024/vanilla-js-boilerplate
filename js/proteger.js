@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// PROTEGER A QUINTA (3 estilos de mini-jogo, escolhidos à sorte)
+// PROTEGER A QUINTA (4 estilos de mini-jogo: 3 escolhidos à sorte e o "Seguir o barril" da pista Adega)
 //
 // Personagens (nomes próprios, não traduzidos):
 // - Fygmo  — porco malhado, mais velho, o "cérebro" (mapas, binóculos).
@@ -274,6 +274,8 @@ const PROTEGER_FUNDOS = {
   chizo: { src: 'assets/ecras/chizo_vinha.jpg' }
 };
 const PROTEGER_FUNDO_VITORIA = 'assets/ecras/yoshi_cat_festejar_vitoria.jpg';
+// Seguir o barril (pista Adega): a foto do YoshiCat na adega a deitar o aguardente (a mesma da história do nível 5).
+const PROTEGER_FUNDO_BARRIL = 'assets/vinha/barril.jpg';
 // Derrota: cada estilo tem a sua própria imagem (o Chizo já tem imagem
 // própria; os outros 2 continuam a partilhar a mesma de sempre).
 const PROTEGER_FUNDO_DERROTA = 'assets/ecras/yoshi_cat_cruzados_derrota_3.jpg';
@@ -398,7 +400,7 @@ function protegerIscoPostoAgora(indice) {
   return !!iscoAlvoFixado(state.proteger && state.proteger.isco, diaLisboaDeHoje(), indice);
 }
 
-// Devolve 'fechadura' | 'disfarces' | 'chizo' ou null (= sorteio de hoje).
+// Devolve 'fechadura' | 'disfarces' | 'chizo' | 'barril' ou null (= sorteio de hoje).
 // Precedência do alvo: ?pista= > isco fixado > cálculo ao vivo (alvoParaProteger).
 function tipoProtegerPelaPista() {
   protegerIscoNaRonda = false;
@@ -416,7 +418,7 @@ function tipoProtegerPelaPista() {
     }
     const tipo = tipoDeProtegerPelaPista(alvo);
     if (tipo !== null) protegerCaderno = { alvo: alvo, indice: indice, isco: protegerIscoNaRonda, teste: protegerEmModoTeste() };
-    return (tipo === 'fechadura' || tipo === 'disfarces' || tipo === 'chizo') ? tipo : null;
+    return (tipo === 'fechadura' || tipo === 'disfarces' || tipo === 'chizo' || tipo === 'barril') ? tipo : null;
   } catch (e) { return null; }
 }
 
@@ -439,7 +441,7 @@ function protegerIscoPerguntarAgora() {
     const isco = protegerEmModoTeste() ? null : (state.proteger && state.proteger.isco);
     if (!iscoPerguntar(isco, diaLisboaDeHoje(), indice, bagaco)) return null;
     // Só se pergunta quando a pista leva a um minijogo (cave, vinha, nevoeiro,
-    // trovoada); com 'adega' ou alvo desconhecido a ronda segue sem passo.
+    // trovoada, adega); com um alvo desconhecido a ronda segue sem passo.
     const alvo = alvoParaProteger(indice, isco, diaLisboaDeHoje());
     return tipoDeProtegerPelaPista(alvo) !== null ? indice : null;
   } catch (e) { return null; }
@@ -578,6 +580,7 @@ function iniciarRondaProteger() {
   tocarSomFicheiro('assets/sons/porco_grunhir.mp3', 0.7);
   const tipo = escolherTipoProteger();
   if (tipo === 'fechadura') renderFechadura();
+  else if (tipo === 'barril') renderBarril();
   else if (tipo === 'disfarces') renderDisfarces();
   else iniciarChizo();
 }
@@ -669,6 +672,120 @@ function responderDisfarce(i) {
 }
 
 // -----------------------------------------------------------------
+// ESTILO 4 — "Seguir o barril" (a pista do dia é a Adega)
+// (mecânica: seguir com os olhos o barril do aguardente enquanto os porcos
+// trocam os 3 barris; a sequência e o resultado vêm da regra pura de
+// js/barril.js, aqui só se desenha e se mede o tempo)
+// -----------------------------------------------------------------
+
+const PROTEGER_BARRIL_SVG = '<svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><path d="M14 10h36c5 8 5 36 0 44H14C9 46 9 18 14 10z" fill="#8a5a2b" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"></path><path d="M11 22h42M10 32h44M11 42h42" fill="none" stroke="currentColor" stroke-width="3"></path><ellipse cx="32" cy="10" rx="18" ry="4.5" fill="#a9743a" stroke="currentColor" stroke-width="2.5"></ellipse></svg>';
+
+let barrilSeq = null;            // { marcado, trocas, final } desta ronda (regra pura)
+let barrilSlots = [0, 1, 2];     // barrilSlots[id] = posição (0 a 2) onde o barril "id" está agora
+let barrilFase = 'parado';       // 'marca' | 'troca' | 'escolha' | 'fim' | 'parado'
+let barrilSessao = 0;            // sobe ao sair ou recomeçar: temporizadores antigos deixam de fazer efeito
+let barrilTimerId = null;
+
+function barrilReduzMovimento() {
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
+}
+
+function barrilParar() {
+  if (barrilTimerId) { clearTimeout(barrilTimerId); barrilTimerId = null; }
+  barrilSessao++;
+  barrilFase = 'parado';
+}
+
+function barrilAgendar(ms, fn) {
+  const minha = barrilSessao;
+  barrilTimerId = setTimeout(function () {
+    barrilTimerId = null;
+    if (minha === barrilSessao) fn();
+  }, ms);
+}
+
+// A semente vem daqui (quem chama), não da regra: o dia de Lisboa, a ronda e um número ao acaso, para
+// "Tentar outra vez" não repetir a mesma sequência.
+function barrilSementeAtual() {
+  return diaLisboaDeHoje() + '#barril#' + protegerRondaAtual + '#' + randInt(0, 999999);
+}
+
+function barrilLegenda(texto) {
+  const el = document.getElementById('barris-legenda');
+  if (el) el.textContent = texto;
+}
+
+function barrilAtualizarPosicoes() {
+  barrilSlots.forEach(function (slot, id) {
+    const el = document.getElementById('barril-' + id);
+    if (!el) return;
+    el.style.setProperty('--slot', slot);
+    el.setAttribute('aria-label', t('proteger.barrilNome') + ' ' + (slot + 1));
+  });
+}
+
+function renderBarril() {
+  barrilParar();
+  ultimoTipoProteger = 'barril';
+  const S = pStr();
+  barrilSeq = barrilSequencia(barrilSementeAtual());
+  barrilSlots = [0, 1, 2];
+  barrilFase = 'marca';
+
+  const container = document.getElementById('proteger-container');
+  container.innerHTML =
+    protegerTopcardHtml(S, t('proteger.barrilSubtitulo')) +
+    '<div class="action-panel"><p id="barris-legenda" class="barris-legenda" aria-live="polite"></p>' +
+    '<div class="barris-fila">' +
+    [0, 1, 2].map(function (i) {
+      return '<button type="button" id="barril-' + i + '" class="barril-btn' + (i === barrilSeq.marcado ? ' marcado' : '') + '" style="--slot:' + i + '" disabled onclick="barrilEscolher(' + i + ')" aria-label="' + t('proteger.barrilNome') + ' ' + (i + 1) + '">' + PROTEGER_BARRIL_SVG + '</button>';
+    }).join('') +
+    '</div></div>';
+
+  definirFundo('foto', PROTEGER_FUNDO_BARRIL);
+  protegerFalaInicio(t('proteger.barrilIntro'));
+  barrilLegenda(t('proteger.barrilMarca'));
+  barrilAgendar(BARRIL_CONFIG.marcaMs, barrilComecarTrocas);
+}
+
+function barrilComecarTrocas() {
+  barrilFase = 'troca';
+  const marcado = document.getElementById('barril-' + barrilSeq.marcado);
+  if (marcado) marcado.classList.remove('marcado');
+  barrilLegenda(t('proteger.barrilSegue'));
+  barrilFazerTroca(0);
+}
+
+function barrilFazerTroca(i) {
+  if (i >= barrilSeq.trocas.length) { barrilEsperarToque(); return; }
+  const a = barrilSeq.trocas[i][0], b = barrilSeq.trocas[i][1];
+  const idA = barrilSlots.indexOf(a), idB = barrilSlots.indexOf(b);
+  barrilSlots[idA] = b;
+  barrilSlots[idB] = a;
+  barrilAtualizarPosicoes();
+  tocarSom('cavar');
+  // Com "reduzir movimento" a troca é instantânea (ver o CSS), mas continua a haver pausa para se perceber.
+  barrilAgendar(barrilReduzMovimento() ? 300 : BARRIL_CONFIG.trocaMs + BARRIL_CONFIG.pausaMs, function () { barrilFazerTroca(i + 1); });
+}
+
+function barrilEsperarToque() {
+  barrilFase = 'escolha';
+  barrilLegenda(t('proteger.barrilEscolhe'));
+  [0, 1, 2].forEach(function (i) {
+    const el = document.getElementById('barril-' + i);
+    if (el) el.disabled = false;
+  });
+}
+
+// O jogador toca num barril: o resultado é o da regra pura (posição tocada contra as trocas), nunca o do desenho.
+function barrilEscolher(id) {
+  if (barrilFase !== 'escolha' || !barrilSeq) return; // toque duplo ou durante as trocas
+  barrilFase = 'fim';
+  const venceu = barrilAcertou(barrilSeq, barrilSlots[id]);
+  finishProteger(venceu, t(venceu ? 'proteger.barrilVitoria' : 'proteger.barrilDerrota'));
+}
+
+// -----------------------------------------------------------------
 // ESTILO 3 — "Não acordes o Chizo"
 // (mecânica nova: jogo de tempo/reação por turnos)
 // -----------------------------------------------------------------
@@ -703,6 +820,7 @@ let chizoRondaId = 0;
 // LIMPEZA_AO_SAIR_POR_ECRA em js/main.js). Sair conta como desistir:
 // sem penalização, só pára o relógio.
 function pararTemporizadorProteger() {
+  if (typeof barrilParar === 'function') barrilParar();
   if (chizoTimerId) { clearTimeout(chizoTimerId); chizoTimerId = null; }
   chizoResolvido = true;
   chizoSessao++;
