@@ -57,6 +57,7 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'Casa do Moscatel',
     'nivel.nome.7': 'Quinta de Boa Vizinhança',
     'nivel.nome.8': 'Quinta de Portas Abertas',
+    'nivel.nome.9': 'Câmara de Provadores',
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
@@ -88,6 +89,16 @@ const TRANSLATIONS = {
     'lagar.assaltoSub': 'O Fygmo e o Fygmo2 cheiram a festa',
     'lagar.assaltoVitoria': 'O Chizo ladra e os porcos fogem de mãos a abanar: a mesa está salva! +{rep} de Reputação.',
     'lagar.assaltoDerrota': 'Tarde demais... os porcos levam uns petiscos e fogem a rir. Não se perdeu nada: a mesa continua posta.',
+    'camara.title': 'A Câmara',
+    'camara.linha': 'A Câmara: prova com o Dr. Henrique',
+    'camara.desc': 'Prova um dos teus vinhos com o Dr. Henrique e ganha +{rep} de Reputação. Não gastas nada. Uma vez por dia.',
+    'camara.btn': 'Provar com o Dr. Henrique',
+    'camara.semGarrafas': 'Ainda não tens nenhuma garrafa feita. Faz uma na Adega e volta.',
+    'camara.jaHoje': 'Já provaste hoje. Volta amanhã.',
+    'camara.dias': 'Dias de prova: {n}',
+    'camara.ok': 'Provaste um dos teus vinhos. +{rep} de Reputação.',
+    'camara.fala': 'Notas de mel, uvas maduras e muita paciência. Esta Quinta sabe o que faz!',
+    'camara.relogio': 'O relógio está atrás da última prova: tenta mais tarde.',
     'lagar.assalto.cena1.sit': 'O Fygmo espreita por cima do muro, de nariz no ar, a cheirar o queijo e o mel da mesa.',
     'lagar.assalto.cena1.op1': 'Fingir que não o viste e continuar a servir',
     'lagar.assalto.cena1.op2': 'Assobiar bem alto para o Chizo vir a correr',
@@ -204,6 +215,9 @@ const TRANSLATIONS = {
     'historia.nivel8.1': 'A Quinta já tem as portas abertas. Os vizinhos do queijo, do sal e do mel agora querem ficar para a festa.',
     'historia.nivel8.2': 'Na vindima ninguém trabalha sozinho: pisam-se as uvas no lagar e depois põe-se a mesa para todos.',
     'historia.nivel8.3': 'Abriu: o Lagar.',
+    'historia.nivel9.1': 'A Quinta de Portas Abertas chamou tanta gente que o Dr. Henrique, o provador, já não cabe no pátio.',
+    'historia.nivel9.2': 'Ele propõe uma Câmara só para provar os vinhos da Quinta. Até os porcos espreitam, de copo na mão.',
+    'historia.nivel9.3': 'Abriu: a Câmara.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Quatro tarefas e a Vinha já não parece abandonada.',
@@ -214,6 +228,7 @@ const TRANSLATIONS = {
     'capitulo.cap6.conclusao': 'Quatro cores, quatro esperas. Agora sim, parece uma coleção.',
     'capitulo.cap7.conclusao': 'Queijo, sal e mel na Despensa. A boa vizinhança também se faz com uvas.',
     'capitulo.cap8.conclusao': 'Uvas pisadas, lagar a cantar. Em casa aberta, ninguém pisa sozinho.',
+    'capitulo.cap9.conclusao': 'Três provas, três sorrisos. O Dr. Henrique diz que a Quinta já tem paladar.',
 
     // Cartão pequeno no topo da Vinha ("Vinha · Setembro / Fase: Vindima")
     'vinha.faseLabel': 'Fase',
@@ -521,6 +536,7 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'House of Moscatel',
     'nivel.nome.7': 'Good Neighbours Quinta',
     'nivel.nome.8': 'Open Doors Quinta',
+    'nivel.nome.9': 'Tasting Chamber',
 
     'objetivos.titulo': 'Today on the Quinta',
     'visita.linha': 'Today: {nome} is at the Quinta',
@@ -551,6 +567,16 @@ const TRANSLATIONS = {
     'lagar.assaltoSub': 'Fygmo and Fygmo2 can smell the party',
     'lagar.assaltoVitoria': 'Chizo barks and the pigs run off empty-handed: the table is safe! +{rep} Reputation.',
     'lagar.assaltoDerrota': 'Too late... the pigs grab a few snacks and run off laughing. Nothing was lost: the table is still set.',
+    'camara.title': 'The Chamber',
+    'camara.linha': 'The Chamber: taste with Dr. Henrique',
+    'camara.desc': 'Taste one of your wines with Dr. Henrique and earn +{rep} Reputation. It costs nothing. Once a day.',
+    'camara.btn': 'Taste with Dr. Henrique',
+    'camara.semGarrafas': 'You have no bottle yet. Make one in the Winery and come back.',
+    'camara.jaHoje': 'You already tasted today. Come back tomorrow.',
+    'camara.dias': 'Days you tasted: {n}',
+    'camara.ok': 'You tasted one of your wines. +{rep} Reputation.',
+    'camara.fala': 'Notes of honey, ripe grapes and a lot of patience. This Quinta knows what it is doing!',
+    'camara.relogio': 'Your clock is behind the last tasting: try again later.',
     'lagar.assalto.cena1.sit': 'Fygmo peeks over the wall, nose in the air, smelling the cheese and the honey on the table.',
     'lagar.assalto.cena1.op1': 'Pretend you did not see him and keep serving',
     'lagar.assalto.cena1.op2': 'Whistle loudly so Chizo comes running',
@@ -662,6 +688,9 @@ const TRANSLATIONS = {
     'historia.nivel8.1': 'The Quinta has its doors open now. The neighbours with the cheese, the salt and the honey want to stay for the party.',
     'historia.nivel8.2': 'At harvest time nobody works alone: the grapes are trodden in the lagar and then the table is set for everyone.',
     'historia.nivel8.3': 'Unlocked: the Lagar.',
+    'historia.nivel9.1': 'The Open Doors Quinta has drawn so many people that Dr. Henrique, the taster, no longer fits in the courtyard.',
+    'historia.nivel9.2': 'He proposes a Chamber just for tasting the Quinta\'s wines. Even the pigs peek in, glass in hand.',
+    'historia.nivel9.3': 'Unlocked: the Chamber.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Four tasks done and the Vineyard no longer looks abandoned.',
@@ -672,6 +701,7 @@ const TRANSLATIONS = {
     'capitulo.cap6.conclusao': 'Four colours, four waits. Now it looks like a collection.',
     'capitulo.cap7.conclusao': 'Cheese, salt and honey in the Pantry. Good neighbours are made with grapes too.',
     'capitulo.cap8.conclusao': 'Grapes trodden, lagar singing. In an open house, nobody treads alone.',
+    'capitulo.cap9.conclusao': 'Three tastings, three smiles. Dr. Henrique says the Quinta now has a palate.',
 
     'vinha.faseLabel': 'Phase',
     'vinha.faseCurta.preparar': 'Preparation',
@@ -968,6 +998,7 @@ const TRANSLATIONS = {
     'nivel.nome.6': 'Casa del Moscatel',
     'nivel.nome.7': 'Quinta de Buena Vecindad',
     'nivel.nome.8': 'Quinta de Puertas Abiertas',
+    'nivel.nome.9': 'Cámara de Catadores',
 
     'objetivos.titulo': 'Hoy en la Quinta',
     'visita.linha': 'Hoy: {nome} está en la Quinta',
@@ -998,6 +1029,16 @@ const TRANSLATIONS = {
     'lagar.assaltoSub': 'El Fygmo y el Fygmo2 huelen la fiesta',
     'lagar.assaltoVitoria': 'El Chizo ladra y los cerdos huyen con las patas vacías: ¡la mesa está a salvo! +{rep} de Reputación.',
     'lagar.assaltoDerrota': 'Demasiado tarde... los cerdos se llevan unos bocados y huyen riéndose. No se perdió nada: la mesa sigue puesta.',
+    'camara.title': 'La Cámara',
+    'camara.linha': 'La Cámara: cata con el Dr. Henrique',
+    'camara.desc': 'Prueba uno de tus vinos con el Dr. Henrique y gana +{rep} de Reputación. No gastas nada. Una vez al día.',
+    'camara.btn': 'Catar con el Dr. Henrique',
+    'camara.semGarrafas': 'Todavía no tienes ninguna botella. Haz una en la Bodega y vuelve.',
+    'camara.jaHoje': 'Ya cataste hoy. Vuelve mañana.',
+    'camara.dias': 'Días de cata: {n}',
+    'camara.ok': 'Probaste uno de tus vinos. +{rep} de Reputación.',
+    'camara.fala': 'Notas de miel, uvas maduras y mucha paciencia. ¡Esta Quinta sabe lo que hace!',
+    'camara.relogio': 'Tu reloj va por detrás de la última cata: inténtalo más tarde.',
     'lagar.assalto.cena1.sit': 'El Fygmo se asoma por encima del muro, con la nariz en alto, oliendo el queso y la miel de la mesa.',
     'lagar.assalto.cena1.op1': 'Fingir que no lo has visto y seguir sirviendo',
     'lagar.assalto.cena1.op2': 'Silbar bien fuerte para que el Chizo venga corriendo',
@@ -1109,6 +1150,9 @@ const TRANSLATIONS = {
     'historia.nivel8.1': 'La Quinta ya tiene las puertas abiertas. Los vecinos del queso, de la sal y de la miel ahora quieren quedarse a la fiesta.',
     'historia.nivel8.2': 'En la vendimia nadie trabaja solo: se pisan las uvas en el lagar y después se pone la mesa para todos.',
     'historia.nivel8.3': 'Se abrió: el Lagar.',
+    'historia.nivel9.1': 'La Quinta de Puertas Abiertas ha atraído a tanta gente que el Dr. Henrique, el catador, ya no cabe en el patio.',
+    'historia.nivel9.2': 'Propone una Cámara solo para catar los vinos de la Quinta. Hasta los cerdos se asoman, copa en mano.',
+    'historia.nivel9.3': 'Se abrió: la Cámara.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Cuatro tareas y el Viñedo ya no parece abandonado.',
@@ -1119,6 +1163,7 @@ const TRANSLATIONS = {
     'capitulo.cap6.conclusao': 'Cuatro colores, cuatro esperas. Ahora sí parece una colección.',
     'capitulo.cap7.conclusao': 'Queso, sal y miel en la Despensa. La buena vecindad también se hace con uvas.',
     'capitulo.cap8.conclusao': 'Uvas pisadas, lagar cantando. En casa abierta, nadie pisa solo.',
+    'capitulo.cap9.conclusao': 'Tres catas, tres sonrisas. El Dr. Henrique dice que la Quinta ya tiene paladar.',
 
     'vinha.faseLabel': 'Fase',
     'vinha.faseCurta.preparar': 'Preparación',

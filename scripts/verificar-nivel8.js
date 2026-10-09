@@ -60,13 +60,13 @@ const saveNivel8 = function (extra) {
     capitulos: { iniciado: true, celebradosMigrado: true, concluidos: Object.assign({}, SETE), celebrados: Object.assign({}, SETE) } }, extra || {});
 };
 
-// 1. Nível 8: limiar 1500, nome, tranca do ecrã "lagar", a Estrada fica no nível 7.
+// 1. Nível 8 (já não é o último): limiar 1500, nome, tranca do ecrã "lagar", a Estrada fica no nível 7.
 {
   const g = abrir();
-  ok(g.ev('NIVEIS_CONFIG.length') === 8, 'devia haver 8 níveis');
-  ok(JSON.stringify(g.json('NIVEIS_CONFIG.map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000,1500]', 'limiares 0, 15, 50, 120, 300, 600, 1000, 1500');
+  ok(g.ev('NIVEIS_CONFIG.length') >= 8, 'devia haver pelo menos 8 níveis (o 9 está em scripts/verificar-camara.js)');
+  ok(JSON.stringify(g.json('NIVEIS_CONFIG.slice(0, 8).map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000,1500]', 'limiares 0, 15, 50, 120, 300, 600, 1000, 1500');
   ok(g.ev('NIVEIS_CONFIG[7].nomeKey') === 'nivel.nome.8', 'nomeKey do nível 8');
-  [[999, 6], [1000, 7], [1499, 7], [1500, 8], [9000, 8]].forEach(function (p) {
+  [[999, 6], [1000, 7], [1499, 7], [1500, 8], [2099, 8]].forEach(function (p) {
     ok(g.ev('nivelPelaReputacao(' + p[0] + ')') === p[1], 'Reputação ' + p[0] + ' devia dar nível ' + p[1]);
   });
   ok(g.ev('NIVEL_NECESSARIO_POR_ECRA.lagar') === 8 && g.ev('NIVEL_NECESSARIO_POR_ECRA.estrada') === 7, 'lagar: 8 e a estrada continua no 7');
@@ -138,7 +138,7 @@ const saveNivel8 = function (extra) {
 // 4. Capítulo 8: conta dias DIFERENTES; nunca trava o nível; celebração; modo de teste 1 a 8.
 {
   const g = abrir(saveNivel8({ uvas: 500 }));
-  ok(g.ev('CAPITULOS_CONFIG.length') === 8 && g.ev('CAPITULOS_CONFIG[7].id') === 'cap8' && g.ev('CAPITULOS_CONFIG[7].nivel') === 8, 'devia haver o cap8 no nível 8');
+  ok(g.ev('CAPITULOS_CONFIG.length') >= 8 && g.ev('CAPITULOS_CONFIG[7].id') === 'cap8' && g.ev('CAPITULOS_CONFIG[7].nivel') === 8, 'devia haver o cap8 no nível 8');
   ok(JSON.stringify(g.json('CAPITULOS_CONFIG[7].criterio')) === JSON.stringify([{ tipo: 'numero', caminho: 'lagar.dias', alvo: 3 }]), 'critério do cap8');
   const lido = function () { return g.json('capitulosLerCriterio(CAPITULOS_CONFIG[7])'); };
   let r = lido(); ok(r.atual === 0 && r.total === 3 && r.cumprido === false, 'sem pisar: 0 / 3');
@@ -158,10 +158,10 @@ const saveNivel8 = function (extra) {
   // Quem já tinha o cap7 e nenhum Lagar não perde nada nem ganha o cap8 sem pisar.
   const v = abrir(saveNivel8()); v.ev('capitulosAvaliarEmSilencio()');
   ok(v.ev('state.capitulos.concluidos.cap8') === undefined && v.ev('state.capitulos.concluidos.cap7') === true, 'sem pisar, o cap8 não se marca; o cap7 fica');
-  // ?capitulo=8 passa; 9 e 0 não.
+  // ?capitulo=8 passa; 10 e 0 não (o 9 passou a existir, ver verificar-camara.js).
   ok((abrir(null, '?capitulo=8').json('capitulosParametrosTeste()') || {}).id === 'cap8', '?capitulo=8 é válido');
   ok((abrir(null, '?capitulo=cap8').json('capitulosParametrosTeste()') || {}).id === 'cap8', '?capitulo=cap8 é válido');
-  ok(abrir(null, '?capitulo=9').json('capitulosParametrosTeste()') === null && abrir(null, '?capitulo=0').json('capitulosParametrosTeste()') === null, '?capitulo=9 e 0 não são válidos');
+  ok(abrir(null, '?capitulo=10').json('capitulosParametrosTeste()') === null && abrir(null, '?capitulo=0').json('capitulosParametrosTeste()') === null, '?capitulo=10 e 0 não são válidos');
 }
 
 // 5. Textos do Lagar nas 3 línguas, e a ligação ao jogo (index.html, fundo, ficheiros).

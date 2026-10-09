@@ -184,6 +184,13 @@ function defaultState() {
       dias: 0,
       mesaDia: null,
       assaltoDia: null
+    },
+    // A Câmara (Nível 9, ver js/camara.js). provaDia: último dia (Lisboa, 'AAAA-MM-DD') em que provou
+    // com o Dr. Henrique (null = nunca). dias: em quantos dias diferentes já provou (só sobe; o capítulo 9 lê-o).
+    // NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.lagar e state.despensa.
+    camara: {
+      provaDia: null,
+      dias: 0
     }
   };
 }
