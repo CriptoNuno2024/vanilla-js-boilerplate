@@ -137,7 +137,8 @@ function despensaGarrafasDisponiveis(estado) {
   return Math.max(0, despensaInteiroValido(estado.garrafas) - dadas);
 }
 
-// O que o vizinho pede neste dia: 'uvas' ou 'sal_sado' (só a Dona Amélia varia; ver ESTRADA_PEDIDOS).
+// O que o vizinho pede neste dia: 'uvas', 'sal_sado' ou 'bagaceira' (ver ESTRADA_PEDIDOS: a Dona Amélia varia entre uvas e sal e o Sr. Armindo
+// entre uvas, sal e bagaceira).
 // Escolhido pelo hash de (dia + ':' + id do vizinho): igual nas 3 línguas e estável o dia todo.
 // Sem vizinho, sem lista de pedidos ou com um dia inválido, pede 'uvas'.
 function despensaPedidoDoDia(vizinho, dia) {
@@ -146,6 +147,14 @@ function despensaPedidoDoDia(vizinho, dia) {
   const lista = typeof ESTRADA_PEDIDOS !== 'undefined' && despensaTemChave(ESTRADA_PEDIDOS, v.id) ? ESTRADA_PEDIDOS[v.id] : null;
   if (!Array.isArray(lista) || lista.length === 0) return 'uvas';
   return lista[despensaHash(dia + ':' + v.id) % lista.length];
+}
+
+// Bagaceiras que o jogador tem (adega.bagaceira do estado, ver js/alambique.js), só lendo: valores estranhos (negativos, em falta, texto) contam
+// como 0 e nada se repara aqui. Sem js/alambique.js carregado conta 0 (o pedido cai nas uvas).
+function despensaBagaceiras(estado) {
+  const a = estado && typeof estado === 'object' ? estado.adega : null;
+  if (!a || typeof a !== 'object' || Array.isArray(a) || typeof alambiqueNumero !== 'function') return 0;
+  return alambiqueNumero(a.bagaceira);
 }
 
 // O último dia (Lisboa) registado, só lendo: o maior entre hoje.dia e as datas de primeiraTroca.
@@ -163,7 +172,7 @@ function despensaUltimoDiaRegistado(estado) {
 }
 
 // Faz uma troca do dia "dia" com o vizinho "vizinhoId", tudo de uma vez. Devolve
-//   { ok, motivo, pagou: 'garrafa' | 'uvas' | 'sal' | null, uvasGastas, bem, reputacaoGanha, primeiraVez }
+//   { ok, motivo, pagou: 'garrafa' | 'uvas' | 'sal' | 'bagaceira' | null, uvasGastas, bem, reputacaoGanha, primeiraVez }
 //
 // VALIDA TUDO antes de alterar QUALQUER coisa, por esta ordem (o 1.º que falhar é o motivo):
 //   'estado_invalido'  o estado não é um objeto
@@ -179,7 +188,8 @@ function despensaUltimoDiaRegistado(estado) {
 //     (sobe despensa.garrafasDadas; state.garrafas e state.adega.historico ficam como estão), senão
 //     custoUvas uvas; dá +reputacaoPrimeiraTroca de Reputação, só nesta vez.
 //   trocas seguintes: se o pedido do dia (despensaPedidoDoDia) é 'sal_sado' e tem 1 sal na Despensa,
-//     paga com 1 sal (despensaRegistarEntrega); senão custoUvas uvas. Sem Reputação.
+//     paga com 1 sal (despensaRegistarEntrega); se é 'bagaceira' e tem 1 Bagaceira (adega.bagaceira do estado), paga com 1 bagaceira
+//     (a Despensa não muda); senão custoUvas uvas. Sem Reputação.
 // Só depois de validar altera: o pagamento, o bem recebido, hoje, primeiraTroca e a Reputação.
 // Não grava (quem chamar é que grava, uma vez, no fim) e não verifica a subida de nível (isso é
 // feito por verificarSubidaNivel() ao entrar na Quinta, como com qualquer outra Reputação).
@@ -207,6 +217,7 @@ function despensaTrocar(estado, vizinhoId, dia) {
   let pagou;
   if (primeiraVez && despensaGarrafasDisponiveis(estado) >= 1) pagou = 'garrafa';
   else if (!primeiraVez && despensaPedidoDoDia(vizinho, dia) === 'sal_sado' && despensaQuantos(estado, 'sal_sado') >= 1) pagou = 'sal';
+  else if (!primeiraVez && despensaPedidoDoDia(vizinho, dia) === 'bagaceira' && despensaBagaceiras(estado) >= 1) pagou = 'bagaceira';
   else pagou = 'uvas';
   const uvas = typeof estado.uvas === 'number' && Number.isFinite(estado.uvas) ? estado.uvas : 0;
   if (pagou === 'uvas' && uvas - T.custoUvas < T.uvasMinimasDepoisDaTroca) return recusa('faltam_uvas', bem);
@@ -221,6 +232,9 @@ function despensaTrocar(estado, vizinhoId, dia) {
     e.garrafasDadas = despensaInteiroValido(e.garrafasDadas) + 1;
   } else if (pagou === 'sal') {
     despensaRegistarEntrega(estado, 'sal_sado', 1);
+  } else if (pagou === 'bagaceira') {
+    const adega = alambiqueEstado(estado); // repara a bagaceira em memória e gasta 1 (só aqui, depois de validar tudo)
+    adega.bagaceira -= 1;
   } else {
     estado.uvas = uvas - T.custoUvas;
     uvasGastas = T.custoUvas;

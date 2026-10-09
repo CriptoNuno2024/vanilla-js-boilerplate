@@ -55,7 +55,7 @@ function atualizarLinhaEstradaQuinta() {
 
 // O que o cartão mostra, calculado SÓ A LER (nunca chama despensaTrocar nem altera o estado), pela mesma
 // ordem das validações de despensaTrocar (js/despensa.js). Devolve
-//   { acao: 'garrafa' | 'uvas' | 'sal', motivo: null | 'dia_anterior' | 'ja_hoje' | 'teto_dia' |
+//   { acao: 'garrafa' | 'uvas' | 'sal' | 'bagaceira', motivo: null | 'dia_anterior' | 'ja_hoje' | 'teto_dia' |
 //     'prateleira_cheia' | 'faltam_uvas', primeiraVez, pedido }
 // "acao" é o pagamento que o botão faria; "motivo" não nulo = botão apagado.
 function estradaEstadoCartao(estado, v, dia) {
@@ -67,6 +67,7 @@ function estradaEstadoCartao(estado, v, dia) {
   let acao = 'uvas';
   if (primeiraVez && despensaGarrafasDisponiveis(estado) >= 1) acao = 'garrafa';
   else if (!primeiraVez && pedido === 'sal_sado' && despensaQuantos(estado, 'sal_sado') >= 1) acao = 'sal';
+  else if (!primeiraVez && pedido === 'bagaceira' && despensaBagaceiras(estado) >= 1) acao = 'bagaceira';
 
   const ultimo = despensaUltimoDiaRegistado(estado);
   const feitas = d && d.hoje && typeof d.hoje === 'object' && d.hoje.dia === dia && d.hoje.feitas && typeof d.hoje.feitas === 'object' && !Array.isArray(d.hoje.feitas) ? d.hoje.feitas : {};
@@ -107,6 +108,7 @@ function estradaResultadoHtml(v, bem) {
   let pagamento = '';
   if (r.pagou === 'garrafa') pagamento = t('estrada.levouGarrafa');
   else if (r.pagou === 'sal') pagamento = t('estrada.pagouSal');
+  else if (r.pagou === 'bagaceira') pagamento = t('estrada.pagouBagaceira');
   else pagamento = t('estrada.pagouUvas').replace('{n}', r.uvasGastas);
   return '<div class="estrada-resultado">' +
     '<p>' + cadernoEscapar(t('estrada.recebeste').replace('{bem}', nomeBem)) + '</p>' +
@@ -138,12 +140,19 @@ function estradaCartaoHtml(v, dia) {
   const T = ESTRADA_TROCA;
   const rotulo = e.acao === 'garrafa' ? t('estrada.btnGarrafa')
     : e.acao === 'sal' ? t('estrada.btnSal')
+    : e.acao === 'bagaceira' ? t('estrada.btnBagaceira')
     : t('estrada.btnUvas').replace('{n}', T.custoUvas);
-  // Só a Dona Amélia e o Sr. Armindo pedem sal (ver ESTRADA_PEDIDOS): a linha só aparece nas trocas repetidas, quando ela pede sal hoje
+  // Só a Dona Amélia e o Sr. Armindo pedem sal, e o Sr. Armindo também bagaceira (ver ESTRADA_PEDIDOS): a linha só aparece nas trocas repetidas, quando ela pede sal hoje
   // e o botão está ativo (com o botão apagado, a linha do motivo basta).
   let linhaPedido = '';
   if (!e.primeiraVez && e.pedido === 'sal_sado' && !e.motivo) {
     linhaPedido = '<p class="estrada-estado">' + t(e.acao === 'sal' ? 'estrada.pedeSalTem' : 'estrada.pedeSalNao').replace('{n}', T.custoUvas) + '</p>';
+  }
+  // O Sr. Armindo também pede bagaceira (ver ESTRADA_PEDIDOS): a mesma linha, com a fala do pedido (só humor), nas trocas repetidas e com o botão ativo.
+  if (!e.primeiraVez && e.pedido === 'bagaceira' && !e.motivo) {
+    const falaPedido = ESTRADA_PEDIDO_FALAS.bagaceira;
+    linhaPedido = '<p class="estrada-estado">' + t(e.acao === 'bagaceira' ? 'estrada.pedeBagaceiraTem' : 'estrada.pedeBagaceiraNao').replace('{n}', T.custoUvas) + '</p>' +
+      (falaPedido ? '<p class="estrada-fala">«' + cadernoEscapar(estradaTexto(falaPedido.texto)) + '»</p>' : '');
   }
   return '<div class="estrada-cartao">' +
     '<div class="estrada-cena">' +

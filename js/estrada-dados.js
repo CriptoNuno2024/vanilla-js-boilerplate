@@ -322,12 +322,27 @@ const ESTRADA_TROCA = {
 // escolhe, pelo hash de (dia + ':' + id do vizinho), um destes pedidos; é igual nas 3 línguas.
 //   'uvas'     paga as uvas do costume (custoUvas)
 //   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
-// A Dona Amélia e o Sr. Armindo pedem uvas ou sal; o Sr. Joaquim e o Tomás pedem sempre uvas. (O bagaço está em pausa.)
+//   'bagaceira' paga com 1 Bagaceira (state.adega.bagaceira, ver js/alambique.js); se o jogador não tiver nenhuma, paga as uvas
+// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim e o Tomás pedem sempre uvas.
+// (O pedido do dia sai do mesmo hash de sempre, por isso mudar o nº de pedidos do Sr. Armindo muda os dias em que pede cada um.)
 const ESTRADA_PEDIDOS = {
   dona_amelia: ['uvas', 'sal_sado'],
   sr_joaquim: ['uvas'],
   tomas: ['uvas'],
-  sr_armindo: ['uvas', 'sal_sado']
+  sr_armindo: ['uvas', 'sal_sado', 'bagaceira']
+};
+
+// Fala do pedido (só humor, sem factos: "semFacto: true", como as falas de troca): mostra-se no cartão do vizinho nos dias em que
+// o pedido do dia é esse bem e o botão está ativo.
+const ESTRADA_PEDIDO_FALAS = {
+  bagaceira: {
+    semFacto: true,
+    texto: {
+      pt: 'Tens aí uma bagaceira, vizinho? Com ela, a troca fica combinada.',
+      en: 'Got a pomace spirit there, neighbour? With that, we have a deal.',
+      es: '¿Tienes por ahí un aguardiente de orujo, vecino? Con eso, trato hecho.'
+    }
+  }
 };
 
 // OFERTAS A UMA VISITA (PR 5C): oferecer 1 bem da Despensa a uma visita da Quinta (js/visitas.js).
