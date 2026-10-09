@@ -310,7 +310,7 @@ if (!process.env.DESPENSA_JS) {
   const pos = function (f) { return html.indexOf('<script src="js/' + f + '?v='); };
   ok(pos('despensa.js') !== -1 && pos('despensa.js') < pos('estrada.js') && pos('estrada.js') < pos('main.js'), 'despensa.js devia carregar antes de estrada.js e main.js');
   // Permitido: js/capitulos.js só LÊ o caminho 'despensa.recebidos' como dado do critério do capítulo 7,
-  // os textos (js/i18n.js, js/capitulos.js) dizem "Despensa" com maiúscula, e js/estrada.js só chama despensaQuantos.
+  // os textos (js/i18n.js, js/capitulos.js) dizem "Despensa" com maiúscula, js/estrada.js usa a despensa (ver verificar-estrada.js) e js/lagar.js só lê despensaQuantos e chama despensaMesaVindima (ver verificar-mesa.js).
   const PERMITIDOS_TEXTO = ['capitulos.js', 'i18n.js'];
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'state.js' && f !== 'despensa.js'; }).forEach(function (f) {
     let codigo = ler(path.join(RAIZ, 'js', f)).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
@@ -318,6 +318,11 @@ if (!process.env.DESPENSA_JS) {
     if (f === 'estrada.js') {
       // O ecrã (PR 5B) usa a despensa: lê para mostrar e, no clique, chama despensaTrocar (ver verificar-estrada.js).
       ok(!/despensaRegistarTroca|despensaRegistarEntrega|despensaEstado/.test(codigo), 'js/estrada.js não devia usar despensaRegistarTroca, despensaRegistarEntrega nem despensaEstado (só despensaTrocar, no clique)');
+      return;
+    }
+    if (f === 'lagar.js') {
+      // O ecrã do Lagar (nível 8): lê despensaQuantos e só chama despensaMesaVindima, no clique (ver verificar-mesa.js).
+      ok(!/despensaRegistar|despensaTrocar|despensaOferecer|despensaEstado|state\.despensa/.test(codigo), 'js/lagar.js só podia usar despensaQuantos e despensaMesaVindima');
       return;
     }
     ok(!/despensa/i.test(codigo), 'js/' + f + ' não devia usar a despensa (só o caminho \'despensa.recebidos\' em capitulos.js e a palavra "Despensa" nos textos)');
