@@ -126,7 +126,7 @@ function nuvemPartirEmPedacos(texto) {
   return pedacos.length ? pedacos : [''];
 }
 
-// DIAGNÓSTICO DA GRAVAÇÃO — só mostra e verifica, nunca decide qual cópia
+// ESTADO DA GRAVAÇÃO — só mostra e verifica, nunca decide qual cópia
 // ganha. ok: null antes da 1.ª gravação desta sessão, true/false depois;
 // em: hora (ms) da última gravação CONFIRMADA; erro: null, 'gravacao',
 // 'verificacao' ou 'tamanho'. Sem dados do jogador. Mostrado no Perfil
@@ -181,7 +181,6 @@ function nuvemGuardarEstado(s, callback) {
       nuvemEstado.ok = ok;
       nuvemEstado.erro = ok ? null : erro;
       if (ok) nuvemEstado.em = Date.now();
-      if (ok && !arranque.primeiraGravacaoEm) arranque.primeiraGravacaoEm = Date.now(); // DIAGNOSTICO TEMPORARIO - remover
       if (!ok && typeof console !== 'undefined' && console.warn) {
         console.warn(erro === 'verificacao' ? 'Nuvem: a gravação não coincide com a leitura de volta.'
           : erro === 'tamanho' ? 'Nuvem: estado demasiado grande para gravar.'
@@ -402,7 +401,6 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
     arranque.nuvemErro = true;
     arranque.ganhou = 'erro (fica o local)';
     nuvemAgendarReleitura();
-    nuvemAtualizarDiagPerfil();
     return;
   }
 
@@ -412,10 +410,8 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
     const temProgresso = !!state.ultimaGravacaoEm || (typeof temProgressoExistente === 'function' && temProgressoExistente());
     if (!temProgresso) { // conta nova: nada a copiar, sem esperas
       arranque.respondeu = true;
-      arranque.respostaMs = Date.now() - arranque.abertoEm;
       arranque.ganhou = 'sem nuvem';
       arranque.adiada = false;
-      nuvemAtualizarDiagPerfil();
       return;
     }
     if (!confirmandoVazio) {
@@ -424,29 +420,23 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
       arranque.nuvemEstatus = 'vazio (a confirmar)';
       arranque.ganhou = 'a confirmar vazio';
       setTimeout(function () { nuvemLerParaSincronizar(true); }, NUVEM_CONFIRMAR_VAZIO_MS);
-      nuvemAtualizarDiagPerfil();
       return;
     }
     arranque.respondeu = true;
-    arranque.respostaMs = Date.now() - arranque.abertoEm;
     arranque.ganhou = 'sem nuvem';
     arranque.adiada = false;
     nuvemGuardarEstado(state); // vazio confirmado: copia o local para a nuvem
-    nuvemAtualizarDiagPerfil();
     return;
   }
 
   // estatus === 'ok'
   arranque.respondeu = true;
-  arranque.respostaMs = Date.now() - arranque.abertoEm;
 
   // O local conta com o carimbo de ANTES das gravações de arranque, a não ser
   // que o jogador tenha feito uma ação real antes de a nuvem responder: aí o
   // local é mesmo o mais recente.
   const localEm = arranque.acaoReal ? (state.ultimaGravacaoEm || 0) : arranque.localEm;
   const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
-  arranque.nuvemEm = nuvemEm;
-  arranque.nuvemRep = estadoNuvem.reputacao;
 
   // Rede de segurança: a Reputação só sobe (nada a subtrai), por isso uma nuvem
   // com mais Reputação do que o local tem mais progresso, mesmo que o carimbo
@@ -466,7 +456,6 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
     const havia = arranque.adiada;
     arranque.adiada = false;
     if (localEm > nuvemEm || mudou || havia) nuvemGuardarEstado(state); // UMA só gravação: alinha a nuvem com o local, que é mais recente
-    nuvemAtualizarDiagPerfil();
     return;
   }
 
@@ -495,7 +484,6 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
   if (typeof garantirObjetivosDoDia === 'function') garantirObjetivosDoDia();
   nuvemAtualizarEcraAposSync();
   nuvemRefazerQuinta();
-  nuvemAtualizarDiagPerfil();
 }
 
 function nuvemSincronizarAoAbrir() {
@@ -534,11 +522,6 @@ function nuvemRefazerQuinta() {
     const balao = document.getElementById('app-dialogue');
     if (balao && balao.hidden && typeof rondaChizoAvaliar === 'function') rondaChizoAvaliar();
   }
-}
-
-// DIAGNOSTICO TEMPORARIO - remover (junto com perfilDiagArranque() em js/perfil.js)
-function nuvemAtualizarDiagPerfil() {
-  if (typeof perfilDiagArranque === 'function') perfilDiagArranque();
 }
 
 // -----------------------------------------------------------------

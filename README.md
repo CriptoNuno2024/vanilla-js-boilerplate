@@ -1,59 +1,69 @@
-<p align="center">
-  <br>
-  <img width="240" src="./assets/tapps.png" alt="logo of telegram web apps">
-  <br>
-  <br>
-</p>
+# YoshiCat e a Quinta do Moscatel
 
-# Telegram Mini Apps Basic Example
-This is a basic and straightforward Telegram Mini App(TMA) implemented using plain JavaScript, HTML, and CSS. This project aims to provide a minimalistic example of how to create a simple TWA and launch it within Telegram without relying on complex build tools or bleeding-edge libraries.
+Um jogo para o Telegram (Mini App) feito só com JavaScript, HTML e CSS, sem bibliotecas nem passo de compilação. O YoshiCat, um gato de chapéu de cowboy, devolve a vida à Quinta do Moscatel, em Setúbal: planta a vinha, faz Moscatel na adega e defende a quinta dos porcos Fygmo e Fygmo2, com a ajuda do cão Chizo. Está em português, inglês e espanhol.
 
-- App is available via direct link: https://t.me/simple_telegram_mini_app_bot/app
-- Or you can launch app with a bot menu button: https://t.me/simple_telegram_mini_app_bot
-- Deployment URL: [https://twa-dev.github.io/simple-telegram-web-app/](https://telegram-mini-apps-dev.github.io/vanilla-js-boilerplate/)
+## Como se joga
 
-## Features
-- Minimalistic user interface.
-- No external libraries or frameworks used.
-- Easy to understand and modify.
+Trabalha a **Vinha**, faz vinho na **Adega**, protege a quinta no **Proteger** e descobre coisas no **Explorar**. Tudo isso dá Reputação, e a Reputação faz subir de nível e abre ecrãs novos. Há objetivos diários ("Hoje na Quinta"), festas ligadas à data real (São Martinho), visitas à Quinta, e o tempo real de Setúbal (Open-Meteo) e a estação do ano mudam algumas coisas.
 
-## Getting Started
+## Os 10 níveis
 
-### Prerequisites
+| Nível | Nome | Reputação |
+|---|---|---|
+| 1 | Quinta Esquecida | 0 |
+| 2 | Quinta Vigiada | 15 |
+| 3 | Quinta Produtora | 50 |
+| 4 | Quinta Conhecida | 120 |
+| 5 | Quinta Afamada | 300 |
+| 6 | Casa do Moscatel | 600 |
+| 7 | Quinta de Boa Vizinhança | 1000 |
+| 8 | Quinta de Portas Abertas | 1500 |
+| 9 | Câmara de Provadores | 2100 |
+| 10 | Moscatel Roxo | 2800 |
 
-To run this example, you'll need a modern web browser with JavaScript enabled.
+Cada nível tem a sua história, um capítulo e (do 7 em diante) um ecrã próprio: A Estrada (7), O Lagar (8), A Câmara (9) e A Cepa Roxa (10). Os limiares e os nomes estão em `js/niveis.js` e em `js/i18n.js`.
 
-### Installation
+## Correr o jogo
 
-1. Clone this repository to your local machine:
+Basta servir a pasta como ficheiros estáticos, por exemplo `python3 -m http.server`, e abrir `index.html` no browser. Fora do Telegram o progresso fica só no `localStorage`; dentro do Telegram guarda também uma segunda cópia na nuvem do Telegram (`js/nuvem.js`). Alguns atalhos de teste, que se acrescentam ao endereço, estão descritos nos comentários dos ficheiros: `?estacao=`, `?tempo=`, `?festa=`, `?pista=`, `?capitulo=`, `?visita=` e `?arcoiris=1`.
 
-   ```bash
-   git clone https://github.com/Telegram-Mini-Apps-Dev/vanilla-js-boilerplate
+## Verificações (scripts)
 
-2. Navigate to the project directory:
+Os scripts em `scripts/` só leem os ficheiros de `js/` e correm-nos num ambiente simulado em Node, sem browser nem conta real e sem instalar nada. Antes de cada alteração, corre-os todos:
 
-	```bash
-	cd vanilla-js-boilerplate
+```
+for f in scripts/verificar-*.js; do node "$f" || echo "FALHOU $f"; done
+```
 
-Open index.html in your preferred code editor or IDE.
+Cada um imprime `OK` ou o que falhou. O que cada um verifica está em `scripts/LEIAME.md`.
 
-### Usage
-1. Open index.html in your preferred code editor or IDE.
-2. Make your changes
-3. Create your own GitHub repository, commit and push your updates.
-4. Go to your repository GitHub page and open Settings. Check the Pages tab and Build and deployment section. If GitHub Actions option was selected, assets should be deployed to Pages and there will be an URL like `https://<username>.github.io/simple-telegram-mini-app/`. You can copy this URL and use it with [BotFather](https://tg.me/BotFather) bot to create your very own TWA.
+## A pasta `js/`
 
-### Customization
-Feel free to customize this web app to suit your needs. You can modify the HTML, CSS, and JavaScript files as required.
+Os ficheiros carregam pela ordem do `index.html` (`state.js` e `i18n.js` primeiro, `main.js` por último).
 
-## Contributing
-If you'd like to contribute to this project, please follow these steps:
+| Ficheiro | O que tem |
+|---|---|
+| `state.js` | O estado do jogo e a gravação em `localStorage` |
+| `nuvem.js` | A segunda cópia do progresso na nuvem do Telegram |
+| `i18n.js` | Todos os textos do jogo em português, inglês e espanhol |
+| `main.js` | Arranque, navegação entre ecrãs, balão de fala e fundos |
+| `som.js`, `personagens.js` | Efeitos sonoros curtos e as caras de quem fala |
+| `niveis.js`, `historia.js`, `capitulos.js`, `conquistas.js` | Níveis, a história de cada nível, capítulos e Livro de Conquistas |
+| `objetivos.js`, `ronda.js`, `visitas.js` | Objetivos diários, Ronda do Chizo e visitas à Quinta |
+| `vinha.js`, `garrafa.js` | A Vinha e a Adega (garrafas, Cave, Coleção) |
+| `proteger.js`, `assaltos.js`, `caderno.js` | O Proteger, a pista dos assaltos e o Caderno dos Fygmos |
+| `explorar.js` | Explorar e Enciclopédia do Moscatel |
+| `estacoes.js`, `tempo.js`, `festas.js` | Estação do ano, tempo real de Setúbal e festas |
+| `estrada-dados.js`, `estrada.js`, `despensa.js` | A Estrada, os vizinhos e a Despensa |
+| `lagar.js`, `camara.js`, `roxo.js` | Os ecrãs dos níveis 8, 9 e 10 |
+| `perfil.js` | O Perfil |
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Make your changes and commit them with descriptive messages.
-4. Push your branch to your fork.
-5. Create a pull request to the main repository's main branch.
+As imagens, sons e letras estão em `assets/` (ver `CREDITOS.md`). A pasta `bot/` tem o bot do Telegram que envia um aviso por dia, a quem o pedir (ver `bot/README.md`).
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Atenção ao `?v=` no `index.html`
+
+Cada `<script src="js/...?v=N">` do `index.html` tem um número de versão que serve para o browser não usar uma cópia antiga em cache. **Sempre que editares um ficheiro de `js/`, sobe o `?v=` desse ficheiro no `index.html`.** Se não o fizeres, quem já abriu o jogo pode continuar a ver a versão antiga.
+
+## Origem
+
+Nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT (ver `LICENSE`).
