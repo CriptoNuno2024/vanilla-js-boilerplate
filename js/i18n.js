@@ -55,7 +55,7 @@ const TRANSLATIONS = {
     'nivel.nome.4': 'Quinta Conhecida',
     'nivel.nome.5': 'Quinta Afamada',
     'nivel.nome.6': 'Casa do Moscatel',
-    'nivel.nome.7': 'Quinta Estimada',
+    'nivel.nome.7': 'Quinta de Boa Vizinhança',
 
     // "Hoje na Quinta" — 3 objetivos diários (ver js/objetivos.js).
     'objetivos.titulo': 'Hoje na Quinta',
@@ -479,7 +479,7 @@ const TRANSLATIONS = {
     'nivel.nome.4': 'Known Quinta',
     'nivel.nome.5': 'Famous Quinta',
     'nivel.nome.6': 'House of Moscatel',
-    'nivel.nome.7': 'Esteemed Quinta',
+    'nivel.nome.7': 'Good Neighbours Quinta',
 
     'objetivos.titulo': 'Today on the Quinta',
     'visita.linha': 'Today: {nome} is at the Quinta',
@@ -886,7 +886,7 @@ const TRANSLATIONS = {
     'nivel.nome.4': 'Quinta Conocida',
     'nivel.nome.5': 'Quinta Afamada',
     'nivel.nome.6': 'Casa del Moscatel',
-    'nivel.nome.7': 'Quinta Estimada',
+    'nivel.nome.7': 'Quinta de Buena Vecindad',
 
     'objetivos.titulo': 'Hoy en la Quinta',
     'visita.linha': 'Hoy: {nome} está en la Quinta',

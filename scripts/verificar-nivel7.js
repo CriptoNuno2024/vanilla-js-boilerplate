@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Nível 7 "Quinta Estimada" (nível, história, capítulo 7 e conquistas; as regras das trocas existem mas só scripts as chamam):
+// Nível 7 "Quinta de Boa Vizinhança" (nível, história, capítulo 7 e conquistas; as regras das trocas existem mas só scripts as chamam):
 // NIVEIS_CONFIG (js/niveis.js), cap7 (js/capitulos.js) e as conquistas "Quinta completa" e
 // "Boa vizinhança" (js/conquistas.js). Corre state.js, niveis.js, capitulos.js, conquistas.js,
 // estrada-dados.js e despensa.js REAIS num ambiente simulado (vm), sem browser nem conta real.
