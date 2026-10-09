@@ -13,10 +13,16 @@
 //
 // As regras (camaraPodeProvar, camaraProvar) são puras: o dia chega por argumento, nada lê o relógio nem sorteia, nada
 // grava (quem chama grava). Para mudar os valores: só CAMARA_CONFIG.
+//
+// Conhecimento (as entradas da Enciclopédia descobertas, state.conhecimento): soma +bonusPorPasso de Reputação por cada
+// conhecimentoPorPasso de Conhecimento, no máximo bonusMaximo. Só soma: nunca gasta nem bloqueia nada.
 // ---------------------------------------------------------------------
 
 const CAMARA_CONFIG = {
   reputacao: 8,         // o mesmo de "Provar o Vinho Novo" (festa de São Martinho)
+  conhecimentoPorPasso: 5, // cada 5 de Conhecimento...
+  bonusPorPasso: 1,        // ...dão +1 de Reputação...
+  bonusMaximo: 4,          // ...até +4 (Conhecimento 20 ou mais). Total: de +8 a +12
   garrafasMinimas: 1,   // garrafas feitas (state.garrafas) que é preciso ter; nunca se gastam
   // Imagens que já existem. O fundo do ecrã está em FUNDO_DOS_ECRAS (js/main.js); esta é a do resultado da prova.
   imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg'
@@ -53,18 +59,28 @@ function camaraPodeProvar(estado, dia) {
   return { ok: true, motivo: null, faltam: 0 };
 }
 
+// O que a prova dá a este estado: { base, bonus, total }. O bónus vem do Conhecimento (inteiro >= 0; inválido conta 0).
+function camaraRecompensa(estado) {
+  const k = camaraInteiro(estado && estado.conhecimento);
+  const passos = Math.floor(k / CAMARA_CONFIG.conhecimentoPorPasso);
+  const bonus = Math.min(CAMARA_CONFIG.bonusMaximo, passos * CAMARA_CONFIG.bonusPorPasso);
+  return { base: CAMARA_CONFIG.reputacao, bonus: bonus, total: CAMARA_CONFIG.reputacao + bonus };
+}
+
 // Prova no dia "dia". Valida tudo antes de alterar (camaraPodeProvar); recusar nunca altera nada.
-// Se ok: soma a Reputação, marca provaDia e soma 1 a dias. Não toca em mais nada (garrafas, uvas, gotas, Despensa).
-// Devolve { ok, motivo, reputacaoGanha }. Não grava e não verifica a subida de nível (isso é feito por
+// Se ok: soma a Reputação (a base mais o bónus do Conhecimento), marca provaDia e soma 1 a dias. Não toca em mais nada
+// (garrafas, uvas, gotas, Despensa, Conhecimento).
+// Devolve { ok, motivo, reputacaoGanha, bonus }. Não grava e não verifica a subida de nível (isso é feito por
 // verificarSubidaNivel() ao entrar na Quinta, como com qualquer outra Reputação).
 function camaraProvar(estado, dia) {
   const p = camaraPodeProvar(estado, dia);
-  if (!p.ok) return { ok: false, motivo: p.motivo, reputacaoGanha: 0 };
+  if (!p.ok) return { ok: false, motivo: p.motivo, reputacaoGanha: 0, bonus: 0 };
   const c = camaraEstado(estado);
-  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + CAMARA_CONFIG.reputacao;
+  const r = camaraRecompensa(estado);
+  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + r.total;
   c.provaDia = dia;
   c.dias += 1;
-  return { ok: true, motivo: null, reputacaoGanha: CAMARA_CONFIG.reputacao };
+  return { ok: true, motivo: null, reputacaoGanha: r.total, bonus: r.bonus };
 }
 
 // ---------------------------------------------------------------------
@@ -113,8 +129,8 @@ function camaraDesenhar() {
     '</div>' +
     '<div class="action-panel camara-painel">' +
       '<div class="camara-info">' +
-        '<p>' + t('camara.desc').replace('{rep}', CAMARA_CONFIG.reputacao) + '</p>' +
-        (camaraResultado ? '<p class="camara-ok">' + t('camara.ok').replace('{rep}', camaraResultado.rep) + '</p>' : '') +
+        '<p>' + t('camara.desc').replace(/\{min\}/g, CAMARA_CONFIG.reputacao).replace('{max}', CAMARA_CONFIG.reputacao + CAMARA_CONFIG.bonusMaximo).replace('{passo}', CAMARA_CONFIG.conhecimentoPorPasso) + '</p>' +
+        (camaraResultado ? '<p class="camara-ok">' + t(camaraResultado.bonus > 0 ? 'camara.okBonus' : 'camara.ok').replace('{rep}', camaraResultado.rep).replace('{bonus}', camaraResultado.bonus) + '</p>' : '') +
         (estadoTexto ? '<p>' + estadoTexto + '</p>' : '') +
       '</div>' +
       '<button type="button" class="btn-pill pill-main camara-botao" onclick="camaraProvarClique()"' + (p.ok ? '' : ' disabled') + '>' +
@@ -152,7 +168,7 @@ function camaraProvarClique() {
     if (r.ok) {
       saveState(state);
       updateStatsDisplays();
-      camaraResultado = { rep: r.reputacaoGanha };
+      camaraResultado = { rep: r.reputacaoGanha, bonus: r.bonus };
       if (typeof vibrar === 'function') vibrar('sucesso');
       if (typeof tocarSom === 'function') tocarSom('objetivoCumprido');
     }

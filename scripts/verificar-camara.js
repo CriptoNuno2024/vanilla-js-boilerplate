@@ -195,7 +195,7 @@ const saveNivel9 = function (extra) {
       const v = g.ev('TRANSLATIONS.' + l + '["' + k + '"]');
       ok(typeof v === 'string' && v.trim() !== '', 'falta ' + k + ' em ' + l);
     });
-    ok(g.ev('TRANSLATIONS.' + l + '["camara.desc"]').indexOf('{rep}') !== -1 && g.ev('TRANSLATIONS.' + l + '["camara.ok"]').indexOf('{rep}') !== -1 && g.ev('TRANSLATIONS.' + l + '["camara.dias"]').indexOf('{n}') !== -1, 'marcadores {rep} e {n} em ' + l);
+    ok(['{min}', '{max}', '{passo}'].every(function (m) { return g.ev('TRANSLATIONS.' + l + '["camara.desc"]').indexOf(m) !== -1; }) && g.ev('TRANSLATIONS.' + l + '["camara.ok"]').indexOf('{rep}') !== -1 && g.ev('TRANSLATIONS.' + l + '["camara.dias"]').indexOf('{n}') !== -1, 'marcadores {min}, {max}, {passo}, {rep} e {n} em ' + l);
   });
   ok(g.ev('TRANSLATIONS.pt["camara.btn"]') === 'Provar com o Dr. Henrique', 'botão PT: Provar com o Dr. Henrique');
   const src = ler(CAMARA_JS).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');

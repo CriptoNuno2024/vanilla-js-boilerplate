@@ -151,7 +151,8 @@ function defaultState() {
       celebradosMigrado: false
     },
     // Caderno dos Fygmos (ver js/caderno.js): páginas ganhas, idPagina ->
-    // 'AAAA-MM-DD' (dia em Lisboa em que se ganhou). A nuvem junta-as por união.
+    // 'AAAA-MM-DD' (dia em Lisboa em que se ganhou). A nuvem junta-as por união. premioCompleto: só existe (true)
+    // depois de dado o prémio único das 15 páginas; sem o campo conta como "ainda não dado" (a nuvem também o junta).
     caderno: {
       paginas: {}
     },
