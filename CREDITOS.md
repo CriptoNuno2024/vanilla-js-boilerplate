@@ -33,6 +33,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/adega_abandonada.jpg` | história dos níveis | origem a confirmar pelo Nuno |
 | `assets/ecras/adega_juntos.jpg` | Proteger | origem a confirmar pelo Nuno |
 | `assets/ecras/adega_prensa.jpg` | história dos níveis | origem a confirmar pelo Nuno |
+| `assets/ecras/alambique.jpg` | Adega (Destilar vinho) | origem a confirmar pelo Nuno |
 | `assets/ecras/apontar_esquerda.jpg` | Proteger | origem a confirmar pelo Nuno |
 | `assets/ecras/arco_iris.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/bagaco.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
@@ -146,7 +147,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 
 Podem ser sobras ou podem ter outro uso; confirmar antes de apagar. Origem: origem a confirmar pelo Nuno.
 
-- Imagens: `assets/ecras/alambique.jpg`, `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
+- Imagens: `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
 - Sons: `assets/sons/prado_grilos_ras.mp3`, `assets/sons/vento_arvores_passaros.mp3`, `assets/sons/vento_feito_a_mao.mp3`, `assets/sons/vento_grama_alta.mp3`
 
 ### Sons sem ficheiro

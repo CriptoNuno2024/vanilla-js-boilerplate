@@ -30,7 +30,7 @@ const OBJETIVOS_POOL_A = [
   { id: 'vinha_compostagem', elegivel: function () { return state.vinha.residuos >= RESIDUOS_POR_COMPOSTAGEM; } },
   { id: 'vinha_colher', elegivel: function () { return state.vinha.fase === 'pronta'; } },
   { id: 'adega_prensar', elegivel: function () { return ecraDesbloqueado('garrafa') && state.uvas >= ADEGA_CUSTO_UVAS_PRENSAR; } },
-  { id: 'adega_alambique', elegivel: function () { return ecraDesbloqueado('garrafa') && state.adega.bagaco >= ADEGA_CUSTO_BAGACO_ALAMBIQUE; } },
+  { id: 'adega_alambique', elegivel: function () { return ecraDesbloqueado('garrafa') && alambiquePodeDestilar(state); } },
   {
     id: 'adega_fortificar',
     elegivel: function () {

@@ -44,7 +44,7 @@ function abrir(guardadoInicial) {
     function formatarTempoVinha() { return ''; } function randInt(a) { return a; }
     var DIAS_FORCADOS = 0;
   `, cx);
-  ['niveis.js', 'garrafa.js', 'capitulos.js'].forEach(function (f) {
+  ['niveis.js', 'alambique.js', 'garrafa.js', 'capitulos.js'].forEach(function (f) {
     vm.runInContext(fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'), cx, { filename: f });
   });
   vm.runInContext('renderAdega = function () {}', cx); // só desenha: fora deste teste
