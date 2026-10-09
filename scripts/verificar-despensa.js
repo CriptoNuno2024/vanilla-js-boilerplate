@@ -2,8 +2,8 @@
 // Estado e funções da Despensa da Estrada (PR 3): state.despensa em js/state.js e
 // despensaQuantos / despensaRegistarTroca em js/despensa.js. Corre o state.js, o
 // estrada-dados.js e o despensa.js REAIS num ambiente simulado (vm), sem browser nem conta
-// real. Confirma também que o despensa.js é puro (sem Math.random nem Date.now) e que no
-// jogo só é carregado e lido (despensaQuantos no ecrã da Estrada): sem trocas, sem entregas.
+// real. Confirma também que o despensa.js é puro (sem Math.random nem Date.now) e quem pode usá-lo no
+// jogo: o ecrã da Estrada (js/estrada.js: trocas e ofertas) e o do Lagar (js/lagar.js: só despensaQuantos e despensaMesaVindima).
 //
 // Uso: node scripts/verificar-despensa.js
 // DESPENSA_JS=caminho  corre sobre outra versão de js/despensa.js (para provar que os testes
@@ -301,8 +301,8 @@ const entregar = function (estado, bem, n) { PURO.__e = estado; PURO.__b = bem; 
   ok(!/state\.(reputacao|uvas|gotas|garrafas)|gotas|marcarObjetivo|nuvem|historico/i.test(src.replace(/\/\/.*$/gm, '')), 'despensa.js não devia tocar em gotas, objetivos, nuvem nem no historico (as uvas e a Reputação só mudam em despensaTrocar, sobre o estado recebido; ver verificar-trocas.js)');
 }
 
-// 8. Carregada, mas só de leitura (PR 4: ecrã "A Estrada"): despensa.js está no index.html e o
-//    único uso no jogo é despensaQuantos em js/estrada.js; ninguém regista trocas nem entregas.
+// 8. Quem usa a despensa: despensa.js está no index.html; só js/estrada.js (despensaTrocar e despensaOferecer, nos
+//    cliques) e js/lagar.js (despensaQuantos e despensaMesaVindima) a usam; nenhum outro ficheiro regista trocas nem entregas.
 if (!process.env.DESPENSA_JS) {
   const html = ler(path.join(RAIZ, 'index.html'));
   ok(/<script src="js\/despensa\.js\?v=\d+"><\/script>/.test(html), 'index.html devia carregar js/despensa.js (com ?v=)');

@@ -193,7 +193,7 @@ function verificarFonte(item, onde, obrigatoria) {
   });
 }
 
-// ----- Carregado e só de leitura (PR 4: ecrã "A Estrada"; sem trocas, sem custos, sem Reputação) -----
+// ----- Carregado e quem o usa (ecrã "A Estrada": o desenho nunca grava; só os cliques trocam e oferecem) -----
 if (!process.env.ESTRADA_JS) {
   const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
   const posicao = function (f) { return html.search(new RegExp('<script src="js/' + f + '\\?v=\\d+"></script>')); };

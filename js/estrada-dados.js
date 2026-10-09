@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------
 // ESTRADA — vizinhos e bens (Nível 7 "Vizinhos e Estrada"): PR 1, SÓ DADOS E TEXTOS.
 //
-// Dados lidos por js/estrada.js (ecrã só de leitura) e por js/despensa.js (regras das
-// trocas, PR 5A: ainda sem ecrã que as chame), como js/visitas.js é lido pela Quinta.
+// Dados lidos por js/estrada.js (o ecrã A Estrada, onde se trocam os bens) e por js/despensa.js (regras
+// das trocas e das ofertas), como js/visitas.js é lido pela Quinta.
 //
 // Quatro vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo), cada um com 3 falas
 // e 1 fala de troca; e quatro bens, um por vizinho. Os textos são pt/en/es.

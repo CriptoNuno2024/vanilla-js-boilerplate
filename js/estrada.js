@@ -22,7 +22,7 @@ function estradaHash(semente) {
   return h;
 }
 
-// Só falas com fonte ou "semFacto" (as falas de troca ficam de fora: ainda não há trocas).
+// Só falas com fonte ou "semFacto" (a fala de troca, v.troca, não entra aqui: mostra-se à parte, no resultado da troca).
 function estradaFalasValidas(vizinho) {
   return (vizinho.falas || []).filter(function (f) {
     return f && f.texto && ((Array.isArray(f.fonte) && f.fonte.length > 0) || f.semFacto === true);

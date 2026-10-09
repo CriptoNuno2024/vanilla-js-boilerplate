@@ -3,8 +3,9 @@
 //
 // NOTA / FUTURO: neste momento todo o progresso (Uvas, Gotas, Reputação,
 // Garrafas, Conhecimento, estado da Vinha, Enciclopédia, etc.) é
-// guardado apenas no localStorage do browser do jogador. Quando existir
-// um backend/API real, as funções loadState() e saveState() abaixo
+// guardado no localStorage do browser do jogador e, dentro do Telegram,
+// também numa segunda cópia na nuvem do Telegram (js/nuvem.js). Se um dia existir
+// um backend/API próprio, as funções loadState() e saveState() abaixo
 // devem passar a fazer GET/POST a essa API (ex.: fetch('/api/estado'))
 // em vez de ler/escrever no localStorage, para que o progresso fique
 // guardado no servidor e seja possível mostrar um ranking partilhado
@@ -162,7 +163,7 @@ function defaultState() {
       feitas: {},
       hoje: null
     },
-    // Despensa da Estrada (Nível 7, ver js/despensa.js; ainda sem uso no jogo). recebidos:
+    // Despensa da Estrada (Nível 7, ver js/despensa.js; usada pela Estrada, pelo Lagar, pela oferta às visitas e pelo capítulo 7). recebidos:
     // quantas unidades de cada bem já recebeu (só sobe). entregues: quantas unidades de cada
     // bem já entregou (só sobe; o que tem agora é recebidos menos entregues). primeiraTroca: para cada bem, o dia
     // (Lisboa, 'AAAA-MM-DD') da 1.ª troca. hoje: o dia (Lisboa) e os vizinhos com quem já
@@ -258,16 +259,14 @@ let state = loadState();
 const arranque = {
   localEm: state.ultimaGravacaoEm || 0,
   localRep: typeof state.reputacao === 'number' ? state.reputacao : 0,
-  abertoEm: Date.now(),
   jogadorTocou: false, // true a partir do 1.º toque no ecrã
   acaoReal: false,     // true se se gravou depois de um toque (não é gravação de arranque)
   respondeu: false,    // a leitura da nuvem respondeu (ou não há nuvem)
   passou8s: false,     // passaram 8 s sem resposta (conta como erro de leitura)
   nuvemErro: false,    // a última leitura da nuvem falhou (nada é enviado nem trocado; ver nuvemTratarLeitura())
-  nuvemEstatus: null,  // estatuto da última leitura: 'ok', 'vazio' ou 'erro' (só diagnóstico)
+  nuvemEstatus: null,  // estatuto da última leitura: 'ok', 'vazio' ou 'erro' (não decide nada; os scripts de verificação lêem-no)
   adiada: false,       // houve gravações que não foram enviadas à nuvem
-  // Diagnóstico temporário (ver perfilDiagArranque() em js/perfil.js)
-  nuvemEm: null, nuvemRep: null, ganhou: null, respostaMs: null, primeiraGravacaoEm: null
+  ganhou: null         // que cópia ganhou na sincronização ao abrir ('local', 'nuvem', ...; não decide nada; os scripts de verificação lêem-no)
 };
 if (typeof document.addEventListener === 'function') document.addEventListener('pointerdown', function () { arranque.jogadorTocou = true; }, true);
 
