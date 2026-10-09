@@ -4,7 +4,7 @@
 // nenhum sítio do jogo, só somada — por isso o nível nunca desce.
 //
 // Para mudar os limiares ou os nomes: muda só NIVEIS_CONFIG abaixo. Os
-// nomes ficam em js/i18n.js (chaves nivel.nome.1 a nivel.nome.8).
+// nomes ficam em js/i18n.js (chaves nivel.nome.1 a nivel.nome.9).
 // ---------------------------------------------------------------------
 
 const NIVEIS_CONFIG = [
@@ -15,10 +15,11 @@ const NIVEIS_CONFIG = [
   { min: 300, nomeKey: 'nivel.nome.5' },
   { min: 600, nomeKey: 'nivel.nome.6' },
   { min: 1000, nomeKey: 'nivel.nome.7' },
-  { min: 1500, nomeKey: 'nivel.nome.8' }
+  { min: 1500, nomeKey: 'nivel.nome.8' },
+  { min: 2100, nomeKey: 'nivel.nome.9' }
 ];
 
-// Índice 1-based (nível 1 a 8) — o último cujo limiar já foi atingido.
+// Índice 1-based (nível 1 a 9) — o último cujo limiar já foi atingido.
 function nivelPelaReputacao(reputacao) {
   let nivel = 1;
   for (let i = 0; i < NIVEIS_CONFIG.length; i++) {
@@ -73,6 +74,7 @@ function atualizarCartaoNivelQuinta() {
   // A linha da Estrada depende do nível: acompanha o cartão (ver js/estrada.js).
   if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
   if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
+  if (typeof atualizarLinhaCamaraQuinta === 'function') atualizarLinhaCamaraQuinta();
 }
 
 // Guarda quantas garrafas já existem em state.adega.historico no momento
@@ -138,7 +140,8 @@ const NIVEL_NECESSARIO_POR_ECRA = {
   colecao: 6,
   garrafas: 6,
   estrada: 7,
-  lagar: 8
+  lagar: 8,
+  camara: 9
 };
 
 function ecraDesbloqueado(screen) {
