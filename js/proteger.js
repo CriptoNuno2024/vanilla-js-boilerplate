@@ -516,7 +516,7 @@ const PROTEGER_VITORIAS_COM_PREMIO_POR_DIA = 2;
 
 function garantirDiaProtegerAtualizado() {
   const hoje = diaLisboaDeHoje();
-  if (state.proteger.diaVitoriasLisboa !== hoje) {
+  if (diaLisboaMudou(hoje, state.proteger.diaVitoriasLisboa)) {
     state.proteger.diaVitoriasLisboa = hoje;
     state.proteger.vitoriasComPremioHoje = 0;
   }

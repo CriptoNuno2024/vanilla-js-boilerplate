@@ -36,6 +36,7 @@ function ambiente(extra, ficheiros, guardadoInicial) {
   sb.window = sb;
   sb.Telegram = { WebApp: {} };
   const cx = vm.createContext(sb);
+  require('./_regras-tempo').injetarRegrasTempo(cx);
   ficheiros.forEach(function (f) { vm.runInContext(ler(f.startsWith('/') ? f : JS(f)), cx, { filename: path.basename(f) }); });
   const g = { cx: cx };
   g.ev = function (c) { return vm.runInContext(c, cx); };

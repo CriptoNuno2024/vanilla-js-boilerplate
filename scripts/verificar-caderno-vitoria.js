@@ -51,6 +51,7 @@ function abrir(opcoes) {
   };
   sb.window = sb;
   const cx = vm.createContext(sb);
+  require('./_regras-tempo').injetarRegrasTempo(cx);
   ['assaltos.js', 'caderno.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
   const g = { reg: reg, ev: function (c) { return vm.runInContext(c, cx); } };
   g.paginas = function () { return g.ev('state.caderno.paginas'); };

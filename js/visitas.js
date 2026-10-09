@@ -172,11 +172,18 @@ function visitaPorId(id) {
   return VISITAS.filter(function (x) { return x.id === id; })[0] || null;
 }
 
+// O dia da visita: o de hoje, ou o guardado se for posterior (data do aparelho
+// atrás), para a visita já feita não voltar a pagar nem a ser escolhida de novo.
+function visitaDiaEfetivo() {
+  const h = visitasEstado().hoje;
+  return diaLisboaEfetivo(diaLisboaDeHoje(), h && typeof h === 'object' ? h.dia : null);
+}
+
 // Resolve a visita de hoje sem gravar: { visita, feita, nova } (nova = escolhida agora,
 // ainda não guardada em state.visitas.hoje) ou { visita: null }.
 function visitaResolverHoje() {
   const v = visitasEstado();
-  const hoje = diaLisboaDeHoje();
+  const hoje = visitaDiaEfetivo();
   const nivel = (function () { try { return nivelPelaReputacao(state.reputacao); } catch (e) { return 0; } })();
   if (!(nivel >= VISITAS_NIVEL_MINIMO)) return { visita: null };
 
@@ -197,7 +204,7 @@ function visitaDeHoje() {
   const r = visitaResolverHoje();
   if (!r.visita) return { visita: null };
   if (r.nova && !visitaEmModoTeste()) {
-    visitasEstado().hoje = { dia: diaLisboaDeHoje(), id: r.visita.id, feita: false };
+    visitasEstado().hoje = { dia: visitaDiaEfetivo(), id: r.visita.id, feita: false };
     saveState(state);
   }
   return { visita: r.visita, feita: r.feita };
@@ -210,7 +217,7 @@ function visitaFazerHoje() {
   if (visitaEmModoTeste()) return { ok: false };
   const r = visitaResolverHoje();
   if (!r.visita || r.feita) return { ok: false };
-  const dia = diaLisboaDeHoje();
+  const dia = visitaDiaEfetivo();
   const v = visitasEstado();
   v.hoje = { dia: dia, id: r.visita.id, feita: true };
   v.feitas[r.visita.id] = dia;
