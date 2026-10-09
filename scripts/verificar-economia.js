@@ -172,7 +172,7 @@ const base = function (f, guardado) {
       atualizarDialogo: function (m) { reg.falas.push([m]); }, mostrarFalas: function (m) { reg.falas.push(Array.isArray(m) ? m : [m]); },
       localeAtual: function () { return 'pt-PT'; }, TEMPO_CONFIG: { vantagens: { rondasExtraProteger: { nevoeiro: 1, trovoada: 1 } } }, currentLang: 'pt',
       document: { getElementById: function () { return { set innerHTML(v) {}, get innerHTML() { return ''; } }; }, querySelectorAll: function () { return []; } }
-    }, ['assaltos.js', CADERNO_JS, process.env.PROTEGER_JS || 'proteger.js']);
+    }, ['assaltos.js', CADERNO_JS, 'barril.js', process.env.PROTEGER_JS || 'proteger.js']);
     const todos = g.json('CADERNO_PAGINAS.map(function (p) { return p.id; })');
     const faltam = (extra && extra.faltam) || 0; // quantas páginas faltam (as da vinha, as primeiras a sair)
     const pag = {}; todos.filter(function (id) { return !/^vinha_/.test(id); }).forEach(function (id) { pag[id] = '2026-10-01'; });

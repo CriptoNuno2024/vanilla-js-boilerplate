@@ -194,6 +194,14 @@ const TRANSLATIONS = {
     // Limite diário de prémios no Proteger (ver js/proteger.js).
     'proteger.modoTreino': 'O Chizo já está de guarda. Volta amanhã para mais prémios!',
     'proteger.modoTreinoResultado': 'Sem prémio — modo treino.',
+    'proteger.barrilSubtitulo': 'Segue o barril do aguardente',
+    'proteger.barrilIntro': 'Os porcos vão trocar os barris de sítio. Olha bem para o do aguardente!',
+    'proteger.barrilMarca': 'Este é o do aguardente',
+    'proteger.barrilSegue': 'Agora segue-o!',
+    'proteger.barrilEscolhe': 'Onde está o do aguardente?',
+    'proteger.barrilNome': 'Barril',
+    'proteger.barrilVitoria': 'Foi esse mesmo! O Fygmo2 trocou os barris, mas o gato não se deixou enganar.',
+    'proteger.barrilDerrota': 'Esse era só água. O do aguardente estava noutro sítio.',
     'proteger.fala.fygmoPerde': 'Hmpf… desta vez ganhaste. Amanhã voltamos!',
     'proteger.fala.fygmo2Ganha': 'Ha! Tentámos, YoshiCat. O cesto fica para a próxima!',
 
@@ -699,6 +707,14 @@ const TRANSLATIONS = {
 
     'proteger.modoTreino': 'Chizo is already on guard. Come back tomorrow for more prizes!',
     'proteger.modoTreinoResultado': 'No prize — training mode.',
+    'proteger.barrilSubtitulo': 'Follow the brandy barrel',
+    'proteger.barrilIntro': 'The pigs are going to swap the barrels around. Keep your eye on the brandy one!',
+    'proteger.barrilMarca': 'This is the brandy one',
+    'proteger.barrilSegue': 'Now follow it!',
+    'proteger.barrilEscolhe': 'Where is the brandy one?',
+    'proteger.barrilNome': 'Barrel',
+    'proteger.barrilVitoria': 'That is the one! Fygmo2 swapped the barrels, but the cat was not fooled.',
+    'proteger.barrilDerrota': 'That one was only water. The brandy was somewhere else.',
     'proteger.fala.fygmoPerde': 'Hmpf… you won this time. We\'ll be back tomorrow!',
     'proteger.fala.fygmo2Ganha': 'Ha! We tried, YoshiCat. The basket will have to wait!',
 
@@ -1189,6 +1205,14 @@ const TRANSLATIONS = {
 
     'proteger.modoTreino': 'El Chizo ya está de guardia. ¡Vuelve mañana para más premios!',
     'proteger.modoTreinoResultado': 'Sin premio — modo entrenamiento.',
+    'proteger.barrilSubtitulo': 'Sigue el barril del aguardiente',
+    'proteger.barrilIntro': 'Los cerdos van a cambiar los barriles de sitio. ¡Mira bien el del aguardiente!',
+    'proteger.barrilMarca': 'Este es el del aguardiente',
+    'proteger.barrilSegue': '¡Ahora síguelo!',
+    'proteger.barrilEscolhe': '¿Dónde está el del aguardiente?',
+    'proteger.barrilNome': 'Barril',
+    'proteger.barrilVitoria': '¡Ese era! Fygmo2 cambió los barriles, pero el gato no se dejó engañar.',
+    'proteger.barrilDerrota': 'Ese era solo agua. El del aguardiente estaba en otro sitio.',
     'proteger.fala.fygmoPerde': 'Hmpf… esta vez ganaste. ¡Mañana volvemos!',
     'proteger.fala.fygmo2Ganha': '¡Ja! Lo intentamos, YoshiCat. ¡El cesto queda para la próxima!',
 

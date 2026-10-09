@@ -52,7 +52,7 @@ function abrir(opcoes) {
   sb.window = sb;
   const cx = vm.createContext(sb);
   require('./_regras-tempo').injetarRegrasTempo(cx);
-  ['assaltos.js', 'caderno.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
+  ['assaltos.js', 'caderno.js', 'barril.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
   const g = { reg: reg, ev: function (c) { return vm.runInContext(c, cx); } };
   g.paginas = function () { return g.ev('state.caderno.paginas'); };
   g.ids = function () { return Object.keys(g.paginas()).sort(); };
@@ -94,7 +94,7 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
   ok(g.ev('state.proteger.vitoriasComPremioHoje') === 2, 'o limite de prémios devia continuar a 2');
 }
 
-// 3. Sem página: treino (sem prémio), perda, ?pista=, nível < 3, sem pista, adega, Cave fechada.
+// 3. Sem página: treino (sem prémio), perda, ?pista=, nível < 3, sem pista, Cave fechada (a adega já dá página: ver mais abaixo).
 {
   let g = abrir({ vitorias: 2 }); g.visita(); g.ganha();
   ok(g.ids().length === 0 && !g.falaCaderno() && !g.falaCompleto(), 'treino (sem prémio) não devia dar página');
@@ -109,7 +109,7 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
   g = abrir({ feitas: 0, isco: null }); g.visita(); g.ganha();
   ok(g.ids().length === 0 && !g.falaCaderno() && !g.falaCompleto(), 'sem pista do Chizo hoje não devia dar página');
   g = abrir({ isco: { dia: HOJE, indice: 0, alvo: 'adega' } }); g.visita(); g.ganha();
-  ok(g.ids().length === 0 && !g.falaCaderno() && !g.falaCompleto(), 'alvo adega (sem minijogo) não devia dar página');
+  ok(g.ids().length === 1 && /^adega_/.test(g.ids()[0]) && g.falaCaderno(), 'alvo adega (agora com o "Seguir o barril") devia dar uma página da adega');
   g = abrir({ isco: { dia: HOJE, indice: 0, alvo: 'cave' }, garrafa: false }); g.visita(); g.ganha();
   ok(g.ids().length === 0 && !g.falaCaderno() && !g.falaCompleto(), 'Cave fechada não devia dar página da cave');
   g = abrir({ isco: { dia: HOJE, indice: 0, alvo: 'cave' }, garrafa: true }); g.visita(); g.ganha();
@@ -202,7 +202,7 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
   const doAlvo = function (g, a) { return g.ev('pStr().derrotaPista.' + a); };
 
   // (c) derrota na ronda 1 com pista: usa uma fala do alvo e NÃO altera nenhum campo do estado.
-  ALVOS.filter(function (a) { return a !== 'adega'; }).forEach(function (a) {
+  ALVOS.forEach(function (a) {
     const g = abrir({ isco: { dia: HOJE, indice: 0, alvo: a } }); g.visita();
     const antes = todas(g);
     g.ev("finishProteger(false, 'perdeu')");
@@ -220,12 +220,10 @@ const todas = function (g) { return JSON.stringify(g.ev('state')); };
     ok(falaDaDerrota(g) === m1, 'a fala devia ser estável no mesmo dia');
   }
 
-  // (d) sem pista, adega, ronda extra e vitória: ficam as mensagens de sempre.
+  // (d) sem pista, ronda extra e vitória: ficam as mensagens de sempre (a adega já usa as falas do alvo, ver (c)).
   {
     let g = abrir({ feitas: 0, isco: null }); g.visita(); g.ev("finishProteger(false, 'perdeu')");
     ok(mensagemFinal(g) === 'perdeu', 'sem pista devia manter a mensagem do minijogo');
-    g = abrir({ isco: { dia: HOJE, indice: 0, alvo: 'adega' } }); g.visita(); g.ev("finishProteger(false, 'perdeu')");
-    ok(mensagemFinal(g) === 'perdeu', 'adega (sem minijogo) devia manter a mensagem do minijogo');
     g = abrir({ ceu: 'nevoeiro' }); g.visita(); g.ganha(); g.ev("finishProteger(false, 'perdeu')"); // perde na ronda 2
     ok(g.ev('protegerRondaAtual') === 2 && mensagemFinal(g) === 'perdeu', 'ronda extra devia manter a mensagem do minijogo');
     g = abrir({ vitorias: 2, ceu: 'nevoeiro' }); g.visita(); g.ganha(); g.ev("finishProteger(false, 'perdeu')"); // ronda 1 ganha sem prémio, perde na 2
