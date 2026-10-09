@@ -154,11 +154,12 @@ const REGRAS_PODA = {
 
 // Identifica o inverno atual de forma que dezembro de um ano e
 // janeiro/fevereiro do ano seguinte contem como o MESMO inverno
-// (ex: "2026-2027"). Usa sempre o ano real do telemóvel, mesmo quando
+// (ex: "2026-2027"). Usa sempre o ano real de Lisboa, mesmo quando
 // a estação é forçada por ?estacao= para testar.
 function idInvernoAtual() {
   const mes = mesAtual();
-  const ano = new Date().getFullYear();
+  const p = diaLisboaPartes(diaLisboaDeHoje());
+  const ano = p ? p.ano : new Date().getFullYear();
   const anoInicio = mes === 11 ? ano : ano - 1;
   return anoInicio + '-' + (anoInicio + 1);
 }
@@ -175,11 +176,11 @@ function jaPodouEsteInverno() {
 // -----------------------------------------------------------------
 
 function jaFezTarefaTempoHoje(campo) {
-  return state.tempo[campo] === diaLocalDeHoje();
+  return state.tempo[campo] === diaLisboaDeHoje();
 }
 
 function registarTarefaTempoHoje(campo) {
-  state.tempo[campo] = diaLocalDeHoje();
+  state.tempo[campo] = diaLisboaDeHoje();
 }
 
 // Fundo da Vinha ligado ao tempo, quando ainda não há foto de nenhuma

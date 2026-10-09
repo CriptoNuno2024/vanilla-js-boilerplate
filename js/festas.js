@@ -49,6 +49,8 @@ const FESTAS_CONFIG = [
 // -----------------------------------------------------------------
 
 function dataAtualFesta() {
+  const p = diaLisboaPartes(diaLisboaDeHoje()); // data de Lisboa, não a do telemóvel
+  if (p) return { mes: p.mes, dia: p.dia };
   const d = new Date();
   return { mes: d.getMonth(), dia: d.getDate() };
 }
@@ -103,11 +105,11 @@ function chaveTarefaFesta(festaId, tarefa) {
 }
 
 function festaJaFezTarefaHoje(festaId, tarefa) {
-  return state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === diaLocalDeHoje();
+  return state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === diaLisboaDeHoje();
 }
 
 function festaRegistarTarefaHoje(festaId, tarefa) {
-  state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] = diaLocalDeHoje();
+  state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] = diaLisboaDeHoje();
 }
 
 // -----------------------------------------------------------------

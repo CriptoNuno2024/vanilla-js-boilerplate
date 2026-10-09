@@ -80,20 +80,13 @@ function classificarCeu(weathercode, isDay) {
   return isDay === 0 ? 'noite' : 'sol';
 }
 
-// Dia local do jogador em "YYYY-MM-DD", só para guardar "já feito hoje"
-// (chuva a regar sozinha, Reparar as Estacas, Proteger do Frio).
-function diaLocalDeHoje() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
 // Dia em Lisboa (fuso Europe/Lisbon) em "YYYY-MM-DD", independente do
 // fuso horário do telemóvel do jogador — usado só pelos objetivos
 // diários "Hoje na Quinta" (ver js/objetivos.js) e pelo limite diário
-// de vitórias com prémio no Proteger (ver js/proteger.js). É de
-// propósito diferente de diaLocalDeHoje() acima (essa usa o dia do
-// próprio telemóvel) — os dois "dias" podem virar a horas diferentes
-// para um jogador fora de Portugal, e não há problema nenhum nisso.
+// de vitórias com prémio no Proteger (ver js/proteger.js), pelas tarefas
+// do dia (chuva, Estacas, Proteger do Frio, arco-íris, festas), pelo mês
+// da estação, pelo ano do inverno e pelas festas: tudo usa o calendário de
+// Lisboa e não o do telemóvel.
 function diaLisboaDeHoje() {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Lisbon',
@@ -110,21 +103,45 @@ function diaLisboaDeHoje() {
 // corrigidos; o resto do que está guardado nunca é alterado.
 // ---------------------------------------------------------------------
 
-// O dia de hoje já passou o dia guardado? Compara texto AAAA-MM-DD. Só então o
-// estado do dia se repõe. Dia guardado em falta ou inválido repõe (jogo novo, save
-// antigo); hoje igual ou ANTERIOR ao guardado (data atrás) não repõe.
-function diaLisboaMudou(hoje, guardado) {
-  const formato = /^\d{4}-\d{2}-\d{2}$/;
-  if (typeof hoje !== 'string' || !formato.test(hoje)) return false;
-  if (typeof guardado !== 'string' || !formato.test(guardado)) return true;
-  return hoje > guardado;
+// Partes de um dia "AAAA-MM-DD" (data real do calendário): { ano, mes (0 a 11), dia } ou
+// null se o texto não for uma data válida. Pura: o dia passa como argumento.
+function diaLisboaPartes(texto) {
+  if (typeof texto !== 'string') return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(texto);
+  if (!m) return null;
+  const ano = Number(m[1]), mes = Number(m[2]) - 1, dia = Number(m[3]);
+  const d = new Date(Date.UTC(ano, mes, dia));
+  if (d.getUTCFullYear() !== ano || d.getUTCMonth() !== mes || d.getUTCDate() !== dia) return null;
+  return { ano: ano, mes: mes, dia: dia };
 }
 
-// O dia a usar como "hoje" para um estado do dia: o guardado se for posterior
-// ao de hoje (data atrás), senão o de hoje.
+// Quantos dias há de a até b (positivo se b é depois de a); null se algum não for uma data válida.
+function diasEntreDiasLisboa(a, b) {
+  const pa = diaLisboaPartes(a), pb = diaLisboaPartes(b);
+  if (!pa || !pb) return null;
+  return Math.round((Date.UTC(pb.ano, pb.mes, pb.dia) - Date.UTC(pa.ano, pa.mes, pa.dia)) / 86400000);
+}
+
+// Até quantos dias à frente de hoje um dia guardado ainda conta como "o dia de hoje" (data
+// do aparelho adiantada que voltou ao normal). Mais do que isto repõe, para não congelar meses.
+var DIAS_FUTURO_MAXIMO = 2; // var: o bloco também é injetado nos testes (scripts/_regras-tempo.js)
+
+// O dia de hoje já passou o dia guardado? Só então o estado do dia se repõe. Repõe quando o
+// guardado falta ou é inválido (jogo novo, save antigo, formato diferente) ou quando está
+// MAIS de DIAS_FUTURO_MAXIMO dias à frente de hoje; hoje igual ou ANTERIOR ao guardado
+// (data atrás), até esse limite, não repõe.
+function diaLisboaMudou(hoje, guardado) {
+  if (diaLisboaPartes(hoje) === null) return false;
+  const dif = diasEntreDiasLisboa(hoje, guardado);
+  if (dif === null) return true;
+  return dif < 0 || dif > DIAS_FUTURO_MAXIMO;
+}
+
+// O dia a usar como "hoje" para um estado do dia: o guardado se for posterior ao de hoje
+// mas dentro do limite (data atrás), senão o de hoje.
 function diaLisboaEfetivo(hoje, guardado) {
-  if (typeof guardado === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(guardado) && guardado > hoje) return guardado;
-  return hoje;
+  const dif = diasEntreDiasLisboa(hoje, guardado);
+  return dif !== null && dif > 0 && dif <= DIAS_FUTURO_MAXIMO ? guardado : hoje;
 }
 
 // Lê o carimbo obj[chave] já limitado a "agora". Se estava no futuro, escreve "agora" no
@@ -345,9 +362,9 @@ function arcoIrisAvaliar() {
   if (balao && !balao.hidden) return false;
   if (!teste) {
     const tempo = tempoAtual();
-    if (!tempo.disponivel || state.tempo.arcoirisDia === diaLocalDeHoje()) return false;
+    if (!tempo.disponivel || state.tempo.arcoirisDia === diaLisboaDeHoje()) return false;
     if (!arcoIrisCondicoes(tempo.ceu, carregarTempoCache(), Date.now())) return false;
-    state.tempo.arcoirisDia = diaLocalDeHoje();
+    state.tempo.arcoirisDia = diaLisboaDeHoje();
     state.gotas += TEMPO_CONFIG.arcoIris.gotas;
     saveState(state);
     updateStatsDisplays();
