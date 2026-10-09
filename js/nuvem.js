@@ -332,7 +332,7 @@ function nuvemJuntarCapitulos(a, b) {
   };
 }
 
-// Junta state.caderno de dois estados por UNIÃO das páginas (nunca se perde
+// Junta state.caderno de dois estados por UNIÃO das páginas (e do "prémio já dado", se algum lado o tiver) (nunca se perde
 // nenhuma): idPagina -> 'AAAA-MM-DD'; se a mesma página tem 2 datas fica a mais
 // antiga. Entradas com tipo errado (não objeto, chave estranha, data que não
 // seja AAAA-MM-DD) ignoram-se. Ids desconhecidos mantêm-se (podem vir de uma
@@ -349,7 +349,10 @@ function nuvemJuntarCaderno(a, b) {
       if (!Object.prototype.hasOwnProperty.call(paginas, id) || dia < paginas[id]) paginas[id] = dia;
     });
   });
-  return { paginas: paginas };
+  const junto = { paginas: paginas };
+  // O prémio de completar o Caderno (ver cadernoPremioCompleto() em js/caderno.js) só se dá uma vez: o "já dado" não se perde.
+  [a, b].forEach(function (c) { if (c && typeof c === 'object' && c.premioCompleto === true) junto.premioCompleto = true; });
+  return junto;
 }
 
 // Leitura da nuvem ao abrir (ver nuvemTratarLeitura() para o que se faz com

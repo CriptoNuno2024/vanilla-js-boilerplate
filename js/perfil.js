@@ -83,6 +83,7 @@ function renderPerfil() {
         cadernoCartaoPerfil() +
         colecaoCartaoPerfil() +
       '</div>' +
+      '<p class="info-text" data-i18n="perfil.conhecimentoNota"></p>' +
       tituloHtml +
       '<h2 data-i18n="perfil.galeriaTitulo"></h2>' +
       garrafasInfoHtml +

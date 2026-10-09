@@ -191,6 +191,27 @@ function cadernoDarPaginaDaVitoria(alvo, houveIsco, indice) {
   return r;
 }
 
+// Prémio ÚNICO por completar as 15 páginas: +CADERNO_PREMIO_REPUTACAO de Reputação, uma só vez. state.caderno.premioCompleto
+// (true quando já foi dado) só existe depois de dado: sem o campo conta como "ainda não dado" (saves antigos). A nuvem
+// junta-o por união (nuvemJuntarCaderno em js/nuvem.js), por isso nunca se paga duas vezes.
+const CADERNO_PREMIO_REPUTACAO = 10;
+
+// Regra pura: se o estado tem as 15 páginas e o prémio ainda não foi dado, marca premioCompleto = true e soma a Reputação.
+// Devolve { ok, motivo, reputacaoGanha }; motivo null | 'estado_invalido' | 'incompleto' | 'ja_dado'. Recusar nunca altera
+// nada. Não grava (quem chama é que grava; ver protegerDarPaginaCaderno() em js/proteger.js, no saveState da vitória).
+function cadernoPremioCompleto(estado) {
+  const recusa = function (motivo) { return { ok: false, motivo: motivo, reputacaoGanha: 0 }; };
+  if (!estado || typeof estado !== 'object') return recusa('estado_invalido');
+  const c = estado.caderno;
+  if (!c || typeof c !== 'object' || Array.isArray(c)) return recusa('incompleto');
+  const paginas = c.paginas && typeof c.paginas === 'object' && !Array.isArray(c.paginas) ? c.paginas : null;
+  if (!paginas || !CADERNO_PAGINAS.every(function (p) { return Object.prototype.hasOwnProperty.call(paginas, p.id); })) return recusa('incompleto');
+  if (c.premioCompleto === true) return recusa('ja_dado');
+  c.premioCompleto = true;
+  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + CADERNO_PREMIO_REPUTACAO;
+  return { ok: true, motivo: null, reputacaoGanha: CADERNO_PREMIO_REPUTACAO };
+}
+
 // ---------------------------------------------------------------------
 // ECRÃ DO CADERNO (PR B: só leitura). Aberto a partir do cartão "Caderno n / 15"
 // do Perfil, no molde do Livro de Conquistas (renderConquistas em js/conquistas.js).

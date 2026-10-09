@@ -8,6 +8,27 @@
 
 const PONTOS_CUIDADO_NECESSARIOS = 5;
 const RESIDUOS_POR_COMPOSTAGEM = 3;
+// A Compostagem também aceita 3 de Bagaço (o da Adega) em vez de 3 Resíduos, e dá o mesmo adubo.
+const BAGACO_POR_COMPOSTAGEM = 3;
+
+// Regra pura da Compostagem: de onde vêm as 3 unidades. 'residuos' tem prioridade (assim o Bagaço só se gasta quando
+// faltam Resíduos), senão 'bagaco', senão null (não há com que compostar). Só lê.
+function compostagemFonte(residuos, bagaco) {
+  if (Number.isFinite(residuos) && residuos >= RESIDUOS_POR_COMPOSTAGEM) return 'residuos';
+  if (Number.isFinite(bagaco) && bagaco >= BAGACO_POR_COMPOSTAGEM) return 'bagaco';
+  return null;
+}
+
+// Compõe: gasta 3 Resíduos (v.residuos) ou 3 Bagaço (adega.bagaco) e soma o adubo (adubo = 1, ou 2 com o bónus da
+// estação). Se não houver com que compostar não altera nada. Devolve { ok, fonte }. Não grava.
+function vinhaCompostar(v, adega, adubo) {
+  const fonte = compostagemFonte(v.residuos, adega ? adega.bagaco : 0);
+  if (fonte === null) return { ok: false, fonte: null };
+  if (fonte === 'residuos') v.residuos -= RESIDUOS_POR_COMPOSTAGEM;
+  else adega.bagaco -= BAGACO_POR_COMPOSTAGEM;
+  v.adubo += adubo;
+  return { ok: true, fonte: fonte };
+}
 
 const COOLDOWN_MS = {
   cavar: 0,
@@ -327,7 +348,7 @@ function renderVinha() {
   }
 
   // Compostagem: sempre disponível, independente da fase da vinha.
-  botoesHtml += botaoVinha('compostagem', 'vinha.pillCompostar', v.residuos < RESIDUOS_POR_COMPOSTAGEM);
+  botoesHtml += botaoVinha('compostagem', 'vinha.pillCompostar', compostagemFonte(v.residuos, state.adega && state.adega.bagaco) === null);
 
   // Poda: tarefa extra, só aparece no inverno, uma vez por inverno (ver
   // REGRAS_PODA). Fica ativa mesmo antes de a vinha estar plantada —
@@ -365,6 +386,7 @@ function renderVinha() {
         '<p class="phase-desc-real">' + t('vinha.faseRealLabel') + ' ' + t('vinha.faseReal.' + faseRealAtual()) + '</p>' +
         '<div class="chrome-mini-stats">' +
           '<div class="resource-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M4 20c8 0 15-6 15-15-9 0-15 7-15 15z"></path><path d="M9 15l7-7"></path></svg> ' + v.residuos + ' <span data-i18n="vinha.recursoResiduos"></span></div>' +
+          '<div class="resource-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="6"></circle></svg> ' + ((state.adega && state.adega.bagaco) || 0) + ' <span data-i18n="adega.recursoBagaco"></span></div>' +
           '<div class="resource-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 21c0-5 0-9 0-12"></path><path d="M12 9c0-3-2-5-5-5 0 3 2 5 5 5z"></path><path d="M12 13c0-3 2-5 5-5 0 3-2 5-5 5z"></path></svg> ' + v.adubo + ' <span data-i18n="vinha.recursoAdubo"></span></div>' +
         '</div>' +
       '</div>'
@@ -460,13 +482,11 @@ function executarAcaoVinha(actionKey) {
     v.adubo -= 1;
     v.pontosCuidado += 2;
   } else if (actionKey === 'compostagem') {
-    if (v.residuos < RESIDUOS_POR_COMPOSTAGEM) {
+    if (!vinhaCompostar(v, state.adega, acaoTemBonusEstacao('compostagem') ? 2 : 1).ok) {
       vinhaMensagemAtual = t('vinha.msgFaltamResiduos');
       renderVinha();
       return;
     }
-    v.residuos -= RESIDUOS_POR_COMPOSTAGEM;
-    v.adubo += acaoTemBonusEstacao('compostagem') ? 2 : 1;
   } else if (actionKey === 'colher') {
     if (v.fase !== 'pronta') return;
     // O bónus do outono e o bónus da poda juntam-se (somam-se as
