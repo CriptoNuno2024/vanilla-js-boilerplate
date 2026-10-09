@@ -16,7 +16,13 @@
 // "recebidos", que o capítulo 7 lê, nunca muda) e dá LAGAR_CONFIG.mesa.reputacao. A regra está em
 // despensaMesaVindima (js/despensa.js): este ficheiro só a chama, no clique, e lê quantos bens há.
 //
-// As regras (lagarPodePisar, lagarPisar) são puras: o dia chega por
+// "Defender a mesa" (assalto especial dos porcos): depois de pôr a mesa, o Fygmo e o Fygmo2 vêm cheirar a festa. É uma cena
+// de 3 opções (como as castanhas do São Martinho, js/festas.js), uma vez por dia (assaltoDia), que se tenta depois de pôr
+// a mesa nesse mesmo dia. Ganhar dá LAGAR_CONFIG.assalto.reputacao; perder não custa nada (só gasta a tentativa do dia).
+// Não mexe em uvas, na Despensa nem nos capítulos. Está fora do Proteger de propósito (ver o relatório do PR).
+//   assaltoDia 'AAAA-MM-DD' (Lisboa) da última defesa; null = nunca
+//
+// As regras (lagarPodePisar, lagarPisar, lagarAssaltoEstado, lagarAssaltoResolver) são puras: o dia chega por
 // argumento, nada lê o relógio nem sorteia, nada grava (quem chama grava).
 // Para mudar os valores: só LAGAR_CONFIG (se mudares os bens, muda também o texto "lagar.mesaPedido").
 // ---------------------------------------------------------------------
@@ -30,6 +36,21 @@ const LAGAR_CONFIG = {
     bens: [{ bem: 'queijo_azeitao', n: 1 }, { bem: 'sal_sado', n: 1 }, { bem: 'mel_sesimbra', n: 1 }],
     reputacao: 12,
     imagem: 'assets/ecras/yoshi_cat_festa.jpg' // fundo do ecrã depois de pôr a mesa
+  },
+  // O assalto especial: +3 de Reputação se travar, nada se perder. "chave" é o prefixo dos textos em js/i18n.js
+  // (<chave>.sit, <chave>.op1 a .op3); "correta" é o índice (0 a 2) da opção certa.
+  assalto: {
+    reputacao: 3,
+    cenas: [
+      { chave: 'lagar.assalto.cena1', correta: 1 },
+      { chave: 'lagar.assalto.cena2', correta: 0 },
+      { chave: 'lagar.assalto.cena3', correta: 2 }
+    ],
+    imagens: {
+      cena: 'assets/ecras/fygmos_fazem_das_suas.jpg',
+      vitoria: 'assets/ecras/yoshi_cat_festejar_vitoria.jpg',
+      derrota: 'assets/ecras/fygmos_quinta_passear.jpg'
+    }
   }
 };
 
@@ -42,10 +63,11 @@ function lagarInteiro(n) {
 // Repara state.lagar em memória (uma nuvem ou um save estranho podem trazer null ou outro tipo).
 function lagarEstado(estado) {
   let l = estado.lagar;
-  if (!l || typeof l !== 'object' || Array.isArray(l)) l = estado.lagar = { ultimoDia: null, dias: 0, mesaDia: null };
+  if (!l || typeof l !== 'object' || Array.isArray(l)) l = estado.lagar = { ultimoDia: null, dias: 0, mesaDia: null, assaltoDia: null };
   if (typeof l.ultimoDia !== 'string' || !LAGAR_DIA_REGEX.test(l.ultimoDia)) l.ultimoDia = null;
   l.dias = lagarInteiro(l.dias);
   if (typeof l.mesaDia !== 'string' || !LAGAR_DIA_REGEX.test(l.mesaDia)) l.mesaDia = null;
+  if (typeof l.assaltoDia !== 'string' || !LAGAR_DIA_REGEX.test(l.assaltoDia)) l.assaltoDia = null;
   return l;
 }
 
@@ -78,6 +100,60 @@ function lagarPisar(estado, dia) {
   l.ultimoDia = dia;
   l.dias += 1;
   return { ok: true, motivo: null, uvasGastas: LAGAR_CONFIG.custoUvas, reputacaoGanha: LAGAR_CONFIG.reputacao };
+}
+
+// ---------------------------------------------------------------------
+// ASSALTO ESPECIAL DOS PORCOS ("Defender a mesa"). Só regras e contas.
+// ---------------------------------------------------------------------
+
+// Dia (Lisboa) de um campo de state.lagar, só lendo; null se não existe ou é inválido.
+function lagarDiaDoCampo(estado, campo) {
+  const l = estado && estado.lagar;
+  const dia = l && typeof l === 'object' ? l[campo] : null;
+  return typeof dia === 'string' && LAGAR_DIA_REGEX.test(dia) ? dia : null;
+}
+
+// Só lê. Pode defender a mesa neste dia? { ok, motivo }:
+//   motivo null | 'estado_invalido' | 'dia_invalido' | 'dia_anterior' | 'ja_hoje' | 'sem_mesa'
+// 'sem_mesa': a mesa de hoje ainda não está posta (o assalto só vem depois de pôr a mesa).
+function lagarAssaltoEstado(estado, dia) {
+  const recusa = function (motivo) { return { ok: false, motivo: motivo }; };
+  if (!estado || typeof estado !== 'object') return recusa('estado_invalido');
+  if (typeof dia !== 'string' || !LAGAR_DIA_REGEX.test(dia)) return recusa('dia_invalido');
+  const ultimo = lagarDiaDoCampo(estado, 'assaltoDia');
+  if (ultimo !== null && dia < ultimo) return recusa('dia_anterior');
+  if (ultimo !== null && dia === ultimo) return recusa('ja_hoje');
+  if (lagarDiaDoCampo(estado, 'mesaDia') !== dia) return recusa('sem_mesa');
+  return { ok: true, motivo: null };
+}
+
+// Que cena sai neste dia (0 a n - 1): estável o dia todo, igual em qualquer aparelho, sem sorteio. Mesmo hash dos outros
+// (assaltosHash, js/assaltos.js, tem outra semente: aqui fica independente dele).
+function lagarAssaltoCena(dia, n) {
+  if (typeof dia !== 'string' || !Number.isInteger(n) || n <= 0) return 0;
+  const semente = dia + '#lagar#assalto';
+  let h = 0;
+  for (let i = 0; i < semente.length; i++) h = (h * 31 + semente.charCodeAt(i)) >>> 0;
+  return h % n;
+}
+
+// Regista o resultado do assalto do dia "dia" (venceu: true ou false). Valida tudo antes de alterar
+// (lagarAssaltoEstado); recusar nunca altera nada. Se ok: marca assaltoDia (ganhe ou perca: é a tentativa do dia) e,
+// só se venceu, soma LAGAR_CONFIG.assalto.reputacao de Reputação. NÃO mexe em uvas, gotas, Despensa, capítulos nem nos
+// outros dias de state.lagar. Devolve { ok, motivo, venceu, reputacaoGanha }. Não grava (quem chama grava).
+function lagarAssaltoResolver(estado, dia, venceu) {
+  const recusa = function (motivo) { return { ok: false, motivo: motivo, venceu: false, reputacaoGanha: 0 }; };
+  const p = lagarAssaltoEstado(estado, dia);
+  if (!p.ok) return recusa(p.motivo);
+  if (venceu !== true && venceu !== false) return recusa('resultado_invalido');
+  const l = lagarEstado(estado);
+  l.assaltoDia = dia;
+  let rep = 0;
+  if (venceu) {
+    rep = LAGAR_CONFIG.assalto.reputacao;
+    estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + rep;
+  }
+  return { ok: true, motivo: null, venceu: venceu, reputacaoGanha: rep };
 }
 
 // ---------------------------------------------------------------------
@@ -144,6 +220,16 @@ function lagarDesenhar() {
   // Com o resultado à vista, a linha "já fizeste hoje" é redundante.
   const estadoTexto = r.pisar ? '' : lagarTextoEstado(p, dia);
   const mesaTexto = r.mesa ? '' : lagarTextoMesa(m);
+  // O assalto só aparece depois de pôr a mesa neste dia: com o botão, ou (já defendida) só a linha.
+  const a = lagarAssaltoEstado(state, dia);
+  let assaltoHtml = '';
+  if (a.ok) {
+    assaltoHtml =
+      '<div class="lagar-info"><p>' + t('lagar.assaltoDesc').replace('{rep}', LAGAR_CONFIG.assalto.reputacao) + '</p></div>' +
+      '<button type="button" class="btn-pill pill-main lagar-botao-assalto" onclick="lagarAssaltoIniciar()">' + t('lagar.assaltoBtn') + '</button>';
+  } else if (a.motivo === 'ja_hoje' && lagarDiaDoCampo(state, 'mesaDia') === dia) {
+    assaltoHtml = '<div class="lagar-info"><p>' + t('lagar.assaltoJaHoje') + '</p></div>';
+  }
 
   container.innerHTML =
     '<div class="topcard">' +
@@ -165,6 +251,7 @@ function lagarDesenhar() {
       '</div>' +
       '<button type="button" class="btn-pill pill-main lagar-botao-mesa" onclick="lagarMesaClique()"' + (m.ok ? '' : ' disabled') + '>' +
         t('lagar.mesaBtn') + '</button>' +
+      assaltoHtml +
       '<button type="button" class="btn-ghost" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
     '</div>';
 
@@ -223,5 +310,65 @@ function lagarMesaClique() {
   } finally {
     lagarOcupado = false;
   }
+  lagarDesenhar();
+}
+
+// ---------------------------------------------------------------------
+// A CENA DO ASSALTO (como as castanhas, js/festas.js): 3 opções, 1 certa. Só em memória até se responder.
+// ---------------------------------------------------------------------
+
+let lagarAssaltoCenaAtual = null; // { chave, correta } ou null
+
+function lagarAssaltoIniciar() {
+  if (!lagarAssaltoEstado(state, lagarDiaDeHoje()).ok) { lagarDesenhar(); return; }
+  const cenas = LAGAR_CONFIG.assalto.cenas;
+  const cena = cenas[lagarAssaltoCena(lagarDiaDeHoje(), cenas.length)];
+  lagarAssaltoCenaAtual = cena;
+
+  const container = document.getElementById('lagar-container');
+  container.innerHTML =
+    '<div class="topcard"><p class="mini-title">' + t('lagar.assaltoTitulo') + '</p><p class="mini-sub">' + t('lagar.assaltoSub') + '</p></div>' +
+    '<div class="action-panel"><div class="choice-stack">' +
+    [1, 2, 3].map(function (n, i) {
+      return '<button type="button" class="btn-choice" onclick="lagarAssaltoResponder(' + i + ')">' + t(cena.chave + '.op' + n) + '</button>';
+    }).join('') +
+    '</div></div>';
+  definirFundo('foto', LAGAR_CONFIG.assalto.imagens.cena);
+  atualizarDialogo(t(cena.chave + '.sit'), 'YoshiCat');
+}
+
+// O ÚNICO sítio que regista o assalto e grava. Resolve (lagarAssaltoResolver), grava UMA vez e mostra o resultado.
+// Toque duplo ou cena já respondida: não faz nada.
+function lagarAssaltoResponder(i) {
+  const cena = lagarAssaltoCenaAtual;
+  if (!cena || lagarOcupado) return;
+  lagarOcupado = true;
+  let r = null;
+  try {
+    lagarAssaltoCenaAtual = null;
+    r = lagarAssaltoResolver(state, lagarDiaDeHoje(), i === cena.correta);
+    if (r.ok) {
+      saveState(state);
+      updateStatsDisplays();
+      if (typeof vibrar === 'function') vibrar(r.venceu ? 'sucesso' : 'leve');
+      if (r.venceu && typeof tocarSom === 'function') tocarSom('objetivoCumprido'); // perder não leva som de derrota: não custa nada
+    }
+  } finally {
+    lagarOcupado = false;
+  }
+  if (!r || !r.ok) { lagarDesenhar(); return; }
+
+  const container = document.getElementById('lagar-container');
+  container.innerHTML =
+    '<div class="topcard"><p class="mini-title">' + t('lagar.assaltoTitulo') + '</p></div>' +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="lagarAssaltoVoltar()" data-i18n="nav.voltar"></button></div>';
+  definirFundo('foto', r.venceu ? LAGAR_CONFIG.assalto.imagens.vitoria : LAGAR_CONFIG.assalto.imagens.derrota);
+  atualizarDialogo(r.venceu ? t('lagar.assaltoVitoria').replace('{rep}', r.reputacaoGanha) : t('lagar.assaltoDerrota'), 'YoshiCat');
+  applyTranslations();
+}
+
+// Do resultado do assalto de volta ao Lagar (repõe o fundo do ecrã).
+function lagarAssaltoVoltar() {
+  if (typeof restaurarFundoDoEcraAtual === 'function') restaurarFundoDoEcraAtual();
   lagarDesenhar();
 }

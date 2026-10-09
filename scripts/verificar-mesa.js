@@ -89,7 +89,7 @@ const mesa = function (g, dia, receita) { return g.json('despensaMesaVindima(sta
   const depois = JSON.parse(g.estado());
   const esperado = JSON.parse(JSON.stringify(antes));
   esperado.despensa.entregues = { queijo_azeitao: 1, sal_sado: 1, mel_sesimbra: 1 };
-  esperado.reputacao = 1512; esperado.lagar = { ultimoDia: null, dias: 0, mesaDia: '2026-10-09' };
+  esperado.reputacao = 1512; esperado.lagar = { ultimoDia: null, dias: 0, mesaDia: '2026-10-09', assaltoDia: null };
   ok(JSON.stringify(depois) === JSON.stringify(esperado), 'só mudam entregues, Reputação e lagar.mesaDia (nem uvas, nem ultimoDia, nem dias, nem primeiraTroca, nem hoje)');
   // Uma vez por dia: a 2.ª no mesmo dia é recusada sem alterar nada, mesmo com stock.
   const a = g.estado();
@@ -169,15 +169,15 @@ const mesa = function (g, dia, receita) { return g.json('despensaMesaVindima(sta
 {
   const g = abrir(cheia(1));
   g.ev('state.lagar = null');
-  ok(mesa(g, '2026-10-09').ok === true && JSON.stringify(g.json('state.lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":"2026-10-09"}', 'state.lagar null: recria-se com mesaDia');
+  ok(mesa(g, '2026-10-09').ok === true && JSON.stringify(g.json('state.lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":"2026-10-09","assaltoDia":null}', 'state.lagar null: recria-se com mesaDia');
   const h = abrir(cheia(1));
   h.ev("state.lagar = { ultimoDia: '2026-10-05', dias: 2 }"); // save do PR anterior, sem mesaDia
   ok(mesa(h, '2026-10-09').ok === true && JSON.stringify(h.json('state.lagar')) === '{"ultimoDia":"2026-10-05","dias":2,"mesaDia":"2026-10-09"}', 'lagar sem mesaDia: mantém ultimoDia e dias');
   // Save antigo e nuvem: mesaDia por omissão null, o resto fica.
   const velho = abrir({ reputacao: 1600, uvas: 5, lagar: { ultimoDia: '2026-10-05', dias: 2 } });
-  ok(JSON.stringify(velho.json('state.lagar')) === '{"ultimoDia":"2026-10-05","dias":2,"mesaDia":null}' && velho.ev('state.reputacao') === 1600 && velho.ev('state.uvas') === 5, 'save do PR anterior ganha mesaDia null e o resto fica');
-  ok(JSON.stringify(velho.json('mergeDeep(defaultState(), { reputacao: 5 }).lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null}', 'estado da nuvem sem lagar ganha o valor por omissão');
-  ok(JSON.stringify(velho.json('mergeDeep(defaultState(), { lagar: { mesaDia: "2026-10-01" } }).lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":"2026-10-01"}', 'estado da nuvem com mesaDia mantém-no');
+  ok(JSON.stringify(velho.json('state.lagar')) === '{"ultimoDia":"2026-10-05","dias":2,"mesaDia":null,"assaltoDia":null}' && velho.ev('state.reputacao') === 1600 && velho.ev('state.uvas') === 5, 'save do PR anterior ganha mesaDia null e o resto fica');
+  ok(JSON.stringify(velho.json('mergeDeep(defaultState(), { reputacao: 5 }).lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":null,"assaltoDia":null}', 'estado da nuvem sem lagar ganha o valor por omissão');
+  ok(JSON.stringify(velho.json('mergeDeep(defaultState(), { lagar: { mesaDia: "2026-10-01" } }).lagar')) === '{"ultimoDia":null,"dias":0,"mesaDia":"2026-10-01","assaltoDia":null}', 'estado da nuvem com mesaDia mantém-no');
   // Valor estranho em mesaDia: conta como nunca.
   const e = abrir(cheia(1)); e.ev("state.lagar.mesaDia = 12345");
   ok(mesa(e, '2026-10-09').ok === true, 'mesaDia inválido conta como nunca');
