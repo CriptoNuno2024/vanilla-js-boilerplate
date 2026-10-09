@@ -578,6 +578,7 @@ function goTo(screen, opcoes) {
       atualizarFaixaFesta();
       atualizarAmbienteChuva();
       tocarTrovaoSeTrovoada();
+      if (document.getElementById('screen-quinta').classList.contains('active')) arcoIrisAvaliar();
     });
   }
 

@@ -78,7 +78,9 @@ function defaultState() {
     tempo: {
       chuvaRegouDia: null,
       estacasDia: null,
-      frioDia: null
+      frioDia: null,
+      // Arco-íris na Quinta (sol depois de chuva): dia local da última vez. null = nunca.
+      arcoirisDia: null
     },
     // Festas (ver js/festas.js). tarefasDia guarda, por "idDaFesta_tarefa"
     // (ex: "saomartinho_castanhas"), o dia local em que essa tarefa já foi

@@ -9,7 +9,7 @@
 //
 // Para testar: acrescenta ?tempo=sol (ou chuva / calor / nevoeiro /
 // trovoada / vento / frio / noite) ao endereço. Funciona junto com
-// ?estacao=.
+// ?estacao=. Para ver o arco-íris da Quinta sem esperar: ?arcoiris=1.
 //
 // ===================================================================
 // TEMPO_CONFIG — tudo o que rege o tempo está só aqui: limites,
@@ -41,6 +41,9 @@ const TEMPO_CONFIG = {
 
   // Todas em assets/ecras, recorte ao centro (mesma regra de caixa de
   // imagem que o resto do jogo já usa, via definirFundo('foto', src)).
+  // Arco-íris: sol agora + chuva vista nas últimas janelaChuvaMs.
+  arcoIris: { janelaChuvaMs: 6 * 60 * 60 * 1000, gotas: 3, imagem: 'assets/ecras/arco_iris.jpg' },
+
   imagens: {
     chuva: 'assets/ecras/tempo_chuva.jpg',
     calor: 'assets/ecras/calor.jpg',
@@ -164,6 +167,11 @@ function tempoCacheComDados(cache) {
     Number.isFinite(cache.tempC) && Number.isFinite(cache.ventoKmh) && typeof cache.ceu === 'string';
 }
 
+// Hora (ms) em que a cache viu chuva pela última vez, ou null.
+function chuvaEmDaCache(cache) {
+  return cache && typeof cache === 'object' && Number.isFinite(cache.chuvaEm) ? cache.chuvaEm : null;
+}
+
 // A cache ainda vale (não é preciso pedir outra vez)? Função pura: recebe
 // a entrada e a hora (Date.now()). Sucesso vale cacheSucessoMs, falha
 // cacheFalhaMs. Vazia, inválida ou com hora no futuro (relógio do
@@ -212,11 +220,12 @@ async function garantirTempoAtualizado() {
     const ceu = classificarCeu(dados.current.weather_code, dados.current.is_day);
 
     _tempoAtual = condicaoDeTeste(tempC, ventoKmh, ceu);
-    guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu });
+    // chuvaEm: última vez que se viu chuva (para o arco-íris); mantém-se entre pedidos.
+    guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu, chuvaEm: ceu === 'chuva' ? agora : chuvaEmDaCache(cache) });
   } catch (e) {
     // Sem internet ou serviço em baixo: mantém os dados antigos (se
     // havia) e não volta a tentar antes de passarem cacheFalhaMs.
-    guardarTempoCache({ fetchedAt: agora, ok: false, stale: tempoCacheComDados(cache) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : null });
+    guardarTempoCache({ fetchedAt: agora, ok: false, chuvaEm: chuvaEmDaCache(cache), stale: tempoCacheComDados(cache) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : null });
     if (!tempoCacheComDados(cache)) _tempoAtual = condicaoIndisponivel();
   }
 }
@@ -273,6 +282,44 @@ function tocarTrovaoSeTrovoada() {
   if (!tempo.disponivel || tempo.ceu !== 'trovoada') return;
   const escolhido = SOM_TEMPO_TROVOES[randInt(0, SOM_TEMPO_TROVOES.length - 1)];
   tocarSomFicheiro(escolhido, 0.6);
+}
+
+// ---------------------------------------------------------------------
+// ARCO-ÍRIS NA QUINTA — sol agora e chuva na verificação guardada nas
+// últimas 6 h: uma vez por dia (state.tempo.arcoirisDia), ao entrar na
+// Quinta (ver goTo() em js/main.js), +3 gotas. Sem dados do tempo, nada.
+// ?arcoiris=1 mostra o aviso sempre, sem gravar nem pagar (só teste).
+// ---------------------------------------------------------------------
+
+// Função pura: há arco-íris com este céu, esta cache e esta hora?
+function arcoIrisCondicoes(ceu, cache, agora) {
+  if (ceu !== 'sol') return false;
+  const chuvaEm = chuvaEmDaCache(cache);
+  if (chuvaEm === null) return false;
+  const idade = agora - chuvaEm;
+  return idade >= 0 && idade <= TEMPO_CONFIG.arcoIris.janelaChuvaMs;
+}
+
+// Devolve true se mostrou o aviso. Não mostra por cima de outra fala.
+function arcoIrisAvaliar() {
+  const teste = new URLSearchParams(location.search).get('arcoiris') === '1';
+  const balao = document.getElementById('app-dialogue');
+  if (balao && !balao.hidden) return false;
+  if (!teste) {
+    const tempo = tempoAtual();
+    if (!tempo.disponivel || state.tempo.arcoirisDia === diaLocalDeHoje()) return false;
+    if (!arcoIrisCondicoes(tempo.ceu, carregarTempoCache(), Date.now())) return false;
+    state.tempo.arcoirisDia = diaLocalDeHoje();
+    state.gotas += TEMPO_CONFIG.arcoIris.gotas;
+    saveState(state);
+    updateStatsDisplays();
+  }
+  const foto = TEMPO_CONFIG.arcoIris.imagem;
+  mostrarFalas([
+    { texto: t('tempo.arcoirisFala'), foto: foto },
+    { texto: t('tempo.arcoirisGotas'), foto: foto }
+  ], 'YoshiCat');
+  return true;
 }
 
 garantirTempoAtualizado().then(atualizarLinhaTempoQuinta);
