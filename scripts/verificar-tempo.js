@@ -463,7 +463,7 @@ const MUTACOES = [
   ['visita do dia reposta ao voltar a data atrás', 'visitas.js', 'const hoje = visitaDiaEfetivo();', 'const hoje = diaLisboaDeHoje();'],
   ['visita paga no dia de hoje em vez do guardado', 'visitas.js', 'const dia = visitaDiaEfetivo();', 'const dia = diaLisboaDeHoje();'],
   ['dia efetivo ignora o guardado posterior', 'tempo.js', 'dif > 0 && dif <= DIAS_FUTURO_MAXIMO ? guardado : hoje', 'hoje'],
-  ['festa pelo dia do aparelho', 'festas.js', 'if (p) return { mes: p.mes, dia: p.dia };', ''],
+  ['festa pelo dia do aparelho', 'festas.js', 'function festaDiaDeHoje() {\n  return diaLisboaDeHoje();', "function festaDiaDeHoje() {\n  return (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();"],
   ['estação pelo mês do aparelho', 'estacoes.js', 'return p ? p.mes : new Date().getMonth();', 'return new Date().getMonth();'],
   ['ano do inverno pelo aparelho', 'vinha.js', 'const ano = p ? p.ano : new Date().getFullYear();', 'const ano = new Date().getFullYear();'],
   ['tarefa da festa pelo dia do aparelho', 'festas.js', 'return festaJaFez(state, festaId, tarefa, diaLisboaDeHoje());', "return festaJaFez(state, festaId, tarefa, (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })());"],

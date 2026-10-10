@@ -12,6 +12,13 @@
 // O resto do motor (deteção pela data, faixa na Quinta, tarefas "uma vez
 // por dia", dia grande a dobrar os prémios, objetivo do dia) lê só isto.
 //
+// Datas: uma festa tem datas FIXAS (inicio, fim, diaGrande como { mes, dia },
+// mês 0 = janeiro) OU uma data MÓVEL, no lugar das três:
+//   movel: { base: 'pascoa', inicioDias, fimDias, diaGrandeDias }
+// são deslocamentos em dias contados a partir do Domingo de Páscoa do ano
+// (negativos = antes). O motor resolve-os para o ano do dia que recebe
+// (festaJanela). Janelas que atravessem o fim do ano não são suportadas.
+//
 // Para testar: acrescenta ?festa=saomartinho (ou ?festa=natal) ao endereço
 // para simular estar dentro da festa, e ?festa=saomartinho&dia=11 (ou
 // ?festa=natal&dia=25) para simular o dia grande. Funciona junto com
@@ -86,25 +93,97 @@ const FESTAS_CONFIG = [
 ];
 
 // -----------------------------------------------------------------
+// DATAS: REGRAS PURAS (sem relógio nem estado: o dia vem sempre por
+// argumento, "AAAA-MM-DD" no calendário de Lisboa). Reaproveitam
+// diaLisboaPartes de js/tempo.js; as contas de dias usam Date.UTC, por
+// isso a mudança de hora e o fuso do aparelho não as afetam.
+// -----------------------------------------------------------------
+
+// Formata ano, mês (1 a 12) e dia como "AAAA-MM-DD"; null se o ano não tiver 4 algarismos.
+function festaFormatarDia(ano, mes, dia) {
+  if (!Number.isInteger(ano) || ano < 1000 || ano > 9999) return null;
+  return ano + '-' + String(mes).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
+}
+
+// Domingo de Páscoa do ano (calendário gregoriano), "AAAA-MM-DD". Algoritmo de Meeus/Jones/Butcher.
+// Só para anos inteiros de 1583 a 9999 (o calendário gregoriano só existe desde 1582); senão null.
+function pascoaDoAno(ano) {
+  if (!Number.isInteger(ano) || ano < 1583 || ano > 9999) return null;
+  const a = ano % 19;
+  const b = Math.floor(ano / 100);
+  const c = ano % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31);
+  const dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return festaFormatarDia(ano, mes, dia);
+}
+
+// Soma n dias (inteiro, positivo ou negativo) a um dia "AAAA-MM-DD"; null se o dia ou n forem inválidos.
+function diaSomarDias(dia, n) {
+  const p = diaLisboaPartes(dia);
+  if (p === null || !Number.isInteger(n)) return null;
+  const r = new Date(Date.UTC(p.ano, p.mes, p.dia) + n * 86400000);
+  return festaFormatarDia(r.getUTCFullYear(), r.getUTCMonth() + 1, r.getUTCDate());
+}
+
+// A janela da festa no ano "ano": { inicio, fim, diaGrande } em "AAAA-MM-DD", ou null se a festa não
+// se consegue resolver (data inválida, base desconhecida). Datas fixas: mês e dia da configuração.
+// Data móvel: deslocamentos em dias a partir da Páscoa desse ano.
+function festaJanela(festa, ano) {
+  if (!festa || !Number.isInteger(ano)) return null;
+  let j;
+  if (festa.movel) {
+    const m = festa.movel;
+    if (m.base !== 'pascoa') return null;
+    const pascoa = pascoaDoAno(ano);
+    if (pascoa === null) return null;
+    j = { inicio: diaSomarDias(pascoa, m.inicioDias), fim: diaSomarDias(pascoa, m.fimDias), diaGrande: diaSomarDias(pascoa, m.diaGrandeDias) };
+  } else {
+    const fixo = function (o) { return o ? festaFormatarDia(ano, o.mes + 1, o.dia) : null; };
+    j = { inicio: fixo(festa.inicio), fim: fixo(festa.fim), diaGrande: fixo(festa.diaGrande) };
+    // Datas que não existem (ex.: 30 de fevereiro) não abrem a festa.
+    ['inicio', 'fim', 'diaGrande'].forEach(function (k) { if (diaLisboaPartes(j[k]) === null) j[k] = null; });
+  }
+  return j.inicio === null || j.fim === null || j.diaGrande === null ? null : j;
+}
+
+// A festa está aberta neste dia? (de inicio a fim, inclusive; as datas "AAAA-MM-DD" ordenam como texto)
+function festaAbertaNoDia(festa, dia) {
+  const p = diaLisboaPartes(dia);
+  if (p === null) return false;
+  const j = festaJanela(festa, p.ano);
+  return j !== null && dia >= j.inicio && dia <= j.fim;
+}
+
+// É o dia grande da festa neste dia?
+function festaDiaGrandeNoDia(festa, dia) {
+  const p = diaLisboaPartes(dia);
+  if (p === null) return false;
+  const j = festaJanela(festa, p.ano);
+  return j !== null && dia === j.diaGrande;
+}
+
+// -----------------------------------------------------------------
 // DETEÇÃO DA FESTA PELA DATA REAL (com atalhos de teste)
 // -----------------------------------------------------------------
 
-function dataAtualFesta() {
-  const p = diaLisboaPartes(diaLisboaDeHoje()); // data de Lisboa, não a do telemóvel
-  if (p) return { mes: p.mes, dia: p.dia };
-  const d = new Date();
-  return { mes: d.getMonth(), dia: d.getDate() };
+// O dia de hoje: sempre o de Lisboa, não o do telemóvel.
+function festaDiaDeHoje() {
+  return diaLisboaDeHoje();
 }
 
-function valorDataFesta(o) {
-  return o.mes * 100 + o.dia;
-}
-
-function festaAtivaPelaDataReal() {
-  const hoje = valorDataFesta(dataAtualFesta());
-  return FESTAS_CONFIG.find(function (f) {
-    return hoje >= valorDataFesta(f.inicio) && hoje <= valorDataFesta(f.fim);
-  }) || null;
+// A festa aberta neste dia (por omissão, hoje em Lisboa), ou null. O dia vem por argumento para se poder testar.
+function festaAtivaPelaDataReal(dia) {
+  const d = dia === undefined ? festaDiaDeHoje() : dia;
+  return FESTAS_CONFIG.find(function (f) { return festaAbertaNoDia(f, d); }) || null;
 }
 
 // ?festa=saomartinho — simula estar dentro da festa (só para testar).
@@ -121,18 +200,23 @@ function diaForcadoNoEndereco() {
   return Number.isFinite(n) ? n : null;
 }
 
-function festaAtual() {
-  return festaForcadaNoEndereco() || festaAtivaPelaDataReal();
+function festaAtual(dia) {
+  return festaForcadaNoEndereco() || festaAtivaPelaDataReal(dia);
 }
 
-function estaNoDiaGrandeFesta(festa) {
+// É o dia grande? Por omissão, hoje em Lisboa. Com ?festa=...&dia=N no endereço (só para testar), N é comparado
+// com o número do dia grande da festa (no ano de hoje).
+function estaNoDiaGrandeFesta(festa, dia) {
   if (!festa) return false;
+  const hoje = dia === undefined ? festaDiaDeHoje() : dia;
   if (festaForcadaNoEndereco()) {
     const diaForcado = diaForcadoNoEndereco();
-    return diaForcado !== null && diaForcado === festa.diaGrande.dia;
+    const p = diaLisboaPartes(hoje);
+    const j = p === null ? null : festaJanela(festa, p.ano);
+    const grande = j === null ? null : diaLisboaPartes(j.diaGrande);
+    return diaForcado !== null && grande !== null && diaForcado === grande.dia;
   }
-  const hoje = dataAtualFesta();
-  return hoje.mes === festa.diaGrande.mes && hoje.dia === festa.diaGrande.dia;
+  return festaDiaGrandeNoDia(festa, hoje);
 }
 
 // -----------------------------------------------------------------

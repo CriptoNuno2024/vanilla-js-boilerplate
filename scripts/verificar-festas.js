@@ -8,6 +8,8 @@
 // C. Regras puras (festaResolverTarefa): sem custo em Uvas, perder não custa nada, 1 vez por dia, relógio atrás.
 // D. Cena do bolo-rei: fixa por dia (sem sorteio), igual em qualquer aparelho.
 // E. Textos em PT, EN e ES completos e sem números; objetivos.js lê a configuração; Enciclopédia só no São Martinho.
+// F. Datas móveis: Páscoa (2 métodos independentes), somar dias, janela móvel (Carnaval de teste), e as festas
+//    de datas fixas iguais a antes em todos os dias de 13 anos.
 //
 // Depois de passar, aplica "mutações" (estraga cada regra de propósito) e confirma que o teste as apanha.
 // Uso: node scripts/verificar-festas.js     Sai com 0 se estiver tudo OK e 1 se alguma verificação falhar.
@@ -171,8 +173,8 @@ function suite(fontes) {
     g.ir(lis(11, 8)); ok(quem() === 'saomartinho', '8/11: São Martinho');
     let sobrepostas = 0;
     for (let m = 1; m <= 12; m++) for (let dia = 1; dia <= 28; dia++) {
-      const v = g.ev('FESTAS_CONFIG.filter(function (f) { var h = ' + (m - 1) + ' * 100 + ' + dia + '; return h >= valorDataFesta(f.inicio) && h <= valorDataFesta(f.fim); }).length');
-      if (v > 1) sobrepostas++;
+      const d = '2026-' + String(m).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
+      if (g.ev('FESTAS_CONFIG.filter(function (f) { return festaAbertaNoDia(f, ' + JSON.stringify(d) + '); }).length') > 1) sobrepostas++;
     }
     ok(sobrepostas === 0, 'nenhum dia tem duas festas abertas');
     const e = abrir(lis(10, 10), '?festa=natal');
@@ -360,6 +362,158 @@ function suite(fontes) {
     ok(g.json('Object.keys(defaultState().festas)').join() === 'tarefasDia', 'state.festas continua a ter só tarefasDia');
   }
 
+
+  // ---------------- F. Datas móveis ----------------
+  {
+    const g = abrir(lis(1, 15));
+    const PASCOA = { 2026: '2026-04-05', 2027: '2027-03-28', 2028: '2028-04-16', 2029: '2029-04-01', 2030: '2030-04-21', 2031: '2031-04-13', 2032: '2032-03-28', 2033: '2033-04-17', 2034: '2034-04-09', 2035: '2035-03-25' };
+    const fmt = function (t) { const d = new Date(t); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0'); };
+    // 2.º método, independente (Gauss, com as correções gregorianas e as duas exceções): 22 de março + d + e dias
+    const gauss = function (y) {
+      const k = Math.floor(y / 100), p = Math.floor((13 + 8 * k) / 25), q = Math.floor(k / 4);
+      const M = (15 - p + k - q) % 30, N = (4 + k - q) % 7, a = y % 19, b = y % 4, c = y % 7;
+      const d = (19 * a + M) % 30, e = (2 * b + 4 * c + 6 * d + N) % 7;
+      let dias = d + e;
+      if (d === 29 && e === 6) dias = 28;  // 19 de abril
+      else if (d === 28 && e === 6 && a > 10) dias = 27; // 18 de abril
+      return fmt(Date.UTC(y, 2, 22) + dias * 86400000);
+    };
+    Object.keys(PASCOA).forEach(function (y) {
+      ok(g.ev('pascoaDoAno(' + y + ')') === PASCOA[y], 'Páscoa ' + y + ' (jogo): devia ser ' + PASCOA[y] + ', deu ' + g.ev('pascoaDoAno(' + y + ')'));
+      ok(gauss(Number(y)) === PASCOA[y], 'Páscoa ' + y + ' (2.º método, Gauss): devia ser ' + PASCOA[y] + ', deu ' + gauss(Number(y)));
+    });
+    // os dois métodos coincidem em todos os anos de 1583 a 4099 (e é sempre domingo, entre 22/03 e 25/04)
+    let difere = 0, naoDomingo = 0, fora = 0;
+    for (let y = 1583; y <= 4099; y++) {
+      const a = g.ev('pascoaDoAno(' + y + ')'), b = gauss(y);
+      if (a !== b) difere++;
+      const t = Date.UTC(Number(a.slice(0, 4)), Number(a.slice(5, 7)) - 1, Number(a.slice(8, 10)));
+      if (new Date(t).getUTCDay() !== 0) naoDomingo++;
+      const mmdd = a.slice(5);
+      if (mmdd < '03-22' || mmdd > '04-25') fora++;
+    }
+    ok(difere === 0, 'Páscoa: os dois métodos coincidem de 1583 a 4099 (' + difere + ' diferenças)');
+    ok(naoDomingo === 0 && fora === 0, 'Páscoa: sempre ao domingo e entre 22/03 e 25/04 (' + naoDomingo + ' não domingos, ' + fora + ' fora do intervalo)');
+    ok(g.ev('pascoaDoAno(1583)') === gauss(1583) && g.ev('pascoaDoAno(1818)') === '1818-03-22' && g.ev('pascoaDoAno(1943)') === '1943-04-25' && g.ev('pascoaDoAno(2000)') === '2000-04-23' && g.ev('pascoaDoAno(1954)') === '1954-04-18', 'Páscoa: os dois extremos (22/03 em 1818, 25/04 em 1943) e 2000 e 1954 (a exceção de 18 de abril)');
+    [1582, 0, -5, 10000, 2026.5, '2026', null, undefined, NaN].forEach(function (a) {
+      ok(g.ev('pascoaDoAno(' + (a === undefined ? 'undefined' : JSON.stringify(a) === 'null' && Number.isNaN(a) ? 'NaN' : JSON.stringify(a)) + ')') === null, 'Páscoa: ano inválido ' + String(a) + ' dá null');
+    });
+
+    // somar dias
+    const som = function (d, n) { return g.ev('diaSomarDias(' + JSON.stringify(d) + ', ' + JSON.stringify(n) + ')'); };
+    ok(som('2028-02-28', 1) === '2028-02-29' && som('2028-02-28', 2) === '2028-03-01' && som('2027-02-28', 1) === '2027-03-01' && som('2028-02-29', 366) === '2029-03-01', 'somar dias: fevereiro e ano bissexto');
+    ok(som('2026-12-31', 1) === '2027-01-01' && som('2027-01-01', -1) === '2026-12-31' && som('2026-01-31', 1) === '2026-02-01' && som('2026-03-01', -1) === '2026-02-28' && som('2026-04-30', 1) === '2026-05-01', 'somar dias: viragem de mês e de ano');
+    ok(som('2027-03-28', -47) === '2027-02-09' && som('2026-04-05', -47) === '2026-02-17' && som('2028-04-16', -47) === '2028-02-29' && som('2026-04-05', 0) === '2026-04-05' && som('2026-04-05', -2) === '2026-04-03' && som('2026-04-05', 1) === '2026-04-06', 'somar dias: Páscoa menos 47 (Carnaval), menos 2 e mais 1');
+    ok(som('2026-03-28', 2) === '2026-03-30' && som('2026-03-29', 1) === '2026-03-30' && som('2026-10-24', 2) === '2026-10-26' && som('2026-04-04', 1) === '2026-04-05' && som('2026-04-05', 1) === '2026-04-06' && som('2026-09-26', 1) === '2026-09-27' && som('2026-09-27', 1) === '2026-09-28', 'somar dias: não é afetado pela mudança de hora (Lisboa e o fuso do aparelho, Nova Zelândia)');
+    ok(som('2026-02-30', 1) === null && som('lixo', 1) === null && som('', 1) === null && som(null, 1) === null && som('2026-04-05', 1.5) === null && som('2026-04-05', '1') === null && som('2026-04-05', null) === null && som('9999-12-31', 1) === null && som('1000-01-01', -1) === null, 'somar dias: dia ou n inválidos dão null (e fora de 4 algarismos também)');
+    let contasMal = 0;
+    for (const n of [-400, -50, -47, -2, -1, 0, 1, 2, 50, 365, 366, 800]) {
+      for (let k = 0; k < 400; k++) {
+        const d = fmt(Date.UTC(2026, 0, 1) + k * 86400000 * 3);
+        const r = som(d, n);
+        if (g.ev('diasEntreDiasLisboa(' + JSON.stringify(d) + ', ' + JSON.stringify(r) + ')') !== n) contasMal++;
+      }
+    }
+    ok(contasMal === 0, 'somar dias: coincide com diasEntreDiasLisboa (js/tempo.js) em 4800 contas (' + contasMal + ' erradas)');
+
+    // janela móvel: uma festa de TESTE com os deslocamentos do Carnaval (só aqui; o jogo não tem Carnaval)
+    const f = abrir(lis(1, 15));
+    f.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } }); var CT = FESTAS_CONFIG[FESTAS_CONFIG.length - 1];");
+    const JAN = { 2026: ['2026-02-14', '2026-02-17'], 2027: ['2027-02-06', '2027-02-09'], 2028: ['2028-02-26', '2028-02-29'], 2029: ['2029-02-10', '2029-02-13'], 2030: ['2030-03-02', '2030-03-05'], 2031: ['2031-02-22', '2031-02-25'], 2032: ['2032-02-07', '2032-02-10'], 2033: ['2033-02-26', '2033-03-01'], 2034: ['2034-02-18', '2034-02-21'], 2035: ['2035-02-03', '2035-02-06'] };
+    Object.keys(JAN).forEach(function (y) {
+      const j = f.json('festaJanela(CT, ' + y + ')');
+      ok(j && j.inicio === JAN[y][0] && j.fim === JAN[y][1] && j.diaGrande === JAN[y][1], 'Carnaval de teste ' + y + ': de ' + JAN[y][0] + ' a ' + JAN[y][1] + ', dia grande no último; deu ' + JSON.stringify(j));
+      const dow = function (d) { return new Date(Date.UTC(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)))).getUTCDay(); };
+      ok(dow(JAN[y][0]) === 6 && dow(JAN[y][1]) === 2, 'Carnaval de teste ' + y + ': começa a um sábado e acaba a uma terça');
+    });
+    // todos os dias de 2026 a 2035: abre só dentro da janela, dia grande só na terça
+    let aberturaMal = 0, grandeMal = 0, fora1 = 0;
+    for (let y = 2026; y <= 2035; y++) {
+      const dias = (y % 4 === 0) ? 366 : 365;
+      for (let k = 0; k < dias; k++) {
+        const d = fmt(Date.UTC(y, 0, 1) + k * 86400000);
+        const dentro = d >= JAN[y][0] && d <= JAN[y][1];
+        if (f.ev('festaAbertaNoDia(CT, ' + JSON.stringify(d) + ')') !== dentro) aberturaMal++;
+        if (f.ev('festaDiaGrandeNoDia(CT, ' + JSON.stringify(d) + ')') !== (d === JAN[y][1])) grandeMal++;
+        const viaMotor = f.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null');
+        const esperado = dentro ? 'carnavalTeste' : (d >= y + '-11-08' && d <= y + '-11-14' ? 'saomartinho' : (d >= y + '-12-20' && d <= y + '-12-26' ? 'natal' : null));
+        if (viaMotor !== esperado) fora1++;
+      }
+    }
+    ok(aberturaMal === 0, 'Carnaval de teste: abre exatamente dentro da janela em todos os dias de 2026 a 2035 (' + aberturaMal + ' erros)');
+    ok(grandeMal === 0, 'Carnaval de teste: o dia grande é só a terça em todos os dias de 2026 a 2035 (' + grandeMal + ' erros)');
+    ok(fora1 === 0, 'o motor (festaAtivaPelaDataReal com o dia) escolhe a festa certa em todos os dias de 2026 a 2035: Carnaval de teste, São Martinho, Natal ou nenhuma (' + fora1 + ' erros)');
+    const abre = function (d) { return f.ev('festaAbertaNoDia(CT, ' + JSON.stringify(d) + ')'); };
+    ok(abre('2027-02-05') === false && abre('2027-02-06') === true && abre('2027-02-09') === true && abre('2027-02-10') === false, '2027: abre a 06/02 e fecha a 09/02');
+    ok(abre('2026-02-13') === false && abre('2026-02-14') === true && abre('2026-02-17') === true && abre('2026-02-18') === false, '2026: abre a 14/02 e fecha a 17/02');
+    ok(abre('2028-02-25') === false && abre('2028-02-26') === true && abre('2028-02-28') === true && abre('2028-02-29') === true && abre('2028-03-01') === false && f.ev("festaDiaGrandeNoDia(CT, '2028-02-29')") === true && f.ev("festaDiaGrandeNoDia(CT, '2028-02-28')") === false, '2028 (bissexto): abre a 26/02, o dia grande é 29/02, fecha a 01/03');
+    ok(abre('2030-02-28') === false && abre('2030-03-01') === false && abre('2030-03-02') === true && abre('2030-03-05') === true && abre('2030-03-06') === false, '2030: a janela passa a viragem de fevereiro para março sem partir');
+    ok(abre('2026-12-31') === false && abre('2027-01-01') === false && abre('2027-01-31') === false, 'viragem de ano: sem festa de teste a 31/12 nem em janeiro');
+    ok(abre('2027-02-09') === true && abre('2026-02-09') === false && abre('2028-02-09') === false, 'a janela é a do ano do dia (a de 2027 não abre em 2026 nem 2028)');
+    ['', null, undefined, 'lixo', '2027-02-30', '2027-13-01', 20270209, {}, '2027-02-07x', '2027-02-0', '2027-02-08 ', '2026-02-15x', '2026-02-16 '].forEach(function (d) {
+      ok(f.ev('festaAbertaNoDia(CT, ' + (d === undefined ? 'undefined' : JSON.stringify(d)) + ')') === false && f.ev('festaDiaGrandeNoDia(CT, ' + (d === undefined ? 'undefined' : JSON.stringify(d)) + ')') === false && f.ev('festaAtivaPelaDataReal(' + (d === undefined ? '"x"' : JSON.stringify(d)) + ')') === null, 'dia inválido ' + String(d) + ': nenhuma festa, sem rebentar');
+    });
+    // configurações estranhas não rebentam nem abrem nada
+    ok(f.ev("festaJanela({ movel: { base: 'natal', inicioDias: 0, fimDias: 0, diaGrandeDias: 0 } }, 2027)") === null && f.ev("festaJanela({ movel: { base: 'pascoa', inicioDias: 'x', fimDias: 0, diaGrandeDias: 0 } }, 2027)") === null && f.ev("festaJanela({ movel: { base: 'pascoa', inicioDias: 0, fimDias: 0 } }, 2027)") === null && f.ev("festaJanela({ movel: { base: 'pascoa', inicioDias: 0, fimDias: 0, diaGrandeDias: 0 } }, 1500)") === null && f.ev('festaJanela(null, 2027)') === null && f.ev("festaJanela({ inicio: { mes: 1, dia: 30 }, fim: { mes: 1, dia: 30 }, diaGrande: { mes: 1, dia: 30 } }, 2027)") === null, 'configuração móvel ou fixa inválida: sem janela (null), a festa nunca abre');
+    ok(f.ev("festaJanela({ movel: { base: 'pascoa', inicioDias: 0, fimDias: 1, diaGrandeDias: 0 } }, 2027)").inicio === '2027-03-28', 'a janela móvel com a base na própria Páscoa (0 dias) é a Páscoa');
+
+    // o dia por omissão é o de Lisboa de hoje (o aparelho está adiantado em relação a Lisboa)
+    const h = abrir(Date.parse('2027-02-08T20:00:00Z')); // Lisboa 8/02/2027 20:00; aparelho (Nova Zelândia) já a 9/02
+    h.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
+    ok(h.ev('new Date().getDate()') === 9 && h.ev('diaLisboaDeHoje()') === '2027-02-08', 'ambiente: aparelho um dia à frente de Lisboa');
+    ok(h.ev('festaAtivaPelaDataReal().id') === 'carnavalTeste' && h.ev('festaAtual().id') === 'carnavalTeste' && h.ev('estaNoDiaGrandeFesta(festaAtual())') === false, 'sem argumento: usa o dia de Lisboa (8/02: aberta, ainda não é o dia grande)');
+    h.ir(Date.parse('2027-02-09T20:00:00Z'));
+    ok(h.ev('estaNoDiaGrandeFesta(festaAtual())') === true, 'sem argumento: 9/02 em Lisboa é o dia grande');
+    h.ir(Date.parse('2027-02-10T00:30:00Z'));
+    ok(h.ev('festaAtivaPelaDataReal()') === null && h.ev("festaAtual('2027-02-08').id") === 'carnavalTeste', 'sem argumento: 10/02 fechada; com argumento, festaAtual(dia) olha para esse dia');
+    ok(h.ev("estaNoDiaGrandeFesta(festaAtual('2027-02-09'), '2027-02-09')") === true && h.ev("estaNoDiaGrandeFesta(festaAtual('2027-02-09'), '2027-02-08')") === false, 'estaNoDiaGrandeFesta(festa, dia) usa o dia que recebe');
+
+    // atalhos: ?festa= e ?dia= continuam como estão (com a festa de teste móvel também)
+    const a = abrir(Date.parse('2027-02-01T12:00:00Z'), '?festa=carnavalTeste&dia=9');
+    a.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
+    ok(a.ev('festaAtual().id') === 'carnavalTeste' && a.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=carnavalTeste&dia=9 (fora da janela, em fevereiro de 2027): força a festa e o dia grande');
+    const b = abrir(Date.parse('2027-02-01T12:00:00Z'), '?festa=carnavalTeste&dia=8');
+    b.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
+    ok(b.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=carnavalTeste&dia=8: não é o dia grande');
+    const c = abrir(lis(5, 1), '?festa=natal&dia=25');
+    ok(c.ev('estaNoDiaGrandeFesta(festaAtual())') === true && c.ev("estaNoDiaGrandeFesta(festaAtual(), '2026-01-01')") === true, '?festa=natal&dia=25 continua igual (o dia do endereço manda, seja qual for o dia)');
+    const c3 = abrir(lis(12, 25), '?festa=natal');
+    ok(c3.ev('festaAtual().id') === 'natal' && c3.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=natal sem ?dia= (mesmo a 25/12 em Lisboa): força a festa mas não o dia grande, como antes');
+    const c2 = abrir(lis(5, 1), '?festa=saomartinho&dia=11');
+    ok(c2.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=saomartinho&dia=11 continua igual');
+
+    // São Martinho e Natal: os mesmos resultados de antes em todos os dias de 2024 a 2036 (inclui 4 anos bissextos)
+    let sm = 0, nat = 0, grande = 0, aberto = 0, total = 0;
+    for (let y = 2024; y <= 2036; y++) {
+      const dias = (y % 4 === 0) ? 366 : 365;
+      for (let k = 0; k < dias; k++) {
+        const d = fmt(Date.UTC(y, 0, 1) + k * 86400000);
+        const mmdd = d.slice(5);
+        const esperado = (mmdd >= '11-08' && mmdd <= '11-14') ? 'saomartinho' : ((mmdd >= '12-20' && mmdd <= '12-26') ? 'natal' : null);
+        const obtido = g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null');
+        total++;
+        if (obtido !== esperado) aberto++;
+        const esperaGrande = mmdd === '11-11' || mmdd === '12-25';
+        const festaDoDia = g.ev('festaAtivaPelaDataReal(' + JSON.stringify(d) + ') !== null');
+        const obtidoGrande = festaDoDia && g.ev('estaNoDiaGrandeFesta(festaAtivaPelaDataReal(' + JSON.stringify(d) + '), ' + JSON.stringify(d) + ')');
+        if (obtidoGrande !== (esperaGrande && festaDoDia)) grande++;
+        if (esperado === 'saomartinho' && obtido !== 'saomartinho') sm++;
+        if (esperado === 'natal' && obtido !== 'natal') nat++;
+      }
+    }
+    ok(total === 4749 && aberto === 0 && sm === 0 && nat === 0, 'São Martinho e Natal: abrem exatamente em 8 a 14/11 e 20 a 26/12 em todos os ' + total + ' dias de 2024 a 2036 (' + aberto + ' diferenças)');
+    ok(grande === 0, 'São Martinho e Natal: o dia grande é exatamente 11/11 e 25/12 em todos os dias de 2024 a 2036 (' + grande + ' diferenças)');
+    const bordas = ['2026-11-07', '2026-11-08', '2026-11-11', '2026-11-14', '2026-11-15', '2026-12-19', '2026-12-20', '2026-12-25', '2026-12-26', '2026-12-27', '2028-11-08', '2028-12-26'];
+    ok(JSON.stringify(bordas.map(function (d) { return g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null'); })) === JSON.stringify([null, 'saomartinho', 'saomartinho', 'saomartinho', null, null, 'natal', 'natal', 'natal', null, 'saomartinho', 'natal']), 'São Martinho e Natal: dias de fronteira (dia antes, primeiro, grande, último, dia depois)');
+    ok(g.json("FESTAS_CONFIG.slice(0, 2).map(function (x) { return [x.id, x.inicio, x.fim, x.diaGrande, x.movel === undefined]; })").join('|') === 'saomartinho,[object Object],[object Object],[object Object],true|natal,[object Object],[object Object],[object Object],true' && g.ev('FESTAS_CONFIG.length') === 2 && g.ev("FESTAS_CONFIG.some(function (x) { return !!x.movel; })") === false, 'o jogo continua só com o São Martinho e o Natal, ambos de datas fixas (sem Carnaval nem Páscoa)');
+
+    // as regras de datas são puras: nada de relógio do aparelho
+    const fonte = fontes['festas.js'];
+    const bloco = fonte.slice(fonte.indexOf('// DATAS: REGRAS PURAS'), fonte.indexOf('// ?festa=saomartinho'));
+    ok(!/Math\.random|Date\.now|new Date\(\)|getDate\(|getMonth\(|getFullYear\(|getDay\(|getHours\(|diaLisboaDeHoje/.test(bloco.slice(0, bloco.indexOf('// DETEÇÃO DA FESTA PELA DATA REAL'))), 'as regras puras de datas não lêem o relógio nem usam getters locais');
+    ok(/Date\.UTC/.test(bloco) && /getUTCFullYear/.test(bloco), 'as contas de dias usam Date.UTC');
+  }
+
   return falhas;
 }
 
@@ -399,6 +553,39 @@ const MUTACOES = [
   ['castanhas lêem o prémio do sítio errado', 'festas.js', "const r = festaTarefa(festa, 'castanhas').premio;", "const r = festaTarefa(festa, 'prova').premio;"],
   ['prova paga outro valor', 'festas.js', "premio: { reputacao: 8 } }", "premio: { reputacao: 9 } }"],
   ['jeropiga paga outro valor', 'festas.js', 'reputacao: 25 } }', 'reputacao: 26 } }'],
+  ['Páscoa: constante do algoritmo errada (451 passa a 452: erra em 5 anos de 1583 a 4099)', 'festas.js', 'const m = Math.floor((a + 11 * h + 22 * l) / 451);', 'const m = Math.floor((a + 11 * h + 22 * l) / 452);'],
+  ['Páscoa: sem a correção do século', 'festas.js', 'const h = (19 * a + b - d - g + 15) % 30;', 'const h = (19 * a + 15) % 30;'],
+  ['Páscoa: dia errado por 1', 'festas.js', 'const dia = ((h + l - 7 * m + 114) % 31) + 1;', 'const dia = ((h + l - 7 * m + 114) % 31) + 2;'],
+  ['Páscoa: mês errado', 'festas.js', 'const mes = Math.floor((h + l - 7 * m + 114) / 31);', 'const mes = Math.floor((h + l - 7 * m + 114) / 31) + 1;'],
+  ['Páscoa: aceita anos antes do calendário gregoriano', 'festas.js', 'ano < 1583 || ano > 9999', 'ano < 1000 || ano > 9999'],
+  ['somar dias em hora local (a mudança de hora estraga)', 'festas.js', 'const r = new Date(Date.UTC(p.ano, p.mes, p.dia) + n * 86400000);\n  return festaFormatarDia(r.getUTCFullYear(), r.getUTCMonth() + 1, r.getUTCDate());', 'const r = new Date(new Date(p.ano, p.mes, p.dia).getTime() + n * 86400000);\n  return festaFormatarDia(r.getFullYear(), r.getMonth() + 1, r.getDate());'],
+  ['somar dias com o mês errado (mês 0 a 11 sem +1)', 'festas.js', 'r.getUTCMonth() + 1, r.getUTCDate());', 'r.getUTCMonth(), r.getUTCDate());'],
+  ['somar dias não valida o dia', 'festas.js', 'if (p === null || !Number.isInteger(n)) return null;', 'if (!Number.isInteger(n)) return null;'],
+  ['somar dias aceita n decimal', 'festas.js', 'if (p === null || !Number.isInteger(n)) return null;', 'if (p === null || typeof n !== \'number\') return null;'],
+  ['dia formatado sem zeros à esquerda', 'festas.js', "String(dia).padStart(2, '0');\n}", "String(dia);\n}"],
+  ['janela móvel: início usa o fim', 'festas.js', 'inicio: diaSomarDias(pascoa, m.inicioDias)', 'inicio: diaSomarDias(pascoa, m.fimDias)'],
+  ['janela móvel: dia grande usa o início', 'festas.js', 'diaGrande: diaSomarDias(pascoa, m.diaGrandeDias)', 'diaGrande: diaSomarDias(pascoa, m.inicioDias)'],
+  ['janela móvel: fim menos um dia', 'festas.js', 'fim: diaSomarDias(pascoa, m.fimDias),', 'fim: diaSomarDias(pascoa, m.fimDias - 1),'],
+  ['janela móvel: base desconhecida aceite', 'festas.js', "if (m.base !== 'pascoa') return null;", ''],
+  ['janela móvel: sempre a Páscoa de 2026', 'festas.js', 'const pascoa = pascoaDoAno(ano);', 'const pascoa = pascoaDoAno(2026);'],
+  ['janela fixa: mês sem +1 (janeiro = 0)', 'festas.js', 'festaFormatarDia(ano, o.mes + 1, o.dia)', 'festaFormatarDia(ano, o.mes, o.dia)'],
+  ['janela fixa: datas que não existem aceites', 'festas.js', "if (diaLisboaPartes(j[k]) === null) j[k] = null;", ''],
+  ['festa aberta: fim exclusivo', 'festas.js', 'return j !== null && dia >= j.inicio && dia <= j.fim;', 'return j !== null && dia >= j.inicio && dia < j.fim;'],
+  ['festa aberta: início exclusivo', 'festas.js', 'return j !== null && dia >= j.inicio && dia <= j.fim;', 'return j !== null && dia > j.inicio && dia <= j.fim;'],
+  ['festa aberta: dia inválido aceite', 'festas.js', 'if (p === null) return false;\n  const j = festaJanela(festa, p.ano);\n  return j !== null && dia >= j.inicio', 'const j = festaJanela(festa, p ? p.ano : 2026);\n  return j !== null && dia >= j.inicio'],
+  ['dia grande: qualquer dia da janela', 'festas.js', 'return j !== null && dia === j.diaGrande;', 'return j !== null && dia >= j.inicio && dia <= j.fim;'],
+  ['festa aberta pelo ano errado', 'festas.js', 'const j = festaJanela(festa, p.ano);\n  return j !== null && dia >= j.inicio', 'const j = festaJanela(festa, p.ano + 1);\n  return j !== null && dia >= j.inicio'],
+  ['hoje pelo dia do aparelho (festaDiaDeHoje)', 'festas.js', 'function festaDiaDeHoje() {\n  return diaLisboaDeHoje();', "function festaDiaDeHoje() {\n  return (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();"],
+  ['festaAtivaPelaDataReal ignora o dia que recebe', 'festas.js', 'const d = dia === undefined ? festaDiaDeHoje() : dia;', 'const d = festaDiaDeHoje();'],
+  ['festaAtual ignora o dia que recebe', 'festas.js', 'return festaForcadaNoEndereco() || festaAtivaPelaDataReal(dia);', 'return festaForcadaNoEndereco() || festaAtivaPelaDataReal();'],
+  ['estaNoDiaGrandeFesta ignora o dia que recebe', 'festas.js', 'const hoje = dia === undefined ? festaDiaDeHoje() : dia;\n  if (festaForcadaNoEndereco()) {', 'const hoje = festaDiaDeHoje();\n  if (festaForcadaNoEndereco()) {'],
+  ['atalho ?dia= compara com o dia errado', 'festas.js', 'diaForcado === grande.dia;', 'diaForcado === grande.dia + 1;'],
+  ['atalho ?festa= sem ?dia= dá dia grande', 'festas.js', 'return diaForcado !== null && grande !== null && diaForcado === grande.dia;', 'return grande !== null && (diaForcado === null || diaForcado === grande.dia);'],
+  ['festaDiaGrandeNoDia usa o mês só', 'festas.js', 'return j !== null && dia === j.diaGrande;', 'return j !== null && dia.slice(5, 7) === j.diaGrande.slice(5, 7);'],
+  ['Natal passa a abrir a 19', 'festas.js', 'inicio: { mes: 11, dia: 20 }', 'inicio: { mes: 11, dia: 19 }'],
+  ['São Martinho fecha a 15', 'festas.js', 'fim: { mes: 10, dia: 14 }', 'fim: { mes: 10, dia: 15 }'],
+  ['São Martinho com dia grande a 12', 'festas.js', 'diaGrande: { mes: 10, dia: 11 }', 'diaGrande: { mes: 10, dia: 12 }'],
+  ['Carnaval acrescentado ao jogo', 'festas.js', "  {\n    id: 'natal',", "  { id: 'carnaval', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } },\n  {\n    id: 'natal',"],
   ['botão da tarefa sem o texto da configuração', 'festas.js', 'S[tarefa.btn]', 'S.btnProva']
 ];
 MUTACOES.forEach(function (m) {
