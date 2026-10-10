@@ -25,8 +25,8 @@ const RESERVA_CONFIG = {
 
 const COLECAO_TAREFA_CONFIG = {
   reputacao: 4,
-  coresMinimas: 1,      // cores já feitas na Coleção (de 4) que é preciso ter; nada se gasta
-  imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg'
+  coresMinimas: 1       // cores já feitas na Coleção (de 4) que é preciso ter; nada se gasta
+  // Sem imagem aqui: o fundo depois de arrumar é o da cor mais escura da Coleção (colecaoImagemMaisEscura em js/garrafa.js).
 };
 
 const RESERVA_DIA_REGEX = /^\d{4}-\d{2}-\d{2}$/;
