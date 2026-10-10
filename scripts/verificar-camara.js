@@ -203,7 +203,8 @@ const saveNivel9 = function (extra) {
   const clique = src.slice(src.indexOf('function camaraProvarClique()'));
   ok((src.match(/camaraProvar\(/g) || []).length === 2 && clique.indexOf('camaraProvar(') !== -1 && clique.indexOf('saveState(state)') !== -1 && (src.match(/saveState\(/g) || []).length === 1, 'só o clique (camaraProvarClique) prova e grava');
   ok(/personagem: 'henrique'/.test(src) && fs.existsSync(path.join(RAIZ, 'assets', 'personagens', 'henrique.jpg')), 'depois de provar fala o Dr. Henrique, com a cara dele (assets/personagens/henrique.jpg)');
-  ok(g.ev('CAMARA_CONFIG.imagemResultado') === 'assets/garrafas/garrafa_4_cobre.jpg' && fs.existsSync(path.join(RAIZ, 'assets/garrafas/garrafa_4_cobre.jpg')), 'imagem do resultado existe');
+  ok(g.ev('CAMARA_CONFIG.imagemResultado') === undefined && !/garrafa_4_cobre/.test(ler(CAMARA_JS)), 'a Câmara já não tem imagem de resultado fixa (nem o cobre por omissão): a garrafa vem da cor do jogador (garrafaImagemDaCamara)');
+  ok(['1_jovem', '2_dourado', '3_ambar', '4_cobre'].every(function (c) { return fs.existsSync(path.join(RAIZ, 'assets/garrafas/garrafa_' + c + '.jpg')); }), 'as 4 imagens das cores existem');
   const main = ler(path.join(RAIZ, 'js', 'main.js'));
   ok(/camara:\s*\{\s*src:\s*'assets\/vinha\/barril_dourado\.jpg'/.test(main) && fs.existsSync(path.join(RAIZ, 'assets/vinha/barril_dourado.jpg')) && /camara:\s*'quinta'/.test(main) && /renderCamara\(\)/.test(main) && /atualizarLinhaCamaraQuinta/.test(main), 'main.js liga a Câmara (fundo barril_dourado, barra, render e linha da Quinta)');
   const niv = ler(path.join(RAIZ, 'js', 'niveis.js'));

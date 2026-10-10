@@ -23,9 +23,9 @@ const CAMARA_CONFIG = {
   conhecimentoPorPasso: 5, // cada 5 de Conhecimento...
   bonusPorPasso: 1,        // ...dão +1 de Reputação...
   bonusMaximo: 4,          // ...até +4 (Conhecimento 20 ou mais). Total: de +8 a +12
-  garrafasMinimas: 1,   // garrafas feitas (state.garrafas) que é preciso ter; nunca se gastam
-  // Imagens que já existem. O fundo do ecrã está em FUNDO_DOS_ECRAS (js/main.js); esta é a do resultado da prova.
-  imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg'
+  garrafasMinimas: 1    // garrafas feitas (state.garrafas) que é preciso ter; nunca se gastam
+  // Sem imagem aqui: o fundo do ecrã está em FUNDO_DOS_ECRAS (js/main.js) e, depois de provar, a garrafa é a da cor que o
+  // jogador tem (garrafaImagemDaCamara em js/garrafa.js).
 };
 
 const CAMARA_DIA_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -138,8 +138,12 @@ function camaraDesenhar() {
       '<button type="button" class="btn-ghost" onclick="voltarEcraAnterior()" data-i18n="nav.voltar"></button>' +
     '</div>';
 
-  // Fundo: o da Câmara (ver FUNDO_DOS_ECRAS em js/main.js); depois de provar, a garrafa.
-  if (camaraResultado) definirFundo('foto', CAMARA_CONFIG.imagemResultado);
+  // Fundo: o da Câmara (ver FUNDO_DOS_ECRAS em js/main.js); depois de provar, a garrafa da cor que o jogador tem (a que mais
+  // descansou). Sem nenhuma garrafa com cor (ex.: só jeropiga), o fundo fica como estava.
+  if (camaraResultado && typeof garrafaImagemDaCamara === 'function') {
+    const imagem = garrafaImagemDaCamara(state);
+    if (imagem) definirFundo('foto', imagem);
+  }
 
   // Depois de provar, fala o Dr. Henrique (com a cara dele); senão o balão fica escondido.
   if (camaraResultado) {

@@ -257,9 +257,11 @@ function caveReservaAberta() {
   return !!state.acesso.jogadorAntigo || nivelPelaReputacao(state.reputacao) >= CAVE_RESERVA_NIVEL;
 }
 
-// Maior diasDescanso do histórico, ou null se não houver dados (nada inventado).
-function garrafaQueMaisDescansou() {
-  const h = state.adega && state.adega.historico;
+// Maior diasDescanso do histórico, ou null se não houver dados (nada inventado). Sem argumento lê o state do jogo;
+// as funções puras de baixo passam o estado que querem ler.
+function garrafaQueMaisDescansou(estado) {
+  const e0 = estado === undefined ? state : estado;
+  const h = e0 && e0.adega && e0.adega.historico;
   if (!Array.isArray(h)) return null;
   let maior = null;
   h.forEach(function (e) {
@@ -267,6 +269,15 @@ function garrafaQueMaisDescansou() {
     if (Number.isFinite(d) && d >= 1 && (maior === null || d > maior)) maior = d;
   });
   return maior === null ? null : Math.floor(maior);
+}
+
+// Imagem da garrafa para o resultado da Câmara: a da garrafa que mais descansou (a mesma regra da Reserva e do
+// Proteger: garrafaQueMaisDescansou). Função pura que só lê: o estado vem por argumento, não grava nada. As garrafas de
+// festa (0 dias) não contam. null se o jogador ainda não tem nenhuma garrafa com cor: quem chama deixa então o fundo como
+// estava (nunca se inventa uma cor que o jogador não fez).
+function garrafaImagemDaCamara(estado) {
+  const dias = garrafaQueMaisDescansou(estado === undefined ? null : estado); // sem estado não lê o do jogo: null
+  return dias === null ? null : garrafaPorDias(dias).imagem;
 }
 
 // Prateleira da Coleção (Nível 6) — só leitura, calculada a partir de
@@ -322,6 +333,18 @@ function colecaoCoresFeitas(estado) {
   return cores;
 }
 
+// Imagem da garrafa para o fundo depois de "Arrumar a Coleção": a cor MAIS ESCURA entre as cores já feitas da Coleção
+// (Jovem, Dourado, Âmbar, Cobre, por esta ordem), as mesmas do "x / 4" do ecrã: só contam as garrafas feitas desde o
+// nível 6 (colecaoCoresFeitas), por isso o fundo bate sempre certo com a grelha. Função pura que só lê (o estado vem por
+// argumento). null se não houver nenhuma cor: quem chama deixa o fundo como estava.
+function colecaoImagemMaisEscura(estado) {
+  const cores = colecaoCoresFeitas(estado);
+  for (let i = GARRAFAS_POR_DIAS.length - 1; i >= 0; i--) {
+    if (cores[COLECAO_COR_POR_NOME[GARRAFAS_POR_DIAS[i].nomeKey]]) return GARRAFAS_POR_DIAS[i].imagem;
+  }
+  return null;
+}
+
 // Botão de entrada no ecrã "A Coleção" (Nível 6): no cartão da Adega (Cave de Reserva).
 function colecaoBotaoEntradaHtml() {
   if (!colecaoVisivel()) return '';
@@ -368,7 +391,8 @@ function renderColecaoDesenhar() {
 
   // Depois de arrumar: a garrafa de fundo e o agradecimento (ver colecaoArrumarClique() em js/reserva.js).
   if (typeof colecaoResultado !== 'undefined' && colecaoResultado) {
-    definirFundo('foto', COLECAO_TAREFA_CONFIG.imagemResultado);
+    const imagem = colecaoImagemMaisEscura(state); // a cor mais escura da Coleção; sem nenhuma, o fundo fica como estava
+    if (imagem) definirFundo('foto', imagem);
     atualizarDialogo(t('colecao.arrumarOk').replace('{rep}', colecaoResultado.rep), 'YoshiCat');
   } else {
     atualizarDialogo('', '');
