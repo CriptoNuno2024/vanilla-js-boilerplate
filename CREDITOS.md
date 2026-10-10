@@ -54,6 +54,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/festa_vindima_todos_juntos.jpg` | fundo de um ecrã, história dos níveis | origem a confirmar pelo Nuno |
 | `assets/ecras/fygmos_fazem_das_suas.jpg` | O Lagar, fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/fygmos_quinta_passear.jpg` | O Lagar | origem a confirmar pelo Nuno |
+| `assets/ecras/granizo.jpg` | tempo real de Setúbal (fundo da Vinha com granizo) | origem a confirmar pelo Nuno |
 | `assets/ecras/inverno_poda.jpg` | Vinha | origem a confirmar pelo Nuno |
 | `assets/ecras/livro_cabecalho.jpg` | Livro de Conquistas | origem a confirmar pelo Nuno |
 | `assets/ecras/livro_conquistas.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |

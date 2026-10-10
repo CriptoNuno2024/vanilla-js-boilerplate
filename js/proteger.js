@@ -541,7 +541,7 @@ function rondasProtegerPorTempo() {
 function avisoTempoProteger() {
   const tempo = tempoAtual();
   if (!tempo.disponivel) return '';
-  if (tempo.ceu === 'trovoada') return t('tempo.avisoTrovoadaProteger');
+  if (tempo.ceu === 'trovoada') return t(tempo.granizo === true ? 'tempo.avisoGranizoProteger' : 'tempo.avisoTrovoadaProteger');
   if (tempo.ceu === 'nevoeiro') return t('tempo.avisoNevoeiroProteger');
   return '';
 }
