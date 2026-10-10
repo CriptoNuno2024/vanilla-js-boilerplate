@@ -49,6 +49,8 @@ const TEMPO_CONFIG = {
     calor: 'assets/ecras/calor.jpg',
     nevoeiro: 'assets/ecras/nevoeiro_1.jpg',
     trovoada: 'assets/ecras/trovoada_chizo.jpg',
+    // Trovoada COM granizo (weather_code 96 ou 99): só o fundo da Vinha muda (ver fundoTempoVinha() em js/vinha.js); o céu continua 'trovoada'.
+    granizo: 'assets/ecras/granizo.jpg',
     vento: 'assets/ecras/vento.jpg',
     // Frio forte: fundo da Vinha (YoshiCat e Chizo) e foto depois da tarefa Frio.
     frio: 'assets/ecras/yoshi_cat_e_chizo_geada.jpg',
@@ -78,6 +80,13 @@ function classificarCeu(weathercode, isDay) {
   const ceu = TEMPO_CEU_POR_WEATHERCODE[weathercode];
   if (ceu) return ceu;
   return isDay === 0 ? 'noite' : 'sol';
+}
+
+// Trovoada com granizo (tabela WMO da Open-Meteo): só os códigos 96 (granizo ligeiro) e 99 (granizo forte). O 95 (trovoada normal) e todos os
+// outros códigos NÃO; texto, null, NaN ou qualquer valor que não seja o número 96 ou 99 também não. Função pura: o código chega por argumento
+// (já vem no pedido de sempre, weather_code; não há pedido de rede novo). O céu continua 'trovoada': isto é só uma marca (granizo: true).
+function tempoCodigoComGranizo(codigo) {
+  return codigo === 96 || codigo === 99;
 }
 
 // Dia em Lisboa (fuso Europe/Lisbon) em "YYYY-MM-DD", independente do
@@ -158,9 +167,11 @@ function carimboCorrigirFuturo(obj, chave, agora) {
 }
 // <<< regras-relogio
 
-function condicaoDeTeste(tempC, ventoKmh, ceu) {
+// granizo (4.º argumento, opcional): só true com o valor true (trovoada com granizo, ver tempoCodigoComGranizo()); sem ele, false.
+function condicaoDeTeste(tempC, ventoKmh, ceu, granizo) {
   return {
     ceu: ceu,
+    granizo: granizo === true,
     tempC: tempC,
     ventoKmh: ventoKmh,
     calorForte: tempC > TEMPO_CONFIG.limites.calorForteC,
@@ -177,6 +188,7 @@ const TEMPO_FORCADO_POR_PARAM = {
   calor: function () { return condicaoDeTeste(33, 10, 'sol'); },
   nevoeiro: function () { return condicaoDeTeste(14, 10, 'nevoeiro'); },
   trovoada: function () { return condicaoDeTeste(20, 20, 'trovoada'); },
+  granizo: function () { return condicaoDeTeste(14, 20, 'trovoada', true); },
   vento: function () { return condicaoDeTeste(18, 45, 'sol'); },
   frio: function () { return condicaoDeTeste(1, 10, 'sol'); },
   noite: function () { return condicaoDeTeste(14, 5, 'noite'); }
@@ -196,7 +208,7 @@ function tempoForcadoNoEndereco() {
 let _tempoAtual = { disponivel: false };
 
 function condicaoIndisponivel() {
-  return { ceu: null, tempC: null, ventoKmh: null, calorForte: false, frioForte: false, ventoForte: false, disponivel: false };
+  return { ceu: null, granizo: false, tempC: null, ventoKmh: null, calorForte: false, frioForte: false, ventoForte: false, disponivel: false };
 }
 
 function carregarTempoCache() {
@@ -252,13 +264,13 @@ async function garantirTempoAtualizado() {
   const agora = Date.now();
 
   if (tempoCacheValida(cache, agora)) {
-    _tempoAtual = cache.ok ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : (cache.stale || condicaoIndisponivel());
+    _tempoAtual = cache.ok ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu, cache.granizo === true) : (cache.stale || condicaoIndisponivel());
     return;
   }
 
   // Enquanto o pedido novo não chega, continua a mostrar os dados
   // antigos (se existirem) em vez de esconder a linha sem razão.
-  if (tempoCacheComDados(cache)) _tempoAtual = condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu);
+  if (tempoCacheComDados(cache)) _tempoAtual = condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu, cache.granizo === true);
 
   try {
     const controlador = new AbortController();
@@ -274,13 +286,14 @@ async function garantirTempoAtualizado() {
     const ventoKmh = dados.current.wind_speed_10m;
     const ceu = classificarCeu(dados.current.weather_code, dados.current.is_day);
 
-    _tempoAtual = condicaoDeTeste(tempC, ventoKmh, ceu);
+    const granizo = tempoCodigoComGranizo(dados.current.weather_code);
+    _tempoAtual = condicaoDeTeste(tempC, ventoKmh, ceu, granizo);
     // chuvaEm: última vez que se viu chuva (para o arco-íris); mantém-se entre pedidos.
-    guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu, chuvaEm: ceu === 'chuva' ? agora : chuvaEmDaCache(cache) });
+    guardarTempoCache({ fetchedAt: agora, ok: true, tempC: tempC, ventoKmh: ventoKmh, ceu: ceu, granizo: granizo, chuvaEm: ceu === 'chuva' ? agora : chuvaEmDaCache(cache) });
   } catch (e) {
     // Sem internet ou serviço em baixo: mantém os dados antigos (se
     // havia) e não volta a tentar antes de passarem cacheFalhaMs.
-    guardarTempoCache({ fetchedAt: agora, ok: false, chuvaEm: chuvaEmDaCache(cache), stale: tempoCacheComDados(cache) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu) : null });
+    guardarTempoCache({ fetchedAt: agora, ok: false, chuvaEm: chuvaEmDaCache(cache), stale: tempoCacheComDados(cache) ? condicaoDeTeste(cache.tempC, cache.ventoKmh, cache.ceu, cache.granizo === true) : null });
     if (!tempoCacheComDados(cache)) _tempoAtual = condicaoIndisponivel();
   }
 }

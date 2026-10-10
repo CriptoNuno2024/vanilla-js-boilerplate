@@ -189,6 +189,7 @@ function registarTarefaTempoHoje(campo) {
 function fundoTempoVinha() {
   const tempo = tempoAtual();
   if (!tempo.disponivel) return null;
+  if (tempo.ceu === 'trovoada' && tempo.granizo === true) return TEMPO_CONFIG.imagens.granizo;
   if (tempo.ceu === 'trovoada') return TEMPO_CONFIG.imagens.trovoada;
   if (tempo.ceu === 'nevoeiro') return TEMPO_CONFIG.imagens.nevoeiro;
   if (tempo.ventoForte) return TEMPO_CONFIG.imagens.vento;

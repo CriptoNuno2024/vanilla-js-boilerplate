@@ -380,6 +380,7 @@ const TRANSLATIONS = {
     'tempo.arcoirisGotas': 'Ganhaste +3 gotas.',
     'tempo.avisoTrovoadaProteger': 'O Chizo escondeu-se com medo dos trovões.',
     'tempo.avisoNevoeiroProteger': 'O nevoeiro esconde os porcos — aparecem mais vezes.',
+    'tempo.avisoGranizoProteger': 'Chove granizo! Até os porcos se esconderam no barril.',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': 'Nova entrada desbloqueada!',
@@ -888,6 +889,7 @@ const TRANSLATIONS = {
     'tempo.arcoirisGotas': 'You got +3 drops.',
     'tempo.avisoTrovoadaProteger': 'Chizo hid, scared of the thunder.',
     'tempo.avisoNevoeiroProteger': 'The fog hides the pigs — they show up more often.',
+    'tempo.avisoGranizoProteger': 'Hail is falling! Even the pigs are hiding in the barrel.',
 
     'explorar.title': 'Explore',
     'explorar.subtitleNova': 'New entry unlocked!',
@@ -1395,6 +1397,7 @@ const TRANSLATIONS = {
     'tempo.arcoirisGotas': 'Ganaste +3 gotas.',
     'tempo.avisoTrovoadaProteger': 'El Chizo se escondió, asustado por los truenos.',
     'tempo.avisoNevoeiroProteger': 'La niebla esconde a los cerdos — aparecen más veces.',
+    'tempo.avisoGranizoProteger': '¡Cae granizo! Hasta los cerdos se han escondido en el barril.',
 
     'explorar.title': 'Explorar',
     'explorar.subtitleNova': '¡Nueva entrada desbloqueada!',
