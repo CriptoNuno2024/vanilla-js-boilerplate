@@ -47,7 +47,7 @@ function abrir(o) {
     function diaLisboaDeHoje() { return DIA; }
     function estacaoAtual() { if (LEITURAS.estacao === 'ERRO') throw new Error('x'); return LEITURAS.estacao; }
     function faseRealAtual() { if (LEITURAS.fase === 'ERRO') throw new Error('x'); return LEITURAS.fase; }
-    function festaAtual() { if (LEITURAS.festa === 'ERRO') throw new Error('x'); return LEITURAS.festa === 'natal' ? { id: 'natal' } : (LEITURAS.festa ? { id: 'saomartinho' } : null); }
+    function festaAtual() { if (LEITURAS.festa === 'ERRO') throw new Error('x'); return typeof LEITURAS.festa === 'string' ? { id: LEITURAS.festa } : (LEITURAS.festa ? { id: 'saomartinho' } : null); }
     function caveReservaAberta() { if (LEITURAS.cave === 'ERRO') throw new Error('x'); return LEITURAS.cave; }
     function garrafaQueMaisDescansou() { if (LEITURAS.garrafa === 'ERRO') throw new Error('x'); return LEITURAS.garrafa; }
   `, cx);
@@ -102,6 +102,8 @@ const REP_NIVEL_4 = 120; // NIVEIS_CONFIG: o nível 4 começa em 120 de Reputaç
   ok(JSON.stringify(g.ev('visitaContextoAtual()')) === JSON.stringify({ nivel: 4, estacao: 'primavera', fase: 'choro', festaAtiva: false, caveAberta: false, garrafaDias: null }), 'contexto sem festa/cave/garrafa errado');
   g.leituras({ festa: 'natal' });
   ok(g.ev('visitaContextoAtual().festaAtiva') === false, 'com o Natal aberto a visita do São Martinho (festaAtiva) não conta: o texto de henrique_1 é do São Martinho');
+  g.leituras({ festa: 'carnaval' });
+  ok(g.ev('visitaContextoAtual().festaAtiva') === false, 'com o Carnaval aberto a visita do São Martinho (festaAtiva) também não conta');
   g.leituras({ festa: true });
   ok(g.ev('visitaContextoAtual().festaAtiva') === true, 'com o São Martinho aberto a visita de festa continua a contar');
   g.leituras({ estacao: 'ERRO', fase: 'ERRO', festa: 'ERRO', cave: 'ERRO', garrafa: 'ERRO' });
