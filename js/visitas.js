@@ -20,7 +20,7 @@
 //   faseRealAtual()                      'repouso' | 'choro' | 'rebentacao' | 'floracao' |
 //                                        'vingamento' | 'pintor' | 'vindima' | 'fimVindima' |
 //                                        'quedaFolha' (js/estacoes.js)
-//   festaAtual() !== null                festaAtiva (js/festas.js; objeto da festa ou null)
+//   festaAtual() é o São Martinho        festaAtiva (js/festas.js; o texto da visita é dessa festa)
 //   caveReservaAberta()                  caveAberta (boolean; js/garrafa.js)
 //   garrafaQueMaisDescansou()            garrafaDias: inteiro >= 1, ou null sem dados (js/garrafa.js)
 // ---------------------------------------------------------------------
@@ -45,7 +45,7 @@ const VISITAS_PERSONAGENS = [
 // Condições (null = sem condição):
 //   { tipo: 'estacao', valor }   estacaoAtual() === valor
 //   { tipo: 'fase', valores }    faseRealAtual() é um dos valores
-//   { tipo: 'festa' }            festaAtual() !== null
+//   { tipo: 'festa' }            festaAtiva (o São Martinho está aberto)
 //   { tipo: 'garrafa' }          garrafaQueMaisDescansou() >= 1 (1 dia ou mais a descansar)
 //   { tipo: 'cave' }             caveReservaAberta()
 const VISITAS_FASES_VINDIMA = ['vindima', 'fimVindima'];
@@ -152,7 +152,8 @@ function visitaContextoAtual() {
   try { c.nivel = nivelPelaReputacao(state.reputacao); } catch (e) {}
   try { c.estacao = estacaoAtual(); } catch (e) {}
   try { c.fase = faseRealAtual(); } catch (e) {}
-  try { c.festaAtiva = festaAtual() !== null; } catch (e) {}
+  // O texto da visita 'festa' (henrique_1) é do São Martinho: com o Natal aberto não conta como festa ativa.
+  try { const f = festaAtual(); c.festaAtiva = f !== null && f.id === 'saomartinho'; } catch (e) {}
   try { c.caveAberta = caveReservaAberta() === true; } catch (e) {}
   try { c.garrafaDias = garrafaQueMaisDescansou(); } catch (e) {}
   return c;

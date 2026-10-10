@@ -47,7 +47,7 @@ function abrir(o) {
     function diaLisboaDeHoje() { return DIA; }
     function estacaoAtual() { if (LEITURAS.estacao === 'ERRO') throw new Error('x'); return LEITURAS.estacao; }
     function faseRealAtual() { if (LEITURAS.fase === 'ERRO') throw new Error('x'); return LEITURAS.fase; }
-    function festaAtual() { if (LEITURAS.festa === 'ERRO') throw new Error('x'); return LEITURAS.festa ? { id: 'saomartinho' } : null; }
+    function festaAtual() { if (LEITURAS.festa === 'ERRO') throw new Error('x'); return LEITURAS.festa === 'natal' ? { id: 'natal' } : (LEITURAS.festa ? { id: 'saomartinho' } : null); }
     function caveReservaAberta() { if (LEITURAS.cave === 'ERRO') throw new Error('x'); return LEITURAS.cave; }
     function garrafaQueMaisDescansou() { if (LEITURAS.garrafa === 'ERRO') throw new Error('x'); return LEITURAS.garrafa; }
   `, cx);
@@ -100,6 +100,10 @@ const REP_NIVEL_4 = 120; // NIVEIS_CONFIG: o nível 4 começa em 120 de Reputaç
   ok(JSON.stringify(g.ev('visitaContextoAtual()')) === JSON.stringify({ nivel: 4, estacao: 'inverno', fase: 'repouso', festaAtiva: true, caveAberta: true, garrafaDias: 2 }), 'contexto errado: ' + JSON.stringify(g.ev('visitaContextoAtual()')));
   g.leituras({ festa: false, cave: false, garrafa: null, estacao: 'primavera', fase: 'choro' });
   ok(JSON.stringify(g.ev('visitaContextoAtual()')) === JSON.stringify({ nivel: 4, estacao: 'primavera', fase: 'choro', festaAtiva: false, caveAberta: false, garrafaDias: null }), 'contexto sem festa/cave/garrafa errado');
+  g.leituras({ festa: 'natal' });
+  ok(g.ev('visitaContextoAtual().festaAtiva') === false, 'com o Natal aberto a visita do São Martinho (festaAtiva) não conta: o texto de henrique_1 é do São Martinho');
+  g.leituras({ festa: true });
+  ok(g.ev('visitaContextoAtual().festaAtiva') === true, 'com o São Martinho aberto a visita de festa continua a contar');
   g.leituras({ estacao: 'ERRO', fase: 'ERRO', festa: 'ERRO', cave: 'ERRO', garrafa: 'ERRO' });
   let c; try { c = g.ev('visitaContextoAtual()'); } catch (e) { c = 'ERRO'; }
   ok(c && c.estacao === null && c.fase === null && c.festaAtiva === false && c.caveAberta === false && c.garrafaDias === null && c.nivel === 4, 'leituras que falham deviam dar nulo/falso sem rebentar: ' + JSON.stringify(c));

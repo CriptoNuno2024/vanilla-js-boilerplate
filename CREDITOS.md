@@ -65,6 +65,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/lojas_casas.jpg` | A Loja da Quinta (fundo à chuva) | origem a confirmar pelo Nuno |
 | `assets/ecras/lojas_casas_janelas_abertas_2.jpg` | A Loja da Quinta (fundo com trovoada ou granizo) | origem a confirmar pelo Nuno |
 | `assets/ecras/menu_quinta.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
+| `assets/ecras/natal_dia25.jpg` | festa de Natal, dia 25 (cópia de `imagens_JOGO_TELEGRAM/natal_patio_de_vindima.jpg`) | origem a confirmar pelo Nuno |
+| `assets/ecras/natal_festa.jpg` | festa de Natal, ecrã da festa e tarefas (cópia de `imagens_JOGO_TELEGRAM/natal_patio_vindimas_2.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/nevoeiro_1.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/perfil_yoshi_cat_e_chizo.jpg` | história dos níveis | origem a confirmar pelo Nuno |
 | `assets/ecras/pragas_sol.jpg` | Vigiar a vinha (sinal de oídio, com calor) | origem a confirmar pelo Nuno |

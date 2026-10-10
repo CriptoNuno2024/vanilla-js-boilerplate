@@ -374,6 +374,30 @@ function suite(fontes) {
     ok(h.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === true, 'tarefa da festa NÃO repete na mesma data de Lisboa (mesmo com o aparelho noutro dia)');
     h.ir(Date.parse('2026-11-09T00:30:00Z'));
     ok(h.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false, 'tarefa da festa volta no dia seguinte de Lisboa');
+    // Data do aparelho ATRÁS: a tarefa já feita não se repete (até ao teto de DIAS_FUTURO_MAXIMO = 2 dias)
+    const r = jogador(Date.parse('2026-11-10T12:00:00Z')); // Lisboa 10 nov
+    r.ev("festaRegistarTarefaHoje('saomartinho', 'castanhas')");
+    ok(r.json('state.festas.tarefasDia.saomartinho_castanhas') === '2026-11-10', 'tarefa da festa: guarda o dia de Lisboa (10 nov)');
+    r.ir(Date.parse('2026-11-09T12:00:00Z'));
+    ok(r.ev('diaLisboaDeHoje()') === '2026-11-09' && r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === true, 'tarefa da festa: data atrás 1 dia NÃO repete');
+    r.ir(Date.parse('2026-11-08T12:00:00Z'));
+    ok(r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === true, 'tarefa da festa: data atrás 2 dias (o teto) NÃO repete');
+    r.ir(Date.parse('2026-11-07T12:00:00Z'));
+    ok(r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false, 'tarefa da festa: data atrás 3 dias (acima do teto) repõe');
+    r.ir(Date.parse('2026-11-10T12:00:00Z'));
+    ok(r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === true && r.ev("festaJaFezTarefaHoje('saomartinho', 'prova')") === false, 'tarefa da festa: de volta ao dia certo continua feita, e as outras tarefas não contam');
+    // Valores antigos ou estranhos (save antigo, nuvem): contam como não feita, sem rebentar
+    [null, '', 'lixo', 20261110, {}, []].forEach(function (v) {
+      r.ev('state.festas.tarefasDia.saomartinho_castanhas = ' + JSON.stringify(v) + ';');
+      ok(r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false, 'tarefa da festa: valor guardado ' + JSON.stringify(v) + ' conta como não feita');
+    });
+    ok(['', null, 'lixo', '2026-13-45'].every(function (h) { return r.ev('festaJaFez(state, "saomartinho", "prova", ' + JSON.stringify(h) + ')') === true; }), 'tarefa da festa: sem um "hoje" válido conta como feita (nada se ganha, nada se perde)');
+    r.ev('festaRegistarFez(state, "saomartinho", "prova", "lixo")');
+    ok(r.ev('state.festas.tarefasDia.saomartinho_prova') === undefined, 'tarefa da festa: registar com "hoje" inválido não grava nada');
+    r.ev('state.festas = null;');
+    ok(r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false && r.json('state.festas') !== null, 'tarefa da festa: state.festas a null repara-se em memória');
+    r.ev('state.festas = { tarefasDia: "x" };');
+    ok(r.ev("festaJaFezTarefaHoje('saomartinho', 'castanhas')") === false && r.ev("typeof state.festas.tarefasDia") === 'object', 'tarefa da festa: tarefasDia inválido repara-se em memória');
     // Tarefas do tempo (chuva, Estacas, Proteger do Frio) e arco-íris
     h.ir(Date.parse('2026-11-08T10:00:00Z'));
     h.ev("registarTarefaTempoHoje('chuvaRegouDia')");
@@ -442,7 +466,11 @@ const MUTACOES = [
   ['festa pelo dia do aparelho', 'festas.js', 'if (p) return { mes: p.mes, dia: p.dia };', ''],
   ['estação pelo mês do aparelho', 'estacoes.js', 'return p ? p.mes : new Date().getMonth();', 'return new Date().getMonth();'],
   ['ano do inverno pelo aparelho', 'vinha.js', 'const ano = p ? p.ano : new Date().getFullYear();', 'const ano = new Date().getFullYear();'],
-  ['tarefa da festa pelo dia do aparelho', 'festas.js', "state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === diaLisboaDeHoje()", "state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()"],
+  ['tarefa da festa pelo dia do aparelho', 'festas.js', 'return festaJaFez(state, festaId, tarefa, diaLisboaDeHoje());', "return festaJaFez(state, festaId, tarefa, (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })());"],
+  ['registo da tarefa da festa pelo dia do aparelho', 'festas.js', 'festaRegistarFez(state, festaId, tarefa, diaLisboaDeHoje());', "festaRegistarFez(state, festaId, tarefa, (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })());"],
+  ['tarefa da festa repete ao voltar a data atrás (volta a comparar com ===)', 'festas.js', 'return !diaLisboaMudou(hoje, guardado);', 'return guardado === hoje;'],
+  ['tarefa da festa sem o teto de 2 dias', 'festas.js', 'return !diaLisboaMudou(hoje, guardado);', "return diasEntreDiasLisboa(hoje, guardado) !== null && diasEntreDiasLisboa(hoje, guardado) >= 0;"],
+  ['tarefa da festa com hoje inválido deixa de contar como feita', 'festas.js', 'if (diaLisboaPartes(hoje) === null) return true;', 'if (diaLisboaPartes(hoje) === null) return false;'],
   ['tarefa do tempo pelo dia do aparelho', 'vinha.js', 'return state.tempo[campo] === diaLisboaDeHoje();', "return state.tempo[campo] === (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();"],
   ['arco-íris pelo dia do aparelho', 'tempo.js', 'state.tempo.arcoirisDia === diaLisboaDeHoje()', "state.tempo.arcoirisDia === (function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()"]
 ];
