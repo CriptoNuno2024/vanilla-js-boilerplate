@@ -35,7 +35,7 @@ const HISTORIA_NIVEIS = {
     { chave: 'historia.nivel3.3' }
   ],
   4: [
-    { chave: 'historia.nivel4.1', foto: 'assets/ecras/cimo_da_colina_apontar.jpg' },
+    { chave: 'historia.nivel4.1', foto: 'assets/ecras/varios_talhoes_da_vinha.jpg' },
     { chave: 'historia.nivel4.2' },
     { chave: 'historia.nivel4.3' }
   ],

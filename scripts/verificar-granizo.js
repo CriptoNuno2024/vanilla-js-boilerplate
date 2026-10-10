@@ -182,8 +182,8 @@ async function suite(fontes) {
     if (fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM'))) ok(fs.existsSync(orig), 'o original imagens_JOGO_TELEGRAM/granizo.jpg continua no sítio');
     // As 3 imagens da Loja (js/loja.js) também vêm desta pasta e já foram copiadas de propósito (ver verificar-loja.js).
     const DA_LOJA = ['lojas_casas.jpg', 'lojas_casas_janelas_abertas_2.jpg', 'casa_loja_meio_da_vinha_4.jpg'];
-    // As 4 imagens de "Vigiar a vinha" (js/vigiar.js) também foram copiadas de propósito (ver verificar-vigiar.js).
-    DA_LOJA.push('doencas_e_pragas.jpg', 'doencas_e_pragas_2.jpg', 'pragas_sol.jpg', 'pragas_sol_2.jpg');
+    // A festa da vindima (fundo do Lagar depois de pôr a mesa, ver verificar-mesa.js) e as 4 imagens de "Vigiar a vinha" (js/vigiar.js) também foram copiadas de propósito (ver verificar-vigiar.js).
+    DA_LOJA.push('festa_vindima_pessoas.jpg', 'varios_talhoes_da_vinha.jpg', 'doencas_e_pragas.jpg', 'doencas_e_pragas_2.jpg', 'pragas_sol.jpg', 'pragas_sol_2.jpg');
     const outras = fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM')) ? fs.readdirSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM')).filter(function (f) { return f !== 'granizo.jpg' && DA_LOJA.indexOf(f) === -1; }) : [];
     outras.forEach(function (f) { ok(!fs.existsSync(path.join(RAIZ, 'assets', 'ecras', f)) && !fs.existsSync(path.join(RAIZ, 'assets', 'vinha', f)) && !fs.existsSync(path.join(RAIZ, 'assets', f)), 'a imagem ' + f + ' não devia ter sido copiada para assets/'); });
     const codigoJs = fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f); }).map(function (f) { return [f, fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8')]; });
