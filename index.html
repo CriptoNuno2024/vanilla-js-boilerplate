@@ -971,6 +971,14 @@
     .roxo-botao:disabled { opacity: 0.55; cursor: default; }
     #roxo-container .action-panel { max-height: calc(100vh - 200px); gap: 6px; }
     #roxo-container .action-panel .btn-pill { min-height: 44px; }
+    /* A Loja da Quinta (ver lojaDesenhar() em js/loja.js): como a Cepa Roxa, caixa com o texto por cima da foto */
+    .loja-info { padding: 8px 10px; border-radius: 12px; background: var(--vinho-escuro-forte); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(245, 215, 110, 0.35); color: #fff; font-size: 13.5px; line-height: 1.35; }
+    .loja-info p { margin: 0; }
+    .loja-info p + p { margin-top: 4px; }
+    .loja-info .loja-ok { color: #f5d76e; font-weight: 700; }
+    .loja-botao:disabled { opacity: 0.55; cursor: default; }
+    #loja-container .action-panel { max-height: calc(100vh - 200px); gap: 6px; }
+    #loja-container .action-panel .btn-pill { min-height: 44px; }
     .estrada-aviso { margin: 0; padding: 4px 4px 2px; text-align: center; font-size: 13px; color: #f5d76e; }
 
     .colecao-cor {
@@ -1885,6 +1893,7 @@
     body.jogo-cheio #screen-lagar.content,
     body.jogo-cheio #screen-camara.content,
     body.jogo-cheio #screen-roxo.content,
+    body.jogo-cheio #screen-loja.content,
     body.jogo-cheio #screen-garrafas.content,
     body.jogo-cheio #screen-festa.content {
       background: none;
@@ -2110,6 +2119,7 @@
         <div id="nivel-container"></div>
         <div id="visita-container"></div>
         <div id="estrada-linha-container"></div>
+        <div id="loja-linha-container"></div>
         <div id="lagar-linha-container"></div>
         <div id="camara-linha-container"></div>
         <div id="roxo-linha-container"></div>
@@ -2180,6 +2190,11 @@
     <div id="camara-container"></div>
   </div>
 
+  <!-- ECRÃ: A LOJA DA QUINTA (Nível 7; vender bagaceira por Reputação; aberto a partir da Quinta) -->
+  <div id="screen-loja" class="screen content">
+    <div id="loja-container"></div>
+  </div>
+
   <!-- ECRÃ: A CEPA ROXA (Nível 10; tarefa "Brindar com o Moscatel Roxo"; aberto a partir da Quinta) -->
   <div id="screen-roxo" class="screen content">
     <div id="roxo-container"></div>
@@ -2218,10 +2233,10 @@
     pareceria bugs de inconsistência (ex: idioma trocado só em parte).
     Sobe este número sempre que editares algum ficheiro em js/.
   -->
-  <script src="js/state.js?v=69"></script>
+  <script src="js/state.js?v=70"></script>
   <script src="js/som.js?v=48"></script>
   <script src="js/nuvem.js?v=58"></script>
-  <script src="js/i18n.js?v=95"></script>
+  <script src="js/i18n.js?v=96"></script>
   <script src="js/estacoes.js?v=42"></script>
   <script src="js/tempo.js?v=54"></script>
   <script src="js/festas.js?v=51"></script>
@@ -2235,7 +2250,7 @@
   <script src="js/garrafa.js?v=61"></script>
   <script src="js/personagens.js?v=2"></script>
   <script src="js/perfil.js?v=61"></script>
-  <script src="js/niveis.js?v=58"></script>
+  <script src="js/niveis.js?v=59"></script>
   <script src="js/historia.js?v=55"></script>
   <!-- ronda.js antes de objetivos.js: este chama rondaChizoReporDia() logo ao carregar -->
   <script src="js/ronda.js?v=6"></script>
@@ -2249,7 +2264,8 @@
   <script src="js/lagar.js?v=3"></script>
   <script src="js/camara.js?v=2"></script>
   <script src="js/roxo.js?v=1"></script>
+  <script src="js/loja.js?v=1"></script>
   <script src="js/reserva.js?v=1"></script>
-  <script src="js/main.js?v=71"></script>
+  <script src="js/main.js?v=72"></script>
 </body>
 </html>

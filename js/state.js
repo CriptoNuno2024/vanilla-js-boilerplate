@@ -195,6 +195,13 @@ function defaultState() {
       provaDia: null,
       dias: 0
     },
+    // A Loja da Quinta (Nível 7, ver js/loja.js). dia: 'AAAA-MM-DD' (Lisboa) a que se referem as vendas de hoje (null = nunca vendeu);
+    // vendasHoje: quantas bagaceiras já vendeu nesse dia (repõe-se pelas regras do relógio, diaLisboaMudou em js/tempo.js).
+    // NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.camara, state.lagar, state.reserva e state.despensa.
+    loja: {
+      dia: null,
+      vendasHoje: 0
+    },
     // A Cepa Roxa (Nível 10, ver js/roxo.js). brindeDia: último dia (Lisboa, 'AAAA-MM-DD') em que
     // brindou com o Moscatel Roxo (null = nunca). dias: em quantos dias diferentes já brindou (só sobe; o
     // capítulo 10 lê-o). NÃO se junta na nuvem: segue o estado inteiro que ganhar, como state.camara, state.lagar e state.despensa.

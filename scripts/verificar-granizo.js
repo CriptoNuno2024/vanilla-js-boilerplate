@@ -180,7 +180,9 @@ async function suite(fontes) {
       if (fs.existsSync(orig)) ok(crypto.createHash('md5').update(b).digest('hex') === crypto.createHash('md5').update(fs.readFileSync(orig)).digest('hex'), 'assets/ecras/granizo.jpg é igual ao original');
     }
     if (fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM'))) ok(fs.existsSync(orig), 'o original imagens_JOGO_TELEGRAM/granizo.jpg continua no sítio');
-    const outras = fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM')) ? fs.readdirSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM')).filter(function (f) { return f !== 'granizo.jpg'; }) : [];
+    // As 3 imagens da Loja (js/loja.js) também vêm desta pasta e já foram copiadas de propósito (ver verificar-loja.js).
+    const DA_LOJA = ['lojas_casas.jpg', 'lojas_casas_janelas_abertas_2.jpg', 'casa_loja_meio_da_vinha_4.jpg'];
+    const outras = fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM')) ? fs.readdirSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM')).filter(function (f) { return f !== 'granizo.jpg' && DA_LOJA.indexOf(f) === -1; }) : [];
     outras.forEach(function (f) { ok(!fs.existsSync(path.join(RAIZ, 'assets', 'ecras', f)) && !fs.existsSync(path.join(RAIZ, 'assets', 'vinha', f)) && !fs.existsSync(path.join(RAIZ, 'assets', f)), 'a imagem ' + f + ' não devia ter sido copiada para assets/'); });
     const codigoJs = fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f); }).map(function (f) { return [f, fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8')]; });
     outras.forEach(function (f) { codigoJs.forEach(function (p) { ok(p[1].indexOf(f) === -1, 'js/' + p[0] + ' não devia usar ' + f); }); });

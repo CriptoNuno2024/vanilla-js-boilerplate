@@ -38,6 +38,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/arco_iris.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/bagaco.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/ecras/calor.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
+| `assets/ecras/casa_loja_meio_da_vinha_4.jpg` | A Loja da Quinta (fundo com sol) | origem a confirmar pelo Nuno |
 | `assets/ecras/cave_de_inverno.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/ecras/chizo_lenco.jpg` | Proteger | origem a confirmar pelo Nuno |
 | `assets/ecras/chizo_porta_casa.jpg` | história dos níveis | origem a confirmar pelo Nuno |
@@ -58,6 +59,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/inverno_poda.jpg` | Vinha | origem a confirmar pelo Nuno |
 | `assets/ecras/livro_cabecalho.jpg` | Livro de Conquistas | origem a confirmar pelo Nuno |
 | `assets/ecras/livro_conquistas.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
+| `assets/ecras/lojas_casas.jpg` | A Loja da Quinta (fundo à chuva) | origem a confirmar pelo Nuno |
+| `assets/ecras/lojas_casas_janelas_abertas_2.jpg` | A Loja da Quinta (fundo com trovoada ou granizo) | origem a confirmar pelo Nuno |
 | `assets/ecras/menu_quinta.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/nevoeiro_1.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/perfil_yoshi_cat_e_chizo.jpg` | história dos níveis | origem a confirmar pelo Nuno |

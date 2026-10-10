@@ -90,6 +90,8 @@ const FUNDO_DOS_ECRAS = {
   lagar: { src: 'assets/ecras/festa_vindima_todos_juntos.jpg' },
   camara: { src: 'assets/vinha/barril_dourado.jpg' },
   roxo: { src: 'assets/ecras/yoshi_cat_festa_vindima.jpg' },
+  // A Loja escolhe o fundo pelo tempo quando desenha (ver fundoTempoLoja() em js/loja.js); esta é a de reserva (sol).
+  loja: { src: 'assets/ecras/casa_loja_meio_da_vinha_4.jpg' },
   conquistas: { src: 'assets/ecras/livro_conquistas.jpg' },
   lingua: null
 };
@@ -117,7 +119,8 @@ const NAV_ATIVO_POR_ECRA = {
   estrada: 'quinta',
   lagar: 'quinta',
   camara: 'quinta',
-  roxo: 'quinta'
+  roxo: 'quinta',
+  loja: 'quinta'
 };
 
 // "Limpeza ao sair" por ecrã — um minijogo com temporizador (ex: o
@@ -557,6 +560,7 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarLinhaVisitaQuinta === 'function') atualizarLinhaVisitaQuinta();
     if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
+    if (typeof atualizarLinhaLojaQuinta === 'function') atualizarLinhaLojaQuinta();
     if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
     if (typeof atualizarLinhaCamaraQuinta === 'function') atualizarLinhaCamaraQuinta();
     if (typeof atualizarLinhaRoxoQuinta === 'function') atualizarLinhaRoxoQuinta();
@@ -605,6 +609,7 @@ function goTo(screen, opcoes) {
   if (screen === 'lagar') renderLagar();
   if (screen === 'camara') renderCamara();
   if (screen === 'roxo') renderRoxo();
+  if (screen === 'loja') renderLoja();
   if (screen === 'garrafas') renderGarrafas();
   if (screen === 'lingua') renderLinguaScreen();
   if (screen === 'festa') enterFesta();
