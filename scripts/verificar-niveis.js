@@ -105,6 +105,33 @@ function main() {
     });
   });
 
+  // c') cada foto da história existe em disco; a do nível 4 ("vinhas até perder de vista") é varios_talhoes_da_vinha.jpg (cópia
+  // exata do original, JPEG 714x1280, <= 250 KB) e a do nível 10 continua a ser a da colina
+  Object.keys(J.HISTORIA_NIVEIS).forEach(function (n) {
+    J.HISTORIA_NIVEIS[n].forEach(function (fala) {
+      if (fala.foto && !fs.existsSync(path.join(RAIZ, fala.foto))) falta('Nível ' + n + ' (história)', 'a imagem "' + fala.foto + '"');
+    });
+  });
+  {
+    const f4 = (J.HISTORIA_NIVEIS[4] || [])[0] || {};
+    if (f4.foto !== 'assets/ecras/varios_talhoes_da_vinha.jpg') falta('Nível 4 (história)', 'a foto da 1.ª fala devia ser assets/ecras/varios_talhoes_da_vinha.jpg (é ' + f4.foto + ')');
+    const f10 = (J.HISTORIA_NIVEIS[10] || [])[0] || {};
+    if (f10.foto !== 'assets/ecras/cimo_da_colina_apontar.jpg') falta('Nível 10 (história)', 'a foto da 1.ª fala devia continuar a ser assets/ecras/cimo_da_colina_apontar.jpg (é ' + f10.foto + ')');
+    const dst = path.join(RAIZ, 'assets', 'ecras', 'varios_talhoes_da_vinha.jpg');
+    if (fs.existsSync(dst)) {
+      const b = fs.readFileSync(dst);
+      let w = 0, hh = 0;
+      for (let i = 2; i < b.length - 9;) { if (b[i] !== 0xff) { i++; continue; } const m = b[i + 1]; if (m >= 0xc0 && m <= 0xc2) { hh = b.readUInt16BE(i + 5); w = b.readUInt16BE(i + 7); break; } i += 2 + b.readUInt16BE(i + 2); }
+      if (!(b[0] === 0xff && b[1] === 0xd8 && w === 714 && hh === 1280)) falta('Nível 4 (história)', 'varios_talhoes_da_vinha.jpg devia ser um JPEG 714x1280 (é ' + w + 'x' + hh + ')');
+      if (b.length > 250 * 1024) falta('Nível 4 (história)', 'varios_talhoes_da_vinha.jpg não devia pesar mais de 250 KB (pesa ' + b.length + ')');
+      const orig = path.join(RAIZ, 'imagens_JOGO_TELEGRAM', 'varios_talhoes_da_vinha.jpg');
+      if (fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM'))) {
+        if (!fs.existsSync(orig)) falta('Nível 4 (história)', 'o original imagens_JOGO_TELEGRAM/varios_talhoes_da_vinha.jpg devia continuar no sítio');
+        else if (!b.equals(fs.readFileSync(orig))) falta('Nível 4 (história)', 'varios_talhoes_da_vinha.jpg devia ser cópia exata do original');
+      }
+    }
+  }
+
   // d) nenhum ecrã exige um nível que não existe
   const ultimo = J.NIVEIS_CONFIG.length;
   Object.keys(J.NIVEL_NECESSARIO_POR_ECRA).forEach(function (ecra) {

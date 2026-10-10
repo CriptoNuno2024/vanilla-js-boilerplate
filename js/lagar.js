@@ -35,7 +35,7 @@ const LAGAR_CONFIG = {
   mesa: {
     bens: [{ bem: 'queijo_azeitao', n: 1 }, { bem: 'sal_sado', n: 1 }, { bem: 'mel_sesimbra', n: 1 }],
     reputacao: 12,
-    imagem: 'assets/ecras/yoshi_cat_festa.jpg' // fundo do ecrã depois de pôr a mesa
+    imagem: 'assets/ecras/festa_vindima_pessoas.jpg' // fundo do ecrã depois de pôr a mesa (a festa da vindima; yoshi_cat_festa.jpg já não é usada)
   },
   // O assalto especial: +3 de Reputação se travar, nada se perder. "chave" é o prefixo dos textos em js/i18n.js
   // (<chave>.sit, <chave>.op1 a .op3); "correta" é o índice (0 a 2) da opção certa.

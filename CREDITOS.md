@@ -53,6 +53,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/estrada_tomas.jpg` | A Estrada (cena do vizinho) | origem a confirmar pelo Nuno |
 | `assets/ecras/explorar_trator.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/festa_vindima_todos_juntos.jpg` | fundo de um ecrã, história dos níveis | origem a confirmar pelo Nuno |
+| `assets/ecras/festa_vindima_pessoas.jpg` | O Lagar (fundo depois de pôr a mesa da vindima; versão comprimida a ≤ 250 KB do original em imagens_JOGO_TELEGRAM) | origem a confirmar pelo Nuno |
 | `assets/ecras/fygmos_fazem_das_suas.jpg` | O Lagar, fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/fygmos_quinta_passear.jpg` | O Lagar | origem a confirmar pelo Nuno |
 | `assets/ecras/doencas_e_pragas.jpg` | Vigiar a vinha (sinal de míldio, com chuva) | origem a confirmar pelo Nuno |
@@ -79,12 +80,13 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/tempestade.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/tempo_chuva.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/trovoada_chizo.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
+| `assets/ecras/varios_talhoes_da_vinha.jpg` | história do nível 4 (cópia exata do original) | origem a confirmar pelo Nuno |
 | `assets/ecras/vento.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_adega_balde.jpg` | Reserva (resultado da tarefa) | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_cruzados_derrota_3.jpg` | Proteger | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_e_chizo_geada.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_fala_das_uvas.jpg` | história dos níveis | origem a confirmar pelo Nuno |
-| `assets/ecras/yoshi_cat_festa.jpg` | O Lagar | origem a confirmar pelo Nuno |
+| `assets/ecras/yoshi_cat_festa.jpg` | O Lagar (já sem uso: o fundo depois de pôr a mesa passou a ser festa_vindima_pessoas.jpg; não se apagou) | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_festa_vindima.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_festejar_vitoria.jpg` | O Lagar, Proteger | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_geada.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |

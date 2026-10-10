@@ -70,7 +70,18 @@ const mesa = function (g, dia, receita) { return g.json('despensaMesaVindima(sta
   ok(JSON.stringify(g.json('LAGAR_CONFIG.mesa.bens')) === JSON.stringify(BENS.map(function (b) { return { bem: b, n: 1 }; })), 'a mesa gasta 1 queijo, 1 sal e 1 mel');
   ok(JSON.stringify(g.json("CAPITULOS_CONFIG.filter(function (c) { return c.id === 'cap7'; })[0].criterio[0].chaves")) === JSON.stringify(BENS), 'são os 3 bens de origem do capítulo 7');
   ok(g.ev('LAGAR_CONFIG.mesa.reputacao') === 12, '+12 de Reputação');
-  ok(g.ev('LAGAR_CONFIG.mesa.imagem') === 'assets/ecras/yoshi_cat_festa.jpg' && fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'yoshi_cat_festa.jpg')), 'imagem do resultado da mesa');
+  ok(g.ev('LAGAR_CONFIG.mesa.imagem') === 'assets/ecras/festa_vindima_pessoas.jpg' && fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'festa_vindima_pessoas.jpg')), 'imagem do resultado da mesa (a festa da vindima)');
+  { // a imagem da festa: JPEG 714x1280, comprimida até ao limite de 250 KB dos testes de imagens (250 * 1024 bytes), original intacto
+    const f = path.join(RAIZ, 'assets', 'ecras', 'festa_vindima_pessoas.jpg'); const b = fs.readFileSync(f);
+    let w = 0, hh = 0;
+    for (let i = 2; i < b.length - 9;) { if (b[i] !== 0xff) { i++; continue; } const m = b[i + 1]; if (m >= 0xc0 && m <= 0xc2) { hh = b.readUInt16BE(i + 5); w = b.readUInt16BE(i + 7); break; } i += 2 + b.readUInt16BE(i + 2); }
+    ok(b[0] === 0xff && b[1] === 0xd8 && w === 714 && hh === 1280, 'festa_vindima_pessoas.jpg é um JPEG 714x1280 (tem ' + w + 'x' + hh + ')');
+    ok(b.length <= 250 * 1024, 'festa_vindima_pessoas.jpg não devia pesar mais de 250 KB (pesa ' + b.length + ')');
+    const orig = path.join(RAIZ, 'imagens_JOGO_TELEGRAM', 'festa_vindima_pessoas.jpg');
+    if (fs.existsSync(path.join(RAIZ, 'imagens_JOGO_TELEGRAM'))) ok(fs.existsSync(orig) && fs.statSync(orig).size > b.length, 'o original imagens_JOGO_TELEGRAM/festa_vindima_pessoas.jpg continua no sítio (é maior: esta é a versão comprimida)');
+    ok(fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'yoshi_cat_festa.jpg')), 'yoshi_cat_festa.jpg continua no sítio (já não é usada, mas não se apaga)');
+    ok(!/festa_vindima_pessoas/.test(fs.readFileSync(path.join(RAIZ, 'js', 'main.js'), 'utf8')), 'o fundo de antes de pôr a mesa (main.js) não mudou');
+  }
   ok(g.ev('BENS_OK = LAGAR_CONFIG.mesa.bens.every(function (b) { return despensaBemExiste(b.bem); })') === true, 'os bens da mesa existem em ESTRADA_BENS');
 }
 
