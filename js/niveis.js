@@ -74,6 +74,7 @@ function atualizarCartaoNivelQuinta() {
     '</div>';
   // A linha da Estrada depende do nível: acompanha o cartão (ver js/estrada.js).
   if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
+  if (typeof atualizarLinhaLojaQuinta === 'function') atualizarLinhaLojaQuinta();
   if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
   if (typeof atualizarLinhaCamaraQuinta === 'function') atualizarLinhaCamaraQuinta();
   if (typeof atualizarLinhaRoxoQuinta === 'function') atualizarLinhaRoxoQuinta();
@@ -142,6 +143,7 @@ const NIVEL_NECESSARIO_POR_ECRA = {
   colecao: 6,
   garrafas: 6,
   estrada: 7,
+  loja: 7,
   lagar: 8,
   camara: 9,
   roxo: 10
