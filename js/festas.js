@@ -1,14 +1,21 @@
 // ---------------------------------------------------------------------
 // MOTOR DAS FESTAS — festas sazonais ligadas à data real de Portugal.
 //
-// Para acrescentar uma festa nova no futuro: basta acrescentar uma nova
-// entrada a FESTAS_CONFIG (datas, imagens, textos, prémios) — o resto
-// do motor (deteção pela data, faixa na Quinta, tarefas "uma vez por
-// dia", dia grande a dobrar os prémios) já funciona sozinho.
+// Para acrescentar uma festa nova no futuro: acrescenta uma entrada a
+// FESTAS_CONFIG (datas, imagens, tarefas, prémios) e os textos a
+// FESTAS_STRINGS. Cada tarefa tem { id, onde, regra, btn, premio }:
+//   id     o nome da tarefa (a chave do "uma vez por dia" e do objetivo do dia)
+//   onde   'festa' = o botão aparece no ecrã da festa
+//   regra  uma das regras de FESTAS_REGRAS (ver abaixo)
+//   btn    a chave do texto do botão em FESTAS_STRINGS
+//   premio os valores da tarefa (cada regra lê os seus)
+// O resto do motor (deteção pela data, faixa na Quinta, tarefas "uma vez
+// por dia", dia grande a dobrar os prémios, objetivo do dia) lê só isto.
 //
-// Para testar: acrescenta ?festa=saomartinho ao endereço para simular
-// estar dentro da festa, e ?festa=saomartinho&dia=11 para simular o
-// dia grande. Funciona junto com ?estacao= e ?tempo=.
+// Para testar: acrescenta ?festa=saomartinho (ou ?festa=natal) ao endereço
+// para simular estar dentro da festa, e ?festa=saomartinho&dia=11 (ou
+// ?festa=natal&dia=25) para simular o dia grande. Funciona junto com
+// ?estacao= e ?tempo=.
 // ---------------------------------------------------------------------
 
 const FESTAS_CONFIG = [
@@ -18,6 +25,8 @@ const FESTAS_CONFIG = [
     inicio: { mes: 10, dia: 8 },      // 8 de novembro
     fim: { mes: 10, dia: 14 },        // 14 de novembro
     diaGrande: { mes: 10, dia: 11 },  // 11 de novembro
+    // Entrada da Enciclopédia que abre ao entrar na festa (sem este campo, nenhuma).
+    entradaEnciclopedia: 'lendaSaoMartinho',
     imagens: {
       diaGrande: 'assets/ecras/sao_martinho_dia11.jpg',
       faixa: 'assets/ecras/sao_martinho_festa.jpg',
@@ -32,13 +41,45 @@ const FESTAS_CONFIG = [
     // equilibrados com os valores que já existem no Proteger (uvas e
     // gotas 6-12, reputação 2-5) e na Adega (fortificar/engarrafar
     // dão dezenas de Reputação).
-    recompensas: {
-      castanhas: { uvasMin: 6, uvasMax: 12, gotasMin: 6, gotasMax: 12, repMin: 3, repMax: 6 },
+    tarefas: [
       // Verão de São Martinho (sol real durante a festa): bónus nas castanhas.
-      castanhasBonusVerao: 1.5,
-      jeropiga: { custoGotas: 50, custoAguardente: 1, reputacao: 25 },
-      prova: { reputacao: 8 },
+      { id: 'castanhas', onde: 'festa', regra: 'cena_sorteada', btn: 'btnCastanhas',
+        premio: { uvasMin: 6, uvasMax: 12, gotasMin: 6, gotasMax: 12, repMin: 3, repMax: 6, bonusVerao: 1.5 } },
+      { id: 'jeropiga', onde: 'festa', regra: 'jeropiga', btn: 'btnJeropiga',
+        premio: { custoGotas: 50, custoAguardente: 1, reputacao: 25 } },
+      { id: 'prova', onde: 'festa', regra: 'prova', btn: 'btnProva',
+        premio: { reputacao: 8 } }
+    ],
+    recompensas: {
       // No dia grande, os prémios em pontos contam a dobrar.
+      multiplicadorDiaGrande: 2
+    }
+  },
+  {
+    id: 'natal',
+    inicio: { mes: 11, dia: 20 },     // 20 de dezembro
+    fim: { mes: 11, dia: 26 },        // 26 de dezembro
+    diaGrande: { mes: 11, dia: 25 },  // 25 de dezembro
+    imagens: {
+      diaGrande: 'assets/ecras/natal_dia25.jpg',
+      faixa: 'assets/ecras/natal_festa.jpg',
+      consoada: 'assets/ecras/natal_festa.jpg',
+      doces: 'assets/ecras/natal_festa.jpg',
+      boloRei: 'assets/ecras/natal_festa.jpg'
+    },
+    // O Natal só dá Reputação (que sobe o nível e nunca se gasta) e só gasta Gotas, nunca Uvas.
+    // Valores da mesma ordem das tarefas do São Martinho: a prova (8, sem custo) e as castanhas
+    // (3 a 6) para a consoada e o bolo-rei; a jeropiga (25 por 50 Gotas, Aguardente e garrafa)
+    // para os doces (12 por 30 Gotas, sem Aguardente nem garrafa).
+    tarefas: [
+      { id: 'consoada', onde: 'festa', regra: 'oferta', btn: 'btnConsoada',
+        premio: { reputacao: 5 } },
+      { id: 'doces', onde: 'festa', regra: 'gastar_gotas', btn: 'btnDoces',
+        premio: { custoGotas: 30, reputacao: 12 } },
+      { id: 'boloRei', onde: 'festa', regra: 'cena_do_dia', btn: 'btnBoloRei',
+        premio: { reputacao: 6 } }
+    ],
+    recompensas: {
       multiplicadorDiaGrande: 2
     }
   }
@@ -98,18 +139,109 @@ function estaNoDiaGrandeFesta(festa) {
 // TAREFAS "UMA VEZ POR DIA" — mesma ideia do state.tempo (js/tempo.js),
 // mas genérica para qualquer festa/tarefa, para uma festa nova não
 // precisar de mexer em js/state.js.
+//
+// Relógio: as mesmas regras de js/tempo.js (diaLisboaMudou, com o teto
+// DIAS_FUTURO_MAXIMO). Com a data do aparelho atrás (até ao teto), a
+// tarefa já feita continua feita; mais do que isso à frente, repõe-se.
+// As regras puras recebem o estado e o dia ("AAAA-MM-DD") por argumento.
 // -----------------------------------------------------------------
 
 function chaveTarefaFesta(festaId, tarefa) {
   return festaId + '_' + tarefa;
 }
 
+// state.festas com a forma certa (uma nuvem ou um save estranho podem trazer null
+// ou outro tipo): repara só em memória e devolve tarefasDia.
+function festasTarefasDia(estado) {
+  if (!estado.festas || typeof estado.festas !== 'object' || Array.isArray(estado.festas)) estado.festas = { tarefasDia: {} };
+  if (!estado.festas.tarefasDia || typeof estado.festas.tarefasDia !== 'object' || Array.isArray(estado.festas.tarefasDia)) estado.festas.tarefasDia = {};
+  return estado.festas.tarefasDia;
+}
+
+// A tarefa já foi feita "hoje"? Sem um "hoje" válido, conta como feita (nada se ganha e nada se perde).
+function festaJaFez(estado, festaId, tarefa, hoje) {
+  if (diaLisboaPartes(hoje) === null) return true;
+  const guardado = festasTarefasDia(estado)[chaveTarefaFesta(festaId, tarefa)];
+  return !diaLisboaMudou(hoje, guardado);
+}
+
+function festaRegistarFez(estado, festaId, tarefa, hoje) {
+  if (diaLisboaPartes(hoje) === null) return;
+  festasTarefasDia(estado)[chaveTarefaFesta(festaId, tarefa)] = hoje;
+}
+
 function festaJaFezTarefaHoje(festaId, tarefa) {
-  return state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] === diaLisboaDeHoje();
+  return festaJaFez(state, festaId, tarefa, diaLisboaDeHoje());
 }
 
 function festaRegistarTarefaHoje(festaId, tarefa) {
-  state.festas.tarefasDia[chaveTarefaFesta(festaId, tarefa)] = diaLisboaDeHoje();
+  festaRegistarFez(state, festaId, tarefa, diaLisboaDeHoje());
+}
+
+// As tarefas da festa que se fazem no ecrã da festa (lista da configuração).
+function festaTarefas(festa) {
+  if (!festa || !Array.isArray(festa.tarefas)) return [];
+  return festa.tarefas.filter(function (x) { return x && x.onde === 'festa'; });
+}
+
+function festaTarefa(festa, id) {
+  return festaTarefas(festa).filter(function (x) { return x.id === id; })[0] || null;
+}
+
+// Ainda há alguma tarefa desta festa por fazer hoje? (o objetivo do dia, js/objetivos.js)
+function festaTemTarefaPorFazerHoje(festa) {
+  return festaTarefas(festa).some(function (x) { return !festaJaFezTarefaHoje(festa.id, x.id); });
+}
+
+// -----------------------------------------------------------------
+// REGRAS PURAS DAS TAREFAS DE REPUTAÇÃO (Natal): sem relógio nem sorteio,
+// o dia e o estado vêm por argumento; nada grava (quem chama grava).
+//   oferta        sem custo: dá a Reputação
+//   gastar_gotas  gasta custoGotas Gotas (nunca Uvas) e dá a Reputação; sem Gotas não gasta nem marca o dia
+//   cena_do_dia   cena de 3 opções: acertar dá a Reputação, falhar não custa nada (e gasta a tentativa do dia)
+// -----------------------------------------------------------------
+
+const FESTAS_REGRAS_PURAS = ['oferta', 'gastar_gotas', 'cena_do_dia'];
+
+// Que cena sai neste dia (0 a n - 1): estável o dia todo, igual em qualquer aparelho, sem sorteio
+// (o mesmo molde de lagarAssaltoCena em js/lagar.js, com semente própria).
+function festaCenaDoDia(festaId, tarefaId, dia, n) {
+  if (typeof dia !== 'string' || !Number.isInteger(n) || n <= 0) return 0;
+  const semente = dia + '#' + festaId + '#' + tarefaId;
+  let h = 0;
+  for (let i = 0; i < semente.length; i++) h = (h * 31 + semente.charCodeAt(i)) >>> 0;
+  return h % n;
+}
+
+// Devolve { ok, motivo, rep, gotasGastas, venceu }; motivo null | 'estado_invalido' | 'dia_invalido' |
+// 'tarefa_invalida' | 'ja_hoje' | 'faltam_gotas' | 'resultado_invalido'. Recusar nunca altera nada.
+// opcoes: { diaGrande: true/false, venceu: true/false (só na cena_do_dia) }.
+function festaResolverTarefa(estado, festa, tarefa, hoje, opcoes) {
+  const recusa = function (motivo) { return { ok: false, motivo: motivo, rep: 0, gotasGastas: 0, venceu: false }; };
+  if (!estado || typeof estado !== 'object') return recusa('estado_invalido');
+  if (diaLisboaPartes(hoje) === null) return recusa('dia_invalido');
+  if (!festa || !tarefa || !tarefa.premio || FESTAS_REGRAS_PURAS.indexOf(tarefa.regra) === -1) return recusa('tarefa_invalida');
+  if (festaJaFez(estado, festa.id, tarefa.id, hoje)) return recusa('ja_hoje');
+  const op = opcoes || {};
+  const p = tarefa.premio;
+  const mult = op.diaGrande === true ? festa.recompensas.multiplicadorDiaGrande : 1;
+  let gotasGastas = 0;
+  let venceu = true;
+
+  if (tarefa.regra === 'gastar_gotas') {
+    const gotas = typeof estado.gotas === 'number' && Number.isFinite(estado.gotas) ? estado.gotas : 0;
+    if (gotas < p.custoGotas) return recusa('faltam_gotas');
+    gotasGastas = p.custoGotas;
+  } else if (tarefa.regra === 'cena_do_dia') {
+    if (op.venceu !== true && op.venceu !== false) return recusa('resultado_invalido');
+    venceu = op.venceu;
+  }
+
+  const rep = venceu ? p.reputacao * mult : 0;
+  estado.gotas = (typeof estado.gotas === 'number' && Number.isFinite(estado.gotas) ? estado.gotas : 0) - gotasGastas;
+  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + rep;
+  festaRegistarFez(estado, festa.id, tarefa.id, hoje);
+  return { ok: true, motivo: null, rep: rep, gotasGastas: gotasGastas, venceu: venceu };
 }
 
 // -----------------------------------------------------------------
@@ -220,6 +352,101 @@ const FESTAS_STRINGS = {
       provaSemVinho: 'Todavía no hay vino reposando en la Cava. Fortifica un lote en la Bodega de vinificación para tener algo que probar en el próximo San Martín.',
       provaComVinho: '¡Cuando el YoshiCat llega a la Cava, los Fygmos ya están allí, copa en pata, probando el vino nuevo sin pedir permiso!'
     }
+  },
+  natal: {
+    pt: {
+      faixa: 'É Natal na Quinta!',
+      titulo: 'Natal na Quinta',
+      subtitulo: 'Uma semana de Natal, com o dia grande no dia de Natal.',
+      diaGrandeAviso: 'Hoje é dia de Natal! Os prémios contam a dobrar.',
+      tarefaFeitaHoje: 'já feita hoje',
+      btnConsoada: 'A Consoada',
+      btnDoces: 'Doces da Quinta',
+      btnBoloRei: 'O Bolo-Rei',
+      btnVoltar: 'Voltar',
+
+      consoadaTitulo: 'A Consoada na Quinta',
+      consoadaJaFeitaHoje: 'Já puseste a mesa hoje. A consoada de amanhã só amanhã.',
+      consoadaSucesso: 'A mesa da consoada está posta e ninguém se lembra de contar as cadeiras. O YoshiCat senta-se, o Chizo instala-se por baixo da mesa à espera do que cair, e a Quinta fica com mais calor.',
+
+      docesTitulo: 'Os Doces da Quinta',
+      docesJaFeitaHoje: 'Já fizeste doces hoje. Os de amanhã ficam para amanhã.',
+      docesFalta: 'Ainda faltam Gotas para os doces. Junta mais e volta cá.',
+      docesSucesso: 'A cozinha da Quinta cheira a Natal: rabanadas a dourar, filhós a levantar. O Fygmo e o Fygmo2 juram que só passaram por ali para "provar a qualidade".',
+
+      boloReiTitulo: 'O Bolo-Rei',
+      boloReiSubtitulo: 'O Fygmo e o Fygmo2 andam a rondar o bolo',
+      boloReiJaFeitaHoje: 'Hoje o bolo-rei já foi defendido. Amanhã há outra ronda.',
+      boloReiCenas: [
+        { situacao: 'O bolo-rei está a arrefecer em cima da mesa. O Fygmo e o Fygmo2 fazem de conta que estão só a admirar a decoração.', opcoes: ['Deixar o bolo sozinho para eles o admirarem à vontade', 'Tapar o bolo com um pano e pôr o Chizo de guarda', 'Cortar logo uma fatia enorme para os distrair'], correta: 1 },
+        { situacao: 'O Fygmo2 sobe para uma cadeira e estica o focinho para o bolo-rei, com ar de quem só quer espreitar.', opcoes: ['Pôr o bolo em cima do armário, fora do alcance', 'Dar-lhe os parabéns pela pontaria', 'Ir buscar mais rabanadas para a mesa'], correta: 0 },
+        { situacao: 'O Fygmo distrai-te com uma história comprida enquanto o Fygmo2 se aproxima do bolo, pé ante pé.', opcoes: ['Ouvir a história até ao fim, que parece boa', 'Esconder o bolo debaixo do casaco', 'Chamar o Chizo para vigiar o bolo enquanto ouves'], correta: 2 }
+      ],
+      boloReiVitoria: 'O bolo-rei fica a salvo! O Fygmo e o Fygmo2 suspiram, olham para as migalhas que não há e prometem portar-se bem. Até ao próximo bolo.',
+      boloReiDerrota: 'Tarde demais... o Fygmo e o Fygmo2 já fogem com uma fatia cada. Não faz mal: não se perdeu nada, e o Natal é para partilhar.'
+    },
+    en: {
+      faixa: "It's Christmas on the Quinta!",
+      titulo: 'Christmas on the Quinta',
+      subtitulo: 'A week of Christmas, with the big day on Christmas Day.',
+      diaGrandeAviso: 'Today is Christmas Day! Prizes count double.',
+      tarefaFeitaHoje: 'already done today',
+      btnConsoada: 'The Consoada',
+      btnDoces: 'Quinta Sweets',
+      btnBoloRei: 'The Bolo-Rei',
+      btnVoltar: 'Back',
+
+      consoadaTitulo: 'The Consoada on the Quinta',
+      consoadaJaFeitaHoje: "You've already set the table today. Tomorrow's consoada is for tomorrow.",
+      consoadaSucesso: 'The consoada table is set and nobody remembers to count the chairs. YoshiCat sits down, Chizo settles under the table waiting for whatever falls, and the Quinta feels warmer.',
+
+      docesTitulo: 'The Quinta Sweets',
+      docesJaFeitaHoje: "You've already made sweets today. Tomorrow's will wait until tomorrow.",
+      docesFalta: 'You still need more Drops for the sweets. Gather some more and come back.',
+      docesSucesso: 'The Quinta kitchen smells of Christmas: rabanadas turning golden, filhós rising. Fygmo and Fygmo2 swear they only dropped by to "check the quality".',
+
+      boloReiTitulo: 'The Bolo-Rei',
+      boloReiSubtitulo: 'Fygmo and Fygmo2 are circling the cake',
+      boloReiJaFeitaHoje: "Today the bolo-rei has already been defended. Tomorrow there's another round.",
+      boloReiCenas: [
+        { situacao: 'The bolo-rei is cooling on the table. Fygmo and Fygmo2 pretend they are just admiring the decorations.', opcoes: ['Leave the cake alone so they can admire it in peace', 'Cover the cake with a cloth and put Chizo on guard', 'Cut a huge slice right away to distract them'], correta: 1 },
+        { situacao: 'Fygmo2 climbs onto a chair and stretches his snout towards the bolo-rei, looking like he only wants a peek.', opcoes: ['Put the cake on top of the cupboard, out of reach', 'Congratulate him on his aim', 'Go and fetch more rabanadas for the table'], correta: 0 },
+        { situacao: 'Fygmo distracts you with a very long story while Fygmo2 tiptoes towards the cake.', opcoes: ['Listen to the story to the end, it sounds good', 'Hide the cake under your coat', 'Call Chizo to watch the cake while you listen'], correta: 2 }
+      ],
+      boloReiVitoria: 'The bolo-rei is safe! Fygmo and Fygmo2 sigh, look at the crumbs that are not there and promise to behave. Until the next cake.',
+      boloReiDerrota: "Too late... Fygmo and Fygmo2 are already running off with a slice each. Never mind: nothing was lost, and Christmas is for sharing."
+    },
+    es: {
+      faixa: '¡Es Navidad en la Quinta!',
+      titulo: 'Navidad en la Quinta',
+      subtitulo: 'Una semana de Navidad, con el día grande el día de Navidad.',
+      diaGrandeAviso: '¡Hoy es día de Navidad! Los premios cuentan el doble.',
+      tarefaFeitaHoje: 'ya hecha hoy',
+      btnConsoada: 'La Consoada',
+      btnDoces: 'Dulces de la Quinta',
+      btnBoloRei: 'El Bolo-Rei',
+      btnVoltar: 'Volver',
+
+      consoadaTitulo: 'La Consoada en la Quinta',
+      consoadaJaFeitaHoje: 'Ya has puesto la mesa hoy. La consoada de mañana, mañana.',
+      consoadaSucesso: 'La mesa de la consoada está puesta y a nadie se le ocurre contar las sillas. El YoshiCat se sienta, el Chizo se acomoda debajo de la mesa esperando lo que caiga, y la Quinta se vuelve más cálida.',
+
+      docesTitulo: 'Los Dulces de la Quinta',
+      docesJaFeitaHoje: 'Ya has hecho dulces hoy. Los de mañana, para mañana.',
+      docesFalta: 'Todavía faltan Gotas para los dulces. Junta más y vuelve.',
+      docesSucesso: 'La cocina de la Quinta huele a Navidad: rabanadas dorándose, filhós creciendo. El Fygmo y el Fygmo2 juran que solo pasaron por allí para "comprobar la calidad".',
+
+      boloReiTitulo: 'El Bolo-Rei',
+      boloReiSubtitulo: 'El Fygmo y el Fygmo2 rondan el bizcocho',
+      boloReiJaFeitaHoje: 'Hoy el bolo-rei ya ha sido defendido. Mañana hay otra ronda.',
+      boloReiCenas: [
+        { situacao: 'El bolo-rei se enfría sobre la mesa. El Fygmo y el Fygmo2 fingen que solo admiran la decoración.', opcoes: ['Dejar el bolo solo para que lo admiren a gusto', 'Tapar el bolo con un paño y poner al Chizo de guardia', 'Cortar enseguida una porción enorme para distraerlos'], correta: 1 },
+        { situacao: 'El Fygmo2 se sube a una silla y estira el hocico hacia el bolo-rei, con aire de querer solo echar un vistazo.', opcoes: ['Poner el bolo encima del armario, fuera de su alcance', 'Felicitarlo por su puntería', 'Ir a buscar más rabanadas para la mesa'], correta: 0 },
+        { situacao: 'El Fygmo te distrae con una historia larguísima mientras el Fygmo2 se acerca al bolo de puntillas.', opcoes: ['Escuchar la historia hasta el final, que parece buena', 'Esconder el bolo bajo el abrigo', 'Llamar al Chizo para que vigile el bolo mientras escuchas'], correta: 2 }
+      ],
+      boloReiVitoria: '¡El bolo-rei está a salvo! El Fygmo y el Fygmo2 suspiran, miran las migas que no hay y prometen portarse bien. Hasta el próximo bolo.',
+      boloReiDerrota: 'Demasiado tarde... el Fygmo y el Fygmo2 ya huyen con una porción cada uno. No pasa nada: no se perdió nada, y la Navidad es para compartir.'
+    }
   }
 };
 
@@ -273,8 +500,10 @@ function enterFesta() {
   festaNovaEntrada = null;
   const festa = festaAtual();
   if (festa) {
-    festaNovaEntrada = desbloquearEntradaEnciclopedia('lendaSaoMartinho');
-    if (festaNovaEntrada) saveState(state);
+    if (festa.entradaEnciclopedia) {
+      festaNovaEntrada = desbloquearEntradaEnciclopedia(festa.entradaEnciclopedia);
+      if (festaNovaEntrada) saveState(state);
+    }
   }
   renderFestaHub();
 }
@@ -297,12 +526,11 @@ function renderFestaHub() {
 
   let avisos = '';
   if (diaGrande) avisos += '<p class="mini-sub">' + S.diaGrandeAviso + '</p>';
-  if (ehVerao) avisos += '<p class="mini-sub">' + S.veraoAviso + '</p>';
+  if (ehVerao && S.veraoAviso) avisos += '<p class="mini-sub">' + S.veraoAviso + '</p>';
 
-  const botoesHtml =
-    botaoFesta('castanhas', S.btnCastanhas, festaJaFezTarefaHoje(festa.id, 'castanhas'), S.tarefaFeitaHoje) +
-    botaoFesta('jeropiga', S.btnJeropiga, festaJaFezTarefaHoje(festa.id, 'jeropiga'), S.tarefaFeitaHoje) +
-    botaoFesta('prova', S.btnProva, festaJaFezTarefaHoje(festa.id, 'prova'), S.tarefaFeitaHoje);
+  const botoesHtml = festaTarefas(festa).map(function (tarefa) {
+    return botaoFesta(tarefa.id, S[tarefa.btn], festaJaFezTarefaHoje(festa.id, tarefa.id), S.tarefaFeitaHoje);
+  }).join('');
 
   container.innerHTML =
     festaTopcardHtml(S, S.subtitulo, avisos) +
@@ -321,10 +549,21 @@ function iniciarTarefaFesta(tarefa) {
   if (!festa) return;
   festaMensagemAtual = '';
   festaNovaEntrada = null;
-  if (tarefa === 'castanhas') iniciarCastanhas(festa);
-  else if (tarefa === 'jeropiga') fazerJeropiga(festa);
-  else if (tarefa === 'prova') provarVinhoNovo(festa);
+  const cfg = festaTarefa(festa, tarefa);
+  if (!cfg) return;
+  const regra = FESTAS_REGRAS[cfg.regra];
+  if (regra) regra(festa, cfg);
 }
+
+// As regras que o ecrã sabe executar (a "regra" de cada tarefa em FESTAS_CONFIG). Cada uma recebe (festa, tarefa).
+const FESTAS_REGRAS = {
+  cena_sorteada: function (festa) { iniciarCastanhas(festa); },
+  jeropiga: function (festa) { fazerJeropiga(festa); },
+  prova: function (festa) { provarVinhoNovo(festa); },
+  oferta: function (festa, tarefa) { festaTarefaSimples(festa, tarefa); },
+  gastar_gotas: function (festa, tarefa) { festaTarefaSimples(festa, tarefa); },
+  cena_do_dia: function (festa, tarefa) { festaIniciarCenaDoDia(festa, tarefa); }
+};
 
 // -----------------------------------------------------------------
 // TAREFA 1 — ASSAR CASTANHAS (reaproveita o mini-jogo do Proteger:
@@ -371,14 +610,14 @@ function responderCastanha(i) {
   let fotoResultado;
 
   if (venceu) {
-    const r = festa.recompensas.castanhas;
+    const r = festaTarefa(festa, 'castanhas').premio;
     let uvasGanhas = randInt(r.uvasMin, r.uvasMax);
     let gotasGanhas = randInt(r.gotasMin, r.gotasMax);
     let repGanha = randInt(r.repMin, r.repMax);
 
     if (ehVerao) {
-      uvasGanhas = Math.round(uvasGanhas * festa.recompensas.castanhasBonusVerao);
-      gotasGanhas = Math.round(gotasGanhas * festa.recompensas.castanhasBonusVerao);
+      uvasGanhas = Math.round(uvasGanhas * r.bonusVerao);
+      gotasGanhas = Math.round(gotasGanhas * r.bonusVerao);
     }
     if (diaGrande) {
       uvasGanhas *= festa.recompensas.multiplicadorDiaGrande;
@@ -431,7 +670,7 @@ function fazerJeropiga(festa) {
     return;
   }
 
-  const custo = festa.recompensas.jeropiga;
+  const custo = festaTarefa(festa, 'jeropiga').premio;
   // Pede 1 aguardente: aceita Bagaceira OU Aguardente vínica e gasta primeiro a bagaceira (ver js/alambique.js).
   if (state.gotas < custo.custoGotas || !alambiqueTemParaJeropiga(state, custo.custoAguardente)) {
     festaMensagemAtual = S.jeropigaFalta;
@@ -486,7 +725,7 @@ function provarVinhoNovo(festa) {
   festaRegistarTarefaHoje(festa.id, 'prova');
   if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
   const diaGrande = estaNoDiaGrandeFesta(festa);
-  const repGanha = festa.recompensas.prova.reputacao * (diaGrande ? festa.recompensas.multiplicadorDiaGrande : 1);
+  const repGanha = festaTarefa(festa, 'prova').premio.reputacao * (diaGrande ? festa.recompensas.multiplicadorDiaGrande : 1);
   state.reputacao += repGanha;
 
   saveState(state);
@@ -497,4 +736,77 @@ function provarVinhoNovo(festa) {
     '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="renderFestaHub()">' + S.btnVoltar + '</button></div>';
   definirFundo('foto', festa.imagens.prova);
   atualizarDialogo(S.provaComVinho + ' (+' + repGanha + ' ' + t('stat.reputacao') + ')', 'YoshiCat');
+}
+
+// -----------------------------------------------------------------
+// TAREFAS DE REPUTAÇÃO (Natal): a consoada, os doces e o bolo-rei.
+// As contas são as regras puras de cima (festaResolverTarefa); aqui só se
+// mostra o ecrã e se grava UMA vez. Textos: S[tarefa.id + 'Titulo'], etc.
+// -----------------------------------------------------------------
+
+function festaMostrarResultado(festa, tarefa, mensagem, foto) {
+  const S = fStr(festa.id);
+  const container = document.getElementById('festa-container');
+  container.innerHTML =
+    '<div class="topcard"><p class="mini-title">' + S[tarefa.id + 'Titulo'] + '</p></div>' +
+    '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="renderFestaHub()">' + S.btnVoltar + '</button></div>';
+  definirFundo('foto', foto);
+  atualizarDialogo(mensagem, 'YoshiCat');
+}
+
+// Consoada (oferta) e Doces (gastar_gotas): um toque, resolve e grava.
+function festaTarefaSimples(festa, tarefa) {
+  const S = fStr(festa.id);
+  const r = festaResolverTarefa(state, festa, tarefa, diaLisboaDeHoje(), { diaGrande: estaNoDiaGrandeFesta(festa) });
+  if (!r.ok) {
+    if (r.motivo === 'ja_hoje') festaMensagemAtual = S[tarefa.id + 'JaFeitaHoje'];
+    else if (r.motivo === 'faltam_gotas') festaMensagemAtual = S[tarefa.id + 'Falta'];
+    renderFestaHub();
+    return;
+  }
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  saveState(state);
+  updateStatsDisplays();
+  festaMostrarResultado(festa, tarefa,
+    S[tarefa.id + 'Sucesso'] + ' (' + (r.gotasGastas ? '-' + r.gotasGastas + ' ' + t('stat.gotas') + ', ' : '') + '+' + r.rep + ' ' + t('stat.reputacao') + ')',
+    festa.imagens[tarefa.id]);
+}
+
+// Bolo-rei (cena_do_dia): a cena e a opção certa são fixas por dia (sem sorteio).
+let festaCenaAtual = null; // { festa, tarefa, cena } enquanto a cena espera resposta
+
+function festaIniciarCenaDoDia(festa, tarefa) {
+  if (festaJaFezTarefaHoje(festa.id, tarefa.id)) { renderFestaHub(); return; }
+  const S = fStr(festa.id);
+  const cenas = S[tarefa.id + 'Cenas'];
+  const cena = cenas[festaCenaDoDia(festa.id, tarefa.id, diaLisboaDeHoje(), cenas.length)];
+  festaCenaAtual = { festa: festa, tarefa: tarefa, cena: cena };
+
+  const container = document.getElementById('festa-container');
+  container.innerHTML =
+    '<div class="topcard"><p class="mini-title">' + S[tarefa.id + 'Titulo'] + '</p><p class="mini-sub">' + S[tarefa.id + 'Subtitulo'] + '</p></div>' +
+    '<div class="action-panel"><div class="choice-stack">' +
+    cena.opcoes.map(function (op, i) {
+      return '<button type="button" class="btn-choice" onclick="festaResponderCenaDoDia(' + i + ')">' + op + '</button>';
+    }).join('') +
+    '</div></div>';
+  definirFundo('foto', festa.imagens[tarefa.id]);
+  atualizarDialogo(cena.situacao, 'YoshiCat');
+}
+
+function festaResponderCenaDoDia(i) {
+  const atual = festaCenaAtual;
+  if (!atual) return; // toque duplo ou cena já respondida
+  festaCenaAtual = null;
+  const festa = atual.festa;
+  const tarefa = atual.tarefa;
+  const S = fStr(festa.id);
+  const r = festaResolverTarefa(state, festa, tarefa, diaLisboaDeHoje(), { diaGrande: estaNoDiaGrandeFesta(festa), venceu: i === atual.cena.correta });
+  if (!r.ok) { renderFestaHub(); return; }
+  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  saveState(state);
+  updateStatsDisplays();
+  festaMostrarResultado(festa, tarefa,
+    r.venceu ? S[tarefa.id + 'Vitoria'] + ' (+' + r.rep + ' ' + t('stat.reputacao') + ')' : S[tarefa.id + 'Derrota'],
+    festa.imagens[tarefa.id]);
 }

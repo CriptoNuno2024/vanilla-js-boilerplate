@@ -280,7 +280,7 @@ function suite(fontes) {
     g1.ev('fazerJeropiga(' + festa + ')');
     ok(g1.ev('state.adega.bagaceira') === 1 && g1.ev('state.adega.aguardente') === 3 && g1.ev('state.gotas') === 10 && g1.ev('state.garrafas') === 1, 'jeropiga gasta a bagaceira primeiro (50 Gotas, mesmo prémio e garrafa)');
     const rep1 = g1.ev('state.reputacao') - 372;
-    ok(rep1 === g1.ev(festa + '.recompensas.jeropiga.reputacao') * (g1.ev('estaNoDiaGrandeFesta(' + festa + ')') ? 2 : 1), 'o prémio da jeropiga não mudou (+25, a dobrar no dia grande), deu ' + rep1);
+    ok(rep1 === g1.ev('festaTarefa(' + festa + ", 'jeropiga').premio.reputacao") * (g1.ev('estaNoDiaGrandeFesta(' + festa + ')') ? 2 : 1), 'o prémio da jeropiga não mudou (+25, a dobrar no dia grande), deu ' + rep1);
     const g2 = jogador({ bagaceira: 0, aguardente: 3 }); g2.ev('state.gotas = 60;');
     g2.ev('fazerJeropiga(' + festa + ')');
     ok(g2.ev('state.adega.bagaceira') === 0 && g2.ev('state.adega.aguardente') === 2 && g2.ev('state.gotas') === 10, 'sem bagaceira, a jeropiga gasta a vínica');
@@ -442,7 +442,7 @@ const MUTACOES = [
   ['sem contador da bagaceira', 'garrafa.js', "' <span data-i18n=\"adega.recursoBagaceira\"></span> ' + a.bagaceira + '</span>' +", "'' +"],
   ['jeropiga gasta só a vínica', 'festas.js', 'alambiqueGastarParaJeropiga(state, custo.custoAguardente);', 'state.adega.aguardente -= custo.custoAguardente;'],
   ['jeropiga exige a vínica', 'festas.js', '!alambiqueTemParaJeropiga(state, custo.custoAguardente)', 'state.adega.aguardente < custo.custoAguardente'],
-  ['jeropiga custa 40 Gotas', 'festas.js', 'jeropiga: { custoGotas: 50,', 'jeropiga: { custoGotas: 40,'],
+  ['jeropiga custa 40 Gotas', 'festas.js', "regra: 'jeropiga', btn: 'btnJeropiga',\n        premio: { custoGotas: 50,", "regra: 'jeropiga', btn: 'btnJeropiga',\n        premio: { custoGotas: 40,"],
   ['o texto da jeropiga ainda manda destilar bagaço', 'festas.js', 'Prensa mais Uvas e destila mais no Alambique.', 'Prensa mais Uvas e destila mais Bagaço no Alambique.'],
   ['objetivo só com bagaço', 'objetivos.js', 'alambiquePodeDestilar(state)', 'state.adega.bagaco >= 3'],
   ['texto em falta (EN)', 'i18n.js', "'adega.btnDestilarVinho': 'Distil wine',", ''],

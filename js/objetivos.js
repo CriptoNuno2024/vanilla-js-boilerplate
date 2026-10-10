@@ -62,11 +62,8 @@ function candidatosGrupoC() {
   const lista = [];
 
   const festa = festaAtual();
-  if (festa && ecraDesbloqueado('festa') && (
-    !festaJaFezTarefaHoje(festa.id, 'castanhas') ||
-    !festaJaFezTarefaHoje(festa.id, 'jeropiga') ||
-    !festaJaFezTarefaHoje(festa.id, 'prova')
-  )) {
+  // As tarefas vêm da configuração da festa (FESTAS_CONFIG, js/festas.js), não de nomes escritos aqui.
+  if (festa && ecraDesbloqueado('festa') && festaTemTarefaPorFazerHoje(festa)) {
     lista.push('festa_tarefa');
   }
 
