@@ -38,6 +38,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/arco_iris.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/bagaco.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/ecras/calor.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
+| `assets/ecras/carnaval_dia_grande.jpg` | festa de Carnaval, dia grande (cópia comprimida de `imagens_JOGO_TELEGRAM/carnaval_patio_vindimas_2_personagens.jpg`, a mesma imagem, 714x1280) | origem a confirmar pelo Nuno |
+| `assets/ecras/carnaval_festa.jpg` | festa de Carnaval, ecrã da festa e tarefas (cópia exata de `imagens_JOGO_TELEGRAM/carnaval_patio_vindima_1.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/casa_loja_meio_da_vinha_4.jpg` | A Loja da Quinta (fundo com sol) | origem a confirmar pelo Nuno |
 | `assets/ecras/cave_de_inverno.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/ecras/chizo_lenco.jpg` | Proteger | origem a confirmar pelo Nuno |

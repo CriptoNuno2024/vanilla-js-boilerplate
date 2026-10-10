@@ -8,6 +8,7 @@
 // C. Regras puras (festaResolverTarefa): sem custo em Uvas, perder não custa nada, 1 vez por dia, relógio atrás.
 // D. Cena do bolo-rei: fixa por dia (sem sorteio), igual em qualquer aparelho.
 // E. Textos em PT, EN e ES completos e sem números; objetivos.js lê a configuração; Enciclopédia só no São Martinho.
+// G. Carnaval: data móvel (sábado a terça), mesmas regras e valores do Natal, textos, imagens, 2026 a 2035.
 // F. Datas móveis: Páscoa (2 métodos independentes), somar dias, janela móvel (Carnaval de teste), e as festas
 //    de datas fixas iguais a antes em todos os dias de 13 anos.
 //
@@ -324,6 +325,146 @@ function suite(fontes) {
     ok(!/Math\.random|Date\.now|new Date|randInt/.test(regras), 'as regras puras (relógio e Natal) não lêem o relógio nem sorteiam');
   }
 
+
+  // ---------------- C2. Regras puras do Carnaval (as mesmas do Natal) ----------------
+  {
+    const g = abrir(lis(2, 14));
+    g.ev("var CARNAVAL = FESTAS_CONFIG.filter(function (f) { return f.id === 'carnaval'; })[0]; var T = function (id) { return festaTarefa(CARNAVAL, id); };");
+    g.ev('function res(e, id, hoje, op) { return festaResolverTarefa(e, CARNAVAL, T(id), hoje, op); }');
+    const r = function (estadoJs, id, hoje, op) { return g.ev('(function () { var e = ' + estadoJs + '; var x = res(e, "' + id + '", ' + JSON.stringify(hoje) + ', ' + JSON.stringify(op || {}) + '); return JSON.stringify({ x: x, e: e }); })()'); };
+    const E = '{ gotas: 100, uvas: 7, reputacao: 372, festas: { tarefasDia: {} } }';
+    const R = function (estadoJs, id, hoje, op) { return JSON.parse(r(estadoJs, id, hoje, op)); };
+
+    let o = R(E, 'corso', '2026-12-22');
+    ok(o.x.ok && o.x.rep === 5 && o.e.reputacao === 377 && o.e.gotas === 100 && o.e.uvas === 7 && o.e.festas.tarefasDia.carnaval_corso === '2026-12-22', 'corso: +5, sem custo (Gotas e Uvas iguais), marca o dia');
+    o = R(E, 'corso', '2026-12-25', { diaGrande: true });
+    ok(o.x.rep === 10 && o.e.reputacao === 382, 'corso no dia grande: a dobrar (+10)');
+    const FEITA = '{ gotas: 100, uvas: 7, reputacao: 372, festas: { tarefasDia: { carnaval_corso: "2026-12-22", carnaval_fantasias: "2026-12-22", carnaval_quemEstaMascarado: "2026-12-22" } } }';
+    ['corso', 'fantasias', 'quemEstaMascarado'].forEach(function (id) {
+      o = R(FEITA, id, '2026-12-22', { venceu: true });
+      ok(!o.x.ok && o.x.motivo === 'ja_hoje' && o.e.reputacao === 372 && o.e.gotas === 100, id + ': 1 vez por dia (segunda vez recusa e não muda nada)');
+      o = R(FEITA, id, '2026-12-23', { venceu: true });
+      ok(o.x.ok, id + ': volta no dia seguinte');
+    });
+    // data do aparelho atrás
+    ['2026-12-21', '2026-12-20'].forEach(function (d) { o = R(FEITA, 'corso', d); ok(o.x.motivo === 'ja_hoje', 'data atrás (' + d + ', até 2 dias): a tarefa não se repete'); });
+    o = R(FEITA, 'corso', '2026-12-19'); ok(o.x.ok, 'data atrás 3 dias (acima do teto): repõe');
+
+    // fantasias: Gotas, nunca Uvas
+    o = R(E, 'fantasias', '2026-12-22');
+    ok(o.x.ok && o.x.gotasGastas === 30 && o.e.gotas === 70 && o.e.uvas === 7 && o.e.reputacao === 384 && o.e.festas.tarefasDia.carnaval_fantasias === '2026-12-22', 'fantasias: gastam 30 Gotas, 0 Uvas, dão +12');
+    o = R('{ gotas: 100, uvas: 0, reputacao: 372, festas: { tarefasDia: {} } }', 'fantasias', '2026-12-22');
+    ok(o.x.ok && o.e.uvas === 0, 'fantasias: funcionam com 0 Uvas');
+    o = R(E, 'fantasias', '2026-12-25', { diaGrande: true });
+    ok(o.e.gotas === 70 && o.e.reputacao === 396, 'fantasias no dia grande: o prémio dobra (+24) mas o custo não (30)');
+    o = R('{ gotas: 30, uvas: 7, reputacao: 372, festas: { tarefasDia: {} } }', 'fantasias', '2026-12-22');
+    ok(o.x.ok && o.e.gotas === 0, 'fantasias: com exatamente 30 Gotas faz-se');
+    o = R('{ gotas: 29, uvas: 7, reputacao: 372, festas: { tarefasDia: {} } }', 'fantasias', '2026-12-22');
+    ok(!o.x.ok && o.x.motivo === 'faltam_gotas' && o.e.gotas === 29 && o.e.reputacao === 372 && !o.e.festas.tarefasDia.carnaval_fantasias, 'fantasias: com 29 Gotas não gasta, não paga e não marca o dia');
+    o = R('{ uvas: 7, reputacao: 372, festas: { tarefasDia: {} } }', 'fantasias', '2026-12-22');
+    ok(!o.x.ok && o.x.motivo === 'faltam_gotas' && o.e.reputacao === 372, 'fantasias: sem campo de Gotas conta como 0');
+
+    // quem está mascarado: acertar paga, falhar não custa nada mas gasta a tentativa do dia
+    o = R(E, 'quemEstaMascarado', '2026-12-22', { venceu: true });
+    ok(o.x.ok && o.x.venceu && o.x.rep === 6 && o.e.reputacao === 378 && o.e.gotas === 100 && o.e.uvas === 7, 'quem está mascarado certo: +6, sem custo');
+    o = R(E, 'quemEstaMascarado', '2026-12-25', { venceu: true, diaGrande: true });
+    ok(o.e.reputacao === 384, 'quem está mascarado certo no dia grande: +12');
+    o = R(E, 'quemEstaMascarado', '2026-12-22', { venceu: false });
+    ok(o.x.ok && !o.x.venceu && o.x.rep === 0 && o.e.reputacao === 372 && o.e.gotas === 100 && o.e.uvas === 7 && o.e.festas.tarefasDia.carnaval_quemEstaMascarado === '2026-12-22', 'quem está mascarado errado: não custa nada (Reputação, Gotas e Uvas iguais) e marca a tentativa do dia');
+    o = R(E, 'quemEstaMascarado', '2026-12-22', { venceu: false, diaGrande: true });
+    ok(o.e.reputacao === 372, 'quem está mascarado errado no dia grande: continua sem custar nada');
+    ['x', 1, null, undefined].forEach(function (v) {
+      o = R(E, 'quemEstaMascarado', '2026-12-22', { venceu: v });
+      ok(!o.x.ok && o.x.motivo === 'resultado_invalido' && o.e.reputacao === 372 && !o.e.festas.tarefasDia.carnaval_quemEstaMascarado, 'quem está mascarado: resultado ' + JSON.stringify(v) + ' recusa sem mexer em nada');
+    });
+
+    // entradas inválidas
+    ok(g.ev("festaResolverTarefa(null, CARNAVAL, T('corso'), '2026-12-22', {}).motivo") === 'estado_invalido', 'estado inválido recusa');
+    ['', null, 'lixo', '2026-13-45'].forEach(function (d) {
+      ok(g.ev('festaResolverTarefa(' + E + ', CARNAVAL, T("corso"), ' + JSON.stringify(d) + ', {}).motivo') === 'dia_invalido', 'dia ' + JSON.stringify(d) + ' recusa');
+    });
+    ok(g.ev("festaResolverTarefa(" + E + ", CARNAVAL, { id: 'x', regra: 'castanhas', premio: {} }, '2026-12-22', {}).motivo") === 'tarefa_invalida', 'uma regra do ecrã (não pura) recusa');
+    ok(g.ev("festaResolverTarefa(" + E + ", CARNAVAL, null, '2026-12-22', {}).motivo") === 'tarefa_invalida', 'tarefa em falta recusa');
+    // estado reparado em memória (nuvem ou save estranho)
+    o = R('{ gotas: 100, reputacao: 372, festas: null }', 'corso', '2026-12-22');
+    ok(o.x.ok && o.e.festas.tarefasDia.carnaval_corso === '2026-12-22', 'state.festas a null repara-se em memória');
+    o = R('{ gotas: "abc", reputacao: "x", festas: { tarefasDia: [] } }', 'corso', '2026-12-22');
+    ok(o.x.ok && o.e.reputacao === 5, 'Reputação inválida conta como 0, sem rebentar');
+
+    // objetivo do dia lê a configuração
+    g.ev("state.festas.tarefasDia = {};");
+    ok(g.ev('festaTemTarefaPorFazerHoje(CARNAVAL)') === true, 'objetivo do dia: com nada feito há tarefa por fazer');
+    g.ev("festaRegistarFez(state, 'carnaval', 'corso', diaLisboaDeHoje()); festaRegistarFez(state, 'carnaval', 'fantasias', diaLisboaDeHoje());");
+    ok(g.ev('festaTemTarefaPorFazerHoje(CARNAVAL)') === true, 'objetivo do dia: com 2 de 3 feitas ainda há uma por fazer');
+    g.ev("festaRegistarFez(state, 'carnaval', 'quemEstaMascarado', diaLisboaDeHoje());");
+    ok(g.ev('festaTemTarefaPorFazerHoje(CARNAVAL)') === false, 'objetivo do dia: com as 3 do Carnaval feitas já não há');
+    ok(g.ev("festaTemTarefaPorFazerHoje(FESTAS_CONFIG[0])") === true, 'objetivo do dia: as do Carnaval não contam para o São Martinho');
+    ok(g.ev('festaTemTarefaPorFazerHoje(null)') === false, 'objetivo do dia: sem festa não há tarefas');
+    const objetivosJs = fontes['objetivos.js'];
+    ok(/festaTemTarefaPorFazerHoje\(festa\)/.test(objetivosJs) && !/'castanhas'|'jeropiga'|'prova'/.test(objetivosJs.slice(objetivosJs.indexOf('function candidatosGrupoC'), objetivosJs.indexOf('function candidatosGrupoC') + 1200)), 'objetivos.js lê as tarefas da configuração, sem nomes escritos à mão');
+
+    // Fluxo no ecrã (Carnaval): um toque, uma gravação, uma vez por dia
+    const n = abrir(lis(2, 14), '?festa=carnaval');
+    n.ev('state.reputacao = 372; state.gotas = 100; state.uvas = 7;');
+    n.ev("iniciarTarefaFesta('fantasias')");
+    ok(n.ev('state.gotas') === 70 && n.ev('state.uvas') === 7 && n.ev('state.reputacao') === 384 && n.ev('SAVES') === 1 && n.ev('FUNDO') === 'assets/ecras/carnaval_festa.jpg', 'ecrã: fantasias gastam 30 Gotas, dão +12, uma gravação, imagem da festa');
+    n.ev("iniciarTarefaFesta('fantasias')");
+    ok(n.ev('state.gotas') === 70 && n.ev('state.reputacao') === 384 && n.ev('SAVES') === 1 && n.ev('festaMensagemAtual') === n.ev('FESTAS_STRINGS.carnaval.pt.fantasiasJaFeitaHoje'), 'ecrã: fantasias uma só vez por dia, com a mensagem de já feita');
+    n.ev("iniciarTarefaFesta('corso')");
+    ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 2, 'ecrã: corso +5');
+    n.ev('state.gotas = 10;'); n.ev('state.festas.tarefasDia.carnaval_fantasias = null;');
+    n.ev("iniciarTarefaFesta('fantasias')");
+    ok(n.ev('state.gotas') === 10 && n.ev('state.reputacao') === 389 && n.ev('SAVES') === 2 && n.ev('festaMensagemAtual') === n.ev('FESTAS_STRINGS.carnaval.pt.fantasiasFalta'), 'ecrã: fantasias com 10 Gotas avisam sem gastar nem gravar');
+    // quem está mascarado
+    n.ev("iniciarTarefaFesta('quemEstaMascarado')");
+    const cena = n.json('festaCenaAtual.cena');
+    ok(cena && cena.opcoes.length === 3, 'ecrã: o quem está mascarado mostra uma cena de 3 opções');
+    const errada = (cena.correta + 1) % 3;
+    n.ev('festaResponderCenaDoDia(' + errada + ')');
+    ok(n.ev('state.reputacao') === 389 && n.ev('state.gotas') === 10 && n.ev('SAVES') === 3 && n.ev("festaJaFezTarefaHoje('carnaval', 'quemEstaMascarado')") === true, 'ecrã: quem está mascarado errado não custa nada e gasta a tentativa do dia');
+    n.ev('festaResponderCenaDoDia(' + cena.correta + ')');
+    ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 3, 'ecrã: toque duplo na mesma cena não paga nem grava outra vez');
+    n.ev("iniciarTarefaFesta('quemEstaMascarado')");
+    ok(n.ev('festaCenaAtual') === null, 'ecrã: quem está mascarado já tentado hoje não abre outra cena');
+    n.ir(lis(2, 15));
+    n.ev("iniciarTarefaFesta('quemEstaMascarado')");
+    const cena2 = n.json('festaCenaAtual.cena');
+    n.ev('festaResponderCenaDoDia(' + cena2.correta + ')');
+    ok(n.ev('state.reputacao') === 395 && n.ev('SAVES') === 4, 'ecrã: no dia seguinte volta, e acertar dá +6');
+    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').length === 0, 'ecrã: cada tarefa conta para o objetivo do dia e o Carnaval não abre nada na Enciclopédia');
+    n.ev('enterFesta()');
+    ok(n.json('ENTRADAS').length === 0, 'enterFesta no Carnaval não abre a lenda de São Martinho');
+    n.ev('renderFestaHub()');
+    const html = n.ev('caixa.innerHTML');
+    ok(/iniciarTarefaFesta\('corso'\)/.test(html) && /iniciarTarefaFesta\('fantasias'\)/.test(html) && /iniciarTarefaFesta\('quemEstaMascarado'\)/.test(html) && !/castanhas|jeropiga|prova/.test(html), 'hub do Carnaval: os 3 botões do Carnaval e nenhum do São Martinho');
+    ok(n.ev('FUNDO') === 'assets/ecras/carnaval_festa.jpg', 'hub do Carnaval: imagem da festa fora do dia grande');
+    const gd = abrir(lis(2, 17), '?festa=carnaval&dia=17');
+    gd.ev('state.reputacao = 372; state.gotas = 100;');
+    gd.ev('renderFestaHub()');
+    ok(gd.ev('FUNDO') === 'assets/ecras/carnaval_dia_grande.jpg' && gd.ev('caixa.innerHTML').indexOf(gd.ev('FESTAS_STRINGS.carnaval.pt.diaGrandeAviso')) !== -1, 'hub do Carnaval no dia grande: imagem do dia 25 e aviso');
+    gd.ev("iniciarTarefaFesta('fantasias')");
+    ok(gd.ev('state.reputacao') === 396 && gd.ev('state.gotas') === 70, 'ecrã: no dia grande os fantasias dão +24 e custam 30');
+    // sol num dia de Carnaval não faz aparecer o aviso do "verão de São Martinho"
+    gd.ev("tempoAtual = function () { return { disponivel: true, ceu: 'sol' }; }; renderFestaHub();");
+    ok(gd.ev('caixa.innerHTML').indexOf('undefined') === -1, 'hub do Carnaval com sol: nada de "undefined" (o verão é só do São Martinho)');
+  }
+
+  // ---------------- D2. Cena de quem está mascarado: fixa por dia ----------------
+  {
+    const g = abrir(lis(2, 14));
+    const c = function (dia, n) { return g.ev("festaCenaDoDia('carnaval', 'quemEstaMascarado', " + JSON.stringify(dia) + ', ' + JSON.stringify(n === undefined ? 3 : n) + ')'); };
+    const dias = ['2026-02-14', '2026-02-15', '2026-02-16', '2026-02-17', '2027-02-06', '2027-02-07', '2027-02-08', '2027-02-09'];
+    dias.forEach(function (d) { ok(c(d) === c(d) && c(d) >= 0 && c(d) <= 2, d + ': a cena é a mesma o dia todo e vem de 0 a 2'); });
+    ok(new Set(dias.map(function (d) { return c(d); })).size >= 2, 'nos 8 dias de Carnaval de 2026 e 2027 não sai sempre a mesma cena');
+    ok(c('2026-12-22', 0) === 0 && c('2026-12-22', -1) === 0 && c('2026-12-22', 1.5) === 0 && c(null) === 0, 'n inválido ou dia inválido: cena 0, sem rebentar');
+    const a = abrir(lis(2, 14, '08:00')), b = abrir(lis(2, 14, '22:00'));
+    ok(a.ev("festaCenaDoDia('carnaval', 'quemEstaMascarado', diaLisboaDeHoje(), 3)") === b.ev("festaCenaDoDia('carnaval', 'quemEstaMascarado', diaLisboaDeHoje(), 3)"), 'a cena não depende da hora, só do dia de Lisboa');
+    ok(g.ev("festaCenaDoDia('carnaval', 'quemEstaMascarado', '2026-12-22', 3)") !== undefined && g.ev("festaCenaDoDia('carnaval', 'outra', '2026-12-22', 1000)") !== g.ev("festaCenaDoDia('carnaval', 'quemEstaMascarado', '2026-12-22', 1000)"), 'a semente inclui a tarefa');
+    const fonte = fontes['festas.js'];
+    const regras = fonte.slice(fonte.indexOf('// TAREFAS "UMA VEZ POR DIA"'), fonte.indexOf('// TEXTOS (PT / EN / ES)'));
+    ok(!/Math\.random|Date\.now|new Date|randInt/.test(regras), 'as regras puras (relógio e Carnaval) não lêem o relógio nem sorteiam');
+  }
+
   // ---------------- E. Textos ----------------
   {
     const g = abrir(lis(12, 22));
@@ -416,17 +557,20 @@ function suite(fontes) {
     }
     ok(contasMal === 0, 'somar dias: coincide com diasEntreDiasLisboa (js/tempo.js) em 4800 contas (' + contasMal + ' erradas)');
 
-    // janela móvel: uma festa de TESTE com os deslocamentos do Carnaval (só aqui; o jogo não tem Carnaval)
+    // janela móvel: uma festa de TESTE só nestes testes, com deslocamentos diferentes dos do Carnaval real (-2 a +1, dia grande a 0:
+    // da Sexta-feira Santa à Segunda de Páscoa), para provar o motor sem depender da configuração do jogo
     const f = abrir(lis(1, 15));
-    f.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } }); var CT = FESTAS_CONFIG[FESTAS_CONFIG.length - 1];");
-    const JAN = { 2026: ['2026-02-14', '2026-02-17'], 2027: ['2027-02-06', '2027-02-09'], 2028: ['2028-02-26', '2028-02-29'], 2029: ['2029-02-10', '2029-02-13'], 2030: ['2030-03-02', '2030-03-05'], 2031: ['2031-02-22', '2031-02-25'], 2032: ['2032-02-07', '2032-02-10'], 2033: ['2033-02-26', '2033-03-01'], 2034: ['2034-02-18', '2034-02-21'], 2035: ['2035-02-03', '2035-02-06'] };
+    f.ev("FESTAS_CONFIG.push({ id: 'festaMovelTeste', movel: { base: 'pascoa', inicioDias: -2, fimDias: 1, diaGrandeDias: 0 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } }); var CT = FESTAS_CONFIG[FESTAS_CONFIG.length - 1];");
+    const JAN = {}; Object.keys(PASCOA).forEach(function (y) { const t = Date.UTC(Number(y), Number(PASCOA[y].slice(5, 7)) - 1, Number(PASCOA[y].slice(8, 10))); JAN[y] = [fmt(t - 2 * 86400000), fmt(t + 86400000), PASCOA[y]]; });
     Object.keys(JAN).forEach(function (y) {
       const j = f.json('festaJanela(CT, ' + y + ')');
-      ok(j && j.inicio === JAN[y][0] && j.fim === JAN[y][1] && j.diaGrande === JAN[y][1], 'Carnaval de teste ' + y + ': de ' + JAN[y][0] + ' a ' + JAN[y][1] + ', dia grande no último; deu ' + JSON.stringify(j));
+      ok(j && j.inicio === JAN[y][0] && j.fim === JAN[y][1] && j.diaGrande === JAN[y][2], 'Festa móvel de teste ' + y + ': de ' + JAN[y][0] + ' a ' + JAN[y][1] + ', dia grande no domingo de Páscoa ' + JAN[y][2] + '; deu ' + JSON.stringify(j));
       const dow = function (d) { return new Date(Date.UTC(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)))).getUTCDay(); };
-      ok(dow(JAN[y][0]) === 6 && dow(JAN[y][1]) === 2, 'Carnaval de teste ' + y + ': começa a um sábado e acaba a uma terça');
+      ok(dow(JAN[y][0]) === 5 && dow(JAN[y][1]) === 1 && dow(JAN[y][2]) === 0, 'Festa móvel de teste ' + y + ': começa a uma sexta, acaba a uma segunda e o dia grande é o domingo');
     });
-    // todos os dias de 2026 a 2035: abre só dentro da janela, dia grande só na terça
+    // janelas do Carnaval real (Páscoa -50 a -47) calculadas aqui a partir da tabela da Páscoa
+    const JC = {}; Object.keys(PASCOA).forEach(function (y) { const t = Date.UTC(Number(y), Number(PASCOA[y].slice(5, 7)) - 1, Number(PASCOA[y].slice(8, 10))); JC[y] = [fmt(t - 50 * 86400000), fmt(t - 47 * 86400000)]; });
+    // todos os dias de 2026 a 2035: abre só dentro da janela, dia grande só no domingo
     let aberturaMal = 0, grandeMal = 0, fora1 = 0;
     for (let y = 2026; y <= 2035; y++) {
       const dias = (y % 4 === 0) ? 366 : 365;
@@ -434,23 +578,23 @@ function suite(fontes) {
         const d = fmt(Date.UTC(y, 0, 1) + k * 86400000);
         const dentro = d >= JAN[y][0] && d <= JAN[y][1];
         if (f.ev('festaAbertaNoDia(CT, ' + JSON.stringify(d) + ')') !== dentro) aberturaMal++;
-        if (f.ev('festaDiaGrandeNoDia(CT, ' + JSON.stringify(d) + ')') !== (d === JAN[y][1])) grandeMal++;
+        if (f.ev('festaDiaGrandeNoDia(CT, ' + JSON.stringify(d) + ')') !== (d === JAN[y][2])) grandeMal++;
         const viaMotor = f.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null');
-        const esperado = dentro ? 'carnavalTeste' : (d >= y + '-11-08' && d <= y + '-11-14' ? 'saomartinho' : (d >= y + '-12-20' && d <= y + '-12-26' ? 'natal' : null));
+        const esperado = dentro ? 'festaMovelTeste' : (d >= JC[y][0] && d <= JC[y][1] ? 'carnaval' : d >= y + '-11-08' && d <= y + '-11-14' ? 'saomartinho' : (d >= y + '-12-20' && d <= y + '-12-26' ? 'natal' : null));
         if (viaMotor !== esperado) fora1++;
       }
     }
-    ok(aberturaMal === 0, 'Carnaval de teste: abre exatamente dentro da janela em todos os dias de 2026 a 2035 (' + aberturaMal + ' erros)');
-    ok(grandeMal === 0, 'Carnaval de teste: o dia grande é só a terça em todos os dias de 2026 a 2035 (' + grandeMal + ' erros)');
-    ok(fora1 === 0, 'o motor (festaAtivaPelaDataReal com o dia) escolhe a festa certa em todos os dias de 2026 a 2035: Carnaval de teste, São Martinho, Natal ou nenhuma (' + fora1 + ' erros)');
+    ok(aberturaMal === 0, 'Festa móvel de teste (Sexta-feira Santa a Segunda de Páscoa): abre exatamente dentro da janela em todos os dias de 2026 a 2035 (' + aberturaMal + ' erros)');
+    ok(grandeMal === 0, 'Festa móvel de teste (Sexta-feira Santa a Segunda de Páscoa): o dia grande é só a terça em todos os dias de 2026 a 2035 (' + grandeMal + ' erros)');
+    ok(fora1 === 0, 'o motor (festaAtivaPelaDataReal com o dia) escolhe a festa certa em todos os dias de 2026 a 2035: Festa móvel de teste (Sexta-feira Santa a Segunda de Páscoa), São Martinho, Natal ou nenhuma (' + fora1 + ' erros)');
     const abre = function (d) { return f.ev('festaAbertaNoDia(CT, ' + JSON.stringify(d) + ')'); };
-    ok(abre('2027-02-05') === false && abre('2027-02-06') === true && abre('2027-02-09') === true && abre('2027-02-10') === false, '2027: abre a 06/02 e fecha a 09/02');
-    ok(abre('2026-02-13') === false && abre('2026-02-14') === true && abre('2026-02-17') === true && abre('2026-02-18') === false, '2026: abre a 14/02 e fecha a 17/02');
-    ok(abre('2028-02-25') === false && abre('2028-02-26') === true && abre('2028-02-28') === true && abre('2028-02-29') === true && abre('2028-03-01') === false && f.ev("festaDiaGrandeNoDia(CT, '2028-02-29')") === true && f.ev("festaDiaGrandeNoDia(CT, '2028-02-28')") === false, '2028 (bissexto): abre a 26/02, o dia grande é 29/02, fecha a 01/03');
-    ok(abre('2030-02-28') === false && abre('2030-03-01') === false && abre('2030-03-02') === true && abre('2030-03-05') === true && abre('2030-03-06') === false, '2030: a janela passa a viragem de fevereiro para março sem partir');
+    ok(abre('2027-03-25') === false && abre('2027-03-26') === true && abre('2027-03-29') === true && abre('2027-03-30') === false, '2027: abre a 26/03 (sexta) e fecha a 29/03 (segunda)');
+    ok(abre('2026-04-02') === false && abre('2026-04-03') === true && abre('2026-04-06') === true && abre('2026-04-07') === false, '2026: abre a 03/04 (sexta) e fecha a 06/04 (segunda)');
+    ok(abre('2028-04-13') === false && abre('2028-04-14') === true && abre('2028-04-17') === true && abre('2028-04-18') === false && f.ev("festaDiaGrandeNoDia(CT, '2028-04-16')") === true && f.ev("festaDiaGrandeNoDia(CT, '2028-04-17')") === false, '2028 (bissexto): abre a 14/04, o dia grande é 16/04, fecha a 17/04');
+    ok(abre('2029-03-29') === false && abre('2029-03-30') === true && abre('2029-03-31') === true && abre('2029-04-01') === true && abre('2029-04-02') === true && abre('2029-04-03') === false, '2029: a janela passa a viragem de março para abril sem partir (30/03 a 02/04)');
     ok(abre('2026-12-31') === false && abre('2027-01-01') === false && abre('2027-01-31') === false, 'viragem de ano: sem festa de teste a 31/12 nem em janeiro');
-    ok(abre('2027-02-09') === true && abre('2026-02-09') === false && abre('2028-02-09') === false, 'a janela é a do ano do dia (a de 2027 não abre em 2026 nem 2028)');
-    ['', null, undefined, 'lixo', '2027-02-30', '2027-13-01', 20270209, {}, '2027-02-07x', '2027-02-0', '2027-02-08 ', '2026-02-15x', '2026-02-16 '].forEach(function (d) {
+    ok(abre('2027-03-28') === true && abre('2026-03-28') === false && abre('2028-03-28') === false, 'a janela é a do ano do dia (a de 2027 não abre em 2026 nem 2028)');
+    ['', null, undefined, 'lixo', '2027-02-30', '2027-13-01', 20270209, {}, '2027-03-27x', '2027-03-2', '2027-03-28 ', '2026-04-04x', '2026-04-05 '].forEach(function (d) {
       ok(f.ev('festaAbertaNoDia(CT, ' + (d === undefined ? 'undefined' : JSON.stringify(d)) + ')') === false && f.ev('festaDiaGrandeNoDia(CT, ' + (d === undefined ? 'undefined' : JSON.stringify(d)) + ')') === false && f.ev('festaAtivaPelaDataReal(' + (d === undefined ? '"x"' : JSON.stringify(d)) + ')') === null, 'dia inválido ' + String(d) + ': nenhuma festa, sem rebentar');
     });
     // configurações estranhas não rebentam nem abrem nada
@@ -458,23 +602,23 @@ function suite(fontes) {
     ok(f.ev("festaJanela({ movel: { base: 'pascoa', inicioDias: 0, fimDias: 1, diaGrandeDias: 0 } }, 2027)").inicio === '2027-03-28', 'a janela móvel com a base na própria Páscoa (0 dias) é a Páscoa');
 
     // o dia por omissão é o de Lisboa de hoje (o aparelho está adiantado em relação a Lisboa)
-    const h = abrir(Date.parse('2027-02-08T20:00:00Z')); // Lisboa 8/02/2027 20:00; aparelho (Nova Zelândia) já a 9/02
-    h.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
-    ok(h.ev('new Date().getDate()') === 9 && h.ev('diaLisboaDeHoje()') === '2027-02-08', 'ambiente: aparelho um dia à frente de Lisboa');
-    ok(h.ev('festaAtivaPelaDataReal().id') === 'carnavalTeste' && h.ev('festaAtual().id') === 'carnavalTeste' && h.ev('estaNoDiaGrandeFesta(festaAtual())') === false, 'sem argumento: usa o dia de Lisboa (8/02: aberta, ainda não é o dia grande)');
-    h.ir(Date.parse('2027-02-09T20:00:00Z'));
-    ok(h.ev('estaNoDiaGrandeFesta(festaAtual())') === true, 'sem argumento: 9/02 em Lisboa é o dia grande');
-    h.ir(Date.parse('2027-02-10T00:30:00Z'));
-    ok(h.ev('festaAtivaPelaDataReal()') === null && h.ev("festaAtual('2027-02-08').id") === 'carnavalTeste', 'sem argumento: 10/02 fechada; com argumento, festaAtual(dia) olha para esse dia');
-    ok(h.ev("estaNoDiaGrandeFesta(festaAtual('2027-02-09'), '2027-02-09')") === true && h.ev("estaNoDiaGrandeFesta(festaAtual('2027-02-09'), '2027-02-08')") === false, 'estaNoDiaGrandeFesta(festa, dia) usa o dia que recebe');
+    const h = abrir(Date.parse('2027-03-27T20:00:00Z')); // Lisboa 27/03/2027 20:00; aparelho (Nova Zelândia) já a 28/03
+    h.ev("FESTAS_CONFIG.push({ id: 'festaMovelTeste', movel: { base: 'pascoa', inicioDias: -2, fimDias: 1, diaGrandeDias: 0 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
+    ok(h.ev('new Date().getDate()') === 28 && h.ev('diaLisboaDeHoje()') === '2027-03-27', 'ambiente: aparelho um dia à frente de Lisboa');
+    ok(h.ev('festaAtivaPelaDataReal().id') === 'festaMovelTeste' && h.ev('festaAtual().id') === 'festaMovelTeste' && h.ev('estaNoDiaGrandeFesta(festaAtual())') === false, 'sem argumento: usa o dia de Lisboa (27/03: aberta, ainda não é o domingo de Páscoa)');
+    h.ir(Date.parse('2027-03-28T20:00:00Z'));
+    ok(h.ev('estaNoDiaGrandeFesta(festaAtual())') === true, 'sem argumento: 28/03 em Lisboa é o dia grande');
+    h.ir(Date.parse('2027-03-29T23:30:00Z'));
+    ok(h.ev('festaAtivaPelaDataReal()') === null && h.ev("festaAtual('2027-03-27').id") === 'festaMovelTeste', 'sem argumento: 30/03 (00:30 em Lisboa) fechada; com argumento, festaAtual(dia) olha para esse dia');
+    ok(h.ev("estaNoDiaGrandeFesta(festaAtual('2027-03-28'), '2027-03-28')") === true && h.ev("estaNoDiaGrandeFesta(festaAtual('2027-03-28'), '2027-03-27')") === false, 'estaNoDiaGrandeFesta(festa, dia) usa o dia que recebe');
 
     // atalhos: ?festa= e ?dia= continuam como estão (com a festa de teste móvel também)
-    const a = abrir(Date.parse('2027-02-01T12:00:00Z'), '?festa=carnavalTeste&dia=9');
-    a.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
-    ok(a.ev('festaAtual().id') === 'carnavalTeste' && a.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=carnavalTeste&dia=9 (fora da janela, em fevereiro de 2027): força a festa e o dia grande');
-    const b = abrir(Date.parse('2027-02-01T12:00:00Z'), '?festa=carnavalTeste&dia=8');
-    b.ev("FESTAS_CONFIG.push({ id: 'carnavalTeste', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
-    ok(b.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=carnavalTeste&dia=8: não é o dia grande');
+    const a = abrir(Date.parse('2027-03-20T12:00:00Z'), '?festa=festaMovelTeste&dia=28');
+    a.ev("FESTAS_CONFIG.push({ id: 'festaMovelTeste', movel: { base: 'pascoa', inicioDias: -2, fimDias: 1, diaGrandeDias: 0 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
+    ok(a.ev('festaAtual().id') === 'festaMovelTeste' && a.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=festaMovelTeste&dia=28 (fora da janela, em março de 2027): força a festa e o dia grande');
+    const b = abrir(Date.parse('2027-03-20T12:00:00Z'), '?festa=festaMovelTeste&dia=27');
+    b.ev("FESTAS_CONFIG.push({ id: 'festaMovelTeste', movel: { base: 'pascoa', inicioDias: -2, fimDias: 1, diaGrandeDias: 0 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
+    ok(b.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=festaMovelTeste&dia=27: não é o dia grande');
     const c = abrir(lis(5, 1), '?festa=natal&dia=25');
     ok(c.ev('estaNoDiaGrandeFesta(festaAtual())') === true && c.ev("estaNoDiaGrandeFesta(festaAtual(), '2026-01-01')") === true, '?festa=natal&dia=25 continua igual (o dia do endereço manda, seja qual for o dia)');
     const c3 = abrir(lis(12, 25), '?festa=natal');
@@ -489,29 +633,143 @@ function suite(fontes) {
       for (let k = 0; k < dias; k++) {
         const d = fmt(Date.UTC(y, 0, 1) + k * 86400000);
         const mmdd = d.slice(5);
-        const esperado = (mmdd >= '11-08' && mmdd <= '11-14') ? 'saomartinho' : ((mmdd >= '12-20' && mmdd <= '12-26') ? 'natal' : null);
+        const pg = gauss(y), tp = Date.UTC(y, Number(pg.slice(5, 7)) - 1, Number(pg.slice(8, 10)));
+        const emCarnaval = d >= fmt(tp - 50 * 86400000) && d <= fmt(tp - 47 * 86400000);
+        const esperado = emCarnaval ? 'carnaval' : (mmdd >= '11-08' && mmdd <= '11-14') ? 'saomartinho' : ((mmdd >= '12-20' && mmdd <= '12-26') ? 'natal' : null);
         const obtido = g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null');
         total++;
         if (obtido !== esperado) aberto++;
         const esperaGrande = mmdd === '11-11' || mmdd === '12-25';
-        const festaDoDia = g.ev('festaAtivaPelaDataReal(' + JSON.stringify(d) + ') !== null');
+        const festaDoDia = g.ev('festaAtivaPelaDataReal(' + JSON.stringify(d) + ') !== null') && esperado !== 'carnaval';
         const obtidoGrande = festaDoDia && g.ev('estaNoDiaGrandeFesta(festaAtivaPelaDataReal(' + JSON.stringify(d) + '), ' + JSON.stringify(d) + ')');
         if (obtidoGrande !== (esperaGrande && festaDoDia)) grande++;
         if (esperado === 'saomartinho' && obtido !== 'saomartinho') sm++;
         if (esperado === 'natal' && obtido !== 'natal') nat++;
       }
     }
-    ok(total === 4749 && aberto === 0 && sm === 0 && nat === 0, 'São Martinho e Natal: abrem exatamente em 8 a 14/11 e 20 a 26/12 em todos os ' + total + ' dias de 2024 a 2036 (' + aberto + ' diferenças)');
+    ok(total === 4749 && aberto === 0 && sm === 0 && nat === 0, 'São Martinho (8 a 14/11) e Natal (20 a 26/12) abrem exatamente como antes, e o Carnaval só na sua janela, em todos os ' + total + ' dias de 2024 a 2036 (' + aberto + ' diferenças)');
     ok(grande === 0, 'São Martinho e Natal: o dia grande é exatamente 11/11 e 25/12 em todos os dias de 2024 a 2036 (' + grande + ' diferenças)');
     const bordas = ['2026-11-07', '2026-11-08', '2026-11-11', '2026-11-14', '2026-11-15', '2026-12-19', '2026-12-20', '2026-12-25', '2026-12-26', '2026-12-27', '2028-11-08', '2028-12-26'];
     ok(JSON.stringify(bordas.map(function (d) { return g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null'); })) === JSON.stringify([null, 'saomartinho', 'saomartinho', 'saomartinho', null, null, 'natal', 'natal', 'natal', null, 'saomartinho', 'natal']), 'São Martinho e Natal: dias de fronteira (dia antes, primeiro, grande, último, dia depois)');
-    ok(g.json("FESTAS_CONFIG.slice(0, 2).map(function (x) { return [x.id, x.inicio, x.fim, x.diaGrande, x.movel === undefined]; })").join('|') === 'saomartinho,[object Object],[object Object],[object Object],true|natal,[object Object],[object Object],[object Object],true' && g.ev('FESTAS_CONFIG.length') === 2 && g.ev("FESTAS_CONFIG.some(function (x) { return !!x.movel; })") === false, 'o jogo continua só com o São Martinho e o Natal, ambos de datas fixas (sem Carnaval nem Páscoa)');
+    ok(g.json('FESTAS_CONFIG.map(function (x) { return x.id; })').join() === 'saomartinho,natal,carnaval' && g.json("FESTAS_CONFIG.map(function (x) { return !!x.movel; })").join() === 'false,false,true' && g.ev("FESTAS_CONFIG.some(function (x) { return x.id === 'pascoa'; })") === false, 'o jogo tem o São Martinho e o Natal (datas fixas) e o Carnaval (data móvel); ainda sem Páscoa');
 
     // as regras de datas são puras: nada de relógio do aparelho
     const fonte = fontes['festas.js'];
     const bloco = fonte.slice(fonte.indexOf('// DATAS: REGRAS PURAS'), fonte.indexOf('// ?festa=saomartinho'));
     ok(!/Math\.random|Date\.now|new Date\(\)|getDate\(|getMonth\(|getFullYear\(|getDay\(|getHours\(|diaLisboaDeHoje/.test(bloco.slice(0, bloco.indexOf('// DETEÇÃO DA FESTA PELA DATA REAL'))), 'as regras puras de datas não lêem o relógio nem usam getters locais');
     ok(/Date\.UTC/.test(bloco) && /getUTCFullYear/.test(bloco), 'as contas de dias usam Date.UTC');
+  }
+
+
+  // ---------------- G. Carnaval ----------------
+  {
+    const g = abrir(lis(2, 10));
+    const cv = g.json("FESTAS_CONFIG.filter(function (f) { return f.id === 'carnaval'; })[0]");
+    ok(!!cv, 'Carnaval: existe em FESTAS_CONFIG');
+    if (cv) {
+      ok(JSON.stringify(cv.movel) === '{"base":"pascoa","inicioDias":-50,"fimDias":-47,"diaGrandeDias":-47}', 'Carnaval: data móvel a partir da Páscoa (-50 a -47, dia grande -47)');
+      ok(cv.inicio === undefined && cv.fim === undefined && cv.diaGrande === undefined, 'Carnaval: sem datas fixas (só a data móvel)');
+      ok(cv.recompensas.multiplicadorDiaGrande === 2 && cv.entradaEnciclopedia === undefined, 'Carnaval: dia grande a dobrar e nenhuma entrada da Enciclopédia');
+      ok(JSON.stringify(cv.tarefas.map(function (x) { return x.id; })) === '["corso","fantasias","quemEstaMascarado"]' && cv.tarefas.every(function (x) { return x.onde === 'festa'; }), 'Carnaval: corso, fantasias e quemEstaMascarado, todas no ecrã da festa');
+      ok(cv.tarefas.map(function (x) { return x.regra; }).join() === 'oferta,gastar_gotas,cena_do_dia', 'Carnaval: regras do Natal (oferta, gastar_gotas, cena_do_dia), nenhuma nova');
+      ok(JSON.stringify(cv.tarefas[0].premio) === '{"reputacao":5}' && JSON.stringify(cv.tarefas[1].premio) === '{"custoGotas":30,"reputacao":12}' && JSON.stringify(cv.tarefas[2].premio) === '{"reputacao":6}', 'Carnaval: corso +5 (sem custo), fantasias 30 Gotas e +12, quem está mascarado +6');
+      ok(JSON.stringify(cv.tarefas).indexOf('uvas') === -1 && JSON.stringify(cv.tarefas).indexOf('Uvas') === -1, 'Carnaval: nenhuma tarefa tem custo nem prémio em Uvas');
+      ok(g.json("FESTAS_CONFIG.filter(function (f) { return f.id === 'natal'; })[0].tarefas.map(function (x) { return [x.regra, JSON.stringify(x.premio)].join(); })").join('|') === cv.tarefas.map(function (x) { return [x.regra, JSON.stringify(x.premio)].join(); }).join('|'), 'Carnaval: as mesmas regras e valores do Natal');
+      ok(cv.imagens.faixa === 'assets/ecras/carnaval_festa.jpg' && cv.imagens.diaGrande === 'assets/ecras/carnaval_dia_grande.jpg' && cv.imagens.corso === cv.imagens.faixa && cv.imagens.fantasias === cv.imagens.faixa && cv.imagens.quemEstaMascarado === cv.imagens.faixa, 'Carnaval: uma imagem para a faixa e as tarefas e outra (com gente) para o dia grande');
+      const dim = function (f) { // largura e altura de um JPEG (marcador SOF)
+        const b = fs.readFileSync(f); let i = 2;
+        while (i < b.length) { if (b[i] !== 0xFF) { i++; continue; } const m = b[i + 1]; if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)]; i += 2 + b.readUInt16BE(i + 2); }
+        return null;
+      };
+      Object.keys(cv.imagens).forEach(function (k) {
+        const f = path.join(RAIZ, cv.imagens[k]);
+        ok(fs.existsSync(f), 'Carnaval: a imagem ' + k + ' existe (' + cv.imagens[k] + ')');
+        if (fs.existsSync(f)) {
+          ok(fs.statSync(f).size < 256000, 'Carnaval: ' + cv.imagens[k] + ' tem de pesar menos de 256 000 bytes (pesa ' + fs.statSync(f).size + ')');
+          ok(JSON.stringify(dim(f)) === '[714,1280]', 'Carnaval: ' + cv.imagens[k] + ' mantém 714x1280');
+        }
+      });
+      ok(fs.statSync(path.join(RAIZ, cv.imagens.diaGrande)).size <= 245000, 'Carnaval: a imagem do dia grande ficou com margem (até 245 000 bytes)');
+      const orig1 = path.join(RAIZ, 'imagens_JOGO_TELEGRAM', 'carnaval_patio_vindima_1.jpg'), orig2 = path.join(RAIZ, 'imagens_JOGO_TELEGRAM', 'carnaval_patio_vindimas_2_personagens.jpg');
+      ok(fs.readFileSync(path.join(RAIZ, cv.imagens.faixa)).equals(fs.readFileSync(orig1)), 'carnaval_festa.jpg é cópia exata de carnaval_patio_vindima_1.jpg');
+      ok(fs.statSync(path.join(RAIZ, cv.imagens.diaGrande)).size < fs.statSync(orig2).size && JSON.stringify(dim(orig2)) === '[714,1280]', 'carnaval_dia_grande.jpg é a versão comprimida (mais pequena) de carnaval_patio_vindimas_2_personagens.jpg');
+      ['carnaval_festa.jpg', 'carnaval_dia_grande.jpg'].forEach(function (f) {
+        const linha = CREDITOS.split('\n').filter(function (l) { return l.indexOf('assets/ecras/' + f) !== -1; })[0];
+        ok(!!linha && linha.indexOf('origem a confirmar pelo Nuno') !== -1, 'CREDITOS.md devia listar ' + f + ' com "origem a confirmar pelo Nuno"');
+      });
+    }
+
+    // janelas de 2026 a 2035 (as datas que o PR das datas móveis já confirma, e as outras calculadas pela Páscoa)
+    const JAN = { 2026: ['2026-02-14', '2026-02-17'], 2027: ['2027-02-06', '2027-02-09'], 2028: ['2028-02-26', '2028-02-29'], 2029: ['2029-02-10', '2029-02-13'], 2030: ['2030-03-02', '2030-03-05'], 2031: ['2031-02-22', '2031-02-25'], 2032: ['2032-02-07', '2032-02-10'], 2033: ['2033-02-26', '2033-03-01'], 2034: ['2034-02-18', '2034-02-21'], 2035: ['2035-02-03', '2035-02-06'] };
+    const fmtc = function (t) { const d = new Date(t); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0'); };
+    const dowc = function (d) { return new Date(Date.UTC(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)))).getUTCDay(); };
+    g.ev("var CARNAVAL = FESTAS_CONFIG.filter(function (f) { return f.id === 'carnaval'; })[0];");
+    Object.keys(JAN).forEach(function (y) {
+      const j = g.json('festaJanela(CARNAVAL, ' + y + ')');
+      ok(j && j.inicio === JAN[y][0] && j.fim === JAN[y][1] && j.diaGrande === JAN[y][1], 'Carnaval ' + y + ': de ' + JAN[y][0] + ' a ' + JAN[y][1] + ', dia grande no último; deu ' + JSON.stringify(j));
+      ok(dowc(JAN[y][0]) === 6 && dowc(JAN[y][1]) === 2, 'Carnaval ' + y + ': de sábado a terça-feira');
+    });
+    let abMal = 0, grMal = 0, idMal = 0;
+    for (let y = 2026; y <= 2035; y++) {
+      const dias = (y % 4 === 0) ? 366 : 365;
+      for (let k = 0; k < dias; k++) {
+        const d = fmtc(Date.UTC(y, 0, 1) + k * 86400000);
+        const dentro = d >= JAN[y][0] && d <= JAN[y][1];
+        if (g.ev('festaAbertaNoDia(CARNAVAL, ' + JSON.stringify(d) + ')') !== dentro) abMal++;
+        if (g.ev('festaDiaGrandeNoDia(CARNAVAL, ' + JSON.stringify(d) + ')') !== (d === JAN[y][1])) grMal++;
+        if ((g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null') === 'carnaval') !== dentro) idMal++;
+      }
+    }
+    ok(abMal === 0 && grMal === 0 && idMal === 0, 'Carnaval: só abre dentro da janela e o dia grande é só a terça-feira, em todos os dias de 2026 a 2035 (' + abMal + '/' + grMal + '/' + idMal + ' erros)');
+    const ab = function (d) { return g.ev('festaAbertaNoDia(CARNAVAL, ' + JSON.stringify(d) + ')'); };
+    ok(ab('2026-02-13') === false && ab('2026-02-14') === true && ab('2026-02-17') === true && ab('2026-02-18') === false, '2026: abre a 14/02 e fecha a 17/02');
+    ok(ab('2027-02-05') === false && ab('2027-02-06') === true && ab('2027-02-09') === true && ab('2027-02-10') === false, '2027: abre a 06/02 e fecha a 09/02');
+    ok(ab('2028-02-25') === false && ab('2028-02-26') === true && ab('2028-02-28') === true && ab('2028-02-29') === true && ab('2028-03-01') === false && g.ev("festaDiaGrandeNoDia(CARNAVAL, '2028-02-29')") === true && g.ev("festaDiaGrandeNoDia(CARNAVAL, '2028-02-28')") === false, '2028 (bissexto): abre a 26/02, o dia grande é 29/02, fecha a 01/03');
+    ok(ab('2029-02-09') === false && ab('2029-02-10') === true && ab('2029-02-13') === true && ab('2029-02-14') === false, '2029: abre a 10/02 e fecha a 13/02');
+    ok(ab('2030-02-28') === false && ab('2030-03-01') === false && ab('2030-03-02') === true && ab('2030-03-05') === true && ab('2030-03-06') === false, '2030: abre a 02/03 e fecha a 05/03 (viragem de fevereiro para março)');
+    ok(ab('2033-02-28') === true && ab('2033-03-01') === true && g.ev("festaDiaGrandeNoDia(CARNAVAL, '2033-03-01')") === true, '2033: a janela passa de fevereiro para março sem partir (26/02 a 01/03)');
+    ok(['2026-12-31', '2027-01-01', '2026-11-11', '2026-12-25', '2026-04-05', '2027-03-28'].every(function (d) { return ab(d) === false; }), 'Carnaval: fechado na viragem de ano, no São Martinho, no Natal e na Páscoa');
+    // pelo dia de Lisboa de hoje (o aparelho está adiantado)
+    const dl = function (iso) { return abrir(Date.parse(iso)); };
+    ok(dl('2026-02-13T23:30:00Z').ev('new Date().getDate()') === 14 && dl('2026-02-13T23:30:00Z').ev('festaAtivaPelaDataReal()') === null, '13/02 às 23:30 em Lisboa (o aparelho já está a 14): fechado');
+    ok(dl('2026-02-14T00:30:00Z').ev('festaAtual().id') === 'carnaval' && dl('2026-02-14T00:30:00Z').ev('estaNoDiaGrandeFesta(festaAtual())') === false, '14/02 às 00:30 em Lisboa: aberto, ainda sem dia grande');
+    ok(dl('2026-02-17T12:00:00Z').ev('estaNoDiaGrandeFesta(festaAtual())') === true, '17/02/2026: dia grande');
+    ok(dl('2026-02-17T23:30:00Z').ev('festaAtual().id') === 'carnaval' && dl('2026-02-18T00:30:00Z').ev('festaAtivaPelaDataReal()') === null, '17/02 às 23:30 ainda aberto; 18/02 às 00:30 em Lisboa fechado');
+    // atalhos ?festa=carnaval e ?festa=carnaval&dia=N (usa o ano de hoje)
+    const a1 = abrir(lis(6, 1), '?festa=carnaval');
+    ok(a1.ev('festaAtual().id') === 'carnaval' && a1.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=carnaval força a festa, sem dia grande');
+    const a2 = abrir(lis(6, 1), '?festa=carnaval&dia=17');
+    ok(a2.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=carnaval&dia=17 em 2026: dia grande');
+    const a3 = abrir(lis(6, 1), '?festa=carnaval&dia=16');
+    ok(a3.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=carnaval&dia=16 em 2026: não é o dia grande');
+    const a4 = abrir(Date.parse('2027-06-01T12:00:00Z'), '?festa=carnaval&dia=9');
+    ok(a4.ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=carnaval&dia=9 em 2027: o atalho usa o ano de hoje (terça é 09/02)');
+
+    // textos: as mesmas chaves do Natal, em PT, EN e ES, sem restos de outras festas
+    const TXT = g.json('FESTAS_STRINGS');
+    const norm = function (k) { return k.replace(/consoada|corso/i, 'T1').replace(/doces|fantasias/i, 'T2').replace(/boloRei|quemEstaMascarado/i, 'T3'); };
+    const chavesNatal = Object.keys(TXT.natal.pt).map(norm).sort().join();
+    ['pt', 'en', 'es'].forEach(function (l) {
+      const S = TXT.carnaval && TXT.carnaval[l];
+      ok(!!S, 'Carnaval: faltam textos em ' + l);
+      if (!S) return;
+      ok(Object.keys(S).map(norm).sort().join() === chavesNatal, 'Carnaval ' + l + ': as mesmas chaves de texto do Natal');
+      Object.keys(S).forEach(function (k) { if (k.indexOf('Cenas') === -1) ok(typeof S[k] === 'string' && S[k].trim() !== '', 'Carnaval ' + l + ': falta o texto ' + k); });
+      cv.tarefas.forEach(function (tf) { ok(typeof S[tf.btn] === 'string' && S[tf.btn] !== '', 'Carnaval ' + l + ': falta o botão ' + tf.btn); });
+      const cenas = S.quemEstaMascaradoCenas;
+      ok(Array.isArray(cenas) && cenas.length === 3, 'Carnaval ' + l + ': 3 cenas');
+      (cenas || []).forEach(function (c, i) {
+        ok(typeof c.situacao === 'string' && c.situacao !== '' && c.opcoes.length === 3 && new Set(c.opcoes).size === 3 && c.opcoes.every(function (o) { return typeof o === 'string' && o !== ''; }), 'Carnaval ' + l + ': cena ' + (i + 1) + ' completa, com 3 opções diferentes');
+        ok(c.correta === TXT.carnaval.pt.quemEstaMascaradoCenas[i].correta && c.correta >= 0 && c.correta <= 2, 'Carnaval ' + l + ': cena ' + (i + 1) + ' com a mesma opção certa em PT/EN/ES');
+      });
+      const junto = JSON.stringify(S).replace(/"correta":\d/g, '').replace(/Fygmo2/g, 'Fygmo');
+      ok(!/[0-9]/.test(junto) && junto.indexOf('undefined') === -1, 'Carnaval ' + l + ': textos sem números nem datas');
+      ok(!/natal|christmas|navidad|bolo-rei|consoada|rabanada|filh[óo]s|martinho|martin|castanha|chestnut|casta[ñn]a|jeropiga|entrudo/i.test(junto), 'Carnaval ' + l + ': sem restos do Natal nem do São Martinho (e sem "Entrudo")');
+    });
+    ok(JSON.stringify(TXT.carnaval.pt.quemEstaMascaradoCenas.map(function (c) { return c.correta; })) === '[1,2,0]', 'Carnaval: a opção certa é a 2.ª, a 3.ª e a 1.ª');
+    ok(/corso/i.test(JSON.stringify(TXT.carnaval.pt)) && /máscara/i.test(JSON.stringify(TXT.carnaval.pt)) && /fantasias/i.test(JSON.stringify(TXT.carnaval.pt)) && /confetes/i.test(JSON.stringify(TXT.carnaval.pt)), 'PT: fala do corso, das máscaras, das fantasias e dos confetes');
+    ok(!/\b(você|vocês|fixe|bué)\b/i.test(JSON.stringify(TXT.carnaval.pt)), 'PT de Portugal: sem "você" nem brasileirismos óbvios');
+    ok(!/carnaval|carnival/i.test(JSON.stringify(TXT.natal)) && !/carnaval|carnival/i.test(JSON.stringify(TXT.saomartinho)), 'os textos do Natal e do São Martinho não mencionam o Carnaval');
   }
 
   return falhas;
@@ -585,7 +843,33 @@ const MUTACOES = [
   ['Natal passa a abrir a 19', 'festas.js', 'inicio: { mes: 11, dia: 20 }', 'inicio: { mes: 11, dia: 19 }'],
   ['São Martinho fecha a 15', 'festas.js', 'fim: { mes: 10, dia: 14 }', 'fim: { mes: 10, dia: 15 }'],
   ['São Martinho com dia grande a 12', 'festas.js', 'diaGrande: { mes: 10, dia: 11 }', 'diaGrande: { mes: 10, dia: 12 }'],
-  ['Carnaval acrescentado ao jogo', 'festas.js', "  {\n    id: 'natal',", "  { id: 'carnaval', movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } },\n  {\n    id: 'natal',"],
+  ['Páscoa acrescentada ao jogo', 'festas.js', "  {\n    id: 'natal',", "  { id: 'pascoa', movel: { base: 'pascoa', inicioDias: -2, fimDias: 1, diaGrandeDias: 0 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } },\n  {\n    id: 'natal',"],
+  ['Carnaval começa um dia depois', 'festas.js', 'movel: { base: \'pascoa\', inicioDias: -50,', 'movel: { base: \'pascoa\', inicioDias: -49,'],
+  ['Carnaval acaba um dia antes', 'festas.js', 'fimDias: -47, diaGrandeDias: -47 },\n    imagens', 'fimDias: -48, diaGrandeDias: -47 },\n    imagens'],
+  ['dia grande do Carnaval no sábado', 'festas.js', 'fimDias: -47, diaGrandeDias: -47 },\n    imagens', 'fimDias: -47, diaGrandeDias: -50 },\n    imagens'],
+  ['Carnaval com a base errada', 'festas.js', "movel: { base: 'pascoa', inicioDias: -50", "movel: { base: 'natal', inicioDias: -50"],
+  ['Carnaval com datas fixas em vez da móvel', 'festas.js', "    movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 },\n    imagens", "    movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 }, inicio: { mes: 1, dia: 14 }, fim: { mes: 1, dia: 17 }, diaGrande: { mes: 1, dia: 17 },\n    imagens"],
+  ['corso passa a custar Gotas', 'festas.js', "regra: 'oferta', btn: 'btnCorso'", "regra: 'gastar_gotas', btn: 'btnCorso'"],
+  ['corso paga 6', 'festas.js', "btn: 'btnCorso',\n        premio: { reputacao: 5 }", "btn: 'btnCorso',\n        premio: { reputacao: 6 }"],
+  ['fantasias custam 40 Gotas', 'festas.js', "btn: 'btnFantasias',\n        premio: { custoGotas: 30,", "btn: 'btnFantasias',\n        premio: { custoGotas: 40,"],
+  ['fantasias pagam 13', 'festas.js', "btn: 'btnFantasias',\n        premio: { custoGotas: 30, reputacao: 12 }", "btn: 'btnFantasias',\n        premio: { custoGotas: 30, reputacao: 13 }"],
+  ['quem está mascarado paga 7', 'festas.js', "btn: 'btnQuemEstaMascarado',\n        premio: { reputacao: 6 }", "btn: 'btnQuemEstaMascarado',\n        premio: { reputacao: 7 }"],
+  ['quem está mascarado deixa de ser a cena do dia', 'festas.js', "regra: 'cena_do_dia', btn: 'btnQuemEstaMascarado'", "regra: 'oferta', btn: 'btnQuemEstaMascarado'"],
+  ['tarefa do Carnaval fora do ecrã da festa', 'festas.js', "{ id: 'corso', onde: 'festa'", "{ id: 'corso', onde: 'outro'"],
+  ['Carnaval abre a lenda de São Martinho', 'festas.js', "    id: 'carnaval',\n", "    id: 'carnaval',\n    entradaEnciclopedia: 'lendaSaoMartinho',\n"],
+  ['Carnaval sem dia grande a dobrar', 'festas.js', "recompensas: {\n      multiplicadorDiaGrande: 2\n    }\n  }\n];", "recompensas: {\n      multiplicadorDiaGrande: 1\n    }\n  }\n];"],
+  ['imagem do dia grande do Carnaval = a da festa', 'festas.js', "diaGrande: 'assets/ecras/carnaval_dia_grande.jpg'", "diaGrande: 'assets/ecras/carnaval_festa.jpg'"],
+  ['imagem da festa do Carnaval = a do dia grande', 'festas.js', "faixa: 'assets/ecras/carnaval_festa.jpg',", "faixa: 'assets/ecras/carnaval_dia_grande.jpg',"],
+  ['imagem do corso que não existe', 'festas.js', "corso: 'assets/ecras/carnaval_festa.jpg'", "corso: 'assets/ecras/carnaval_corso.jpg'"],
+  ['PT do Carnaval sem o texto de falta de Gotas', 'festas.js', "      fantasiasFalta: 'Ainda faltam Gotas para as fantasias. Junta mais e volta cá.',\n", ''],
+  ['EN do Carnaval sem o texto do corso', 'festas.js', "      corsoSucesso: \"The corso parades", "      corsoSucessoX: \"The corso parades"],
+  ['ES do Carnaval sem o aviso do dia grande', 'festas.js', "      diaGrandeAviso: '¡Hoy es martes de Carnaval! Los premios cuentan el doble.',\n", ''],
+  ['cena do Carnaval com a opção certa trocada', 'festas.js', "cada um por si'], correta: 2 }", "cada um por si'], correta: 1 }"],
+  ['cena do Carnaval em ES sem 3 opções diferentes', 'festas.js', "'Hacer como que no ves nada e irte a bailar el corso'], correta: 1 }", "'Saludarlo con ceremonia y darle un sitio en la mesa'], correta: 1 }"],
+  ['resto do Natal no texto do Carnaval', 'festas.js', 'carros enfeitados, música e confetes', 'rabanadas a dourar, música e confetes'],
+  ['Entrudo no texto do Carnaval', 'festas.js', "subtitulo: 'Uns dias de Carnaval, com o dia grande na terça-feira.'", "subtitulo: 'Uns dias de Entrudo, com o dia grande na terça-feira.'"],
+  ['número no texto do Carnaval', 'festas.js', "subtitulo: 'Uns dias de Carnaval, com o dia grande na terça-feira.'", "subtitulo: 'Uns 4 dias de Carnaval, com o dia grande na terça-feira.'"],
+  ['Carnaval mencionado no texto do Natal', 'festas.js', "faixa: 'É Natal na Quinta!'", "faixa: 'É Natal (e Carnaval) na Quinta!'"],
   ['botão da tarefa sem o texto da configuração', 'festas.js', 'S[tarefa.btn]', 'S.btnProva']
 ];
 MUTACOES.forEach(function (m) {

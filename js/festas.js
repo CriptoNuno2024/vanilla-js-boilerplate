@@ -89,6 +89,31 @@ const FESTAS_CONFIG = [
     recompensas: {
       multiplicadorDiaGrande: 2
     }
+  },
+  {
+    id: 'carnaval',
+    // Data móvel: de sábado a terça-feira de Carnaval (Páscoa menos 50 a menos 47 dias; o dia grande é a terça).
+    movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 },
+    imagens: {
+      diaGrande: 'assets/ecras/carnaval_dia_grande.jpg',
+      faixa: 'assets/ecras/carnaval_festa.jpg',
+      corso: 'assets/ecras/carnaval_festa.jpg',
+      fantasias: 'assets/ecras/carnaval_festa.jpg',
+      quemEstaMascarado: 'assets/ecras/carnaval_festa.jpg'
+    },
+    // Como o Natal: só dá Reputação (que sobe o nível e nunca se gasta) e só gasta Gotas, nunca Uvas.
+    // Os mesmos valores do Natal: corso = consoada, fantasias = doces, quem está mascarado = bolo-rei.
+    tarefas: [
+      { id: 'corso', onde: 'festa', regra: 'oferta', btn: 'btnCorso',
+        premio: { reputacao: 5 } },
+      { id: 'fantasias', onde: 'festa', regra: 'gastar_gotas', btn: 'btnFantasias',
+        premio: { custoGotas: 30, reputacao: 12 } },
+      { id: 'quemEstaMascarado', onde: 'festa', regra: 'cena_do_dia', btn: 'btnQuemEstaMascarado',
+        premio: { reputacao: 6 } }
+    ],
+    recompensas: {
+      multiplicadorDiaGrande: 2
+    }
   }
 ];
 
@@ -530,6 +555,101 @@ const FESTAS_STRINGS = {
       ],
       boloReiVitoria: '¡El bolo-rei está a salvo! El Fygmo y el Fygmo2 suspiran, miran las migas que no hay y prometen portarse bien. Hasta el próximo bolo.',
       boloReiDerrota: 'Demasiado tarde... el Fygmo y el Fygmo2 ya huyen con una porción cada uno. No pasa nada: no se perdió nada, y la Navidad es para compartir.'
+    }
+  },
+  carnaval: {
+    pt: {
+      faixa: 'É Carnaval na Quinta!',
+      titulo: 'Carnaval na Quinta',
+      subtitulo: 'Uns dias de Carnaval, com o dia grande na terça-feira.',
+      diaGrandeAviso: 'Hoje é terça-feira de Carnaval! Os prémios contam a dobrar.',
+      tarefaFeitaHoje: 'já feita hoje',
+      btnCorso: 'O Corso',
+      btnFantasias: 'As Fantasias',
+      btnQuemEstaMascarado: 'Quem Está Mascarado?',
+      btnVoltar: 'Voltar',
+
+      corsoTitulo: 'O Corso na Quinta',
+      corsoJaFeitaHoje: 'Já houve corso hoje. O de amanhã só amanhã.',
+      corsoSucesso: 'O corso passa pela Quinta em grande festa: carros enfeitados, música e confetes até nas orelhas do Chizo. O YoshiCat desfila de cabeça erguida e a Quinta fica com fama de foliona.',
+
+      fantasiasTitulo: 'As Fantasias',
+      fantasiasJaFeitaHoje: 'Já tens fantasias para hoje. As de amanhã ficam para amanhã.',
+      fantasiasFalta: 'Ainda faltam Gotas para as fantasias. Junta mais e volta cá.',
+      fantasiasSucesso: 'Máscaras, penas, lantejoulas e muita cola: as fantasias ficam prontas! O Chizo recusa-se a usar chapéu, mas aceita um laço.',
+
+      quemEstaMascaradoTitulo: 'Quem Está Mascarado?',
+      quemEstaMascaradoSubtitulo: 'O Fygmo e o Fygmo2 vieram de máscara',
+      quemEstaMascaradoJaFeitaHoje: 'Hoje já descobriste os mascarados. Amanhã há mais disfarces.',
+      quemEstaMascaradoCenas: [
+        { situacao: 'Um mascarado de capa comprida anda a rondar a mesa dos doces, com umas orelhas cor-de-rosa a espreitar do capuz.', opcoes: ['Cumprimentá-lo com cerimónia e dar-lhe um lugar à mesa', 'Reconhecer o Fygmo pelas orelhas e pedir-lhe, com bons modos, que deixe os doces em paz', 'Fingir que não vês nada e ir dançar o corso'], correta: 1 },
+        { situacao: 'Dois mascarados tentam entrar no corso a fingir que são um só: o Fygmo às cavalitas do Fygmo2, com um casaco comprido por cima.', opcoes: ['Aplaudir a elegante pessoa de duas cabeças, tão misteriosa', 'Fechar o portão do corso para ninguém entrar', 'Reparar nas quatro orelhas, rir-te e convidá-los a desfilar à vontade, cada um por si'], correta: 2 },
+        { situacao: 'O Fygmo2 pôs uma máscara de gato e anda a miar baixinho atrás do YoshiCat, a ver se lhe leva o chapéu.', opcoes: ['Virar-te de repente e dizer "Olá, Fygmo2!": gato a sério, aqui, só há um', 'Miar de volta e deixá-lo ficar com o chapéu', 'Fugir a correr, que há outro gato na Quinta'], correta: 0 }
+      ],
+      quemEstaMascaradoVitoria: 'Descobertos! O Fygmo e o Fygmo2 tiram a máscara, riem-se e prometem não fazer mais confusão. O corso continua, agora com todos à vista.',
+      quemEstaMascaradoDerrota: 'Desta vez enganaste-te e o mascarado safou-se, a assobiar. Não faz mal: não se perdeu nada, e o Carnaval é para brincar.'
+    },
+    en: {
+      faixa: "It's Carnival on the Quinta!",
+      titulo: 'Carnival on the Quinta',
+      subtitulo: 'A few days of Carnival, with the big day on Tuesday.',
+      diaGrandeAviso: "Today is Carnival Tuesday! Prizes count double.",
+      tarefaFeitaHoje: 'already done today',
+      btnCorso: 'The Corso',
+      btnFantasias: 'The Costumes',
+      btnQuemEstaMascarado: 'Who Is Masked?',
+      btnVoltar: 'Back',
+
+      corsoTitulo: 'The Corso on the Quinta',
+      corsoJaFeitaHoje: "There has already been a corso today. Tomorrow's is for tomorrow.",
+      corsoSucesso: "The corso parades through the Quinta in great style: decorated floats, music, and confetti even in Chizo's ears. YoshiCat marches with his head held high and the Quinta earns a reputation as a party place.",
+
+      fantasiasTitulo: 'The Costumes',
+      fantasiasJaFeitaHoje: "You already have costumes for today. Tomorrow's will wait until tomorrow.",
+      fantasiasFalta: 'You still need more Drops for the costumes. Gather some more and come back.',
+      fantasiasSucesso: 'Masks, feathers, sequins and plenty of glue: the costumes are ready! Chizo refuses to wear a hat, but accepts a bow.',
+
+      quemEstaMascaradoTitulo: 'Who Is Masked?',
+      quemEstaMascaradoSubtitulo: 'Fygmo and Fygmo2 have come in masks',
+      quemEstaMascaradoJaFeitaHoje: "Today you have already unmasked them. Tomorrow brings more disguises.",
+      quemEstaMascaradoCenas: [
+        { situacao: 'A masked figure in a long cape is lurking around the sweets table, with a pair of pink ears sticking out of the hood.', opcoes: ['Greet them formally and offer them a seat at the table', 'Recognise Fygmo by the ears and politely ask him to leave the sweets alone', 'Pretend you see nothing and go and dance in the corso'], correta: 1 },
+        { situacao: 'Two masked figures try to join the corso pretending to be one: Fygmo riding on the back of Fygmo2, with a long coat over both.', opcoes: ['Applaud the elegant two-headed person, so mysterious', 'Shut the corso gate so nobody gets in', 'Notice the four ears, laugh, and invite them to parade freely, each on their own'], correta: 2 },
+        { situacao: 'Fygmo2 has put on a cat mask and is softly meowing behind YoshiCat, trying to take his hat.', opcoes: ['Turn around suddenly and say "Hello, Fygmo2!": there is only one real cat here', 'Meow back and let him keep the hat', 'Run away, there is another cat on the Quinta'], correta: 0 }
+      ],
+      quemEstaMascaradoVitoria: 'Found out! Fygmo and Fygmo2 take off their masks, laugh and promise not to cause more trouble. The corso carries on, now with everyone in plain sight.',
+      quemEstaMascaradoDerrota: "You got it wrong this time and the masked one slipped away, whistling. Never mind: nothing was lost, and Carnival is for playing."
+    },
+    es: {
+      faixa: '¡Es Carnaval en la Quinta!',
+      titulo: 'Carnaval en la Quinta',
+      subtitulo: 'Unos días de Carnaval, con el día grande el martes.',
+      diaGrandeAviso: '¡Hoy es martes de Carnaval! Los premios cuentan el doble.',
+      tarefaFeitaHoje: 'ya hecha hoy',
+      btnCorso: 'El Corso',
+      btnFantasias: 'Los Disfraces',
+      btnQuemEstaMascarado: '¿Quién Va Enmascarado?',
+      btnVoltar: 'Volver',
+
+      corsoTitulo: 'El Corso en la Quinta',
+      corsoJaFeitaHoje: 'Ya hubo corso hoy. El de mañana, mañana.',
+      corsoSucesso: 'El corso desfila por la Quinta a lo grande: carrozas adornadas, música y confeti hasta en las orejas del Chizo. El YoshiCat desfila con la cabeza bien alta y la Quinta se gana fama de juerguista.',
+
+      fantasiasTitulo: 'Los Disfraces',
+      fantasiasJaFeitaHoje: 'Ya tienes disfraces para hoy. Los de mañana, para mañana.',
+      fantasiasFalta: 'Todavía faltan Gotas para los disfraces. Junta más y vuelve.',
+      fantasiasSucesso: 'Máscaras, plumas, lentejuelas y mucho pegamento: ¡los disfraces están listos! El Chizo se niega a ponerse sombrero, pero acepta un lazo.',
+
+      quemEstaMascaradoTitulo: '¿Quién Va Enmascarado?',
+      quemEstaMascaradoSubtitulo: 'El Fygmo y el Fygmo2 han venido con máscara',
+      quemEstaMascaradoJaFeitaHoje: 'Hoy ya has descubierto a los enmascarados. Mañana habrá más disfraces.',
+      quemEstaMascaradoCenas: [
+        { situacao: 'Un enmascarado de capa larga ronda la mesa de los dulces, con unas orejas rosadas asomando por la capucha.', opcoes: ['Saludarlo con ceremonia y darle un sitio en la mesa', 'Reconocer al Fygmo por las orejas y pedirle, con buenos modales, que deje los dulces en paz', 'Hacer como que no ves nada e irte a bailar el corso'], correta: 1 },
+        { situacao: 'Dos enmascarados intentan entrar en el corso haciéndose pasar por uno solo: el Fygmo a caballito del Fygmo2, con un abrigo largo por encima.', opcoes: ['Aplaudir a la elegante persona de dos cabezas, tan misteriosa', 'Cerrar el portón del corso para que nadie entre', 'Fijarte en las cuatro orejas, reírte e invitarlos a desfilar a su aire, cada uno por su cuenta'], correta: 2 },
+        { situacao: 'El Fygmo2 se ha puesto una máscara de gato y maúlla bajito detrás del YoshiCat, a ver si le quita el sombrero.', opcoes: ['Darte la vuelta de golpe y decir "¡Hola, Fygmo2!": gato de verdad, aquí, solo hay uno', 'Maullar de vuelta y dejar que se quede con el sombrero', 'Salir corriendo, que hay otro gato en la Quinta'], correta: 0 }
+      ],
+      quemEstaMascaradoVitoria: '¡Descubiertos! El Fygmo y el Fygmo2 se quitan la máscara, se ríen y prometen no armar más lío. El corso continúa, ahora con todos a la vista.',
+      quemEstaMascaradoDerrota: 'Esta vez te has equivocado y el enmascarado se escapó, silbando. No pasa nada: no se perdió nada, y el Carnaval es para jugar.'
     }
   }
 };
