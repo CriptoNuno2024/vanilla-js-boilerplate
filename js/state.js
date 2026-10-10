@@ -82,7 +82,11 @@ function defaultState() {
       estacasDia: null,
       frioDia: null,
       // Arco-íris na Quinta (sol depois de chuva): dia local da última vez. null = nunca.
-      arcoirisDia: null
+      arcoirisDia: null,
+      // Vigiar a vinha (ver js/vigiar.js): dia local da última vigia e quantos dias diferentes já vigiou (só sobe).
+      // NÃO se juntam na nuvem: como o resto de state.tempo, seguem o estado inteiro que ganhar.
+      vigiarDia: null,
+      vigiarDias: 0
     },
     // Festas (ver js/festas.js). tarefasDia guarda, por "idDaFesta_tarefa"
     // (ex: "saomartinho_castanhas"), o dia local em que essa tarefa já foi

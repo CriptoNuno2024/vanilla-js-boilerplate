@@ -204,6 +204,7 @@ const TRANSLATIONS = {
     'objetivo.tempo_chuva': 'Aproveita a chuva de hoje para regar a Vinha.',
     'objetivo.tempo_vento': 'Repara as estacas por causa do vento forte.',
     'objetivo.tempo_frio': 'Protege a Vinha do frio forte de hoje.',
+    'objetivo.tempo_vigiar': 'Vigia a Vinha: o tempo de hoje dá um sinal.',
 
     // Limite diário de prémios no Proteger (ver js/proteger.js).
     'proteger.modoTreino': 'O Chizo já está de guarda. Volta amanhã para mais prémios!',
@@ -325,6 +326,15 @@ const TRANSLATIONS = {
     'vinha.btnRepararEstacas': 'Reparar as Estacas',
     'vinha.btnProtegerFrio': 'Proteger do Frio',
     'vinha.tarefaFeitaHoje': 'já feita hoje',
+    // Vigiar a vinha (js/vigiar.js). Nomes EN/ES das fichas: a rever por nativo.
+    'vigiar.btn': 'Vigiar a vinha',
+    'vigiar.jaHoje': 'já vigiaste hoje',
+    'vigiar.aviso.mildio': 'Há humidade no ar: é um bom dia para vigiar as folhas da vinha e arejá-la. Toca em «Vigiar a vinha».',
+    'vigiar.aviso.oidio': 'Está tempo quente e seco: é um bom dia para vigiar as folhas e os cachos. Toca em «Vigiar a vinha».',
+    'vigiar.fala.mildio': 'Fica de olho nas folhas: manchas amarelas, «de óleo», são um sinal de míldio. Arejar a vinha ajuda.',
+    'vigiar.fala.oidio': 'Fica de olho nas folhas e nos cachos: um «pó» branco é um sinal de oídio.',
+    'vigiar.resultado': 'Vigiaste a vinha com atenção. Nada se perdeu: só aprendeste mais.',
+    'vigiar.resultadoFicha': 'Vigiaste a vinha e ganhaste uma ficha nova na Enciclopédia: {ficha}.',
     'vinha.msgRepararEstacas': 'O vento forte soltou algumas estacas da vinha — foram reparadas a tempo.',
     'vinha.msgProtegerFrio': 'As videiras foram protegidas do frio intenso desta noite.',
 
@@ -738,6 +748,7 @@ const TRANSLATIONS = {
     'objetivo.tempo_chuva': "Make the most of today's rain to water the Vineyard.",
     'objetivo.tempo_vento': "Repair the stakes because of today's strong wind.",
     'objetivo.tempo_frio': "Protect the Vineyard from today's hard frost.",
+    'objetivo.tempo_vigiar': "Watch the Vineyard: today's weather gives a sign.",
 
     'proteger.modoTreino': 'Chizo is already on guard. Come back tomorrow for more prizes!',
     'proteger.modoTreinoResultado': 'No prize — training mode.',
@@ -850,6 +861,15 @@ const TRANSLATIONS = {
     'vinha.btnRepararEstacas': 'Repair the Stakes',
     'vinha.btnProtegerFrio': 'Protect from the Cold',
     'vinha.tarefaFeitaHoje': 'already done today',
+    // Vigiar a vinha (js/vigiar.js). Nomes EN/ES das fichas: a rever por nativo.
+    'vigiar.btn': 'Watch the vineyard',
+    'vigiar.jaHoje': "you've already watched today",
+    'vigiar.aviso.mildio': 'There is moisture in the air: a good day to check the vine leaves and air out the vineyard. Tap «Watch the vineyard».',
+    'vigiar.aviso.oidio': 'It is warm and dry: a good day to check the leaves and the bunches. Tap «Watch the vineyard».',
+    'vigiar.fala.mildio': 'Keep an eye on the leaves: yellow "oil" spots are a sign of downy mildew. Airing out the vineyard helps.',
+    'vigiar.fala.oidio': 'Keep an eye on the leaves and the bunches: a white "powder" is a sign of powdery mildew.',
+    'vigiar.resultado': 'You watched the vineyard closely. Nothing was lost: you just learned more.',
+    'vigiar.resultadoFicha': 'You watched the vineyard and earned a new Encyclopedia card: {ficha}.',
     'vinha.msgRepararEstacas': 'The strong wind loosened some of the vineyard stakes — they were repaired in time.',
     'vinha.msgProtegerFrio': "The vines were protected from tonight's intense cold.",
 
@@ -1256,6 +1276,7 @@ const TRANSLATIONS = {
     'objetivo.tempo_chuva': 'Aprovecha la lluvia de hoy para regar el Viñedo.',
     'objetivo.tempo_vento': 'Repara las estacas por el viento fuerte de hoy.',
     'objetivo.tempo_frio': 'Protege el Viñedo del frío fuerte de hoy.',
+    'objetivo.tempo_vigiar': 'Vigila el Viñedo: el tiempo de hoy da una señal.',
 
     'proteger.modoTreino': 'El Chizo ya está de guardia. ¡Vuelve mañana para más premios!',
     'proteger.modoTreinoResultado': 'Sin premio — modo entrenamiento.',
@@ -1368,6 +1389,15 @@ const TRANSLATIONS = {
     'vinha.btnRepararEstacas': 'Reparar las Estacas',
     'vinha.btnProtegerFrio': 'Proteger del Frío',
     'vinha.tarefaFeitaHoje': 'ya hecho hoy',
+    // Vigiar a vinha (js/vigiar.js). Nomes EN/ES das fichas: a rever por nativo.
+    'vigiar.btn': 'Vigilar el viñedo',
+    'vigiar.jaHoje': 'ya vigilaste hoy',
+    'vigiar.aviso.mildio': 'Hay humedad en el aire: un buen día para vigilar las hojas del viñedo y airearlo. Toca «Vigilar el viñedo».',
+    'vigiar.aviso.oidio': 'Hace calor y está seco: un buen día para vigilar las hojas y los racimos. Toca «Vigilar el viñedo».',
+    'vigiar.fala.mildio': 'Estate atento a las hojas: las manchas amarillas, «de aceite», son una señal de mildiu. Airear el viñedo ayuda.',
+    'vigiar.fala.oidio': 'Estate atento a las hojas y los racimos: un «polvo» blanco es una señal de oídio.',
+    'vigiar.resultado': 'Vigilaste el viñedo con atención. No se perdió nada: solo aprendiste más.',
+    'vigiar.resultadoFicha': 'Vigilaste el viñedo y ganaste una ficha nueva en la Enciclopedia: {ficha}.',
     'vinha.msgRepararEstacas': 'El viento fuerte soltó algunas estacas del viñedo — se repararon a tiempo.',
     'vinha.msgProtegerFrio': 'Las cepas fueron protegidas del frío intenso de esta noche.',
 

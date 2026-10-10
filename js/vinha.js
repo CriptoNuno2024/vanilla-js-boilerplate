@@ -369,6 +369,10 @@ function renderVinha() {
   if (tempo.frioForte) {
     botoesHtml += botaoVinha('protegerFrio', 'vinha.pillProtegerFrio', jaFezTarefaTempoHoje('frioDia'), t('vinha.tarefaFeitaHoje'));
   }
+  // Vigiar a vinha (js/vigiar.js): só com sinal (míldio/oídio) do tempo; quem já vigiou hoje vê "já vigiaste hoje".
+  if (vigiarSinalAgora() !== null) {
+    botoesHtml += botaoVinha('vigiar', 'vigiar.btn', vigiarJaFezHoje(), t('vigiar.jaHoje'));
+  }
 
   const cuidadoHtml = (v.fase === 'crescendo' || v.fase === 'pronta')
     ? '<span class="mini-sub"><span data-i18n="vinha.cuidadoLabel"></span>: ' + v.pontosCuidado + ' / ' + PONTOS_CUIDADO_NECESSARIOS + '</span>'
@@ -410,13 +414,13 @@ function renderVinha() {
     '<div class="topcard' + (vinhaCartaoAberto ? ' aberto' : '') + '">' + miniCardHtml + '</div>' +
     construirFilaPastilhas('vinha-pill-scroll', botoesHtml, 'vinha.verMaisTarefas');
 
-  const fotoFundoVinha = vinhaFotoAtual || fundoTempoVinha() || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]];
+  const fotoFundoVinha = vinhaFotoAtual || vigiarFundoSinal() || fundoTempoVinha() || VINHA_FOTOS[VINHA_FUNDO_POR_FASE[v.fase]];
   definirFundo('foto', fotoFundoVinha, VINHA_FOTO_POS[fotoFundoVinha]);
 
   marcarPastilhaPrincipal(container);
   configurarFilaPastilhas('vinha-pill-scroll');
   mostrarNovaEntrada(vinhaNovaEntrada);
-  atualizarDialogo(vinhaMensagemAtual, 'YoshiCat');
+  atualizarDialogo(vinhaMensagemAtual || vigiarAviso(), 'YoshiCat');
   applyTranslations();
 }
 
@@ -536,6 +540,9 @@ function executarAcaoVinha(actionKey) {
     saveState(state);
     updateStatsDisplays();
     renderVinha();
+    return;
+  } else if (actionKey === 'vigiar') {
+    vigiarExecutar(); // grava e desenha por si; não custa nada nem dá cuidado
     return;
   } else if (actionKey === 'repararEstacas' || actionKey === 'protegerFrio') {
     const ehEstacas = actionKey === 'repararEstacas';

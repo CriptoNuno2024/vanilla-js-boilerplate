@@ -81,6 +81,10 @@ function candidatosGrupoC() {
     if (tempo.frioForte && !jaFezTarefaTempoHoje('frioDia')) {
       lista.push('tempo_frio');
     }
+    // Vigiar a vinha (js/vigiar.js): só com sinal do tempo e ainda por vigiar hoje (como o frio).
+    if (vigiarSinalAgora() !== null && !vigiarJaFezHoje()) {
+      lista.push('tempo_vigiar');
+    }
   }
 
   const acoesComBonus = VINHA_BONUS_ESTACAO[estacaoAtual()] || [];
