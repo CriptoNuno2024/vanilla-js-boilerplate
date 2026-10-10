@@ -55,6 +55,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/festa_vindima_todos_juntos.jpg` | fundo de um ecrã, história dos níveis | origem a confirmar pelo Nuno |
 | `assets/ecras/fygmos_fazem_das_suas.jpg` | O Lagar, fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/fygmos_quinta_passear.jpg` | O Lagar | origem a confirmar pelo Nuno |
+| `assets/ecras/doencas_e_pragas.jpg` | Vigiar a vinha (sinal de míldio, com chuva) | origem a confirmar pelo Nuno |
+| `assets/ecras/doencas_e_pragas_2.jpg` | Vigiar a vinha (depois de vigiar, míldio) | origem a confirmar pelo Nuno |
 | `assets/ecras/granizo.jpg` | tempo real de Setúbal (fundo da Vinha com granizo) | origem a confirmar pelo Nuno |
 | `assets/ecras/inverno_poda.jpg` | Vinha | origem a confirmar pelo Nuno |
 | `assets/ecras/livro_cabecalho.jpg` | Livro de Conquistas | origem a confirmar pelo Nuno |
@@ -64,6 +66,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/menu_quinta.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
 | `assets/ecras/nevoeiro_1.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/perfil_yoshi_cat_e_chizo.jpg` | história dos níveis | origem a confirmar pelo Nuno |
+| `assets/ecras/pragas_sol.jpg` | Vigiar a vinha (sinal de oídio, com calor) | origem a confirmar pelo Nuno |
+| `assets/ecras/pragas_sol_2.jpg` | Vigiar a vinha (depois de vigiar, oídio) | origem a confirmar pelo Nuno |
 | `assets/ecras/sao_martinho_castanhas.jpg` | festa de São Martinho | origem a confirmar pelo Nuno |
 | `assets/ecras/sao_martinho_dia11.jpg` | festa de São Martinho | origem a confirmar pelo Nuno |
 | `assets/ecras/sao_martinho_festa.jpg` | festa de São Martinho | origem a confirmar pelo Nuno |
