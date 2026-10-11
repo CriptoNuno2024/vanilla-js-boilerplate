@@ -40,12 +40,17 @@ function somPodeTocar() {
   return !!(state.som && somCtx && somGainMestre);
 }
 
+// Cada toque tenta (re)lançar o áudio enquanto ele não estiver a correr: com o dedo, o 'pointerdown' ainda não
+// conta como gesto para o navegador (só o 'pointerup', o 'touchend' e o 'click' contam), por isso um único
+// 'pointerdown' podia deixar o contexto criado mas parado e o 1.º som perdia-se. Quando já está a correr, não faz nada.
 function somDesbloquearAoPrimeiroToque() {
   if (!state.som) return;
   somCriarContextoSePreciso();
-  if (somCtx && somCtx.state === 'suspended') somCtx.resume();
+  if (somCtx && somCtx.state !== 'running') somCtx.resume();
 }
-document.addEventListener('pointerdown', somDesbloquearAoPrimeiroToque, { once: true });
+['pointerdown', 'pointerup', 'touchend', 'click'].forEach(function (evento) {
+  document.addEventListener(evento, somDesbloquearAoPrimeiroToque, true);
+});
 
 document.addEventListener('visibilitychange', function () {
   if (!somCtx) return;

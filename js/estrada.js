@@ -202,6 +202,7 @@ function estradaTrocarClique(vizinhoId) {
     if (r.ok) {
       saveState(state);
       updateStatsDisplays();
+      tocarSom('objetivoCumprido'); // a troca não é objetivo do dia: não há outro "ding"
       estradaResultado = { vizinho: vizinhoId, pagou: r.pagou, uvasGastas: r.uvasGastas, bem: r.bem, reputacaoGanha: r.reputacaoGanha, primeiraVez: r.primeiraVez };
     } else {
       // Recusada: nada mudou. O cartão mostra o motivo que calcula sozinho; só um motivo inesperado dá erro.
@@ -280,6 +281,7 @@ function estradaOferecerClique() {
       if (r.ok) {
         saveState(state);
         updateStatsDisplays();
+        tocarSom('objetivoCumprido'); // a oferta não é objetivo do dia: não há outro "ding"
         estradaOfertaResultado = { dia: dia, personagem: visita.personagem, bem: r.bem, reputacaoGanha: r.reputacaoGanha };
       }
     }

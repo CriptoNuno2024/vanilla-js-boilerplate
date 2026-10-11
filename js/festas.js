@@ -806,6 +806,13 @@ function atualizarFaixaFesta() {
 let festaMensagemAtual = '';
 let festaNovaEntrada = null;
 
+// Marca a tarefa da festa no objetivo do dia e dá o som da tarefa: um só, o "objetivoCumprido" (o "ding" do
+// objetivo, se vai tocar, ou o da ação). Falhar uma cena (ok = false) cumpre o objetivo na mesma, mas sem som.
+function festaSomTarefa(ok) {
+  const ding = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('festa_tarefa', { semSom: !ok }) === true;
+  if (ok && !ding) tocarSom('objetivoCumprido');
+}
+
 function botaoFesta(tarefa, label, feita, sufixoFeita) {
   return '<button class="btn-pill" data-acao="' + tarefa + '" ' + (feita ? 'disabled' : '') +
     ' onclick="iniciarTarefaFesta(\'' + tarefa + '\')"><span>' + label + '</span>' +
@@ -924,7 +931,7 @@ function responderCastanha(i) {
   const venceu = i === cena.correta;
 
   festaRegistarTarefaHoje(festa.id, 'castanhas');
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  festaSomTarefa(venceu);
 
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const tempo = tempoAtual();
@@ -1011,7 +1018,7 @@ function fazerJeropiga(festa) {
   state.ultimaGarrafaData = new Date().toLocaleDateString(localeAtual());
   state.adega.historico.push({ data: state.ultimaGarrafaData, estacao: estacaoAtual(), diasDescanso: 0, festa: festa.id });
   festaRegistarTarefaHoje(festa.id, 'jeropiga');
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  festaSomTarefa(true);
 
   const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');
 
@@ -1047,7 +1054,7 @@ function provarVinhoNovo(festa) {
   }
 
   festaRegistarTarefaHoje(festa.id, 'prova');
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  festaSomTarefa(true);
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const repGanha = festaTarefa(festa, 'prova').premio.reputacao * (diaGrande ? festa.recompensas.multiplicadorDiaGrande : 1);
   state.reputacao += repGanha;
@@ -1088,7 +1095,7 @@ function festaTarefaSimples(festa, tarefa) {
     renderFestaHub();
     return;
   }
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  festaSomTarefa(true);
   saveState(state);
   updateStatsDisplays();
   festaMostrarResultado(festa, tarefa,
@@ -1127,7 +1134,7 @@ function festaResponderCenaDoDia(i) {
   const S = fStr(festa.id);
   const r = festaResolverTarefa(state, festa, tarefa, diaLisboaDeHoje(), { diaGrande: estaNoDiaGrandeFesta(festa), venceu: i === atual.cena.correta });
   if (!r.ok) { renderFestaHub(); return; }
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('festa_tarefa');
+  festaSomTarefa(r.venceu);
   saveState(state);
   updateStatsDisplays();
   festaMostrarResultado(festa, tarefa,

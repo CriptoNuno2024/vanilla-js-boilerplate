@@ -318,7 +318,7 @@ if (!process.env.ESTRADA_JS) {
   ok(gravacoes.length === 0, 'abrir a Estrada não devia gravar nada');
 
   // ----- Clique: grava UMA vez, só se a troca correr bem; o desenho nunca grava -----
-  vm.runInContext('this.__saves = 0; this.__trocas = 0; this.__barras = 0; ' +
+  vm.runInContext('this.__saves = 0; this.__trocas = 0; this.__barras = 0; this.tocarSom = function () {}; ' +
     'var __saveReal = saveState; saveState = function (s) { __saves++; return __saveReal(s); }; ' +
     'var __trocaReal = despensaTrocar; despensaTrocar = function () { __trocas++; return __trocaReal.apply(this, arguments); }; ' +
     'var __barraReal = updateStatsDisplays; updateStatsDisplays = function () { __barras++; return __barraReal(); };', cx);
