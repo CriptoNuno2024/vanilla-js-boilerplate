@@ -14,6 +14,7 @@ if (typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('7.7') && t
   tg.disableVerticalSwipes();
 }
 
+// >>> cliques-botoes (scripts/verificar-clique-botoes.js carrega só este bloco)
 // ---------------------------------------------------------------------
 // VIBRAÇÃO (HapticFeedback) — leve ao tocar nos botões principais,
 // "sucesso"/"erro" no resultado dos minijogos (ver js/proteger.js).
@@ -30,13 +31,27 @@ function vibrar(tipo) {
 }
 
 // Vibração leve ao tocar nos botões principais do jogo — delegado num
-// único listener em vez de tocar em cada ecrã. Não apanha os botões da
-// barra de baixo/topo de propósito (dar feedback a cada troca de ecrã
-// seria demasiado); só nas ações dentro dos ecrãs. Um botão com o atributo
+// único listener em vez de tocar em cada ecrã. Não apanha os botões do topo
+// (Perfil); só nas ações dentro dos ecrãs. Um botão com o atributo
 // data-sem-vibracao fica de fora (faz a sua própria vibração, ex.: Engarrafar).
+//
+// O MESMO listener dá o clique suave (som "clique", js/som.js), nos mesmos botões e, ao contrário da vibração, também na
+// barra de baixo (.nav-btn), e com a mesma exceção data-sem-vibracao. É um só ouvinte do documento e um só clique por toque
+// (closest() devolve um único botão, mesmo que o toque caia num ícone ou num botão dentro de outro). Um botão cuja ação toca
+// um som seu NÃO dá clique: tocarCliqueSeNadaTocou() espera que a ação corra e só toca se nenhum som foi pedido (por isso não
+// há lista de botões nem atributo a manter: o "ding" do objetivo, as ações da Vinha e da Adega, Trocar, as festas, subir de
+// nível, o ecrã trancado... ficam sozinhos sem clique, e uma ação silenciosa ou recusada ainda dá o seu clique).
+// Botão desativado não dá clique (nem vibração, que o browser já não lhe entrega o toque).
 document.addEventListener('click', function (e) {
-  if (e.target.closest('.btn-pill, .btn-choice, .btn-tile, .btn, .btn-ghost') && !e.target.closest('[data-sem-vibracao]')) vibrar('leve');
+  if (!e.target || typeof e.target.closest !== 'function') return;
+  if (e.target.closest('[data-sem-vibracao]')) return;
+  const botao = e.target.closest('.btn-pill, .btn-choice, .btn-tile, .btn, .btn-ghost');
+  const barra = e.target.closest('.nav-btn');
+  if (botao) vibrar('leve');
+  const clicado = botao || barra;
+  if (clicado && !clicado.disabled && typeof tocarCliqueSeNadaTocou === 'function') tocarCliqueSeNadaTocou();
 }, true);
+// <<< cliques-botoes
 
 function showMessage(msg) {
   const dentroDoTelegram = tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;

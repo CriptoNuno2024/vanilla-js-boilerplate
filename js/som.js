@@ -194,6 +194,13 @@ function somTocarAbafado() {
 }
 
 const SOM_EFEITOS = {
+  // Clique suave dos botões (ver tocarCliqueSeNadaTocou() e js/main.js) — um "tic" seco de tecla de 30 ms: um estalo
+  // de ruído passa-banda a descer (2,4 kHz para 0,9 kHz) e um corpo grave de 190 Hz por baixo; nenhum tom agudo.
+  // Picos nominais 0,03 + 0,03 (o "ding" objetivoCumprido chega a 0,2): menos de um terço.
+  clique: function () {
+    somTocarRuidoFiltrado(0, 0.03, 'bandpass', 2400, 900, 0.03, false);
+    somTocarTom(190, 0, 0.03, 'sine', 0.03);
+  },
   // Objetivo do "Hoje na Quinta" cumprido — "ding" suave.
   objetivoCumprido: function () { somTocarTom(880, 0, 0.18, 'sine', 0.2); },
   // Subir de nível — sino/acorde alegre (3 notas a subir).
@@ -247,10 +254,26 @@ const SOM_EFEITOS = {
   }
 };
 
+// Quantos sons (efeitos e ficheiros) foram pedidos e podiam tocar, desde sempre. Serve só para o clique dos botões
+// saber se a ação do botão já tocou um som seu (ver tocarCliqueSeNadaTocou()). Os ambientes em ciclo não contam.
+let somToques = 0;
+
 function tocarSom(nome) {
   if (!somPodeTocar()) return;
   const efeito = SOM_EFEITOS[nome];
-  if (efeito) efeito();
+  if (efeito) { somToques++; efeito(); }
+}
+
+// Clique suave de um botão — UM só som por toque. Chamada no início do clique (antes da ação do botão); só decide
+// depois de a ação correr (setTimeout 0, já com todos os cliques tratados): se entretanto algum som foi pedido (o da ação,
+// o "ding" do objetivo do dia, subir de nível, o ecrã trancado...) o clique fica calado; se a ação foi silenciosa
+// (ou recusada), toca o clique. Respeita o "Som" do Perfil e não depende do Telegram.
+function tocarCliqueSeNadaTocou() {
+  if (!state.som) return;
+  const antes = somToques;
+  setTimeout(function () {
+    if (somToques === antes) tocarSom('clique');
+  }, 0);
 }
 
 // ---------------------------------------------------------------------
@@ -274,6 +297,7 @@ function somCarregarFicheiro(caminho) {
 
 function tocarSomFicheiro(caminho, volume) {
   if (!somPodeTocar()) return;
+  somToques++;
   somCarregarFicheiro(caminho).then(function (buffer) {
     if (!buffer || !somPodeTocar()) return;
     const fonte = somCtx.createBufferSource();
