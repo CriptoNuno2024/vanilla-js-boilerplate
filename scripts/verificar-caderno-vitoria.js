@@ -58,7 +58,7 @@ function abrir(opcoes) {
   g.ids = function () { return Object.keys(g.paginas()).sort(); };
   g.falaCaderno = function () { return reg.falas.some(function (f) { return f.some(function (x) { return typeof x === 'string' && /Caderno/.test(x); }); }); };
   g.falaCompleto = function () { return reg.falas.some(function (f) { return f.some(function (x) { return typeof x === 'string' && /papéis para perder/.test(x); }); }); };
-  g.visita = function () { g.ev('startProteger()'); };            // abre o Proteger (ronda 1)
+  g.visita = function () { g.ev('startProteger()'); g.ev('if (protegerEscutarPendente) protegerEscutarEntrar()'); }; // "Escutar à porta" (verificar-escutar-porta.js): "Entrar já"            // abre o Proteger (ronda 1)
   g.ganha = function () { g.ev("finishProteger(true, 'ganhou')"); };
   return g;
 }

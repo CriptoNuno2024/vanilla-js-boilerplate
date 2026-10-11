@@ -27,6 +27,15 @@ const PROTEGER_STRINGS = {
     iscoBotao: 'Pôr isco (-1 bagaço)',
     iscoSem: 'Seguir sem isco',
     iscoFala: function (porco) { return porco ? 'O isco já chamou o ' + porco + '. Vem aí.' : 'O cheiro do bagaço já passou de focinho em focinho. Vem aí gente.'; },
+    escutarSubtitulo: 'Escutar à porta',
+    escutarPergunta: 'Há movimento junto à porta da Cave. Encosto o ouvido?',
+    escutarEncostar: 'Encostar o ouvido',
+    escutarEntrar: 'Entrar já',
+    escutarFalas: [
+      'Wuf. Está lá alguém. Ouço um monóculo a embaciar e um focinho a resfolegar: é o Fygmo2, de certeza.',
+      'Shh. Do outro lado da porta, o Fygmo2 ensaia baixinho uma voz de visita: «boa noite, só passava por aqui». Não convence nem um cão.',
+      'Passinhos de quem pensa que ninguém ouve. O Fygmo2 devia saber que eu ouço tudo, até o monóculo a ser limpo à manga.'
+    ],
     chizoBotao: 'Acordar o Chizo!',
     protegida: 'A Quinta está protegida!',
     naoCorreuBem: 'Desta vez não correu bem...',
@@ -109,6 +118,15 @@ const PROTEGER_STRINGS = {
     iscoBotao: 'Set the bait (-1 pomace)',
     iscoSem: 'Carry on without bait',
     iscoFala: function (porco) { return porco ? 'The bait has already caught ' + porco + "'s attention. Here he comes." : 'The smell of pomace is already going from snout to snout. Company is coming.'; },
+    escutarSubtitulo: 'Listen at the door',
+    escutarPergunta: 'Something is stirring by the Cave door. Press my ear to it?',
+    escutarEncostar: 'Press my ear to the door',
+    escutarEntrar: 'Go in now',
+    escutarFalas: [
+      'Woof. Somebody\'s there. I can hear a monocle fogging up and a snout huffing: it\'s Fygmo2, for sure.',
+      'Shh. On the other side of the door, Fygmo2 is softly rehearsing a visitor\'s voice: «good evening, just passing by». Wouldn\'t fool a dog.',
+      'Tiny steps from someone who thinks nobody can hear. Fygmo2 should know I hear everything, even the monocle being polished on a sleeve.'
+    ],
     chizoBotao: 'Wake Chizo!',
     protegida: 'The Quinta is protected!',
     naoCorreuBem: "It didn't go well this time...",
@@ -191,6 +209,15 @@ const PROTEGER_STRINGS = {
     iscoBotao: 'Poner cebo (-1 orujo)',
     iscoSem: 'Seguir sin cebo',
     iscoFala: function (porco) { return porco ? 'El cebo ya llamó al ' + porco + '. Ahí viene.' : 'El olor del orujo ya pasa de hocico en hocico. Viene gente.'; },
+    escutarSubtitulo: 'Escuchar a la puerta',
+    escutarPergunta: 'Hay movimiento junto a la puerta de la Cava. ¿Pego la oreja?',
+    escutarEncostar: 'Pegar la oreja',
+    escutarEntrar: 'Entrar ya',
+    escutarFalas: [
+      'Guau. Hay alguien. Oigo un monóculo empañándose y un hocico resoplando: es Fygmo2, seguro.',
+      'Shh. Al otro lado de la puerta, Fygmo2 ensaya bajito una voz de visita: «buenas noches, solo pasaba por aquí». No engaña ni a un perro.',
+      'Pasitos de quien cree que nadie lo oye. Fygmo2 debería saber que lo oigo todo, hasta el monóculo limpiándose en la manga.'
+    ],
     chizoBotao: '¡Despertar a Chizo!',
     protegida: '¡La Quinta está protegida!',
     naoCorreuBem: 'Esta vez no salió bien...',
@@ -485,6 +512,95 @@ function protegerIscoResponder(poe) {
   iniciarRondaProteger();
 }
 
+// -----------------------------------------------------------------
+// ESCUTAR À PORTA DA CAVE: passo antes do isco e da Fechadura, só na 1.ª ronda da visita
+// e só quando o alvo do dia é a Cave (a mesma pista que leva à Fechadura). "Encostar o ouvido"
+// toca os passos e a porta (só com o "Som" do Perfil ligado) e mostra uma fala do Chizo, 1 de 3
+// escolhida pelo dia de Lisboa; "Entrar já" segue sem som nem texto. Só atmosfera: sem
+// Reputação, Gotas, custo, prémio, estado ou nuvem, e a fala nunca diz qual é a opção certa.
+// -----------------------------------------------------------------
+const PROTEGER_FUNDO_ESCUTAR = 'assets/ecras/cave_de_inverno.jpg';
+const ESCUTAR_SOM_PASSOS = 'assets/sons/cave_passos.mp3';
+const ESCUTAR_SOM_PORTA = 'assets/sons/cave_porta.mp3';
+const ESCUTAR_VOLUME = 0.8;
+const ESCUTAR_PASSOS_MS = 3600;        // um pouco mais do que cave_passos.mp3 (3,5 s): a porta entra logo a seguir
+const ESCUTAR_PORTA_MS = 3400;         // um pouco mais do que cave_porta.mp3 (3,3 s)
+const ESCUTAR_LEITURA_MS = 4500;       // sem som: o tempo de ler a fala
+
+let protegerEscutarPendente = false;   // o ecrã está à espera de um toque
+let protegerEscutarTimers = [];
+
+// Índice (0 a n-1) da fala do dia; puro e estável, sem Math.random (como festaCenaDoDia).
+function escutarPortaFalaDoDia(dia, n) {
+  if (typeof dia !== 'string' || !Number.isInteger(n) || n <= 0) return 0;
+  const semente = dia + '#escutar#porta';
+  let h = 0;
+  for (let i = 0; i < semente.length; i++) h = (h * 31 + semente.charCodeAt(i)) >>> 0;
+  return h % n;
+}
+
+// Só lê: a visita começa agora (1.ª ronda), há pista e o alvo é a Cave?
+function protegerEscutarAgora() {
+  try {
+    if (protegerRondaAtual !== 1 || typeof alvoParaProteger !== 'function') return false;
+    const indice = protegerPistaIndice();
+    if (indice === null) return false;
+    const isco = protegerEmModoTeste() ? null : (state.proteger && state.proteger.isco);
+    return alvoParaProteger(indice, isco, diaLisboaDeHoje()) === 'cave';
+  } catch (e) { return false; }
+}
+
+function protegerEscutarParar() {
+  protegerEscutarPendente = false;
+  protegerEscutarTimers.forEach(function (id) { clearTimeout(id); });
+  protegerEscutarTimers = [];
+}
+
+function protegerEscutarAgendar(ms, fn) {
+  protegerEscutarTimers.push(setTimeout(fn, ms));
+}
+
+function renderEscutarPorta() {
+  protegerEscutarPendente = true;
+  const S = pStr();
+  const container = document.getElementById('proteger-container');
+  container.innerHTML =
+    protegerTopcardHtml(S, S.escutarSubtitulo) +
+    '<div class="action-panel"><div class="choice-stack">' +
+      '<button type="button" class="btn-choice escutar-botao" onclick="protegerEscutarEncostar()">' + S.escutarEncostar + '</button>' +
+      '<button type="button" class="btn-choice escutar-botao" onclick="protegerEscutarEntrar()">' + S.escutarEntrar + '</button>' +
+    '</div></div>';
+  definirFundo('foto', PROTEGER_FUNDO_ESCUTAR);
+  atualizarDialogo(S.escutarPergunta, 'YoshiCat');
+}
+
+// "Entrar já": segue direto, sem som nem texto.
+function protegerEscutarEntrar() {
+  if (!protegerEscutarPendente) return; // toque duplo
+  protegerEscutarParar();
+  protegerIscoOuRonda();
+}
+
+// "Encostar o ouvido": passos e, logo a seguir, a porta (só com o Som ligado), a fala do Chizo e depois segue.
+// Os botões ficam desativados até seguir.
+function protegerEscutarEncostar() {
+  if (!protegerEscutarPendente) return; // toque duplo
+  protegerEscutarPendente = false;
+  document.querySelectorAll('.escutar-botao').forEach(function (b) { b.disabled = true; });
+  const S = pStr();
+  const comSom = !!state.som;
+  if (comSom) {
+    tocarSomFicheiro(ESCUTAR_SOM_PASSOS, ESCUTAR_VOLUME);
+    protegerEscutarAgendar(ESCUTAR_PASSOS_MS, function () { tocarSomFicheiro(ESCUTAR_SOM_PORTA, ESCUTAR_VOLUME); });
+  }
+  const falas = S.escutarFalas;
+  mostrarFalas([falas[escutarPortaFalaDoDia(diaLisboaDeHoje(), falas.length)]], 'Chizo');
+  protegerEscutarAgendar(comSom ? ESCUTAR_PASSOS_MS + ESCUTAR_PORTA_MS : ESCUTAR_LEITURA_MS, function () {
+    protegerEscutarTimers = [];
+    protegerIscoOuRonda();
+  });
+}
+
 function escolherTipoProteger() {
   const daPista = tipoProtegerPelaPista();
   if (daPista) return daPista;
@@ -573,9 +689,18 @@ function startProteger(continuando) {
   if (!continuando) {
     protegerIscoTeste = false;
     protegerIscoPendente = null;
-    const indiceIsco = protegerIscoPerguntarAgora();
-    if (indiceIsco !== null) { renderIscoPergunta(indiceIsco); return; }
+    protegerEscutarParar();
+    if (protegerEscutarAgora()) { renderEscutarPorta(); return; }
+    protegerIscoOuRonda();
+    return;
   }
+  iniciarRondaProteger();
+}
+
+// Depois do (eventual) passo "Escutar à porta": o passo do isco, se se aplicar, e a ronda.
+function protegerIscoOuRonda() {
+  const indiceIsco = protegerIscoPerguntarAgora();
+  if (indiceIsco !== null) { renderIscoPergunta(indiceIsco); return; }
   iniciarRondaProteger();
 }
 
@@ -826,6 +951,7 @@ let chizoRondaId = 0;
 // LIMPEZA_AO_SAIR_POR_ECRA em js/main.js). Sair conta como desistir:
 // sem penalização, só pára o relógio.
 function pararTemporizadorProteger() {
+  protegerEscutarParar();
   if (typeof barrilParar === 'function') barrilParar();
   if (chizoTimerId) { clearTimeout(chizoTimerId); chizoTimerId = null; }
   chizoResolvido = true;
