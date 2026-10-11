@@ -9,6 +9,7 @@
 // D. Cena do bolo-rei: fixa por dia (sem sorteio), igual em qualquer aparelho.
 // E. Textos em PT, EN e ES completos e sem números; objetivos.js lê a configuração; Enciclopédia só no São Martinho.
 // G. Carnaval: data móvel (sábado a terça), mesmas regras e valores do Natal, textos, imagens, 2026 a 2035.
+// I. Cenas de 3 opções (São Martinho, Natal, Carnaval e Páscoa): a certa nunca é a mais comprida, as 3 opções diferem no máximo 20% em PT, EN e ES e a posição da certa varia.
 // H. Páscoa: data móvel (Sexta-feira Santa a Domingo de Páscoa), mesmas regras e valores do Carnaval, textos, cenas, imagens, 2026 a 2035.
 // F. Datas móveis: Páscoa (2 métodos independentes), somar dias, janela móvel (Carnaval de teste), e as festas
 //    de datas fixas iguais a antes em todos os dias de 13 anos.
@@ -959,6 +960,33 @@ function suite(fontes) {
     ok(!/páscoa|pascua|easter/i.test(JSON.stringify(TXT.natal)) && !/páscoa|pascua|easter/i.test(JSON.stringify(TXT.saomartinho)) && !/páscoa|pascua|easter/i.test(JSON.stringify(TXT.carnaval)), 'os textos do Natal, do São Martinho e do Carnaval não mencionam a Páscoa');
   }
 
+  // ---------------- I. Cenas de 3 opções equilibradas (todas as festas) ----------------
+  {
+    const g = abrir(lis(11, 10));
+    const TXT = g.json('FESTAS_STRINGS');
+    const CENAS = [['saomartinho', 'castanhasCenas', 'São Martinho'], ['natal', 'boloReiCenas', 'Natal'], ['carnaval', 'quemEstaMascaradoCenas', 'Carnaval'], ['pascoa', 'ovosCenas', 'Páscoa']];
+    CENAS.forEach(function (fc) {
+      const festa = fc[0], chave = fc[1], nome = fc[2];
+      const pt = TXT[festa] && TXT[festa].pt && TXT[festa].pt[chave];
+      ok(Array.isArray(pt) && pt.length >= 3, nome + ': tem pelo menos 3 cenas de opções');
+      if (!Array.isArray(pt)) return;
+      ['pt', 'en', 'es'].forEach(function (l) {
+        const cenas = TXT[festa][l][chave];
+        ok(Array.isArray(cenas) && cenas.length === pt.length, nome + ' ' + l + ': o mesmo número de cenas que em PT');
+        (cenas || []).forEach(function (c, i) {
+          const quem = nome + ' ' + l + ' cena ' + (i + 1);
+          ok(c.opcoes.length === 3 && new Set(c.opcoes).size === 3 && c.opcoes.every(function (o) { return typeof o === 'string' && o.trim() !== ''; }), quem + ': 3 opções diferentes e com texto');
+          ok(c.correta === pt[i].correta && c.correta >= 0 && c.correta <= 2, quem + ': a mesma opção certa em PT/EN/ES');
+          const len = c.opcoes.map(function (o) { return o.length; });
+          ok(len[c.correta] < Math.max.apply(null, len), quem + ': a opção certa NÃO é a mais comprida (' + len.join('/') + ')');
+          ok(Math.max.apply(null, len) - Math.min.apply(null, len) <= 0.2 * Math.max.apply(null, len), quem + ': as 3 opções diferem no máximo 20% (' + len.join('/') + ')');
+        });
+      });
+      const certas = pt.map(function (c) { return c.correta; });
+      ok(new Set(certas).size >= Math.min(3, pt.length), nome + ': a posição da certa varia entre as cenas (' + certas.join(',') + ')');
+    });
+  }
+
   return falhas;
 }
 
@@ -971,6 +999,11 @@ function mutar(ficheiro, de, para) {
   return f;
 }
 const MUTACOES = [
+  ['Cenas: no Carnaval a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Reconhecer o Fygmo e pedir-lhe que largue os doces'", "'Reconhecer o Fygmo pelas orelhas e pedir-lhe, com bons modos, que deixe os doces em paz'"],
+  ['Cenas: no Natal as opções voltam a ficar desiguais (PT, cena 2)', 'festas.js', "'Pôr o bolo no alto do armário'", "'Pôr o bolo em cima do armário, fora do alcance'"],
+  ['Cenas: no São Martinho a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Tapar o assador com a tampa'", "'Tapar o assador com a tampa de ferro, bem apertada'"],
+  ['Cenas: no Natal a certa deixa de ser a mesma nas línguas (PT, cena 2)', 'festas.js', "'Ir buscar rabanadas para a mesa'], correta: 0", "'Ir buscar rabanadas para a mesa'], correta: 1"],
+  ['Cenas: no São Martinho duas opções ficam iguais (EN, cena 4)', 'festas.js', "'Put a big net around the roaster'", "'Shoo the sparrows, ignore the pigs'"],
   ['Páscoa: a janela começa na quinta-feira', 'festas.js', "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 }", "movel: { base: 'pascoa', inicioDias: -3, fimDias: 0, diaGrandeDias: 0 }"],
   ['Páscoa: o dia grande passa para sábado', 'festas.js', "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 }", "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: -1 }"],
   ['Páscoa: o folar passa a dar +6', 'festas.js', "{ id: 'folar', onde: 'festa', regra: 'oferta', btn: 'btnFolar',\n        premio: { reputacao: 5 } }", "{ id: 'folar', onde: 'festa', regra: 'oferta', btn: 'btnFolar',\n        premio: { reputacao: 6 } }"],
@@ -1059,7 +1092,7 @@ const MUTACOES = [
   ['PT do Carnaval sem o texto de falta de Gotas', 'festas.js', "      fantasiasFalta: 'Ainda faltam Gotas para as fantasias. Junta mais e volta cá.',\n", ''],
   ['EN do Carnaval sem o texto do corso', 'festas.js', "      corsoSucesso: \"The corso parades", "      corsoSucessoX: \"The corso parades"],
   ['ES do Carnaval sem o aviso do dia grande', 'festas.js', "      diaGrandeAviso: '¡Hoy es martes de Carnaval! Los premios cuentan el doble.',\n", ''],
-  ['cena do Carnaval com a opção certa trocada', 'festas.js', "cada um por si'], correta: 2 }", "cada um por si'], correta: 1 }"],
+  ['cena do Carnaval com a opção certa trocada', 'festas.js', "convidá-los a desfilar'], correta: 2 }", "convidá-los a desfilar'], correta: 1 }"],
   ['cena do Carnaval em ES sem 3 opções diferentes', 'festas.js', "'Hacer como que no ves nada e irte a bailar el corso'], correta: 1 }", "'Saludarlo con ceremonia y darle un sitio en la mesa'], correta: 1 }"],
   ['resto do Natal no texto do Carnaval', 'festas.js', 'carros enfeitados, música e confetes', 'rabanadas a dourar, música e confetes'],
   ['Entrudo no texto do Carnaval', 'festas.js', "subtitulo: 'Uns dias de Carnaval, com o dia grande na terça-feira.'", "subtitulo: 'Uns dias de Entrudo, com o dia grande na terça-feira.'"],

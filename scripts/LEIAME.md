@@ -140,3 +140,7 @@ Sem estado novo, sem custos, sem nuvem, sem textos novos. (1) O fundo do Lagar *
 # Páscoa no Motor das Festas
 
 `node scripts/verificar-festas.js` também cobre a Páscoa (secção H): é a 4.ª festa, de data móvel (Sexta-feira Santa a Domingo de Páscoa: Páscoa -2 a 0, dia grande no domingo; 03 a 05/04/2026, 26 a 28/03/2027, 14 a 16/04/2028, ...), com as mesmas regras e valores do Carnaval (folar +5 sem custo, amêndoas 30 Gotas e +12, os ovos +6 na cena "Onde está o ovo?", dia grande a dobrar, nada em Uvas, sem entrada da Enciclopédia). Confirma as janelas de 2026 a 2035 dia a dia, o fluxo no ecrã (um toque, uma gravação, uma vez por dia, errar não custa nada), `?festa=pascoa&dia=N`, as chaves de texto iguais às do Natal em PT, EN e ES, as 3 cenas (a opção certa varia entre as cenas, nunca é a mais comprida e as 3 opções têm comprimento parecido), as imagens (714x1280, até 250 KB; a do dia grande até 240 KB), os originais em `imagens_JOGO_TELEGRAM/` e as entradas do `CREDITOS.md`. Agora são 95 mutações.
+
+# Cenas de 3 opções equilibradas
+
+`node scripts/verificar-festas.js` (secção I) confirma, para o São Martinho (castanhas, 4 cenas), o Natal (bolo-rei), o Carnaval (quem está mascarado) e a Páscoa (os ovos), em PT, EN e ES: 3 opções diferentes por cena, a mesma opção certa nas 3 línguas, a certa NUNCA é a mais comprida, as 3 opções diferem no máximo 20% de comprimento e a posição da certa varia entre as cenas. Agora são 100 mutações.
