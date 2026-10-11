@@ -63,7 +63,7 @@ function suite(fontes) {
     };
     const cx = vm.createContext(sb);
     vm.runInContext(`
-      var SAVES = 0, SONS = [];
+      var SAVES = 0, SONS = [], FICH = [];
       function t(k) { return k; }
       function randInt(a) { return a; }
       function mostrarFalas() {} function vibrar() {} function updateStatsDisplays() {}
@@ -87,6 +87,7 @@ function suite(fontes) {
       // Os sons que se ouvem: cada nome que tocarSom() REAL deixou chegar ao contexto de áudio.
       var _efeitos = SOM_EFEITOS; var _tocarReal = tocarSom;
       tocarSom = function (nome) { if (somPodeTocar() && SOM_EFEITOS[nome]) SONS.push(nome); return _tocarReal(nome); };
+      tocarSomFicheiro = function (c, v) { if (somPodeTocar()) FICH.push([c, v]); }; // ficheiros: só se contam (sem fetch)
       renderVinha = function () {}; renderAdega = function () {}; renderFestaHub = function () {}; renderFestaHub = function () {};
       renderEstrada = function () {}; estradaDesenhar = function () {};
       function randInt(a) { return a; } // determinista (o state.js define um ao acaso)
@@ -99,7 +100,8 @@ function suite(fontes) {
     g.ev = function (c) { return vm.runInContext(c, cx); };
     g.json = function (c) { return JSON.parse(vm.runInContext('JSON.stringify(' + c + ')', cx)); };
     g.sons = function () { return g.json('SONS'); };
-    g.limpar = function () { g.ev('SONS = []; SAVES = 0;'); };
+    g.limpar = function () { g.ev('SONS = []; FICH = []; SAVES = 0;'); };
+    g.ficheiros = function () { return g.json('FICH'); };
     // Objetivos de hoje: só os dados ids (todos por cumprir).
     g.objetivos = function (ids) {
       if (ids.length === 0) ids = ['objetivo_que_nenhuma_acao_cumpre']; // uma lista vazia seria regenerada ao acaso
@@ -245,7 +247,8 @@ function suite(fontes) {
     const correta = function (x) { return x.ev('FESTAS_STRINGS.saomartinho.pt.castanhasCenas[castanhasCenaIndex].correta'); };
     const certa = correta(g);
     g.limpar(); g.ev('responderCastanha(' + certa + ')');
-    ok(igual(g.sons(), ['objetivoCumprido']), 'castanhas, acertar: devia tocar objetivoCumprido, tocou ' + JSON.stringify(g.sons()));
+    // Sem objetivo do dia: o som da ação é o Chizo a ladrar (castanhasVitoria diz que ladra), em vez do "ding" (ver verificar-sons-animais.js).
+    ok(igual(g.sons(), []) && igual(g.ficheiros(), [['assets/sons/chizo_ladrar.mp3', 0.7]]), 'castanhas, acertar: devia tocar só o ladrar do Chizo, tocou ' + JSON.stringify([g.sons(), g.ficheiros()]));
     const e = jogador({}, {}); festa(e, 'saomartinho'); e.objetivos([]);
     tarefa(e, 'castanhas'); e.limpar(); e.ev('responderCastanha(' + ((certa + 1) % 3) + ')');
     ok(igual(e.sons(), []), 'castanhas, falhar: não devia tocar nada, tocou ' + JSON.stringify(e.sons()));
@@ -408,11 +411,11 @@ const MUTANTES = [
   M('estrada.js', "      tocarSom('objetivoCumprido'); // a troca", "      // a troca", 'Estrada Trocar sem som'),
   M('estrada.js', "        tocarSom('objetivoCumprido'); // a oferta", "        // a oferta", 'Estrada Oferecer sem som'),
   M('estrada.js', "      tocarSom('objetivoCumprido'); // a troca não é objetivo do dia: não há outro \"ding\"\n      estradaResultado", "      estradaResultado", 'Estrada Trocar sem som (2)'),
-  M('festas.js', "if (ok && !ding) tocarSom('objetivoCumprido');", "if (!ding) tocarSom('objetivoCumprido');", 'Festas tocam ao falhar'),
+  M('festas.js', "if (!ok || ding) return;", "if (ding) return;", 'Festas tocam ao falhar'),
   M('festas.js', "{ semSom: !ok }", "{}", 'Festas: falhar deixa o ding do objetivo'),
-  M('festas.js', "if (ok && !ding) tocarSom('objetivoCumprido');", "if (ok) tocarSom('objetivoCumprido');", 'Festas tocam por cima do ding'),
-  M('festas.js', "if (ok && !ding) tocarSom('objetivoCumprido');", "", 'Festas sem som'),
-  M('festas.js', "  festaSomTarefa(venceu);", "  festaSomTarefa(true);", 'Castanhas tocam ao falhar'),
+  M('festas.js', "if (!ok || ding) return;", "if (!ok) return;", 'Festas tocam por cima do ding'),
+  M('festas.js', "  else tocarSom('objetivoCumprido');", "", 'Festas sem som'),
+  M('festas.js', "  festaSomTarefa(venceu, venceu);", "  festaSomTarefa(true, true);", 'Castanhas tocam ao falhar'),
   M('festas.js', "  festaSomTarefa(r.venceu);", "  festaSomTarefa(true);", 'Cenas do dia tocam ao falhar'),
   M('objetivos.js', "  return !semSom;\n}", "  return false;\n}", 'marcarObjetivoCumprido nunca avisa do ding'),
   M('objetivos.js', "if (!semSom) tocarSom('objetivoCumprido');", "tocarSom('objetivoCumprido');", 'ding mesmo com semSom'),

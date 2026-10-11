@@ -79,6 +79,8 @@ function garrafaLegenda(g) {
 // executarAcaoAdega('engarrafar') e lida pela página da garrafa (ver
 // renderEngarrafar() abaixo) para mostrar o resultado.
 let adegaGarrafaFeita = null;
+// true se o "ding" do objetivo do dia tocou na última ação da Adega: então o som de engarrafar (ficheiro) fica calado.
+let adegaDingTocou = false;
 
 // ---------------------------------------------------------------------
 // ESTADO DO LOTE PARA A PÁGINA DA GARRAFA — função pura (não lê o
@@ -643,6 +645,7 @@ function executarAcaoAdega(acao) {
 
   // Um só som: o "ding" do objetivo do dia, se vai tocar, ou o da ação (ver SOM_ACAO_ADEGA). Engarrafar tem o seu (ficheiro).
   const dingAdega = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido(acao === 'destilarVinho' || acao === 'destilarBagaco' ? 'adega_alambique' : 'adega_' + acao) === true;
+  adegaDingTocou = dingAdega;
   if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSom(SOM_ACAO_ADEGA[acao]);
   saveState(state);
   updateStatsDisplays();
@@ -884,7 +887,7 @@ function engarrafarAgora() {
   engarrafarResultado = { garrafa: adegaGarrafaFeita, rep: state.reputacao - repAntes };
   pararRelogioEngarrafar();
   pararSomAmbiente();                                        // o ambiente sai em fundo
-  tocarSomFicheiro(GARRAFA_SOM_ENGARRAFAR, GARRAFA_ENGARRAFAR_VOLUME);
+  if (!adegaDingTocou) tocarSomFicheiro(GARRAFA_SOM_ENGARRAFAR, GARRAFA_ENGARRAFAR_VOLUME); // um só som: com o "ding" do objetivo, o ficheiro cala-se
   vibrar('sucesso');                                         // (o botão não faz a vibração leve: data-sem-vibracao)
   renderEngarrafar();
   // O resultado já está escrito nesta página: esconde o balão (o cartão de

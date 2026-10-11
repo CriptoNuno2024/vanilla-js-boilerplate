@@ -808,9 +808,12 @@ let festaNovaEntrada = null;
 
 // Marca a tarefa da festa no objetivo do dia e dá o som da tarefa: um só, o "objetivoCumprido" (o "ding" do
 // objetivo, se vai tocar, ou o da ação). Falhar uma cena (ok = false) cumpre o objetivo na mesma, mas sem som.
-function festaSomTarefa(ok) {
+// ladra = true só nas castanhas ganhas (castanhasVitoria diz que o Chizo ladra): então o som da ação é o ladrar em vez do "ding".
+function festaSomTarefa(ok, ladra) {
   const ding = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('festa_tarefa', { semSom: !ok }) === true;
-  if (ok && !ding) tocarSom('objetivoCumprido');
+  if (!ok || ding) return;
+  if (ladra && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();
+  else tocarSom('objetivoCumprido');
 }
 
 function botaoFesta(tarefa, label, feita, sufixoFeita) {
@@ -931,7 +934,7 @@ function responderCastanha(i) {
   const venceu = i === cena.correta;
 
   festaRegistarTarefaHoje(festa.id, 'castanhas');
-  festaSomTarefa(venceu);
+  festaSomTarefa(venceu, venceu);
 
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const tempo = tempoAtual();
