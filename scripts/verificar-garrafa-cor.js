@@ -209,7 +209,7 @@ function suite(fontes) {
     ok(g.ev('reservaHtml()').indexOf('barril_dourado') !== -1, 'a Reserva da Adega sem garrafas continua a mostrar o barril');
     // o que fica como estava
     const roxo = fontes['roxo.js'];
-    ok(/imagemResultado: 'assets\/garrafas\/garrafa_3_ambar\.jpg'/.test(roxo), 'o Moscatel Roxo continua com a garrafa âmbar fixa');
+    ok(/imagemResultado: 'assets\/garrafas\/garrafa_roxo_uvas\.jpg'/.test(roxo), 'o Moscatel Roxo continua com uma garrafa fixa (a sua: garrafa_roxo_uvas.jpg), sem seguir a cor do jogador');
     ok(g.ev('RESERVA_CONFIG.imagemResultado') === 'assets/ecras/yoshi_cat_adega_balde.jpg', 'Visitar a Reserva continua com a imagem do balde');
     ok(g.ev('CAMARA_CONFIG.imagemResultado') === undefined && g.ev('COLECAO_TAREFA_CONFIG.imagemResultado') === undefined, 'as duas configurações já não têm imagem de resultado');
     ['camara.js', 'reserva.js'].forEach(function (f) { ok(!/garrafa_4_cobre/.test(fontes[f]), f + ' já não tem o cobre escrito'); });
@@ -257,7 +257,7 @@ const MUTACOES = [
   ['Coleção: sorteia', 'garrafa.js', 'const cores = colecaoCoresFeitas(estado);\n  for (let i = GARRAFAS_POR_DIAS.length - 1', 'const cores = colecaoCoresFeitas(estado); Math.random();\n  for (let i = GARRAFAS_POR_DIAS.length - 1'],
   ['Câmara volta a ter o cobre na configuração', 'camara.js', "  garrafasMinimas: 1    // garrafas feitas", "  garrafasMinimas: 1, imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg' // garrafas feitas"],
   ['Coleção volta a ter o cobre na configuração', 'reserva.js', "  coresMinimas: 1       // cores já feitas", "  coresMinimas: 1, imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg' // cores já feitas"],
-  ['Roxo deixa de ter a âmbar fixa', 'roxo.js', "imagemResultado: 'assets/garrafas/garrafa_3_ambar.jpg'", "imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg'"],
+  ['Roxo deixa de ter a sua garrafa fixa', 'roxo.js', "imagemResultado: 'assets/garrafas/garrafa_roxo_uvas.jpg'", "imagemResultado: 'assets/garrafas/garrafa_4_cobre.jpg'"],
   ['Reserva da Adega com a cor errada', 'garrafa.js', 'const g = dias !== null ? garrafaPorDias(dias) : null;', 'const g = dias !== null ? garrafaPorDias(1) : null;']
 ];
 MUTACOES.forEach(function (m) {

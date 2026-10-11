@@ -1590,6 +1590,8 @@
       transition: transform 0.5s ease-in-out, border-color 0.2s, box-shadow 0.2s;
     }
     .barril-btn:disabled { cursor: default; opacity: 1; }
+    /* A imagem do barril ocupa o botão todo mas não apanha o toque: quem recebe o clique é sempre o botão (min. 44 px). */
+    .barril-img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: 10px; pointer-events: none; user-select: none; -webkit-user-drag: none; }
     .barril-btn.marcado { border-color: #f2c14e; box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.55), 0 0 14px rgba(242, 193, 78, 0.8); }
     @media (prefers-reduced-motion: reduce) {
       .barril-btn { transition: none; }
@@ -2276,7 +2278,7 @@
   <script src="js/assaltos.js?v=5"></script>
   <script src="js/caderno.js?v=6"></script>
   <script src="js/barril.js?v=1"></script>
-  <script src="js/proteger.js?v=65"></script>
+  <script src="js/proteger.js?v=66"></script>
   <script src="js/alambique.js?v=1"></script>
   <script src="js/garrafa.js?v=63"></script>
   <script src="js/personagens.js?v=2"></script>
@@ -2294,7 +2296,7 @@
   <script src="js/estrada.js?v=8"></script>
   <script src="js/lagar.js?v=5"></script>
   <script src="js/camara.js?v=4"></script>
-  <script src="js/roxo.js?v=2"></script>
+  <script src="js/roxo.js?v=3"></script>
   <script src="js/loja.js?v=2"></script>
   <script src="js/reserva.js?v=2"></script>
   <script src="js/main.js?v=74"></script>

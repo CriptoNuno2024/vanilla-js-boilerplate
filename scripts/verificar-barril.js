@@ -25,6 +25,18 @@ const FICHEIROS = ['barril.js', 'assaltos.js', 'proteger.js', 'i18n.js'];
 const FONTES = {};
 FICHEIROS.forEach(function (f) { FONTES[f] = fs.readFileSync(path.join(RAIZ, 'js', f), 'utf8'); });
 const INDEX = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
+// Dimensões de um JPEG (marcador SOFn).
+function dimensoesJpeg(ficheiro) {
+  const b = fs.readFileSync(ficheiro);
+  let i = 2;
+  while (i < b.length) {
+    if (b[i] !== 0xff) { i++; continue; }
+    const m = b[i + 1];
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return null;
+}
 
 function suite(fontes) {
   const falhas = [];
@@ -167,6 +179,13 @@ function suite(fontes) {
     ok(g.ev('barrilFase') === 'marca' && g.ev('barrilSeq.marcado') >= 0, 'começa na fase da marca');
     const marcado = g.ev('barrilSeq.marcado');
     ok(g.reg.html.indexOf('id="barril-' + marcado + '" class="barril-btn marcado"') !== -1 && (g.reg.html.match(/barril-btn marcado/g) || []).length === 1, 'só o barril marcado aparece marcado');
+    ok((g.reg.html.match(/<img class="barril-img" src="assets\/vinha\/barril_botao\.jpg"/g) || []).length === 3 && (g.reg.html.match(/<button type="button" id="barril-/g) || []).length === 3 && g.reg.html.indexOf('<svg') === -1, 'os 3 botões mostram a imagem barril_botao.jpg (já sem desenho SVG)');
+    ok(/\.barril-img \{[^}]*pointer-events: none/.test(INDEX) && /\.barril-btn \{[\s\S]*?min-width: 44px;\s*min-height: 44px;/.test(INDEX) && /\.barris-fila \{ position: relative; height: 92px; \}/.test(INDEX), 'a imagem não apanha o toque e o botão mantém o mínimo de 44 px e a fila os 92 px');
+    const fBarril = path.join(RAIZ, 'assets/vinha/barril_botao.jpg');
+    const dBarril = fs.existsSync(fBarril) ? dimensoesJpeg(fBarril) : null;
+    ok(dBarril && dBarril.w === 300 && dBarril.h === 300 && fs.statSync(fBarril).size <= 100 * 1024, 'barril_botao.jpg tem 300x300 e pesa no máximo 100 KB');
+    ok(fs.existsSync(path.join(RAIZ, 'assets/vinha/barril.jpg')) && fs.statSync(path.join(RAIZ, 'assets/vinha/barril.jpg')).size === 88988, 'assets/vinha/barril.jpg (o fundo do Proteger, outra imagem) continua igual (88988 bytes)');
+    ok(fs.existsSync(path.join(RAIZ, 'assets/ecras/barril_simples.jpg')) && !fs.existsSync(path.join(RAIZ, 'barril.jpg')), 'o original barril_simples.jpg está em assets/ecras e o barril.jpg já não está na raiz');
     ok(g.reg.timers.length === 1 && g.reg.timers[0].ms === 1500, 'a marca dura ~1,5 s (BARRIL_CONFIG.marcaMs)');
     g.ev('barrilEscolher(0)');
     ok(g.resultados().length === 0, 'tocar durante a marca não devia contar');

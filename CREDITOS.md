@@ -19,6 +19,8 @@ Imagens geradas com IA (Grok/Gemini), sem marca de serviço, carregadas a 04/10/
 
 `assets/ecras/camera_.jpg` e `assets/ecras/cepa_roxa.jpg` (carregadas a 11/10/2026): imagens geradas com IA pelo autor do jogo, sem marcas. A `camera_.jpg` é a versão final da Câmara (enviada como `camera_3.png`, convertida para JPEG de 1145x1374 e 240 KB; a versão antiga e o `camera_reuniao.jpg` foram retirados). Ficam em tamanho original para um uso futuro como fundo de ecrã; no Explorar usa-se só a versão pequena de cada uma (ver `assets/explorar/` mais abaixo).
 
+`assets/ecras/moscatel_roxo_com_uvas.jpg` e `assets/ecras/barril_simples.jpg` (carregadas a 11/10/2026, 1024x1024): imagens geradas com IA pelo autor do jogo, sem marcas. A primeira é a garrafa dourada do Moscatel Roxo, com uvas roxas e fita roxa no rótulo; a segunda é um barril simples sem texto. Ficam em tamanho original (antes estavam na raiz); o jogo usa só as versões pequenas, `assets/garrafas/garrafa_roxo_uvas.jpg` (512x512) e `assets/vinha/barril_botao.jpg` (300x300, recorte à volta do barril). O `assets/vinha/barril.jpg` que já existia é outra imagem e não mudou.
+
 ## Imagens e sons que o jogo usa
 
 Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do código onde aparece). **Quem fez cada imagem ou som, e com que licença, não se vê nos ficheiros**, por isso a coluna "Origem" diz "origem a confirmar pelo Nuno" em todos. O que já se sabe está nas secções "Sons" e "Imagens novas" acima.
@@ -40,6 +42,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/arco_iris.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/bagaco.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/ecras/calor.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
+| `assets/ecras/barril_simples.jpg` | ainda sem uso direto no código (original; a versão pequena é `assets/vinha/barril_botao.jpg`, os barris do "Seguir o barril") | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/ecras/camera_.jpg` | ainda sem uso no código (original; a versão pequena é o cartão da Câmara no Explorar) | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/ecras/cepa_roxa.jpg` | ainda sem uso no código (original; a versão pequena é o cartão da Cepa Roxa no Explorar) | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/ecras/carnaval_dia_grande.jpg` | festa de Carnaval, dia grande (cópia comprimida de `imagens_JOGO_TELEGRAM/carnaval_patio_vindimas_2_personagens.jpg`, a mesma imagem, 714x1280) | origem a confirmar pelo Nuno |
@@ -71,6 +74,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/lojas_casas.jpg` | A Loja da Quinta (fundo à chuva) | origem a confirmar pelo Nuno |
 | `assets/ecras/lojas_casas_janelas_abertas_2.jpg` | A Loja da Quinta (fundo com trovoada ou granizo) | origem a confirmar pelo Nuno |
 | `assets/ecras/menu_quinta.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
+| `assets/ecras/moscatel_roxo_com_uvas.jpg` | ainda sem uso direto no código (original; a versão pequena é `assets/garrafas/garrafa_roxo_uvas.jpg`, o brinde da Cepa Roxa) | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/ecras/natal_dia25.jpg` | festa de Natal, dia 25 (cópia de `imagens_JOGO_TELEGRAM/natal_patio_de_vindima.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/natal_festa.jpg` | festa de Natal, ecrã da festa e tarefas (cópia de `imagens_JOGO_TELEGRAM/natal_patio_vindimas_2.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/nevoeiro_1.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
@@ -118,6 +122,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 |---|---|---|
 | `assets/vinha/adubar_2.jpg` | Vinha | origem a confirmar pelo Nuno |
 | `assets/vinha/barril.jpg` | história dos níveis | origem a confirmar pelo Nuno |
+| `assets/vinha/barril_botao.jpg` | Proteger, "Seguir o barril": os 3 barris (300x300, recorte de `assets/ecras/barril_simples.jpg`) | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/vinha/barril_dourado.jpg` | Adega / Cave / Coleção, fundo de um ecrã, história dos níveis | origem a confirmar pelo Nuno |
 | `assets/vinha/cavar_2.jpg` | Vinha | origem a confirmar pelo Nuno |
 | `assets/vinha/colher.jpg` | Vinha | origem a confirmar pelo Nuno |
@@ -135,7 +140,8 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 |---|---|---|
 | `assets/garrafas/garrafa_1_jovem.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/garrafas/garrafa_2_dourado.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
-| `assets/garrafas/garrafa_3_ambar.jpg` | A Cepa Roxa, Adega / Cave / Coleção | origem a confirmar pelo Nuno |
+| `assets/garrafas/garrafa_3_ambar.jpg` | Adega / Cave / Coleção, A Câmara (já não é a da Cepa Roxa) | origem a confirmar pelo Nuno |
+| `assets/garrafas/garrafa_roxo_uvas.jpg` | A Cepa Roxa (resultado do brinde); versão 512x512 de `assets/ecras/moscatel_roxo_com_uvas.jpg` | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/garrafas/garrafa_4_cobre.jpg` | A Câmara, Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 
 ### Mapa (`assets/mapa/`)
@@ -177,7 +183,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 
 Podem ser sobras ou podem ter outro uso; confirmar antes de apagar. Origem: origem a confirmar pelo Nuno.
 
-- Imagens: `assets/ecras/camera_.jpg`, `assets/ecras/cepa_roxa.jpg`, `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
+- Imagens: `assets/ecras/barril_simples.jpg`, `assets/ecras/moscatel_roxo_com_uvas.jpg`, `assets/ecras/camera_.jpg`, `assets/ecras/cepa_roxa.jpg`, `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
 - Sons: `assets/sons/prado_grilos_ras.mp3`, `assets/sons/vento_arvores_passaros.mp3`, `assets/sons/vento_feito_a_mao.mp3`, `assets/sons/vento_grama_alta.mp3`
 
 ### Sons sem ficheiro
