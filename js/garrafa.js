@@ -548,6 +548,9 @@ function renderAdega() {
   applyTranslations();
 }
 
+// Som de cada ação da Adega (só efeitos que já existem em SOM_EFEITOS, js/som.js).
+const SOM_ACAO_ADEGA = { prensar: 'prensar', destilarVinho: 'regar', destilarBagaco: 'regar', fortificar: 'prensar' };
+
 function executarAcaoAdega(acao) {
   adegaFotoAtual = null;
   adegaNovaEntrada = null;
@@ -574,7 +577,6 @@ function executarAcaoAdega(acao) {
     state.gotas += gotasGanhas;
     a.bagaco += bagacoGanho;
     registarCooldownAdega('prensar');
-    tocarSom('prensar');
     adegaMensagemAtual = t('garrafa.passo1') + ' ' +
       t('adega.resultadoPrensar').replace('{gotas}', gotasGanhas).replace('{bagaco}', bagacoGanho);
     adegaFotoAtual = ADEGA_FOTOS.prensar;
@@ -639,7 +641,9 @@ function executarAcaoAdega(acao) {
     return;
   }
 
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido(acao === 'destilarVinho' || acao === 'destilarBagaco' ? 'adega_alambique' : 'adega_' + acao);
+  // Um só som: o "ding" do objetivo do dia, se vai tocar, ou o da ação (ver SOM_ACAO_ADEGA). Engarrafar tem o seu (ficheiro).
+  const dingAdega = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido(acao === 'destilarVinho' || acao === 'destilarBagaco' ? 'adega_alambique' : 'adega_' + acao) === true;
+  if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSom(SOM_ACAO_ADEGA[acao]);
   saveState(state);
   updateStatsDisplays();
   renderAdega();

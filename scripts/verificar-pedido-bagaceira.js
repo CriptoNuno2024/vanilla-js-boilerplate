@@ -39,7 +39,7 @@ function suite(fontes) {
     const cx = vm.createContext(sb);
     FICHEIROS.slice(0, 7).forEach(function (f) { vm.runInContext(fontes[f], cx, { filename: 'js/' + f }); });
     vm.runInContext(fontes['estrada.js'], cx, { filename: 'js/estrada.js' });
-    vm.runInContext('this.diaLisboaDeHoje = function () { return __dia; }; this.atualizarDialogo = function () {}; this.updateStatsDisplays = function () {}; this.__dia = "2026-10-07";', cx);
+    vm.runInContext('this.diaLisboaDeHoje = function () { return __dia; }; this.atualizarDialogo = function () {}; this.updateStatsDisplays = function () {}; this.tocarSom = function () {}; this.__dia = "2026-10-07";', cx);
     const g = { cx: cx, gravacoes: gravacoes };
     g.ev = function (c) { return vm.runInContext(c, cx); };
     g.json = function (c) { return JSON.parse(vm.runInContext('JSON.stringify(' + c + ')', cx)); };

@@ -165,7 +165,10 @@ function garantirObjetivosDoDia() {
 // Festas) sempre que o jogador faz algo que pode contar para um
 // objetivo de hoje. Não faz nada se esse id não estiver na lista de
 // hoje, ou já estiver cumprido.
-function marcarObjetivoCumprido(id) {
+// Devolve true se cumpriu o objetivo e tocou o "ding" (quem chama não toca o som da sua ação por cima:
+// nunca dois sons juntos), senão false. Com { semSom: true } cumpre o objetivo na mesma, sem o "ding"
+// (usado quando se falha uma cena das festas) e devolve false.
+function marcarObjetivoCumprido(id, opcoes) {
   garantirObjetivosDoDia();
   const lista = state.objetivos.lista;
   let mudouAlgo = false;
@@ -177,7 +180,7 @@ function marcarObjetivoCumprido(id) {
       mudouAlgo = true;
     }
   }
-  if (!mudouAlgo) return;
+  if (!mudouAlgo) return false;
 
   const todosCumpridos = lista.every(function (o) { return o.cumprido; });
   if (todosCumpridos && !state.objetivos.bonusDiaDado) {
@@ -186,13 +189,15 @@ function marcarObjetivoCumprido(id) {
     state.objetivos.selosTotal += 1;
   }
 
+  const semSom = !!(opcoes && opcoes.semSom);
   vibrar('sucesso');
-  tocarSom('objetivoCumprido');
+  if (!semSom) tocarSom('objetivoCumprido');
   saveState(state);
   updateStatsDisplays();
   atualizarCartaoObjetivosQuinta();
   if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
   if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+  return !semSom;
 }
 
 // Cartão "Hoje na Quinta", dentro do topcard da Quinta (ver

@@ -448,6 +448,12 @@ function sufixoSeSubiuNivel(nivelAntes) {
   return nivelPelaReputacao(state.reputacao) > nivelAntes ? ' ' + t('vinha.subiuNivelAviso') : '';
 }
 
+// Som de cada ação da Vinha (só efeitos que já existem em SOM_EFEITOS, js/som.js).
+const SOM_ACAO_VINHA = {
+  cavar: 'cavar', plantar: 'cavar', ervas: 'colher', regar: 'regar', adubar: 'cavar',
+  compostagem: 'prensar', colher: 'colher', podar: 'colher'
+};
+
 function executarAcaoVinha(actionKey) {
   const nivelAntes = typeof nivelPelaReputacao === 'function' ? nivelPelaReputacao(state.reputacao) : 0;
   vinhaFotoAtual = null;
@@ -514,11 +520,12 @@ function executarAcaoVinha(actionKey) {
     v.pontosCuidado = 0;
     v.bonusPoda = false; // o bónus da poda gasta-se nesta vindima
     registarCooldownVinha(actionKey);
-    tocarSom('colher');
     let sufixoColheita = ' (+' + uvasGanhas + ' ' + t('stat.uvas');
     if (repGanha > 0) sufixoColheita += ', +' + repGanha + ' ' + t('stat.reputacao');
     sufixoColheita += ')';
-    if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_colher');
+    // Um só som: o "ding" do objetivo do dia, se vai tocar, ou o da ação (ver SOM_ACAO_VINHA).
+    const dingColher = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('vinha_colher') === true;
+    if (!dingColher) tocarSom(SOM_ACAO_VINHA.colher);
     vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita + premiarPrimeiroPasso('colher') + sufixoSeSubiuNivel(nivelAntes);
     vinhaFotoAtual = VINHA_FOTOS.colher;
     saveState(state);
@@ -537,6 +544,7 @@ function executarAcaoVinha(actionKey) {
     vinhaMensagemAtual = t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100));
     vinhaNovaEntrada = desbloquearEntradaEnciclopedia('poda');
     vinhaFotoAtual = VINHA_FOTOS.podar;
+    tocarSom(SOM_ACAO_VINHA.podar); // a Poda não é objetivo do dia: não há "ding" por cima
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -578,8 +586,9 @@ function executarAcaoVinha(actionKey) {
   }
 
   registarCooldownVinha(actionKey);
-  if (actionKey === 'cavar' || actionKey === 'regar') tocarSom(actionKey); // só aqui, depois de a ação ter sucesso
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('vinha_' + actionKey);
+  // Só aqui, depois de a ação ter sucesso, e um só som: o "ding" do objetivo do dia, se vai tocar, ou o da ação.
+  const dingAcao = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('vinha_' + actionKey) === true;
+  if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSom(SOM_ACAO_VINHA[actionKey]);
   vinhaMensagemAtual = dicaVinha(actionKey) + premiarPrimeiroPasso(actionKey) + sufixoSeSubiuNivel(nivelAntes);
   vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
   saveState(state);
