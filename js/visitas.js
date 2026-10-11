@@ -228,6 +228,108 @@ function visitaFazerHoje() {
 }
 
 // ---------------------------------------------------------------------
+// UM COPO DE BAGACEIRA À VISITA. A partir do nível 4 (o das visitas), depois de tocar na linha da
+// visita de hoje, pode-se oferecer 1 bagaceira (state.adega.bagaceira, a da Loja e do Alambique):
+// gasta 1, dá +VISITAS_BAGACEIRA_REPUTACAO de Reputação, e só 1 copo por dia no total (não por
+// visita). O "já ofereci hoje" vive em state.visitas.hoje.bagaceiraDia (o dia de Lisboa da
+// oferta): como "hoje" é substituído quando o dia muda, repõe-se sozinho com a visita nova; não há
+// campo novo no estado. Sem bagaceira o botão aparece desativado e nada se gasta. Não usa a
+// Despensa nem a Estrada: ao nível 7 convive com o "Oferecer" de bens (cada um com o seu limite).
+// As funções de regras são puras (estado e dia 'AAAA-MM-DD' por parâmetro); só o clique grava.
+// O Chizo nunca recebe o copo: só há falas para as três visitas.
+// Falas de agradecimento: só humor e simpatia (um copo, uma vez, com graça).
+// ---------------------------------------------------------------------
+
+const VISITAS_BAGACEIRA_REPUTACAO = 1;
+
+const VISITAS_BAGACEIRA_FALAS = {
+  valentim: { pt: 'Um copo, só um: o resto da conversa deixo-o à videira. Obrigado.', en: 'One glass, just one: I\'ll leave the rest of the conversation to the vine. Thank you.', es: 'Un vaso, solo uno: el resto de la conversación se lo dejo a la vid. Gracias.' },
+  marisa: { pt: 'Para mim? Que simpatia! Um brinde à vinha e depois é voltar ao trabalho.', en: 'For me? How kind! A toast to the vineyard, and then it\'s back to work.', es: '¿Para mí? ¡Qué amable! Un brindis por el viñedo y luego, a trabajar.' },
+  henrique: { pt: 'Boa cor, bom perfume e um anfitrião generoso. Aprovo os três.', en: 'Good colour, good nose and a generous host. I approve of all three.', es: 'Buen color, buen aroma y un anfitrión generoso. Apruebo los tres.' }
+};
+
+// Pode-se oferecer agora? Só lê (não repara nem altera nada). `dia` é o dia (Lisboa) efetivo.
+// Devolve { ok, motivo, personagem }, motivo null | 'nivel' | 'sem_visita' | 'nao_tocada' | 'ja_hoje' | 'sem_bagaceira'.
+function visitaBagaceiraPode(estado, dia) {
+  const recusa = function (motivo) { return { ok: false, motivo: motivo, personagem: null }; };
+  if (!estado || typeof estado !== 'object' || typeof dia !== 'string') return recusa('sem_visita');
+  let nivel = 0;
+  try { nivel = nivelPelaReputacao(estado.reputacao); } catch (e) {}
+  if (!(nivel >= VISITAS_NIVEL_MINIMO)) return recusa('nivel');
+  const vs = estado.visitas;
+  const h = vs && typeof vs === 'object' ? vs.hoje : null;
+  if (!h || typeof h !== 'object' || h.dia !== dia) return recusa('sem_visita');
+  const visita = visitaPorId(h.id);
+  if (!visita) return recusa('sem_visita');
+  if (h.feita !== true) return recusa('nao_tocada');
+  if (h.bagaceiraDia === dia) return { ok: false, motivo: 'ja_hoje', personagem: visita.personagem };
+  const a = estado.adega;
+  if (!a || typeof a !== 'object' || alambiqueNumero(a.bagaceira) < 1) return { ok: false, motivo: 'sem_bagaceira', personagem: visita.personagem };
+  return { ok: true, motivo: null, personagem: visita.personagem };
+}
+
+// Oferece 1 copo: valida tudo antes de alterar (recusar nunca altera nada). Se ok: gasta 1
+// bagaceira, soma a Reputação e marca o dia. Não grava (quem chama grava).
+// Devolve { ok, motivo, personagem, reputacaoGanha }.
+function visitaBagaceiraOferecer(estado, dia) {
+  const p = visitaBagaceiraPode(estado, dia);
+  if (!p.ok) return { ok: false, motivo: p.motivo, personagem: p.personagem, reputacaoGanha: 0 };
+  alambiqueEstado(estado).bagaceira -= 1;
+  estado.reputacao = (typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0) + VISITAS_BAGACEIRA_REPUTACAO;
+  estado.visitas.hoje.bagaceiraDia = dia;
+  return { ok: true, motivo: null, personagem: p.personagem, reputacaoGanha: VISITAS_BAGACEIRA_REPUTACAO };
+}
+
+// Só em memória: a oferta feita (para mostrar o agradecimento) até se sair da app.
+let visitaBagaceiraResultado = null; // { dia, personagem }
+
+// O que se vê por baixo da linha da visita (só lê; '' se não houver nada a mostrar): o agradecimento
+// logo a seguir à oferta, a linha "já ofereceste hoje", ou o botão (desativado e com a frase do
+// Alambique se faltar bagaceira). Só com a visita de hoje já tocada e fora do modo de teste.
+function visitaBagaceiraHtml() {
+  if (visitaEmModoTeste()) return '';
+  const r = visitaResolverHoje();
+  if (!r.visita || r.nova || r.feita !== true || visitaTextoPorEscrever(r.visita)) return '';
+  const dia = visitaDiaEfetivo();
+  const res = visitaBagaceiraResultado;
+  if (res && res.dia === dia && res.personagem === r.visita.personagem) {
+    const fala = VISITAS_BAGACEIRA_FALAS[res.personagem];
+    return '<div class="mini-bloco"><div class="oferta-resultado">' +
+      '<p>' + cadernoEscapar(t('bagaceira.ofereceste').replace('{nome}', t('oferta.a.' + res.personagem))) + '</p>' +
+      '<p>' + t('oferta.rep').replace('{n}', VISITAS_BAGACEIRA_REPUTACAO) + '</p>' +
+      (fala ? '<p class="oferta-fala">«' + cadernoEscapar(fala[currentLang] || fala.pt) + '»</p>' : '') +
+    '</div></div>';
+  }
+  const p = visitaBagaceiraPode(state, dia);
+  if (p.motivo === 'ja_hoje') return '<div class="mini-bloco"><p class="oferta-linha">' + t('bagaceira.jaHoje') + '</p></div>';
+  if (p.motivo === 'sem_bagaceira') {
+    return '<div class="mini-bloco"><button type="button" class="btn-pill pill-main oferta-botao" disabled>' + t('bagaceira.btn') + '</button>' +
+      '<p class="oferta-linha">' + t('bagaceira.sem') + '</p></div>';
+  }
+  if (!p.ok) return '';
+  return '<div class="mini-bloco"><button type="button" class="btn-pill pill-main oferta-botao" onclick="visitaBagaceiraClique()">' + t('bagaceira.btn') + '</button></div>';
+}
+
+// O ÚNICO sítio que oferece e grava. Oferece e, se correu bem, grava UMA vez e atualiza a barra de
+// cima. Se recusou, não grava. O toque duplo é travado pelo próprio limite (a marca do dia).
+function visitaBagaceiraClique() {
+  if (!visitaEmModoTeste()) {
+    const dia = visitaDiaEfetivo();
+    const r = visitaBagaceiraOferecer(state, dia);
+    if (r.ok) {
+      saveState(state);
+      visitaBagaceiraResultado = { dia: dia, personagem: r.personagem };
+      vibrar('sucesso');
+      tocarSom('objetivoCumprido');
+      updateStatsDisplays();
+    }
+  }
+  if (typeof atualizarCartaoNivelQuinta === 'function') atualizarCartaoNivelQuinta();
+  if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
+  atualizarLinhaVisitaQuinta();
+}
+
+// ---------------------------------------------------------------------
 // LINHA NO CARTÃO DA QUINTA (PR 3). "Hoje: {nome} está na Quinta", só a partir do
 // nível 4, sem balão automático: ao tocar mostra a fala da visita e, na 1.ª vez, paga.
 // Se o texto da visita ainda for "[por escrever]" (em qualquer língua) a linha não
@@ -281,7 +383,9 @@ function atualizarLinhaVisitaQuinta() {
       '</button>' +
     '</div>' +
     // Oferecer um bem da Despensa a esta visita (Estrada, nível 7): ver estradaOfertaHtml() em js/estrada.js.
-    (function () { try { return typeof estradaOfertaHtml === 'function' ? estradaOfertaHtml() : ''; } catch (e) { return ''; } })();
+    (function () { try { return typeof estradaOfertaHtml === 'function' ? estradaOfertaHtml() : ''; } catch (e) { return ''; } })() +
+    // O copo de bagaceira (nível 4): ver visitaBagaceiraHtml() acima. Não depende da Despensa nem da Estrada.
+    (function () { try { return visitaBagaceiraHtml(); } catch (e) { return ''; } })();
 }
 
 function visitaLinhaToque() {
