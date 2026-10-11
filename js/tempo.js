@@ -319,28 +319,56 @@ function atualizarLinhaTempoQuinta() {
 }
 
 // ---------------------------------------------------------------------
-// SOM DO TEMPO (ver js/som.js) — chuva de ambiente na Quinta e na Vinha
+// SOM DO TEMPO (ver js/som.js) — ambiente ao AR LIVRE, só na Quinta e na Vinha
 // (ver goTo() em js/main.js e enterVinha() em js/vinha.js), e um trovão
 // ao entrar num desses dois ecrãs quando o tempo real for trovoada.
 // Nunca toca nada se "Som" estiver desligado (ver somPodeTocar() em
 // js/som.js) — essas funções já ficam mudas sozinhas nesse caso.
+//
+// Um só ambiente de cada vez (iniciarSomAmbiente() pára o anterior), escolhido
+// por ambienteDoTempo() com o tempo e a estação que o jogo já tem:
+//   chuva / trovoada   chuva.mp3 / chuva_sempreritmo.mp3 (manda: nunca vento nem grilos por cima)
+//   vento forte        vento_grama_alta.mp3 (tempo.ventoForte, 40 km/h ou mais)
+//   dia calmo          vento_arvores_passaros.mp3 (céu 'sol' de dia, sem chuva nem vento forte), mais baixo
+//   noite de verão     prado_grilos_ras.mp3 (céu 'noite' e estacaoAtual() === 'verao')
+//   o resto (nevoeiro, noite fora do verão, tempo indisponível)  nada
+// Volumes: a chuva toca a 0,12 e 0,18, o que dá cerca de -39 dB de nível médio com estes ficheiros; os outros
+// (mono, nível médio medido com ffmpeg volumedetect: vento -37,8 dB, calmo -38,4 dB, grilos -26,2 dB) ficam perto disso.
 // ---------------------------------------------------------------------
 const SOM_TEMPO_CHUVA_NORMAL = 'assets/sons/chuva.mp3';
 const SOM_TEMPO_CHUVA_FORTE = 'assets/sons/chuva_sempreritmo.mp3';
 const SOM_TEMPO_TROVOES = ['assets/sons/trovao_1.mp3', 'assets/sons/trovao_2_forte.mp3'];
+const SOM_TEMPO_VENTO_FORTE = 'assets/sons/vento_grama_alta.mp3';
+const SOM_TEMPO_DIA_CALMO = 'assets/sons/vento_arvores_passaros.mp3';
+const SOM_TEMPO_GRILOS = 'assets/sons/prado_grilos_ras.mp3';
+const SOM_TEMPO_FADE = { entrarS: 2, sairS: 1.5 }; // vento e grilos entram e saem em fundo (a chuva, como sempre, não)
 
-// Liga ou desliga o ambiente de chuva consoante o tempo real: chuva
-// forte/tempestade em trovoada, chuva normal em chuva, nada nos outros
-// tempos (ver pararSomAmbiente()).
-function atualizarAmbienteChuva() {
-  const tempo = tempoAtual();
-  if (tempo.disponivel && tempo.ceu === 'trovoada') {
-    iniciarSomAmbiente(SOM_TEMPO_CHUVA_FORTE, 0.18);
-  } else if (tempo.disponivel && tempo.ceu === 'chuva') {
-    iniciarSomAmbiente(SOM_TEMPO_CHUVA_NORMAL, 0.12);
-  } else {
-    pararSomAmbiente();
-  }
+// Os ecrãs ao ar livre (ids de .screen). Dentro de casa (Adega, Cave, Proteger, Lagar, Câmara, Loja...) nunca há ambiente.
+const SOM_TEMPO_ECRAS_EXTERIORES = ['screen-quinta', 'screen-vinha'];
+
+// PURA. O ambiente para este tempo (o de tempoAtual()) e esta estação: { caminho, volume, fade } ou null (sem ambiente).
+function ambienteDoTempo(tempo, estacao) {
+  if (!tempo || tempo.disponivel !== true) return null;
+  if (tempo.ceu === 'trovoada') return { caminho: SOM_TEMPO_CHUVA_FORTE, volume: 0.18, fade: null };
+  if (tempo.ceu === 'chuva') return { caminho: SOM_TEMPO_CHUVA_NORMAL, volume: 0.12, fade: null };
+  if (tempo.ventoForte === true) return { caminho: SOM_TEMPO_VENTO_FORTE, volume: 0.9, fade: SOM_TEMPO_FADE };
+  if (tempo.ceu === 'noite') return estacao === 'verao' ? { caminho: SOM_TEMPO_GRILOS, volume: 0.18, fade: SOM_TEMPO_FADE } : null;
+  if (tempo.ceu === 'sol') return { caminho: SOM_TEMPO_DIA_CALMO, volume: 0.45, fade: SOM_TEMPO_FADE };
+  return null;
+}
+
+function ecraExteriorAtivo() {
+  const ativo = document.querySelector('.screen.active');
+  return !!ativo && SOM_TEMPO_ECRAS_EXTERIORES.indexOf(ativo.id) !== -1;
+}
+
+// Liga o ambiente do tempo (ou pára o que estiver a tocar, se não há nenhum). Chamada na Quinta e na Vinha DEPOIS de o
+// tempo chegar (que pode demorar): se entretanto o jogador já saiu para um ecrã interior, não liga nada.
+function atualizarAmbienteExterior() {
+  if (!ecraExteriorAtivo()) return;
+  const a = ambienteDoTempo(tempoAtual(), estacaoAtual());
+  if (a) iniciarSomAmbiente(a.caminho, a.volume, a.fade || undefined);
+  else pararSomAmbiente();
 }
 
 // Só chamada ao entrar na Quinta/Vinha (nunca num refresco periódico) —
