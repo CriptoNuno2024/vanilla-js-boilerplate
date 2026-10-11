@@ -310,7 +310,7 @@ function botaoVinha(actionKey, i18nKey, bloqueadoExtra, sufixoBloqueado) {
       ? ' <span class="bonus-suffix">' + t('vinha.bonusVindima') + '</span>'
       : '');
   if (!bloqueado) preCarregarFotoVinha(actionKey);
-  return '<button class="btn-pill" ' + (bloqueado ? 'disabled' : '') +
+  return '<button class="btn-pill" data-acao="' + actionKey + '" ' + (bloqueado ? 'disabled' : '') +
     ' onclick="executarAcaoVinha(\'' + actionKey + '\')">' +
     '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixo + '</span>' + bonusHtml +
     '</button>';

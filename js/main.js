@@ -334,6 +334,7 @@ function mostrarNovaEntrada(entrada) {
   reposicionarFlutuantes();
 }
 
+// >>> fila-pastilhas (scripts/verificar-fila-objetivo.js carrega só este bloco)
 // ---------------------------------------------------------------------
 // FILA DE BOTÕES-PASTILHA COM SETAS DOS DOIS LADOS — genérico, usado
 // pela Vinha (ver js/vinha.js) e pronto para ser reutilizado por outros
@@ -346,6 +347,7 @@ function mostrarNovaEntrada(entrada) {
 // ter; botoesHtml são os <button class="btn-pill">...</button> já
 // prontos; ariaI18nKey é a chave de tradução usada nas duas setas.
 function construirFilaPastilhas(idContentor, botoesHtml, ariaI18nKey) {
+  filaGuardarPosicao(idContentor); // quem redesenha a fila não a manda de volta ao princípio (ver filaGuardarPosicao)
   return '<div class="pill-scroll-wrap">' +
     '<button type="button" class="pill-arrow-btn pill-arrow-left oculto" data-i18n-aria="' + ariaI18nKey + '" aria-label="Ver mais trabalhos" onclick="deslizarPastilhas(\'' + idContentor + '\', -160)">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M15 5l-7 7 7 7"></path></svg>' +
@@ -441,9 +443,193 @@ function configurarFilaPastilhas(idContentor) {
     FILA_PASTILHAS_OBSERVERS.set(idContentor, { disconnect: function () {} });
   }
 
-  fila.addEventListener('scroll', function () { atualizarSetasDaFila(idContentor); });
+  fila.addEventListener('scroll', function () {
+    atualizarSetasDaFila(idContentor);
+    FILA_PASTILHAS_POSICAO[idContentor] = fila.scrollLeft; // a posição que o jogador deixou
+  });
   atualizarSetasDaFila(idContentor);
+
+  // No frame seguinte (quem desenha põe os textos dos botões DEPOIS de chamar esta função, por isso só então a fila tem a largura
+  // verdadeira): num redesenho (um clique, o relógio, voltar de uma tarefa) a fila fica onde o jogador a deixou; num ecrã
+  // acabado de abrir desliza até ao botão do objetivo do dia, se estiver escondido (só uma vez).
+  fila._filaPendente = true;
+  filaAgendarAjuste(idContentor);
 }
+
+// ---------------------------------------------------------------------
+// A FILA DESLIZA ATÉ AO BOTÃO DO OBJETIVO DO DIA — só ao ABRIR o ecrã (goTo() chama filaPrepararAbertura()). Se o botão a que
+// o objetivo de hoje se refere (mapa em js/objetivos.js: objetivosBotoesDoEcra) não estiver INTEIRO à vista (escondido,
+// cortado ou tapado por uma seta), a fila desliza até o mostrar; se já está, não mexe. Depois disso, qualquer redesenho (um
+// clique, o relógio...) devolve a fila à posição que o jogador deixou (FILA_PASTILHAS_POSICAO), no frame seguinte. Com "reduzir movimento" não há
+// animação. Só mexe no scroll da fila: não muda botões, ordem, textos nem regras.
+// ---------------------------------------------------------------------
+
+// Posição (scrollLeft) que o jogador deixou em cada fila, por id da fila.
+const FILA_PASTILHAS_POSICAO = {};
+// Filas (por id) que ainda vão deslizar ao objetivo, porque o ecrã acabou de abrir.
+const FILAS_PARA_ABRIR = new Set();
+const FILA_ECRA_POR_ID = { 'vinha-pill-scroll': 'vinha', 'adega-pill-scroll': 'garrafa', 'festa-pill-scroll': 'festa' };
+const FILA_FOLGA_PX = 8; // folga entre o botão e a seta/borda quando a fila desliza
+
+// Chamado por goTo() antes de desenhar o ecrã: esquece as posições e marca a fila do ecrã (se tiver) para deslizar ao objetivo.
+function filaPrepararAbertura(ecra) {
+  Object.keys(FILA_PASTILHAS_POSICAO).forEach(function (k) { delete FILA_PASTILHAS_POSICAO[k]; });
+  FILAS_PARA_ABRIR.clear();
+  Object.keys(FILA_ECRA_POR_ID).forEach(function (id) { if (FILA_ECRA_POR_ID[id] === ecra) FILAS_PARA_ABRIR.add(id); });
+}
+
+// Antes de uma fila ser substituída por outra igual: guarda onde estava (só se está desenhada e já ajustada, e o ecrã não acabou
+// de abrir, em que a fila antiga é a da visita anterior).
+function filaGuardarPosicao(idContentor) {
+  if (FILAS_PARA_ABRIR.has(idContentor)) return;
+  const velha = document.getElementById(idContentor);
+  // Uma fila acabada de desenhar, ainda por ajustar (_filaPendente), está no princípio: não é a posição do jogador.
+  if (velha && !velha._filaPendente && velha.clientWidth > 0) FILA_PASTILHAS_POSICAO[idContentor] = velha.scrollLeft;
+}
+
+// Repõe uma posição guardada (scrollLeft) sem animação. No princípio da fila (seta da esquerda escondida) fica no 0 de sempre;
+// senão põe já os espaçadores das pontas a 56 px (o que têm quando as setas estão à vista) e o scroll certo, e as setas acertam o resto.
+function filaPosicionarSemAnimar(fila, scroll) {
+  fila.style.scrollBehavior = 'auto';
+  if (scroll <= 1) {
+    fila.scrollLeft = 0;
+  } else {
+    fila.style.setProperty('--pastilhas-margem-esq', '56px');
+    fila.style.setProperty('--pastilhas-margem-dir', '56px');
+    fila.scrollLeft = scroll;
+  }
+  atualizarSetasDaFila(fila.id);
+  fila.style.scrollBehavior = '';
+}
+
+function filaMovimentoReduzido() {
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
+}
+
+// PURA. Quantos px é preciso deslizar para o botão (btnEsq..btnDir) ficar INTEIRO dentro da janela livre (limEsq..limDir):
+// 0 se já está inteiro à vista, positivo para a direita, negativo para a esquerda, null se o botão é mais largo do que a janela
+// (nunca ficaria inteiro: não se mexe).
+function filaPassoParaMostrar(limEsq, limDir, btnEsq, btnDir) {
+  if (btnDir - btnEsq > limDir - limEsq) return null;
+  if (btnDir > limDir + 0.5) return btnDir - limDir + FILA_FOLGA_PX;
+  if (btnEsq < limEsq - 0.5) return btnEsq - limEsq - FILA_FOLGA_PX;
+  return 0;
+}
+
+// A janela livre da fila: a própria fila menos as setas que estão visíveis (cobrem as pontas).
+function filaLimites(fila) {
+  const fr = fila.getBoundingClientRect();
+  const wrap = fila.closest('.pill-scroll-wrap');
+  let esq = fr.left, dir = fr.right;
+  const setaEsq = wrap && wrap.querySelector('.pill-arrow-left');
+  const setaDir = wrap && wrap.querySelector('.pill-arrow-right');
+  if (setaEsq && !setaEsq.classList.contains('oculto')) esq = Math.max(esq, setaEsq.getBoundingClientRect().right);
+  if (setaDir && !setaDir.classList.contains('oculto')) dir = Math.min(dir, setaDir.getBoundingClientRect().left);
+  return { esq: esq, dir: dir };
+}
+
+function filaBotaoInteiro(fila, btn) {
+  const lim = filaLimites(fila);
+  const r = btn.getBoundingClientRect();
+  return filaPassoParaMostrar(lim.esq, lim.dir, r.left, r.right) === 0;
+}
+
+// Os espaçadores das pontas da fila crescem (12 -> 56 px) quando as setas aparecem (ver atualizarSetasDaFila): antes de deslizar
+// põe já os dois a 56 px, compensando o scroll do lado esquerdo para o conteúdo não saltar, para que o fim da animação seja o
+// mesmo que o cálculo do destino previu.
+function filaPrepararMargens(fila) {
+  const antes = parseFloat(fila.style.getPropertyValue('--pastilhas-margem-esq')) || 12;
+  fila.style.scrollBehavior = 'auto';
+  fila.style.setProperty('--pastilhas-margem-esq', '56px');
+  fila.style.setProperty('--pastilhas-margem-dir', '56px');
+  fila.scrollLeft = fila.scrollLeft + (56 - antes);
+  fila.style.scrollBehavior = '';
+}
+
+// Desliza a fila até o botão ficar inteiro à vista. Calcula primeiro o destino (sem animação, e volta ao sítio) e só desliza se
+// o botão ficar mesmo inteiro; devolve true se deslizou.
+function filaDeslizarParaBotao(fila, btn) {
+  const id = fila.id;
+  const original = fila.scrollLeft;
+  let destino = original;
+  let inteiro = false;
+  let noFim = false;
+  fila.style.scrollBehavior = 'auto';
+  try {
+    for (let i = 0; i < 6; i++) {
+      atualizarSetasDaFila(id);
+      const lim = filaLimites(fila);
+      const r = btn.getBoundingClientRect();
+      const d = filaPassoParaMostrar(lim.esq, lim.dir, r.left, r.right);
+      if (d === null) break;
+      if (d === 0) { inteiro = true; break; }
+      const antes = fila.scrollLeft;
+      fila.scrollLeft = antes + d;
+      if (fila.scrollLeft === antes) break; // chegou ao fim da fila
+    }
+    atualizarSetasDaFila(id);
+    destino = fila.scrollLeft;
+    if (!inteiro) inteiro = filaBotaoInteiro(fila, btn);
+    noFim = destino >= fila.scrollWidth - fila.clientWidth - 1;
+    fila.scrollLeft = original;
+    atualizarSetasDaFila(id);
+  } finally {
+    fila.style.scrollBehavior = '';
+  }
+  if (!inteiro || destino === original) return false;
+  filaPrepararMargens(fila);
+  // No fim da fila vai-se até onde der (com os espaçadores a 56 px; ao chegar a seta da direita some e o espaçador encolhe).
+  const alvo = noFim ? fila.scrollWidth - fila.clientWidth : destino;
+  if (filaMovimentoReduzido()) {
+    fila.style.scrollBehavior = 'auto';
+    fila.scrollLeft = alvo;
+    fila.style.scrollBehavior = '';
+  } else {
+    fila.scrollTo({ left: alvo, behavior: 'smooth' });
+  }
+  atualizarSetasDaFila(id);
+  return true;
+}
+
+// Escolhe o botão do objetivo de hoje neste ecrã e desliza até ele se não estiver inteiro à vista. Para o primeiro objetivo
+// pendente (por ordem) cujos botões (os que se podem usar) não estão à vista; se algum dos botões desse objetivo já está
+// inteiro à vista (ex.: Destilar vinho ou Destilar bagaço), não mexe.
+function filaDeslizarAoObjetivo(fila) {
+  if (!fila || !(fila.clientWidth > 0)) return false;
+  const ecra = FILA_ECRA_POR_ID[fila.id];
+  if (!ecra || typeof objetivosBotoesDoEcra !== 'function') return false;
+  const pedidos = objetivosBotoesDoEcra(state, ecra, diaLisboaDeHoje());
+  const botoes = Array.prototype.slice.call(fila.querySelectorAll('.btn-pill'));
+  for (let i = 0; i < pedidos.length; i++) {
+    const todos = pedidos[i].acoes.indexOf('*') !== -1;
+    const alvos = botoes.filter(function (b) {
+      const acao = b.getAttribute('data-acao');
+      return !b.disabled && acao !== null && (todos || pedidos[i].acoes.indexOf(acao) !== -1);
+    });
+    if (alvos.length === 0) continue;
+    if (alvos.some(function (b) { return filaBotaoInteiro(fila, b); })) continue;
+    if (filaDeslizarParaBotao(fila, alvos[0])) return true;
+  }
+  return false;
+}
+
+// Só depois de o ecrã estar desenhado (um frame, antes de pintar): com os textos dos botões já postos as medidas são as de verdade.
+// Ecrã acabado de abrir: desliza ao objetivo (uma só vez). Redesenho: repõe a posição que o jogador deixou.
+function filaAgendarAjuste(idContentor) {
+  const fazer = function () {
+    const fila = document.getElementById(idContentor);
+    if (!fila) return;
+    fila._filaPendente = false;
+    if (FILAS_PARA_ABRIR.has(idContentor)) {
+      FILAS_PARA_ABRIR.delete(idContentor);
+      filaDeslizarAoObjetivo(fila);
+    } else if (FILA_PASTILHAS_POSICAO[idContentor] !== undefined) {
+      filaPosicionarSemAnimar(fila, FILA_PASTILHAS_POSICAO[idContentor]);
+    }
+  };
+  if (window.requestAnimationFrame) window.requestAnimationFrame(fazer); else setTimeout(fazer, 0);
+}
+// <<< fila-pastilhas
 
 // Os 5 ecrãs da barra de baixo — ao entrar num deles a pilha de "veio
 // de..." (ver historicoEcras abaixo) é limpa e o BackButton do Telegram
@@ -595,6 +781,7 @@ function goTo(screen, opcoes) {
     });
   }
 
+  filaPrepararAbertura(screen); // a fila de botões (Vinha, Adega, Festa) desliza ao objetivo do dia só ao abrir o ecrã
   if (screen === 'vinha') enterVinha();
   if (screen === 'proteger') startProteger();
   if (screen === 'garrafa') renderGarrafaScreen();

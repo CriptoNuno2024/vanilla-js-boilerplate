@@ -238,7 +238,7 @@ function botaoAdega(acao, i18nKey, bloqueado, sufixoExtra, aoClicar) {
   const desabilitado = emCooldown || !!bloqueado;
   const sufixoCooldown = emCooldown ? (RELOGIO_PASTILHA_SVG + ' (' + formatarTempoVinha(restante) + ')') : (sufixoExtra || '');
   if (!desabilitado) preCarregarFotoAdega(acao);
-  return '<button class="btn-pill" ' + (desabilitado ? 'disabled' : '') +
+  return '<button class="btn-pill" data-acao="' + acao + '" ' + (desabilitado ? 'disabled' : '') +
     ' onclick="' + (aoClicar || 'executarAcaoAdega(\'' + acao + '\')') + '">' +
     '<span data-i18n="' + i18nKey + '"></span><span class="cooldown-suffix">' + sufixoCooldown + '</span>' +
     '</button>';

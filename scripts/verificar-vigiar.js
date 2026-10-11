@@ -509,7 +509,7 @@ const MUTACOES = [
   ['ficha do oídio em falta (ES)', 'explorar.js', "{ id: 'oidio', manual: true, titulo: 'El Oídio'", "{ id: 'oidioX', manual: true, titulo: 'El Oídio'"],
   ['a ficha do míldio morre (texto)', 'explorar.js', "Por isso é um bom hábito vigiar a vinha depois da chuva ou do nevoeiro, e arejá-la ajuda.", "Por isso a vinha morreu muitas vezes."],
   ['vigiar.js sai do index.html', 'index.html', '  <script src="js/vigiar.js?v=1"></script>\n', ''],
-  ['vigiar.js depois da vinha.js', 'index.html', '  <script src="js/vigiar.js?v=1"></script>\n  <script src="js/vinha.js?v=56"></script>\n', '  <script src="js/vinha.js?v=56"></script>\n  <script src="js/vigiar.js?v=1"></script>\n'],
+  ['vigiar.js depois da vinha.js', 'index.html', '  <script src="js/vigiar.js?v=1"></script>\n  <script src="js/vinha.js?v=57"></script>\n', '  <script src="js/vinha.js?v=57"></script>\n  <script src="js/vigiar.js?v=1"></script>\n'],
   ['vigiar.js sem ?v=', 'index.html', 'js/vigiar.js?v=1', 'js/vigiar.js'],
   ['o tempo.js ganha um pedido', 'tempo.js', 'const TEMPO_CACHE_KEY', "const _x = () => fetch('/x'); const TEMPO_CACHE_KEY"]
 ];
