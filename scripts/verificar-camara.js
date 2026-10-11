@@ -191,7 +191,7 @@ const saveNivel9 = function (extra) {
     ok(s && typeof s.titulo === 'string' && s.titulo.trim() !== '' && typeof s.objetivo === 'string' && s.objetivo.trim() !== '', 'título e objetivo do cap9 em ' + l);
     const c = g.ev('TRANSLATIONS.' + l + '["capitulo.cap9.conclusao"]');
     ok(typeof c === 'string' && c.trim() !== '' && c.length <= 90, 'conclusão do cap9 em ' + l + ' com 90 caracteres no máximo');
-    ['camara.title', 'camara.linha', 'camara.desc', 'camara.btn', 'camara.semGarrafas', 'camara.jaHoje', 'camara.dias', 'camara.ok', 'camara.fala', 'camara.relogio'].forEach(function (k) {
+    ['camara.title', 'explorar.sitio.camara', 'camara.desc', 'camara.btn', 'camara.semGarrafas', 'camara.jaHoje', 'camara.dias', 'camara.ok', 'camara.fala', 'camara.relogio'].forEach(function (k) {
       const v = g.ev('TRANSLATIONS.' + l + '["' + k + '"]');
       ok(typeof v === 'string' && v.trim() !== '', 'falta ' + k + ' em ' + l);
     });
@@ -206,11 +206,11 @@ const saveNivel9 = function (extra) {
   ok(g.ev('CAMARA_CONFIG.imagemResultado') === undefined && !/garrafa_4_cobre/.test(ler(CAMARA_JS)), 'a Câmara já não tem imagem de resultado fixa (nem o cobre por omissão): a garrafa vem da cor do jogador (garrafaImagemDaCamara)');
   ok(['1_jovem', '2_dourado', '3_ambar', '4_cobre'].every(function (c) { return fs.existsSync(path.join(RAIZ, 'assets/garrafas/garrafa_' + c + '.jpg')); }), 'as 4 imagens das cores existem');
   const main = ler(path.join(RAIZ, 'js', 'main.js'));
-  ok(/camara:\s*\{\s*src:\s*'assets\/vinha\/barril_dourado\.jpg'/.test(main) && fs.existsSync(path.join(RAIZ, 'assets/vinha/barril_dourado.jpg')) && /camara:\s*'quinta'/.test(main) && /renderCamara\(\)/.test(main) && /atualizarLinhaCamaraQuinta/.test(main), 'main.js liga a Câmara (fundo barril_dourado, barra, render e linha da Quinta)');
+  ok(/camara:\s*\{\s*src:\s*'assets\/vinha\/barril_dourado\.jpg'/.test(main) && fs.existsSync(path.join(RAIZ, 'assets/vinha/barril_dourado.jpg')) && /camara:\s*'explorar'/.test(main) && /renderCamara\(\)/.test(main) && !/atualizarLinhaCamaraQuinta/.test(main), 'main.js liga a Câmara (fundo barril_dourado, barra acende o Explorar, render; já sem linha na Quinta)');
   const niv = ler(path.join(RAIZ, 'js', 'niveis.js'));
-  ok(/atualizarLinhaCamaraQuinta/.test(niv), 'o cartão do nível refaz a linha da Câmara');
+  ok(!/atualizarLinhaCamaraQuinta/.test(niv), 'o cartão do nível já não refaz nenhuma linha da Câmara (o cartão vive no Explorar)');
   const html = ler(path.join(RAIZ, 'index.html'));
-  ok(/id="screen-camara"/.test(html) && /id="camara-container"/.test(html) && /id="camara-linha-container"/.test(html) && /#screen-camara\.content/.test(html), 'index.html tem o ecrã, a linha e a classe do jogo-cheio');
+  ok(/id="screen-camara"/.test(html) && /id="camara-container"/.test(html) && !/camara-linha-container/.test(html) && /#screen-camara\.content/.test(html), 'index.html tem o ecrã e a classe do jogo-cheio, e já sem a linha da Câmara na Quinta');
   const pos = function (f) { return html.indexOf('<script src="js/' + f + '?v='); };
   ok(pos('lagar.js') > 0 && pos('camara.js') > pos('lagar.js') && pos('camara.js') < pos('main.js'), 'ordem de carga: lagar.js, camara.js, main.js');
   ok(/\.camara-botao:disabled/.test(html), 'index.html tem o estilo do botão');

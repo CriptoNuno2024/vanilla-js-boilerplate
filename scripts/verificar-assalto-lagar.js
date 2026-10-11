@@ -174,12 +174,12 @@ const base = function (extra) {
 // 6. Ligação ao ecrã e pureza do código.
 {
   const src = ler(LAGAR_JS).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
-  const regras = src.slice(0, src.indexOf('function atualizarLinhaLagarQuinta'));
+  const regras = src.slice(0, src.indexOf('function lagarTextoEstado'));
   ok(regras.indexOf('lagarAssaltoResolver') !== -1 && !/Date\.now|Math\.random|new Date|saveState|localStorage/.test(regras), 'as regras (incluindo o assalto) são puras: sem relógio, sorteio nem gravação');
   const resp = src.slice(src.indexOf('function lagarAssaltoResponder('), src.indexOf('function lagarAssaltoVoltar('));
   ok((src.match(/lagarAssaltoResolver\(/g) || []).length === 2 && resp.indexOf('lagarAssaltoResolver(') !== -1 && resp.indexOf('saveState(state)') !== -1, 'só lagarAssaltoResponder chama a regra de registo e grava');
   ok(/lagarAssaltoCenaAtual = null;[\s\S]*lagarAssaltoResolver/.test(resp), 'a cena fica gasta antes de resolver (toque duplo não paga duas vezes)');
-  ok(!/despensaRegistar|despensaTrocar|despensaOferecer|despensaEstado|state\.despensa|ESTRADA_|capitulos|marcarObjetivo|state\.uvas|state\.gotas/.test(resp + regras.slice(regras.indexOf('function lagarAssaltoEstado'), regras.indexOf('function atualizarLinhaLagarQuinta'))), 'o assalto não mexe em uvas, gotas, Despensa, capítulos nem objetivos');
+  ok(!/despensaRegistar|despensaTrocar|despensaOferecer|despensaEstado|state\.despensa|ESTRADA_|capitulos|marcarObjetivo|state\.uvas|state\.gotas/.test(resp + regras.slice(regras.indexOf('function lagarAssaltoEstado'), regras.indexOf('function lagarTextoEstado'))), 'o assalto não mexe em uvas, gotas, Despensa, capítulos nem objetivos');
   ok(!/startProteger|finishProteger|renderProteger|protegerRonda|state\.proteger/.test(src), 'o assalto não usa o Proteger (nem o seu estado)');
   const html = ler(path.join(RAIZ, 'index.html'));
   const pos = function (f) { return html.indexOf('<script src="js/' + f + '?v='); };

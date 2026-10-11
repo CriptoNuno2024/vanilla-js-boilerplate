@@ -102,8 +102,9 @@ const ECRAS_SEM_CHROME = ['home', 'lingua'];
 
 // Cada ecrã "acende" o botão da barra de baixo que lhe corresponde. Os
 // que não têm botão próprio (ex: a Enciclopédia é lida a partir do
-// Explorar ou do Perfil; a Festa é lida a partir da Quinta) acendem o
-// botão do ecrã de onde normalmente se chega lá.
+// Explorar ou do Perfil; a Festa é lida a partir da Quinta; a Estrada, a
+// Loja, o Lagar, a Câmara e a Cepa Roxa abrem-se pelos cartões do Explorar)
+// acendem o botão do ecrã de onde normalmente se chega lá.
 const NAV_ATIVO_POR_ECRA = {
   vinha: 'vinha',
   proteger: 'proteger',
@@ -116,11 +117,11 @@ const NAV_ATIVO_POR_ECRA = {
   colecao: 'garrafa',
   garrafas: 'garrafa',
   festa: 'quinta',
-  estrada: 'quinta',
-  lagar: 'quinta',
-  camara: 'quinta',
-  roxo: 'quinta',
-  loja: 'quinta'
+  estrada: 'explorar',
+  lagar: 'explorar',
+  camara: 'explorar',
+  roxo: 'explorar',
+  loja: 'explorar'
 };
 
 // "Limpeza ao sair" por ecrã — um minijogo com temporizador (ex: o
@@ -745,11 +746,6 @@ function goTo(screen, opcoes) {
     if (typeof atualizarCapituloQuinta === 'function') atualizarCapituloQuinta();
     if (typeof atualizarCartaoObjetivosQuinta === 'function') atualizarCartaoObjetivosQuinta();
     if (typeof atualizarLinhaVisitaQuinta === 'function') atualizarLinhaVisitaQuinta();
-    if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
-    if (typeof atualizarLinhaLojaQuinta === 'function') atualizarLinhaLojaQuinta();
-    if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
-    if (typeof atualizarLinhaCamaraQuinta === 'function') atualizarLinhaCamaraQuinta();
-    if (typeof atualizarLinhaRoxoQuinta === 'function') atualizarLinhaRoxoQuinta();
     if (typeof atualizarResumoQuinta === 'function') atualizarResumoQuinta();
     atualizarAspetoCartaoQuinta();
     let mostrouHistoria = false;

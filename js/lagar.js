@@ -168,17 +168,6 @@ function lagarDiaDeHoje() {
   return diaLisboaDeHoje();
 }
 
-// Linha no cartão da Quinta, só com o ecrã desbloqueado (como a da Estrada).
-function atualizarLinhaLagarQuinta() {
-  const container = document.getElementById('lagar-linha-container');
-  if (!container) return;
-  if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('lagar')) { container.innerHTML = ''; return; }
-  container.innerHTML =
-    '<div class="mini-bloco">' +
-      '<button type="button" class="visita-linha" onclick="goTo(\'lagar\')">' + t('lagar.linha') + '</button>' +
-    '</div>';
-}
-
 // O que o ecrã diz por baixo do botão (só lê).
 function lagarTextoEstado(p, dia) {
   if (p.motivo === 'ja_hoje') return t('lagar.jaHoje');

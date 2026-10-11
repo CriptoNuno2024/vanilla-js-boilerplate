@@ -17,6 +17,8 @@ Dados do tempo: Open-Meteo (open-meteo.com).
 ## Imagens novas
 Imagens geradas com IA (Grok/Gemini), sem marca de serviço, carregadas a 04/10/2026.
 
+`assets/ecras/camera_.jpg` e `assets/ecras/cepa_roxa.jpg` (carregadas a 11/10/2026): imagens geradas com IA pelo autor do jogo, sem marcas. Ficam em tamanho original para um uso futuro como fundo de ecrã; no Explorar usa-se só a versão pequena de cada uma (ver `assets/explorar/` mais abaixo).
+
 ## Imagens e sons que o jogo usa
 
 Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do código onde aparece). **Quem fez cada imagem ou som, e com que licença, não se vê nos ficheiros**, por isso a coluna "Origem" diz "origem a confirmar pelo Nuno" em todos. O que já se sabe está nas secções "Sons" e "Imagens novas" acima.
@@ -38,6 +40,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/arco_iris.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/bagaco.jpg` | Adega / Cave / Coleção | origem a confirmar pelo Nuno |
 | `assets/ecras/calor.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
+| `assets/ecras/camera_.jpg` | ainda sem uso no código (original; a versão pequena é o cartão da Câmara no Explorar) | imagem gerada com IA pelo autor do jogo, sem marcas |
+| `assets/ecras/cepa_roxa.jpg` | ainda sem uso no código (original; a versão pequena é o cartão da Cepa Roxa no Explorar) | imagem gerada com IA pelo autor do jogo, sem marcas |
 | `assets/ecras/carnaval_dia_grande.jpg` | festa de Carnaval, dia grande (cópia comprimida de `imagens_JOGO_TELEGRAM/carnaval_patio_vindimas_2_personagens.jpg`, a mesma imagem, 714x1280) | origem a confirmar pelo Nuno |
 | `assets/ecras/carnaval_festa.jpg` | festa de Carnaval, ecrã da festa e tarefas (cópia exata de `imagens_JOGO_TELEGRAM/carnaval_patio_vindima_1.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/casa_loja_meio_da_vinha_4.jpg` | A Loja da Quinta (fundo com sol) | origem a confirmar pelo Nuno |
@@ -95,6 +99,18 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/yoshi_cat_festejar_vitoria.jpg` | O Lagar, Proteger | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_geada.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
 | `assets/ecras/yoshi_cat_varanda.jpg` | fundo de um ecrã | origem a confirmar pelo Nuno |
+
+### Cartões do Explorar (`assets/explorar/`)
+Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do Explorar (`js/explorar.js`). São recortes dos originais, que não se apagaram; a origem é a dos originais.
+
+| Ficheiro | Recorte de | Onde se usa |
+|---|---|---|
+| `assets/explorar/estrada.jpg` | `imagens_JOGO_TELEGRAM/caminho_lojas_casa_trabalhadores_3.jpg` | cartão da Estrada |
+| `assets/explorar/loja.jpg` | `assets/ecras/casa_loja_meio_da_vinha_4.jpg` (versão de sol) | cartão da Loja |
+| `assets/explorar/lagar.jpg` | `assets/ecras/festa_vindima_pessoas.jpg` | cartão do Lagar |
+| `assets/explorar/camara.jpg` | `assets/ecras/camera_.jpg` | cartão da Câmara |
+| `assets/explorar/roxo.jpg` | `assets/ecras/cepa_roxa.jpg` | cartão da Cepa Roxa |
+| `assets/explorar/enciclopedia.jpg` | `assets/ecras/enciclopedia.jpg` | cartão da Enciclopédia (topo do Explorar) |
 
 ### Imagens da Vinha e da Adega (`assets/vinha/`)
 
@@ -161,7 +177,7 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 
 Podem ser sobras ou podem ter outro uso; confirmar antes de apagar. Origem: origem a confirmar pelo Nuno.
 
-- Imagens: `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
+- Imagens: `assets/ecras/camera_.jpg`, `assets/ecras/cepa_roxa.jpg`, `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
 - Sons: `assets/sons/prado_grilos_ras.mp3`, `assets/sons/vento_arvores_passaros.mp3`, `assets/sons/vento_feito_a_mao.mp3`, `assets/sons/vento_grama_alta.mp3`
 
 ### Sons sem ficheiro

@@ -167,7 +167,7 @@ const saveNivel8 = function (extra) {
 // 5. Textos do Lagar nas 3 línguas, e a ligação ao jogo (index.html, fundo, ficheiros).
 {
   const g = abrir();
-  ['lagar.title', 'lagar.linha', 'lagar.desc', 'lagar.btn', 'lagar.faltam', 'lagar.jaHoje', 'lagar.dias', 'lagar.ok', 'lagar.relogio'].forEach(function (k) {
+  ['lagar.title', 'explorar.sitio.lagar', 'lagar.desc', 'lagar.btn', 'lagar.faltam', 'lagar.jaHoje', 'lagar.dias', 'lagar.ok', 'lagar.relogio'].forEach(function (k) {
     ['pt', 'en', 'es'].forEach(function (l) {
       const v = g.ev('TRANSLATIONS.' + l + '["' + k + '"]');
       ok(typeof v === 'string' && v.trim() !== '', 'falta a chave ' + k + ' em ' + l);
@@ -179,12 +179,12 @@ const saveNivel8 = function (extra) {
   ok(g.ev('TRANSLATIONS.pt["historia.nivel8.1"]').indexOf('portas abertas') !== -1 && g.ev('TRANSLATIONS.pt["historia.nivel8.3"]') === 'Abriu: o Lagar.', 'história PT do nível 8');
   ok(g.ev('TRANSLATIONS.pt["capitulo.cap8.conclusao"]').length <= 90, 'conclusão do cap8 com 90 caracteres no máximo');
   const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
-  ok(/id="screen-lagar"/.test(html) && /id="lagar-container"/.test(html) && /id="lagar-linha-container"/.test(html), 'index.html tem o ecrã e a linha do Lagar');
+  ok(/id="screen-lagar"/.test(html) && /id="lagar-container"/.test(html) && !/lagar-linha-container/.test(html), 'index.html tem o ecrã do Lagar e já sem a linha na Quinta');
   ok(/#screen-lagar\.content/.test(html), 'index.html tem #screen-lagar.content na lista do jogo-cheio');
   const iEstrada = html.indexOf('<script src="js/estrada.js'), iLagar = html.indexOf('<script src="js/lagar.js'), iMain = html.indexOf('<script src="js/main.js');
   ok(iEstrada > 0 && iLagar > iEstrada && iMain > iLagar, 'js/lagar.js carrega depois de estrada.js e antes de main.js');
   const main = fs.readFileSync(path.join(RAIZ, 'js', 'main.js'), 'utf8');
-  ok(/lagar:\s*\{\s*src:\s*'assets\/ecras\/festa_vindima_todos_juntos\.jpg'/.test(main) && /lagar:\s*'quinta'/.test(main) && /renderLagar\(\)/.test(main) && /atualizarLinhaLagarQuinta/.test(main), 'main.js liga o Lagar (fundo, barra, render e linha da Quinta)');
+  ok(/lagar:\s*\{\s*src:\s*'assets\/ecras\/festa_vindima_todos_juntos\.jpg'/.test(main) && /lagar:\s*'explorar'/.test(main) && /renderLagar\(\)/.test(main) && !/atualizarLinhaLagarQuinta/.test(main), 'main.js liga o Lagar (fundo, barra acende o Explorar, render; já sem linha na Quinta)');
   ok(fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'festa_vindima_todos_juntos.jpg')), 'a imagem de fundo existe');
 }
 

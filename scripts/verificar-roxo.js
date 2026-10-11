@@ -189,7 +189,7 @@ const saveNivel10 = function (extra) {
     ok(s && typeof s.titulo === 'string' && s.titulo.trim() !== '' && typeof s.objetivo === 'string' && s.objetivo.trim() !== '', 'título e objetivo do cap10 em ' + l);
     const c = g.ev('TRANSLATIONS.' + l + '["capitulo.cap10.conclusao"]');
     ok(typeof c === 'string' && c.trim() !== '' && c.length <= 90, 'conclusão do cap10 em ' + l + ' com 90 caracteres no máximo');
-    ['roxo.title', 'roxo.linha', 'roxo.desc', 'roxo.btn', 'roxo.faltam', 'roxo.jaHoje', 'roxo.dias', 'roxo.ok', 'roxo.fala', 'roxo.relogio'].forEach(function (k) {
+    ['roxo.title', 'explorar.sitio.roxo', 'roxo.desc', 'roxo.btn', 'roxo.faltam', 'roxo.jaHoje', 'roxo.dias', 'roxo.ok', 'roxo.fala', 'roxo.relogio'].forEach(function (k) {
       const v = g.ev('TRANSLATIONS.' + l + '["' + k + '"]');
       ok(typeof v === 'string' && v.trim() !== '', 'falta ' + k + ' em ' + l);
     });
@@ -203,10 +203,10 @@ const saveNivel10 = function (extra) {
   ok((src.match(/roxoBrindar\(/g) || []).length === 2 && clique.indexOf('roxoBrindar(') !== -1 && clique.indexOf('saveState(state)') !== -1 && (src.match(/saveState\(/g) || []).length === 1, 'só o clique (roxoBrindarClique) brinda e grava');
   ok(g.ev('ROXO_CONFIG.imagemResultado') === 'assets/garrafas/garrafa_3_ambar.jpg' && fs.existsSync(path.join(RAIZ, 'assets/garrafas/garrafa_3_ambar.jpg')), 'imagem do resultado existe');
   const main = ler(path.join(RAIZ, 'js', 'main.js'));
-  ok(/roxo:\s*\{\s*src:\s*'assets\/ecras\/yoshi_cat_festa_vindima\.jpg'/.test(main) && fs.existsSync(path.join(RAIZ, 'assets/ecras/yoshi_cat_festa_vindima.jpg')) && /roxo:\s*'quinta'/.test(main) && /renderRoxo\(\)/.test(main) && /atualizarLinhaRoxoQuinta/.test(main), 'main.js liga a Cepa Roxa (fundo yoshi_cat_festa_vindima, barra, render e linha da Quinta)');
-  ok(/atualizarLinhaRoxoQuinta/.test(ler(path.join(RAIZ, 'js', 'niveis.js'))), 'o cartão do nível refaz a linha da Cepa Roxa');
+  ok(/roxo:\s*\{\s*src:\s*'assets\/ecras\/yoshi_cat_festa_vindima\.jpg'/.test(main) && fs.existsSync(path.join(RAIZ, 'assets/ecras/yoshi_cat_festa_vindima.jpg')) && /roxo:\s*'explorar'/.test(main) && /renderRoxo\(\)/.test(main) && !/atualizarLinhaRoxoQuinta/.test(main), 'main.js liga a Cepa Roxa (fundo yoshi_cat_festa_vindima, barra acende o Explorar, render; já sem linha na Quinta)');
+  ok(!/atualizarLinhaRoxoQuinta/.test(ler(path.join(RAIZ, 'js', 'niveis.js'))), 'o cartão do nível já não refaz nenhuma linha da Cepa Roxa (o cartão vive no Explorar)');
   const html = ler(path.join(RAIZ, 'index.html'));
-  ok(/id="screen-roxo"/.test(html) && /id="roxo-container"/.test(html) && /id="roxo-linha-container"/.test(html) && /#screen-roxo\.content/.test(html), 'index.html tem o ecrã, a linha e a classe do jogo-cheio');
+  ok(/id="screen-roxo"/.test(html) && /id="roxo-container"/.test(html) && !/roxo-linha-container/.test(html) && /#screen-roxo\.content/.test(html), 'index.html tem o ecrã e a classe do jogo-cheio, e já sem a linha da Cepa Roxa na Quinta');
   const pos = function (f) { return html.indexOf('<script src="js/' + f + '?v='); };
   ok(pos('camara.js') > 0 && pos('roxo.js') > pos('camara.js') && pos('roxo.js') < pos('main.js'), 'ordem de carga: camara.js, roxo.js, main.js');
   ok(/\.roxo-botao:disabled/.test(html), 'index.html tem o estilo do botão');

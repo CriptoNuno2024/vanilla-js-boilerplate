@@ -218,7 +218,7 @@ if (!process.env.ESTRADA_JS) {
   });
   const ECRA_REAL = fs.readFileSync(path.join(RAIZ, 'js', 'estrada.js'), 'utf8');
   const CHAVES_ESPERADAS = ['estrada.btnBagaceira', 'estrada.btnGarrafa', 'estrada.btnSal', 'estrada.btnUvas', 'estrada.da', 'estrada.erro', 'estrada.faltamUvas', 'estrada.garrafasLevar',
-    'estrada.jaHoje', 'estrada.levouGarrafa', 'estrada.linha', 'estrada.naDespensa', 'estrada.pagouBagaceira', 'estrada.pagouSal', 'estrada.pagouUvas', 'estrada.pedeBagaceiraNao', 'estrada.pedeBagaceiraTem', 'estrada.pedeSalNao', 'estrada.pedeSalTem',
+    'estrada.jaHoje', 'estrada.levouGarrafa', 'estrada.naDespensa', 'estrada.pagouBagaceira', 'estrada.pagouSal', 'estrada.pagouUvas', 'estrada.pedeBagaceiraNao', 'estrada.pedeBagaceiraTem', 'estrada.pedeSalNao', 'estrada.pedeSalTem',
     'estrada.prateleira', 'estrada.recebeste', 'estrada.relogio', 'estrada.repPrimeira', 'estrada.tetoDia', 'estrada.title'].sort();
 
   // Verificações do ecrã (js/estrada.js) sobre uma versão do ficheiro; devolve as falhas. Corre com o código real e
@@ -302,18 +302,20 @@ if (!process.env.ESTRADA_JS) {
     ok(chaves(l).join() === chaves('pt').join(), 'as chaves estrada.* de ' + l + ' devem ser as mesmas de pt');
     chaves(l).forEach(function (k) { ok(temTexto(T[l][k]), 'estrada.* (' + l + ') ' + k + ' sem texto'); });
   });
-  // A linha da Quinta: só com o ecrã desbloqueado.
-  const linha = function (extra) {
-    vm.runInContext('state.acesso.jogadorAntigo = false; state.reputacao = 300; ' + extra + '; atualizarLinhaEstradaQuinta();', cx);
-    return el('estrada-linha-container').innerHTML;
+  // A Estrada já não tem linha na Quinta: o cartão com foto vive no Explorar (js/explorar.js, scripts/verificar-explorar-cartoes.js).
+  // Aqui só se confirma o nível que abre o ecrã e que a linha antiga saiu.
+  const abre = function (extra) {
+    vm.runInContext('state.acesso.jogadorAntigo = false; state.reputacao = 300; ' + extra, cx);
+    return vm.runInContext("ecraDesbloqueado('estrada')", cx);
   };
   vm.runInContext('state.reputacao = 0;', cx);
-  ok(linha('') === '', 'no nível 5 (jogador novo) a linha da Quinta não devia aparecer');
-  ok(linha('state.reputacao = 999') === '', 'no nível 6 (jogador novo) a linha da Quinta não devia aparecer');
-  ok(linha('state.reputacao = 1000').indexOf("goTo('estrada')") !== -1, 'no nível 7 a linha da Quinta devia aparecer');
-  vm.runInContext('state.acesso.jogadorAntigo = true; state.reputacao = 300; atualizarLinhaEstradaQuinta();', cx);
-  ok(el('estrada-linha-container').innerHTML.indexOf("goTo('estrada')") !== -1, 'um jogador antigo devia ver a linha da Quinta já no nível 5');
-  ok(gravacoes.length === 0, 'a linha da Quinta não devia gravar nada');
+  ok(abre('') === false, 'no nível 5 (jogador novo) a Estrada não abre');
+  ok(abre('state.reputacao = 999') === false, 'no nível 6 (jogador novo) a Estrada não abre');
+  ok(abre('state.reputacao = 1000') === true, 'no nível 7 a Estrada abre');
+  vm.runInContext('state.acesso.jogadorAntigo = true; state.reputacao = 300;', cx);
+  ok(vm.runInContext("ecraDesbloqueado('estrada')", cx) === true, 'um jogador antigo abre a Estrada já no nível 5');
+  ok(vm.runInContext("typeof atualizarLinhaEstradaQuinta", cx) === 'undefined', 'a linha da Estrada na Quinta já não existe');
+  ok(gravacoes.length === 0, 'abrir a Estrada não devia gravar nada');
 
   // ----- Clique: grava UMA vez, só se a troca correr bem; o desenho nunca grava -----
   vm.runInContext('this.__saves = 0; this.__trocas = 0; this.__barras = 0; ' +
