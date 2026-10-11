@@ -143,6 +143,8 @@ function abrirProteger(opcoes) {
   const cx = vm.createContext(sb);
   require('./_regras-tempo').injetarRegrasTempo(cx);
   ['assaltos.js', 'barril.js', 'proteger.js'].forEach(function (f) { vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8'), cx, { filename: f }); });
+  // O passo "Escutar à porta" (js/proteger.js, ver verificar-escutar-porta.js) vem antes do isco: aqui toca-se logo em "Entrar já".
+  vm.runInContext('var __sp = startProteger; startProteger = function (c) { __sp(c); if (protegerEscutarPendente) protegerEscutarEntrar(); };', cx);
   return { cx: cx, reg: reg, ev: function (c) { return vm.runInContext(c, cx); } };
 }
 {

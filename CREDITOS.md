@@ -5,6 +5,8 @@ Os sons reais do jogo (Chizo a ladrar, porco a grunhir, chuva normal e forte, tr
 
 O vertido de vinho, o tilintar de copos e o borbulhar de fermentação da página do lote vêm também do BigSoundBank (Joseph Sardin, CC0); foram cortados, convertidos e normalizados.
 
+O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, também do BigSoundBank (CC0): a porta tem autoria de Joseph Sardin & Axeline T.; para os passos, a página de origem está por confirmar pelo Nuno. Foram cortados, convertidos para mono e normalizados.
+
 ## Tipos de letra
 Fraunces e Nunito, com a licença SIL Open Font License 1.1. As licenças estão em assets/fontes/.
 
@@ -174,6 +176,8 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 
 | Ficheiro | Onde se usa | Origem |
 |---|---|---|
+| `assets/sons/cave_passos.mp3` | Proteger (Escutar à porta) | BigSoundBank, CC0; página de origem por confirmar pelo Nuno |
+| `assets/sons/cave_porta.mp3` | Proteger (Escutar à porta) | BigSoundBank, CC0 (Joseph Sardin & Axeline T.) |
 | `assets/sons/chizo_ladrar.mp3` | Proteger, história dos níveis | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/chuva.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/chuva_sempreritmo.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
