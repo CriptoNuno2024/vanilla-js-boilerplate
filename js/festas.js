@@ -687,7 +687,7 @@ let festaMensagemAtual = '';
 let festaNovaEntrada = null;
 
 function botaoFesta(tarefa, label, feita, sufixoFeita) {
-  return '<button class="btn-pill" ' + (feita ? 'disabled' : '') +
+  return '<button class="btn-pill" data-acao="' + tarefa + '" ' + (feita ? 'disabled' : '') +
     ' onclick="iniciarTarefaFesta(\'' + tarefa + '\')"><span>' + label + '</span>' +
     (feita ? '<span class="cooldown-suffix"> (' + sufixoFeita + ')</span>' : '') +
     '</button>';

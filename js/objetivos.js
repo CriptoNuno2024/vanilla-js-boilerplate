@@ -233,6 +233,39 @@ function atualizarResumoQuinta() {
     t('objetivos.resumoLabel') + ' ' + feitos + '/' + state.objetivos.lista.length;
 }
 
+// >>> mapa-botoes (scripts/verificar-fila-objetivo.js carrega só este bloco)
+// Que botões da fila de cada ecrã (Vinha, Adega, Festa; ver construirFilaPastilhas em js/main.js) cada objetivo pede: os
+// valores são o data-acao dos botões (botaoVinha, botaoAdega, botaoFesta). '*' = qualquer tarefa que se possa fazer (a Festa).
+// proteger_vencer e explorar_descobrir não estão aqui: Proteger e Explorar não têm fila que deslize.
+const OBJETIVO_BOTOES_POR_ECRA = {
+  vinha: {
+    vinha_cavar: ['cavar'], vinha_plantar: ['plantar'], vinha_ervas: ['ervas'], vinha_regar: ['regar'], vinha_adubar: ['adubar'],
+    vinha_compostagem: ['compostagem'], vinha_colher: ['colher'],
+    tempo_chuva: ['regar'], tempo_vento: ['repararEstacas'], tempo_frio: ['protegerFrio'], tempo_vigiar: ['vigiar']
+  },
+  garrafa: {
+    adega_prensar: ['prensar'], adega_alambique: ['destilarVinho', 'destilarBagaco'], adega_fortificar: ['fortificar'],
+    adega_engarrafar: ['engarrafar']
+  },
+  festa: { festa_tarefa: ['*'] }
+};
+
+// Só lê. Os objetivos de hoje ainda por cumprir que apontam para a fila deste ecrã, por ordem: [{ id, acoes }]. O dia ("AAAA-MM-DD",
+// Lisboa) vem por argumento: objetivos de outro dia (jogo aberto a passar da meia-noite) não contam. Nada é gravado.
+function objetivosBotoesDoEcra(estado, ecra, hoje) {
+  const mapa = OBJETIVO_BOTOES_POR_ECRA[ecra];
+  const o = estado && estado.objetivos;
+  if (!mapa || !o || !Array.isArray(o.lista)) return [];
+  if (diaLisboaPartes(hoje) === null || diaLisboaMudou(hoje, o.dia)) return [];
+  const pedidos = [];
+  o.lista.forEach(function (x) {
+    if (!x || x.cumprido === true || !Object.prototype.hasOwnProperty.call(mapa, x.id)) return;
+    pedidos.push({ id: x.id, acoes: mapa[x.id].slice() });
+  });
+  return pedidos;
+}
+// <<< mapa-botoes
+
 // Gera os objetivos do dia logo ao abrir o jogo (não só ao entrar na
 // Quinta), para uma ação feita antes de lá passar também contar.
 garantirObjetivosDoDia();
