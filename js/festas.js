@@ -114,6 +114,31 @@ const FESTAS_CONFIG = [
     recompensas: {
       multiplicadorDiaGrande: 2
     }
+  },
+  {
+    id: 'pascoa',
+    // Data móvel: da Sexta-feira Santa ao Domingo de Páscoa (Páscoa menos 2 a 0 dias; o dia grande é o domingo).
+    movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 },
+    imagens: {
+      diaGrande: 'assets/ecras/pascoa_dia_grande.jpg',
+      faixa: 'assets/ecras/pascoa_festa.jpg',
+      folar: 'assets/ecras/pascoa_festa.jpg',
+      amendoas: 'assets/ecras/pascoa_festa.jpg',
+      ovos: 'assets/ecras/pascoa_festa.jpg'
+    },
+    // Como o Natal e o Carnaval: só dá Reputação (que sobe o nível e nunca se gasta) e só gasta Gotas, nunca Uvas.
+    // Os mesmos valores: folar = corso = consoada, amêndoas = fantasias = doces, os ovos = quem está mascarado = bolo-rei.
+    tarefas: [
+      { id: 'folar', onde: 'festa', regra: 'oferta', btn: 'btnFolar',
+        premio: { reputacao: 5 } },
+      { id: 'amendoas', onde: 'festa', regra: 'gastar_gotas', btn: 'btnAmendoas',
+        premio: { custoGotas: 30, reputacao: 12 } },
+      { id: 'ovos', onde: 'festa', regra: 'cena_do_dia', btn: 'btnOvos',
+        premio: { reputacao: 6 } }
+    ],
+    recompensas: {
+      multiplicadorDiaGrande: 2
+    }
   }
 ];
 
@@ -650,6 +675,101 @@ const FESTAS_STRINGS = {
       ],
       quemEstaMascaradoVitoria: '¡Descubiertos! El Fygmo y el Fygmo2 se quitan la máscara, se ríen y prometen no armar más lío. El corso continúa, ahora con todos a la vista.',
       quemEstaMascaradoDerrota: 'Esta vez te has equivocado y el enmascarado se escapó, silbando. No pasa nada: no se perdió nada, y el Carnaval es para jugar.'
+    }
+  },
+  pascoa: {
+    pt: {
+      faixa: 'É Páscoa na Quinta!',
+      titulo: 'Páscoa na Quinta',
+      subtitulo: 'Uns dias de Páscoa, com o dia grande no domingo.',
+      diaGrandeAviso: 'Hoje é domingo de Páscoa! Os prémios contam a dobrar.',
+      tarefaFeitaHoje: 'já feita hoje',
+      btnFolar: 'Folar',
+      btnAmendoas: 'Amêndoas',
+      btnOvos: 'Os Ovos',
+      btnVoltar: 'Voltar',
+
+      folarTitulo: 'O Folar',
+      folarJaFeitaHoje: 'Hoje já houve folar. O de amanhã só amanhã.',
+      folarSucesso: 'O folar sai do forno quentinho e cheiroso. O YoshiCat corta fatias para todos, e até o Chizo espera pela sua.',
+
+      amendoasTitulo: 'As Amêndoas',
+      amendoasJaFeitaHoje: 'Já tens amêndoas para hoje. As de amanhã ficam para amanhã.',
+      amendoasFalta: 'Ainda faltam Gotas para as amêndoas. Junta mais e volta cá.',
+      amendoasSucesso: 'As amêndoas ficam prontas, doces e estaladiças, em saquinhos atados com fita. O YoshiCat prova uma e o Fygmo2 jura que não viu nada.',
+
+      ovosTitulo: 'Os Ovos',
+      ovosSubtitulo: 'Onde está o ovo?',
+      ovosJaFeitaHoje: 'Hoje já encontraste o ovo. Amanhã há outro esconderijo.',
+      ovosCenas: [
+        { situacao: 'O YoshiCat escondeu o ovo onde o Fygmo não chega: bem no alto, longe do focinho de qualquer porco.', opcoes: ['Dentro do cesto, no chão do pátio', 'No alto da prateleira da cozinha', 'Debaixo da mesa, junto às patas dele'], correta: 1 },
+        { situacao: 'O Fygmo2 finge que dorme e não sabe de nada. Mas o YoshiCat viu o ovo num sítio macio e quentinho.', opcoes: ['No balde da água, bem fresquinho', 'Em cima do muro de pedra do pátio', 'Na palha quentinha do galinheiro'], correta: 2 },
+        { situacao: 'O Chizo não levanta o focinho do chão e abana a cauda: o ovo está onde cheira a folar quentinho.', opcoes: ['Junto ao forno, a cheirar a folar', 'Junto ao poço, onde cheira a musgo', 'Junto à horta, onde cheira a terra'], correta: 0 }
+      ],
+      ovosVitoria: 'Encontraste o ovo! O Fygmo e o Fygmo2 suspiram, prometem não voltar a espreitar e o ovo volta para a mesa.',
+      ovosDerrota: 'Desta vez enganaste-te e o ovo sumiu. Não faz mal: não se perdeu nada, e a Páscoa é para brincar.'
+    },
+    en: {
+      faixa: 'It\'s Easter on the Quinta!',
+      titulo: 'Easter on the Quinta',
+      subtitulo: 'A few days of Easter, with the big day on Sunday.',
+      diaGrandeAviso: 'Today is Easter Sunday! Prizes count double.',
+      tarefaFeitaHoje: 'already done today',
+      btnFolar: 'Folar',
+      btnAmendoas: 'Almonds',
+      btnOvos: 'The Eggs',
+      btnVoltar: 'Back',
+
+      folarTitulo: 'The Folar',
+      folarJaFeitaHoje: 'There has already been folar today. Tomorrow\'s is for tomorrow.',
+      folarSucesso: 'The folar comes out of the oven warm and fragrant. YoshiCat cuts slices for everyone, and even Chizo waits patiently for his.',
+
+      amendoasTitulo: 'The Almonds',
+      amendoasJaFeitaHoje: 'You already have almonds for today. Tomorrow\'s will wait until tomorrow.',
+      amendoasFalta: 'You still need more Drops for the almonds. Gather some more and come back.',
+      amendoasSucesso: 'The almonds are ready, sweet and crunchy, in little bags tied with ribbon. YoshiCat tries one and Fygmo2 swears he saw nothing.',
+
+      ovosTitulo: 'The Eggs',
+      ovosSubtitulo: 'Where is the egg?',
+      ovosJaFeitaHoje: 'Today you have already found the egg. Tomorrow there is another hiding place.',
+      ovosCenas: [
+        { situacao: 'YoshiCat hid the egg where Fygmo cannot reach: way up high, far from any pig\'s snout.', opcoes: ['Inside the basket on the patio floor', 'On the high shelf in the kitchen', 'Under the table, by his trotters'], correta: 1 },
+        { situacao: 'Fygmo2 pretends to sleep and knows nothing. But YoshiCat saw the egg somewhere soft and warm.', opcoes: ['In the water bucket, nice and cool', 'On top of the stone wall in the yard', 'In the warm straw of the henhouse'], correta: 2 },
+        { situacao: 'Chizo keeps his nose to the ground, tail wagging: the egg is where it smells of warm folar.', opcoes: ['Next to the oven, smelling of folar', 'Next to the well, smelling of moss', 'Next to the garden, smelling of soil'], correta: 0 }
+      ],
+      ovosVitoria: 'You found the egg! Fygmo and Fygmo2 sigh, promise not to peek again, and the egg goes back on the table.',
+      ovosDerrota: 'You got it wrong this time and the egg vanished. Never mind: nothing was lost, and Easter is for playing.'
+    },
+    es: {
+      faixa: '¡Es Pascua en la Quinta!',
+      titulo: 'Pascua en la Quinta',
+      subtitulo: 'Unos días de Pascua, con el día grande el domingo.',
+      diaGrandeAviso: '¡Hoy es Domingo de Pascua! Los premios cuentan el doble.',
+      tarefaFeitaHoje: 'ya hecha hoy',
+      btnFolar: 'Folar',
+      btnAmendoas: 'Almendras',
+      btnOvos: 'Los Huevos',
+      btnVoltar: 'Volver',
+
+      folarTitulo: 'El Folar',
+      folarJaFeitaHoje: 'Ya hubo folar hoy. El de mañana, mañana.',
+      folarSucesso: 'El folar sale del horno calentito y oloroso. El YoshiCat corta porciones para todos, y hasta el Chizo espera la suya.',
+
+      amendoasTitulo: 'Las Almendras',
+      amendoasJaFeitaHoje: 'Ya tienes almendras para hoy. Las de mañana, para mañana.',
+      amendoasFalta: 'Todavía faltan Gotas para las almendras. Junta más y vuelve.',
+      amendoasSucesso: 'Las almendras están listas, dulces y crujientes, en bolsitas atadas con lazo. El YoshiCat prueba una y el Fygmo2 jura que no vio nada.',
+
+      ovosTitulo: 'Los Huevos',
+      ovosSubtitulo: '¿Dónde está el huevo?',
+      ovosJaFeitaHoje: 'Hoy ya has encontrado el huevo. Mañana hay otro escondite.',
+      ovosCenas: [
+        { situacao: 'El YoshiCat escondió el huevo donde el Fygmo no llega: bien alto, lejos del hocico de cualquier cerdo.', opcoes: ['Dentro del cesto, en el suelo del patio', 'En lo alto del estante de la cocina', 'Debajo de la mesa, junto a sus patas'], correta: 1 },
+        { situacao: 'El Fygmo2 finge dormir y no sabe nada. Pero el YoshiCat vio el huevo en un sitio blandito y calentito.', opcoes: ['En el cubo del agua, bien fresquito', 'Encima del muro de piedra del patio', 'En la paja calentita del gallinero'], correta: 2 },
+        { situacao: 'El Chizo pega el hocico al suelo y mueve la cola: el huevo está donde huele a folar calentito.', opcoes: ['Junto al horno, donde huele a folar', 'Junto al pozo, donde huele a musgo', 'Junto al huerto, donde huele a tierra'], correta: 0 }
+      ],
+      ovosVitoria: '¡Encontraste el huevo! El Fygmo y el Fygmo2 suspiran, prometen no volver a espiar y el huevo vuelve a la mesa.',
+      ovosDerrota: 'Esta vez te has equivocado y el huevo desapareció. No pasa nada: no se perdió nada, y la Pascua es para jugar.'
     }
   }
 };
