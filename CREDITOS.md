@@ -21,6 +21,8 @@ Imagens geradas com IA (Grok/Gemini), sem marca de serviço, carregadas a 04/10/
 
 `assets/ecras/moscatel_roxo_com_uvas.jpg` e `assets/ecras/barril_simples.jpg` (carregadas a 11/10/2026, 1024x1024): imagens geradas com IA pelo autor do jogo, sem marcas. A primeira é a garrafa dourada do Moscatel Roxo, com uvas roxas e fita roxa no rótulo; a segunda é um barril simples sem texto. Ficam em tamanho original (antes estavam na raiz); o jogo usa só as versões pequenas, `assets/garrafas/garrafa_roxo_uvas.jpg` (512x512) e `assets/vinha/barril_botao.jpg` (300x300, recorte à volta do barril). O `assets/vinha/barril.jpg` que já existia é outra imagem e não mudou.
 
+`imagens_JOGO_TELEGRAM/pascoa_festa.jpg` e `imagens_JOGO_TELEGRAM/pascoa_dia_grande.jpg` (carregadas a 11/10/2026): imagens geradas com IA pelo autor do jogo, sem marcas. São os originais da festa da Páscoa (antes estavam na raiz); o jogo usa as versões de `assets/ecras/` (714x1280).
+
 ## Imagens e sons que o jogo usa
 
 Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do código onde aparece). **Quem fez cada imagem ou som, e com que licença, não se vê nos ficheiros**, por isso a coluna "Origem" diz "origem a confirmar pelo Nuno" em todos. O que já se sabe está nas secções "Sons" e "Imagens novas" acima.
@@ -78,6 +80,8 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/natal_dia25.jpg` | festa de Natal, dia 25 (cópia de `imagens_JOGO_TELEGRAM/natal_patio_de_vindima.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/natal_festa.jpg` | festa de Natal, ecrã da festa e tarefas (cópia de `imagens_JOGO_TELEGRAM/natal_patio_vindimas_2.jpg`) | origem a confirmar pelo Nuno |
 | `assets/ecras/nevoeiro_1.jpg` | tempo real de Setúbal | origem a confirmar pelo Nuno |
+| `assets/ecras/pascoa_dia_grande.jpg` | festa da Páscoa, dia grande (versão cortada e comprimida de `imagens_JOGO_TELEGRAM/pascoa_dia_grande.jpg`, 714x1280) | origem a confirmar pelo Nuno |
+| `assets/ecras/pascoa_festa.jpg` | festa da Páscoa, ecrã da festa e tarefas (versão redimensionada de `imagens_JOGO_TELEGRAM/pascoa_festa.jpg`, 714x1280) | origem a confirmar pelo Nuno |
 | `assets/ecras/perfil_yoshi_cat_e_chizo.jpg` | história dos níveis | origem a confirmar pelo Nuno |
 | `assets/ecras/pragas_sol.jpg` | Vigiar a vinha (sinal de oídio, com calor) | origem a confirmar pelo Nuno |
 | `assets/ecras/pragas_sol_2.jpg` | Vigiar a vinha (depois de vigiar, oídio) | origem a confirmar pelo Nuno |

@@ -9,6 +9,7 @@
 // D. Cena do bolo-rei: fixa por dia (sem sorteio), igual em qualquer aparelho.
 // E. Textos em PT, EN e ES completos e sem números; objetivos.js lê a configuração; Enciclopédia só no São Martinho.
 // G. Carnaval: data móvel (sábado a terça), mesmas regras e valores do Natal, textos, imagens, 2026 a 2035.
+// H. Páscoa: data móvel (Sexta-feira Santa a Domingo de Páscoa), mesmas regras e valores do Carnaval, textos, cenas, imagens, 2026 a 2035.
 // F. Datas móveis: Páscoa (2 métodos independentes), somar dias, janela móvel (Carnaval de teste), e as festas
 //    de datas fixas iguais a antes em todos os dias de 13 anos.
 //
@@ -580,13 +581,13 @@ function suite(fontes) {
         if (f.ev('festaAbertaNoDia(CT, ' + JSON.stringify(d) + ')') !== dentro) aberturaMal++;
         if (f.ev('festaDiaGrandeNoDia(CT, ' + JSON.stringify(d) + ')') !== (d === JAN[y][2])) grandeMal++;
         const viaMotor = f.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null');
-        const esperado = dentro ? 'festaMovelTeste' : (d >= JC[y][0] && d <= JC[y][1] ? 'carnaval' : d >= y + '-11-08' && d <= y + '-11-14' ? 'saomartinho' : (d >= y + '-12-20' && d <= y + '-12-26' ? 'natal' : null));
+        const esperado = dentro ? (d <= JAN[y][2] ? 'pascoa' : 'festaMovelTeste') : (d >= JC[y][0] && d <= JC[y][1] ? 'carnaval' : d >= y + '-11-08' && d <= y + '-11-14' ? 'saomartinho' : (d >= y + '-12-20' && d <= y + '-12-26' ? 'natal' : null));
         if (viaMotor !== esperado) fora1++;
       }
     }
     ok(aberturaMal === 0, 'Festa móvel de teste (Sexta-feira Santa a Segunda de Páscoa): abre exatamente dentro da janela em todos os dias de 2026 a 2035 (' + aberturaMal + ' erros)');
     ok(grandeMal === 0, 'Festa móvel de teste (Sexta-feira Santa a Segunda de Páscoa): o dia grande é só a terça em todos os dias de 2026 a 2035 (' + grandeMal + ' erros)');
-    ok(fora1 === 0, 'o motor (festaAtivaPelaDataReal com o dia) escolhe a festa certa em todos os dias de 2026 a 2035: Festa móvel de teste (Sexta-feira Santa a Segunda de Páscoa), São Martinho, Natal ou nenhuma (' + fora1 + ' erros)');
+    ok(fora1 === 0, 'o motor (festaAtivaPelaDataReal com o dia) escolhe a festa certa em todos os dias de 2026 a 2035: Páscoa (Sexta-feira Santa a domingo, que vem antes na lista), festa móvel de teste (só a segunda-feira), Carnaval, São Martinho, Natal ou nenhuma (' + fora1 + ' erros)');
     const abre = function (d) { return f.ev('festaAbertaNoDia(CT, ' + JSON.stringify(d) + ')'); };
     ok(abre('2027-03-25') === false && abre('2027-03-26') === true && abre('2027-03-29') === true && abre('2027-03-30') === false, '2027: abre a 26/03 (sexta) e fecha a 29/03 (segunda)');
     ok(abre('2026-04-02') === false && abre('2026-04-03') === true && abre('2026-04-06') === true && abre('2026-04-07') === false, '2026: abre a 03/04 (sexta) e fecha a 06/04 (segunda)');
@@ -605,11 +606,11 @@ function suite(fontes) {
     const h = abrir(Date.parse('2027-03-27T20:00:00Z')); // Lisboa 27/03/2027 20:00; aparelho (Nova Zelândia) já a 28/03
     h.ev("FESTAS_CONFIG.push({ id: 'festaMovelTeste', movel: { base: 'pascoa', inicioDias: -2, fimDias: 1, diaGrandeDias: 0 }, tarefas: [], recompensas: { multiplicadorDiaGrande: 2 } });");
     ok(h.ev('new Date().getDate()') === 28 && h.ev('diaLisboaDeHoje()') === '2027-03-27', 'ambiente: aparelho um dia à frente de Lisboa');
-    ok(h.ev('festaAtivaPelaDataReal().id') === 'festaMovelTeste' && h.ev('festaAtual().id') === 'festaMovelTeste' && h.ev('estaNoDiaGrandeFesta(festaAtual())') === false, 'sem argumento: usa o dia de Lisboa (27/03: aberta, ainda não é o domingo de Páscoa)');
+    ok(h.ev('festaAtivaPelaDataReal().id') === 'pascoa' && h.ev('festaAtual().id') === 'pascoa' && h.ev('estaNoDiaGrandeFesta(festaAtual())') === false, 'sem argumento: usa o dia de Lisboa (27/03: Páscoa aberta, ainda não é o domingo de Páscoa)');
     h.ir(Date.parse('2027-03-28T20:00:00Z'));
     ok(h.ev('estaNoDiaGrandeFesta(festaAtual())') === true, 'sem argumento: 28/03 em Lisboa é o dia grande');
     h.ir(Date.parse('2027-03-29T23:30:00Z'));
-    ok(h.ev('festaAtivaPelaDataReal()') === null && h.ev("festaAtual('2027-03-27').id") === 'festaMovelTeste', 'sem argumento: 30/03 (00:30 em Lisboa) fechada; com argumento, festaAtual(dia) olha para esse dia');
+    ok(h.ev('festaAtivaPelaDataReal()') === null && h.ev("festaAtual('2027-03-27').id") === 'pascoa', 'sem argumento: 30/03 (00:30 em Lisboa) fechada; com argumento, festaAtual(dia) olha para esse dia');
     ok(h.ev("estaNoDiaGrandeFesta(festaAtual('2027-03-28'), '2027-03-28')") === true && h.ev("estaNoDiaGrandeFesta(festaAtual('2027-03-28'), '2027-03-27')") === false, 'estaNoDiaGrandeFesta(festa, dia) usa o dia que recebe');
 
     // atalhos: ?festa= e ?dia= continuam como estão (com a festa de teste móvel também)
@@ -635,23 +636,24 @@ function suite(fontes) {
         const mmdd = d.slice(5);
         const pg = gauss(y), tp = Date.UTC(y, Number(pg.slice(5, 7)) - 1, Number(pg.slice(8, 10)));
         const emCarnaval = d >= fmt(tp - 50 * 86400000) && d <= fmt(tp - 47 * 86400000);
-        const esperado = emCarnaval ? 'carnaval' : (mmdd >= '11-08' && mmdd <= '11-14') ? 'saomartinho' : ((mmdd >= '12-20' && mmdd <= '12-26') ? 'natal' : null);
+        const emPascoa = d >= fmt(tp - 2 * 86400000) && d <= fmt(tp);
+        const esperado = emCarnaval ? 'carnaval' : emPascoa ? 'pascoa' : (mmdd >= '11-08' && mmdd <= '11-14') ? 'saomartinho' : ((mmdd >= '12-20' && mmdd <= '12-26') ? 'natal' : null);
         const obtido = g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null');
         total++;
         if (obtido !== esperado) aberto++;
         const esperaGrande = mmdd === '11-11' || mmdd === '12-25';
-        const festaDoDia = g.ev('festaAtivaPelaDataReal(' + JSON.stringify(d) + ') !== null') && esperado !== 'carnaval';
+        const festaDoDia = g.ev('festaAtivaPelaDataReal(' + JSON.stringify(d) + ') !== null') && esperado !== 'carnaval' && esperado !== 'pascoa';
         const obtidoGrande = festaDoDia && g.ev('estaNoDiaGrandeFesta(festaAtivaPelaDataReal(' + JSON.stringify(d) + '), ' + JSON.stringify(d) + ')');
         if (obtidoGrande !== (esperaGrande && festaDoDia)) grande++;
         if (esperado === 'saomartinho' && obtido !== 'saomartinho') sm++;
         if (esperado === 'natal' && obtido !== 'natal') nat++;
       }
     }
-    ok(total === 4749 && aberto === 0 && sm === 0 && nat === 0, 'São Martinho (8 a 14/11) e Natal (20 a 26/12) abrem exatamente como antes, e o Carnaval só na sua janela, em todos os ' + total + ' dias de 2024 a 2036 (' + aberto + ' diferenças)');
+    ok(total === 4749 && aberto === 0 && sm === 0 && nat === 0, 'São Martinho (8 a 14/11) e Natal (20 a 26/12) abrem exatamente como antes, e o Carnaval e a Páscoa só nas suas janelas, em todos os ' + total + ' dias de 2024 a 2036 (' + aberto + ' diferenças)');
     ok(grande === 0, 'São Martinho e Natal: o dia grande é exatamente 11/11 e 25/12 em todos os dias de 2024 a 2036 (' + grande + ' diferenças)');
     const bordas = ['2026-11-07', '2026-11-08', '2026-11-11', '2026-11-14', '2026-11-15', '2026-12-19', '2026-12-20', '2026-12-25', '2026-12-26', '2026-12-27', '2028-11-08', '2028-12-26'];
     ok(JSON.stringify(bordas.map(function (d) { return g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null'); })) === JSON.stringify([null, 'saomartinho', 'saomartinho', 'saomartinho', null, null, 'natal', 'natal', 'natal', null, 'saomartinho', 'natal']), 'São Martinho e Natal: dias de fronteira (dia antes, primeiro, grande, último, dia depois)');
-    ok(g.json('FESTAS_CONFIG.map(function (x) { return x.id; })').join() === 'saomartinho,natal,carnaval' && g.json("FESTAS_CONFIG.map(function (x) { return !!x.movel; })").join() === 'false,false,true' && g.ev("FESTAS_CONFIG.some(function (x) { return x.id === 'pascoa'; })") === false, 'o jogo tem o São Martinho e o Natal (datas fixas) e o Carnaval (data móvel); ainda sem Páscoa');
+    ok(g.json('FESTAS_CONFIG.map(function (x) { return x.id; })').join() === 'saomartinho,natal,carnaval,pascoa' && g.json("FESTAS_CONFIG.map(function (x) { return !!x.movel; })").join() === 'false,false,true,true', 'o jogo tem o São Martinho e o Natal (datas fixas) e o Carnaval e a Páscoa (datas móveis, a Páscoa por último)');
 
     // as regras de datas são puras: nada de relógio do aparelho
     const fonte = fontes['festas.js'];
@@ -772,6 +774,191 @@ function suite(fontes) {
     ok(!/carnaval|carnival/i.test(JSON.stringify(TXT.natal)) && !/carnaval|carnival/i.test(JSON.stringify(TXT.saomartinho)), 'os textos do Natal e do São Martinho não mencionam o Carnaval');
   }
 
+  // ---------------- H. Páscoa ----------------
+  {
+    const g = abrir(lis(4, 3));
+    const PASC = { 2026: '2026-04-05', 2027: '2027-03-28', 2028: '2028-04-16', 2029: '2029-04-01', 2030: '2030-04-21', 2031: '2031-04-13', 2032: '2032-03-28', 2033: '2033-04-17', 2034: '2034-04-09', 2035: '2035-03-25' };
+    const fmtp = function (t) { const d = new Date(t); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0'); };
+    const dowp = function (d) { return new Date(Date.UTC(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10)))).getUTCDay(); };
+    const dimp = function (f) { // largura e altura de um JPEG (marcador SOF)
+      const b = fs.readFileSync(f); let i = 2;
+      while (i < b.length) { if (b[i] !== 0xFF) { i++; continue; } const m = b[i + 1]; if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)]; i += 2 + b.readUInt16BE(i + 2); }
+      return null;
+    };
+    const pa = g.json("FESTAS_CONFIG.filter(function (f) { return f.id === 'pascoa'; })[0]");
+    const ca = g.json("FESTAS_CONFIG.filter(function (f) { return f.id === 'carnaval'; })[0]");
+    ok(!!pa, 'Páscoa: existe em FESTAS_CONFIG');
+    ok(g.json('FESTAS_CONFIG.map(function (x) { return x.id; })').indexOf('pascoa') === 3, 'Páscoa: vem depois do Carnaval (4.ª festa)');
+    if (pa) {
+      ok(JSON.stringify(pa.movel) === '{"base":"pascoa","inicioDias":-2,"fimDias":0,"diaGrandeDias":0}', 'Páscoa: data móvel (Páscoa -2 a 0, dia grande 0)');
+      ok(pa.inicio === undefined && pa.fim === undefined && pa.diaGrande === undefined, 'Páscoa: sem datas fixas (só a data móvel)');
+      ok(pa.recompensas.multiplicadorDiaGrande === 2 && pa.entradaEnciclopedia === undefined, 'Páscoa: dia grande a dobrar e nenhuma entrada da Enciclopédia');
+      ok(JSON.stringify(pa.tarefas.map(function (x) { return x.id; })) === '["folar","amendoas","ovos"]' && pa.tarefas.every(function (x) { return x.onde === 'festa'; }), 'Páscoa: folar, amendoas e ovos, todas no ecrã da festa');
+      ok(pa.tarefas.map(function (x) { return x.regra; }).join() === 'oferta,gastar_gotas,cena_do_dia', 'Páscoa: regras do Natal e do Carnaval (oferta, gastar_gotas, cena_do_dia), nenhuma nova');
+      ok(JSON.stringify(pa.tarefas[0].premio) === '{"reputacao":5}' && JSON.stringify(pa.tarefas[1].premio) === '{"custoGotas":30,"reputacao":12}' && JSON.stringify(pa.tarefas[2].premio) === '{"reputacao":6}', 'Páscoa: folar +5 (sem custo), amêndoas 30 Gotas e +12, ovos +6');
+      ok(JSON.stringify(pa.tarefas).indexOf('uvas') === -1 && JSON.stringify(pa.tarefas).indexOf('Uvas') === -1, 'Páscoa: nenhuma tarefa tem custo nem prémio em Uvas');
+      ok(ca.tarefas.map(function (x) { return [x.regra, JSON.stringify(x.premio)].join(); }).join('|') === pa.tarefas.map(function (x) { return [x.regra, JSON.stringify(x.premio)].join(); }).join('|'), 'Páscoa: as mesmas regras e valores do Carnaval');
+      ok(pa.imagens.faixa === 'assets/ecras/pascoa_festa.jpg' && pa.imagens.diaGrande === 'assets/ecras/pascoa_dia_grande.jpg' && pa.imagens.folar === pa.imagens.faixa && pa.imagens.amendoas === pa.imagens.faixa && pa.imagens.ovos === pa.imagens.faixa, 'Páscoa: uma imagem para a faixa e as tarefas e outra para o dia grande');
+      Object.keys(pa.imagens).forEach(function (k) {
+        const f = path.join(RAIZ, pa.imagens[k]);
+        ok(fs.existsSync(f), 'Páscoa: a imagem ' + k + ' existe (' + pa.imagens[k] + ')');
+        if (fs.existsSync(f)) {
+          ok(fs.statSync(f).size <= LIMITE_IMAGEM, 'Páscoa: ' + pa.imagens[k] + ' pesa no máximo 250 KB (pesa ' + fs.statSync(f).size + ' bytes)');
+          ok(JSON.stringify(dimp(f)) === '[714,1280]', 'Páscoa: ' + pa.imagens[k] + ' tem 714x1280');
+        }
+      });
+      ok(fs.statSync(path.join(RAIZ, pa.imagens.diaGrande)).size <= 240 * 1024, 'Páscoa: a imagem do dia grande pesa no máximo 240 KB');
+      const o1 = path.join(RAIZ, 'imagens_JOGO_TELEGRAM', 'pascoa_festa.jpg'), o2 = path.join(RAIZ, 'imagens_JOGO_TELEGRAM', 'pascoa_dia_grande.jpg');
+      ok(fs.existsSync(o1) && fs.existsSync(o2) && JSON.stringify(dimp(o1)) === '[768,1376]' && JSON.stringify(dimp(o2)) === '[800,1305]', 'Páscoa: os originais estão em imagens_JOGO_TELEGRAM (768x1376 e 800x1305)');
+      ok(!fs.existsSync(path.join(RAIZ, 'pascoa_festa.jpg')) && !fs.existsSync(path.join(RAIZ, 'pascoa_dia_grande.jpg')), 'Páscoa: a raiz já não tem os dois originais');
+      ['pascoa_festa.jpg', 'pascoa_dia_grande.jpg'].forEach(function (f) {
+        const linha = CREDITOS.split('\n').filter(function (l) { return l.indexOf('assets/ecras/' + f) !== -1; })[0];
+        ok(!!linha && linha.indexOf('origem a confirmar pelo Nuno') !== -1, 'CREDITOS.md devia listar ' + f + ' com "origem a confirmar pelo Nuno"');
+      });
+    }
+
+    // janelas de 2026 a 2035: Sexta-feira Santa a Domingo de Páscoa, dia grande no domingo
+    const JP = {}; Object.keys(PASC).forEach(function (y) { const t = Date.UTC(Number(y), Number(PASC[y].slice(5, 7)) - 1, Number(PASC[y].slice(8, 10))); JP[y] = [fmtp(t - 2 * 86400000), PASC[y]]; });
+    g.ev("var PASCOA_F = FESTAS_CONFIG.filter(function (f) { return f.id === 'pascoa'; })[0];");
+    Object.keys(JP).forEach(function (y) {
+      const j = g.json('festaJanela(PASCOA_F, ' + y + ')');
+      ok(j && j.inicio === JP[y][0] && j.fim === JP[y][1] && j.diaGrande === JP[y][1], 'Páscoa ' + y + ': de ' + JP[y][0] + ' a ' + JP[y][1] + ', dia grande no último; deu ' + JSON.stringify(j));
+      ok(dowp(JP[y][0]) === 5 && dowp(JP[y][1]) === 0, 'Páscoa ' + y + ': de sexta-feira a domingo');
+    });
+    let abP = 0, grP = 0, idP = 0;
+    for (let y = 2026; y <= 2035; y++) {
+      const dias = (y % 4 === 0) ? 366 : 365;
+      for (let k = 0; k < dias; k++) {
+        const d = fmtp(Date.UTC(y, 0, 1) + k * 86400000);
+        const dentro = d >= JP[y][0] && d <= JP[y][1];
+        if (g.ev('festaAbertaNoDia(PASCOA_F, ' + JSON.stringify(d) + ')') !== dentro) abP++;
+        if (g.ev('festaDiaGrandeNoDia(PASCOA_F, ' + JSON.stringify(d) + ')') !== (d === JP[y][1])) grP++;
+        if ((g.ev('(festaAtivaPelaDataReal(' + JSON.stringify(d) + ') || {}).id || null') === 'pascoa') !== dentro) idP++;
+      }
+    }
+    ok(abP === 0 && grP === 0 && idP === 0, 'Páscoa: só abre dentro da janela e o dia grande é só o domingo, em todos os dias de 2026 a 2035 (' + abP + '/' + grP + '/' + idP + ' erros)');
+    const abP2 = function (d) { return g.ev('festaAbertaNoDia(PASCOA_F, ' + JSON.stringify(d) + ')'); };
+    ok(abP2('2026-04-02') === false && abP2('2026-04-03') === true && abP2('2026-04-05') === true && abP2('2026-04-06') === false, '2026: abre a 03/04 (sexta) e fecha a 05/04 (domingo)');
+    ok(abP2('2027-03-25') === false && abP2('2027-03-26') === true && abP2('2027-03-28') === true && abP2('2027-03-29') === false, '2027: abre a 26/03 e fecha a 28/03');
+    ok(abP2('2028-04-13') === false && abP2('2028-04-14') === true && abP2('2028-04-16') === true && abP2('2028-04-17') === false && g.ev("festaDiaGrandeNoDia(PASCOA_F, '2028-04-16')") === true && g.ev("festaDiaGrandeNoDia(PASCOA_F, '2028-04-15')") === false, '2028 (bissexto): abre a 14/04, o dia grande é 16/04, fecha a 16/04');
+    ok(abP2('2029-03-29') === false && abP2('2029-03-30') === true && abP2('2029-03-31') === true && abP2('2029-04-01') === true && abP2('2029-04-02') === false, '2029: a janela passa de março para abril sem partir (30/03 a 01/04)');
+    ok(['2026-12-31', '2027-01-01', '2026-11-11', '2026-12-25', '2026-02-17', '2027-02-09'].every(function (d) { return abP2(d) === false; }), 'Páscoa: fechada na viragem de ano, no São Martinho, no Natal e no Carnaval');
+    const dlp = function (iso) { return abrir(Date.parse(iso)); };
+    ok(dlp('2026-04-02T22:30:00Z').ev('festaAtivaPelaDataReal()') === null && dlp('2026-04-02T23:30:00Z').ev('festaAtual().id') === 'pascoa' && dlp('2026-04-02T23:30:00Z').ev('estaNoDiaGrandeFesta(festaAtual())') === false, '02/04 às 23:30 UTC (03/04 00:30 em Lisboa, hora de verão): aberta, ainda sem dia grande');
+    ok(dlp('2026-04-05T12:00:00Z').ev('estaNoDiaGrandeFesta(festaAtual())') === true, '05/04/2026: dia grande');
+    ok(dlp('2026-04-05T22:30:00Z').ev('festaAtual().id') === 'pascoa' && dlp('2026-04-05T23:30:00Z').ev('festaAtivaPelaDataReal()') === null, '05/04 às 23:30 em Lisboa ainda aberta; 06/04 às 00:30 em Lisboa fechada');
+    const pa1 = abrir(lis(6, 1), '?festa=pascoa');
+    ok(pa1.ev('festaAtual().id') === 'pascoa' && pa1.ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=pascoa força a festa, sem dia grande');
+    ok(abrir(lis(6, 1), '?festa=pascoa&dia=5').ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=pascoa&dia=5 em 2026: dia grande (o domingo de Páscoa é 05/04)');
+    ok(abrir(lis(6, 1), '?festa=pascoa&dia=4').ev('estaNoDiaGrandeFesta(festaAtual())') === false, '?festa=pascoa&dia=4 em 2026: não é o dia grande');
+    ok(abrir(Date.parse('2027-06-01T12:00:00Z'), '?festa=pascoa&dia=28').ev('estaNoDiaGrandeFesta(festaAtual())') === true, '?festa=pascoa&dia=28 em 2027: o atalho usa o ano de hoje (domingo de Páscoa é 28/03)');
+
+    // regras puras e valores (as mesmas do Carnaval)
+    g.ev("var TP = function (id) { return festaTarefa(PASCOA_F, id); };");
+    const E = '{ gotas: 100, uvas: 7, reputacao: 372, festas: { tarefasDia: {} } }';
+    const res = function (id, op, estado) { return g.json('(function () { var e = ' + (estado || E) + '; var x = festaResolverTarefa(e, PASCOA_F, TP(' + JSON.stringify(id) + '), "2026-04-03", ' + JSON.stringify(op || {}) + '); return { x: x, e: e }; })()'); };
+    let o = res('folar');
+    ok(o.x.ok && o.x.rep === 5 && o.e.reputacao === 377 && o.e.gotas === 100 && o.e.uvas === 7 && o.e.festas.tarefasDia.pascoa_folar === '2026-04-03', 'folar: +5, sem custo (nem Gotas nem Uvas), marca o dia');
+    o = res('folar', { diaGrande: true });
+    ok(o.x.rep === 10 && o.e.reputacao === 382, 'folar no dia grande: +10');
+    o = res('amendoas');
+    ok(o.x.ok && o.x.gotasGastas === 30 && o.x.rep === 12 && o.e.gotas === 70 && o.e.uvas === 7 && o.e.reputacao === 384, 'amêndoas: gastam 30 Gotas (nunca Uvas) e dão +12');
+    o = res('amendoas', { diaGrande: true });
+    ok(o.x.rep === 24 && o.e.gotas === 70 && o.e.reputacao === 396, 'amêndoas no dia grande: +24 e continuam a gastar só 30 Gotas');
+    o = res('amendoas', {}, '{ gotas: 29, uvas: 7, reputacao: 372, festas: { tarefasDia: {} } }');
+    ok(!o.x.ok && o.x.motivo === 'faltam_gotas' && o.e.gotas === 29 && o.e.reputacao === 372 && !o.e.festas.tarefasDia.pascoa_amendoas, 'amêndoas com 29 Gotas: não gasta, não paga e não marca o dia');
+    o = res('ovos', { venceu: true });
+    ok(o.x.ok && o.x.venceu && o.x.rep === 6 && o.e.reputacao === 378 && o.e.gotas === 100 && o.e.uvas === 7, 'ovos acertados: +6, sem custo');
+    o = res('ovos', { venceu: true, diaGrande: true });
+    ok(o.x.rep === 12 && o.e.reputacao === 384, 'ovos acertados no dia grande: +12');
+    o = res('ovos', { venceu: false });
+    ok(o.x.ok && !o.x.venceu && o.x.rep === 0 && o.e.reputacao === 372 && o.e.gotas === 100 && o.e.uvas === 7 && o.e.festas.tarefasDia.pascoa_ovos === '2026-04-03', 'ovos falhados: não custa nada e gasta a tentativa do dia');
+    o = res('ovos', {});
+    ok(!o.x.ok && o.x.motivo === 'resultado_invalido' && !o.e.festas.tarefasDia.pascoa_ovos, 'ovos sem resultado: recusa e não marca o dia');
+    o = res('folar', {}, '{ gotas: 100, uvas: 7, reputacao: 372, festas: { tarefasDia: { pascoa_folar: "2026-04-03" } } }');
+    ok(!o.x.ok && o.x.motivo === 'ja_hoje' && o.e.reputacao === 372, 'folar já feito hoje: recusa');
+    g.ev('state.festas.tarefasDia = {};');
+    ok(g.ev('festaTemTarefaPorFazerHoje(PASCOA_F)') === true && g.ev("festaTemTarefaPorFazerHoje(FESTAS_CONFIG.filter(function (f) { return f.id === 'carnaval'; })[0])") === true, 'objetivo do dia: com nada feito há tarefa por fazer (Páscoa e Carnaval)');
+    g.ev("festaRegistarFez(state, 'pascoa', 'folar', diaLisboaDeHoje()); festaRegistarFez(state, 'pascoa', 'amendoas', diaLisboaDeHoje()); festaRegistarFez(state, 'pascoa', 'ovos', diaLisboaDeHoje());");
+    ok(g.ev('festaTemTarefaPorFazerHoje(PASCOA_F)') === false && g.ev("festaTemTarefaPorFazerHoje(FESTAS_CONFIG.filter(function (f) { return f.id === 'carnaval'; })[0])") === true, 'objetivo do dia: com as 3 da Páscoa feitas já não há, e as da Páscoa não contam para o Carnaval');
+
+    // fluxo no ecrã (como o do Carnaval): um toque, uma gravação, uma vez por dia
+    const n = abrir(lis(4, 3), '?festa=pascoa');
+    n.ev('state.reputacao = 372; state.gotas = 100; state.uvas = 7;');
+    n.ev("iniciarTarefaFesta('amendoas')");
+    ok(n.ev('state.gotas') === 70 && n.ev('state.uvas') === 7 && n.ev('state.reputacao') === 384 && n.ev('SAVES') === 1 && n.ev('FUNDO') === 'assets/ecras/pascoa_festa.jpg', 'ecrã: amêndoas gastam 30 Gotas, dão +12, uma gravação, imagem da festa');
+    n.ev("iniciarTarefaFesta('amendoas')");
+    ok(n.ev('state.gotas') === 70 && n.ev('state.reputacao') === 384 && n.ev('SAVES') === 1 && n.ev('festaMensagemAtual') === n.ev('FESTAS_STRINGS.pascoa.pt.amendoasJaFeitaHoje'), 'ecrã: amêndoas uma só vez por dia, com a mensagem de já feita');
+    n.ev("iniciarTarefaFesta('folar')");
+    ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 2 && n.ev('state.gotas') === 70, 'ecrã: folar +5');
+    n.ev('state.gotas = 10;'); n.ev('state.festas.tarefasDia.pascoa_amendoas = null;');
+    n.ev("iniciarTarefaFesta('amendoas')");
+    ok(n.ev('state.gotas') === 10 && n.ev('state.reputacao') === 389 && n.ev('SAVES') === 2 && n.ev('festaMensagemAtual') === n.ev('FESTAS_STRINGS.pascoa.pt.amendoasFalta'), 'ecrã: amêndoas com 10 Gotas avisam sem gastar nem gravar');
+    n.ev("iniciarTarefaFesta('ovos')");
+    const cenaO = n.json('festaCenaAtual.cena');
+    ok(cenaO && cenaO.opcoes.length === 3, 'ecrã: os ovos mostram uma cena de 3 opções');
+    n.ev('festaResponderCenaDoDia(' + ((cenaO.correta + 1) % 3) + ')');
+    ok(n.ev('state.reputacao') === 389 && n.ev('state.gotas') === 10 && n.ev('SAVES') === 3 && n.ev("festaJaFezTarefaHoje('pascoa', 'ovos')") === true, 'ecrã: ovos errados não custam nada e gastam a tentativa do dia');
+    n.ev('festaResponderCenaDoDia(' + cenaO.correta + ')');
+    ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 3, 'ecrã: toque duplo na mesma cena não paga nem grava outra vez');
+    n.ev("iniciarTarefaFesta('ovos')");
+    ok(n.ev('festaCenaAtual') === null, 'ecrã: ovos já tentados hoje não abrem outra cena');
+    n.ir(lis(4, 4));
+    n.ev("iniciarTarefaFesta('ovos')");
+    n.ev('festaResponderCenaDoDia(festaCenaAtual.cena.correta)');
+    ok(n.ev('state.reputacao') === 395 && n.ev('SAVES') === 4, 'ecrã: no dia seguinte volta, e acertar dá +6');
+    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').length === 0, 'ecrã: cada tarefa conta para o objetivo do dia e a Páscoa não abre nada na Enciclopédia');
+    n.ev('enterFesta()');
+    ok(n.json('ENTRADAS').length === 0, 'enterFesta na Páscoa não abre a lenda de São Martinho');
+    n.ev('renderFestaHub()');
+    const hp = n.ev('caixa.innerHTML');
+    ok(/iniciarTarefaFesta\('folar'\)/.test(hp) && /iniciarTarefaFesta\('amendoas'\)/.test(hp) && /iniciarTarefaFesta\('ovos'\)/.test(hp) && !/castanhas|jeropiga|prova|corso|fantasias|quemEstaMascarado/.test(hp), 'hub da Páscoa: os 3 botões da Páscoa e nenhum de outra festa');
+    ok(n.ev('FUNDO') === 'assets/ecras/pascoa_festa.jpg', 'hub da Páscoa: imagem da festa fora do dia grande');
+    const gdp = abrir(lis(4, 5), '?festa=pascoa&dia=5');
+    gdp.ev('state.reputacao = 372; state.gotas = 100;');
+    gdp.ev('renderFestaHub()');
+    ok(gdp.ev('FUNDO') === 'assets/ecras/pascoa_dia_grande.jpg' && gdp.ev('caixa.innerHTML').indexOf(gdp.ev('FESTAS_STRINGS.pascoa.pt.diaGrandeAviso')) !== -1, 'hub da Páscoa no dia grande: imagem do dia grande e o aviso');
+    gdp.ev("iniciarTarefaFesta('folar')"); gdp.ev("iniciarTarefaFesta('amendoas')"); gdp.ev("iniciarTarefaFesta('ovos')"); gdp.ev('festaResponderCenaDoDia(festaCenaAtual.cena.correta)');
+    ok(gdp.ev('state.reputacao') === 372 + 10 + 24 + 12 && gdp.ev('state.gotas') === 70 && gdp.ev('SAVES') === 3, 'ecrã no dia grande: folar +10, amêndoas +24 (30 Gotas) e ovos +12, uma gravação cada');
+    const sol = abrir(lis(4, 5), '?festa=pascoa&dia=5');
+    sol.ev("function tempoAtual() { return { disponivel: true, ceu: 'sol' }; }; renderFestaHub();");
+    ok(sol.ev('caixa.innerHTML').indexOf('undefined') === -1, 'hub da Páscoa com sol: nada de "undefined" (o verão é só do São Martinho)');
+
+    // cenas estáveis por dia
+    const cP = function (dia) { return g.ev("festaCenaDoDia('pascoa', 'ovos', " + JSON.stringify(dia) + ', 3)'); };
+    const diasP = ['2026-04-03', '2026-04-04', '2026-04-05', '2027-03-26', '2027-03-27', '2027-03-28'];
+    ok(diasP.every(function (d) { return cP(d) >= 0 && cP(d) <= 2 && cP(d) === cP(d); }) && new Set(diasP.map(cP)).size >= 2, 'a cena dos ovos é estável no dia e nos 6 dias de Páscoa de 2026 e 2027 não sai sempre a mesma');
+
+    // textos: as mesmas chaves do Natal (com os nomes das tarefas trocados), em PT, EN e ES
+    const TXT = g.json('FESTAS_STRINGS');
+    const norm = function (k) { return k.replace(/consoada|folar/i, 'T1').replace(/doces|amendoas/i, 'T2').replace(/boloRei|ovos/i, 'T3'); };
+    const chavesNatal = Object.keys(TXT.natal.pt).map(norm).sort().join();
+    ['pt', 'en', 'es'].forEach(function (l) {
+      const S = TXT.pascoa && TXT.pascoa[l];
+      ok(!!S, 'Páscoa: faltam textos em ' + l);
+      if (!S) return;
+      ok(Object.keys(S).map(norm).sort().join() === chavesNatal, 'Páscoa ' + l + ': as mesmas chaves de texto do Natal');
+      Object.keys(S).forEach(function (k) { if (k.indexOf('Cenas') === -1) ok(typeof S[k] === 'string' && S[k].trim() !== '', 'Páscoa ' + l + ': falta o texto ' + k); });
+      pa.tarefas.forEach(function (tf) { ok(typeof S[tf.btn] === 'string' && S[tf.btn] !== '', 'Páscoa ' + l + ': falta o botão ' + tf.btn); });
+      const cenas = S.ovosCenas;
+      ok(Array.isArray(cenas) && cenas.length === 3, 'Páscoa ' + l + ': 3 cenas');
+      (cenas || []).forEach(function (c, i) {
+        ok(typeof c.situacao === 'string' && c.situacao !== '' && c.opcoes.length === 3 && new Set(c.opcoes).size === 3 && c.opcoes.every(function (op) { return typeof op === 'string' && op !== ''; }), 'Páscoa ' + l + ': cena ' + (i + 1) + ' completa, com 3 opções diferentes');
+        ok(c.correta === TXT.pascoa.pt.ovosCenas[i].correta && c.correta >= 0 && c.correta <= 2, 'Páscoa ' + l + ': cena ' + (i + 1) + ' com a mesma opção certa em PT/EN/ES');
+        const len = c.opcoes.map(function (op) { return op.length; });
+        ok(len[c.correta] < Math.max.apply(null, len), 'Páscoa ' + l + ': cena ' + (i + 1) + ': a opção certa NÃO é a mais comprida (' + len.join('/') + ')');
+        ok(Math.max.apply(null, len) - Math.min.apply(null, len) <= 0.2 * Math.max.apply(null, len), 'Páscoa ' + l + ': cena ' + (i + 1) + ': as 3 opções têm comprimento parecido (' + len.join('/') + ')');
+      });
+      const junto = JSON.stringify(S).replace(/"correta":\d/g, '').replace(/Fygmo2/g, 'Fygmo');
+      ok(!/[0-9]/.test(junto) && junto.indexOf('undefined') === -1, 'Páscoa ' + l + ': textos sem números nem datas');
+      ok(!/natal|christmas|navidad|bolo-rei|consoada|carnaval|carnival|corso|entrudo|martinho|martin|castanha|chestnut|casta[ñn]a|jeropiga/i.test(junto), 'Páscoa ' + l + ': sem restos do Natal, do Carnaval nem do São Martinho');
+    });
+    ok(JSON.stringify(TXT.pascoa.pt.ovosCenas.map(function (c) { return c.correta; })) === '[1,2,0]' && new Set(TXT.pascoa.pt.ovosCenas.map(function (c) { return c.correta; })).size === 3, 'Páscoa: a opção certa é a 2.ª, a 3.ª e a 1.ª (varia entre as 3 cenas)');
+    ok(/folar/i.test(JSON.stringify(TXT.pascoa.pt)) && /amêndoas/i.test(JSON.stringify(TXT.pascoa.pt)) && /ovo/i.test(JSON.stringify(TXT.pascoa.pt)), 'PT: fala do folar, das amêndoas e do ovo');
+    ok(!/\b(você|vocês|fixe|bué)\b/i.test(JSON.stringify(TXT.pascoa.pt)), 'PT de Portugal: sem "você" nem brasileirismos óbvios');
+    ok(!/páscoa|pascua|easter/i.test(JSON.stringify(TXT.natal)) && !/páscoa|pascua|easter/i.test(JSON.stringify(TXT.saomartinho)) && !/páscoa|pascua|easter/i.test(JSON.stringify(TXT.carnaval)), 'os textos do Natal, do São Martinho e do Carnaval não mencionam a Páscoa');
+  }
+
   return falhas;
 }
 
@@ -784,6 +971,14 @@ function mutar(ficheiro, de, para) {
   return f;
 }
 const MUTACOES = [
+  ['Páscoa: a janela começa na quinta-feira', 'festas.js', "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 }", "movel: { base: 'pascoa', inicioDias: -3, fimDias: 0, diaGrandeDias: 0 }"],
+  ['Páscoa: o dia grande passa para sábado', 'festas.js', "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 }", "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: -1 }"],
+  ['Páscoa: o folar passa a dar +6', 'festas.js', "{ id: 'folar', onde: 'festa', regra: 'oferta', btn: 'btnFolar',\n        premio: { reputacao: 5 } }", "{ id: 'folar', onde: 'festa', regra: 'oferta', btn: 'btnFolar',\n        premio: { reputacao: 6 } }"],
+  ['Páscoa: as amêndoas gastam Uvas', 'festas.js', "{ id: 'amendoas', onde: 'festa', regra: 'gastar_gotas', btn: 'btnAmendoas',\n        premio: { custoGotas: 30, reputacao: 12 } }", "{ id: 'amendoas', onde: 'festa', regra: 'gastar_gotas', btn: 'btnAmendoas',\n        premio: { custoGotas: 30, custoUvas: 5, reputacao: 12 } }"],
+  ['Páscoa: a imagem do dia grande não existe', 'festas.js', "diaGrande: 'assets/ecras/pascoa_dia_grande.jpg'", "diaGrande: 'assets/ecras/pascoa_dia_grande_x.jpg'"],
+  ['Páscoa: falta a tradução do aviso do dia grande em ES', 'festas.js', "diaGrandeAviso: '¡Hoy es Domingo de Pascua! Los premios cuentan el doble.',\n", ""],
+  ['Páscoa: a pergunta certa passa a ser a mais comprida (PT, cena 1)', 'festas.js', "'No alto da prateleira da cozinha'", "'No alto da prateleira alta da cozinha de casa'"],
+  ['Páscoa: o texto da vitória fala do Carnaval', 'festas.js', "ovosVitoria: 'Encontraste o ovo!", "ovosVitoria: 'Encontraste o ovo, que Carnaval!"],
   ['doces passam a custar 40 Gotas', 'festas.js', 'premio: { custoGotas: 30, reputacao: 12 }', 'premio: { custoGotas: 40, reputacao: 12 }'],
   ['doces gastam também Uvas', 'festas.js', 'gotasGastas = p.custoGotas;', 'gotasGastas = p.custoGotas; estado.uvas -= 5;'],
   ['doces gastam sem ter Gotas', 'festas.js', 'if (gotas < p.custoGotas) return recusa(\'faltam_gotas\');', ''],
