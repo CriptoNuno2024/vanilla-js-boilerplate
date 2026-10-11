@@ -1457,6 +1457,14 @@
 
     .btn-pill.pill-main .bonus-suffix { color: #2f6b1f; }
 
+    /* Colher da Vinha no outono leva até 2 etiquetas de bónus (372-451 px numa linha, mais do que a fila de 340 px):
+       só este botão pode quebrar linha e fica com no máximo 272 px, para caber inteiro à vista. */
+    .btn-pill[data-acao="colher"] {
+      white-space: normal;
+      max-width: 272px;
+      text-align: center;
+    }
+
     /* Esbatido dos dois lados da fila — genérico (.pill-fade-left /
        .pill-fade-right), pronto para reutilizar noutros ecrãs. */
     .pill-fade {
