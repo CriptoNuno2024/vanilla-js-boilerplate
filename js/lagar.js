@@ -340,7 +340,9 @@ function lagarAssaltoResponder(i) {
       saveState(state);
       updateStatsDisplays();
       if (typeof vibrar === 'function') vibrar(r.venceu ? 'sucesso' : 'leve');
-      if (r.venceu && typeof tocarSom === 'function') tocarSom('objetivoCumprido'); // perder não leva som de derrota: não custa nada
+      // A fala da vitória diz "O Chizo ladra" (lagar.assaltoVitoria): é o som da ação, em vez do "ding" (um só som).
+      // Esta cena não é objetivo do dia. Perder não leva som: não custa nada.
+      if (r.venceu && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();
     }
   } finally {
     lagarOcupado = false;

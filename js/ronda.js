@@ -154,6 +154,8 @@ function rondaChizoMostrarPedido(acao) {
 }
 
 function rondaChizoMostrarVolta(indice, acao) {
+  // A fala do regresso começa com "Wuf." (ronda.ponte): o Chizo ladra. Nada mais toca neste momento.
+  if (typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();
   mostrarFalas([t('ronda.ponte') + ' ' + rondaChizoCuriosidade(indice)], RONDA_CHIZO_CONFIG.falante);
   rondaChizoMostrarCartao(t('ronda.tituloVolta'), t('ronda.btnMeiaTaca'), acao);
 }

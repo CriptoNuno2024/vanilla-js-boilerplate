@@ -286,6 +286,15 @@ function tocarSomFicheiro(caminho, volume) {
   });
 }
 
+// O Chizo a ladrar (assets/sons/chizo_ladrar.mp3, o mesmo ficheiro e o mesmo volume do Proteger). Só se chama onde o
+// texto já diz que ele ladra ("Wuf", "O Chizo ladra"); respeita o "Som" do Perfil (tocarSomFicheiro).
+const SOM_CHIZO_LADRAR = 'assets/sons/chizo_ladrar.mp3';
+const SOM_CHIZO_LADRAR_VOLUME = 0.7;
+
+function tocarSomChizoLadrar() {
+  tocarSomFicheiro(SOM_CHIZO_LADRAR, SOM_CHIZO_LADRAR_VOLUME);
+}
+
 // ---------------------------------------------------------------------
 // SOM DE AMBIENTE EM CICLO (ex.: chuva) — volume baixo, só um de cada
 // vez. Para sozinho ao desligar o som (somAplicarInterruptor acima) ou
