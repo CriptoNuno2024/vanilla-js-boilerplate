@@ -681,7 +681,10 @@ function responderDisfarce(i) {
 // js/barril.js, aqui só se desenha e se mede o tempo)
 // -----------------------------------------------------------------
 
-const PROTEGER_BARRIL_SVG = '<svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><path d="M14 10h36c5 8 5 36 0 44H14C9 46 9 18 14 10z" fill="#8a5a2b" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"></path><path d="M11 22h42M10 32h44M11 42h42" fill="none" stroke="currentColor" stroke-width="3"></path><ellipse cx="32" cy="10" rx="18" ry="4.5" fill="#a9743a" stroke="currentColor" stroke-width="2.5"></ellipse></svg>';
+// Os 3 barris do "Seguir o barril": a mesma imagem nos 3 botões (300x300, recorte de assets/ecras/barril_simples.jpg).
+const PROTEGER_BARRIL_IMG = 'assets/vinha/barril_botao.jpg';
+try { new Image().src = PROTEGER_BARRIL_IMG; } catch (e) { /* pré-carga: não é obrigatória */ }
+const PROTEGER_BARRIL_HTML = '<img class="barril-img" src="' + PROTEGER_BARRIL_IMG + '" width="300" height="300" alt="" draggable="false" decoding="async">';
 
 let barrilSeq = null;            // { marcado, trocas, final } desta ronda (regra pura)
 let barrilSlots = [0, 1, 2];     // barrilSlots[id] = posição (0 a 2) onde o barril "id" está agora
@@ -741,7 +744,7 @@ function renderBarril() {
     '<div class="action-panel"><p id="barris-legenda" class="barris-legenda" aria-live="polite"></p>' +
     '<div class="barris-fila">' +
     [0, 1, 2].map(function (i) {
-      return '<button type="button" id="barril-' + i + '" class="barril-btn' + (i === barrilSeq.marcado ? ' marcado' : '') + '" style="--slot:' + i + '" disabled onclick="barrilEscolher(' + i + ')" aria-label="' + t('proteger.barrilNome') + ' ' + (i + 1) + '">' + PROTEGER_BARRIL_SVG + '</button>';
+      return '<button type="button" id="barril-' + i + '" class="barril-btn' + (i === barrilSeq.marcado ? ' marcado' : '') + '" style="--slot:' + i + '" disabled onclick="barrilEscolher(' + i + ')" aria-label="' + t('proteger.barrilNome') + ' ' + (i + 1) + '">' + PROTEGER_BARRIL_HTML + '</button>';
     }).join('') +
     '</div></div>';
 

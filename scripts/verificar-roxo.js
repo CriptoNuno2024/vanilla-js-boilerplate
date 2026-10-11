@@ -16,6 +16,18 @@ const ROXO_JS = process.env.ROXO_JS || path.join(RAIZ, 'js', 'roxo.js');
 let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
 const ler = function (f) { return fs.readFileSync(f, 'utf8'); };
+// Dimensões de um JPEG (marcador SOFn).
+function dimensoesJpeg(ficheiro) {
+  const b = fs.readFileSync(ficheiro);
+  let i = 2;
+  while (i < b.length) {
+    if (b[i] !== 0xff) { i++; continue; }
+    const m = b[i + 1];
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return null;
+}
 
 function abrir(guardadoInicial, search) {
   const guardado = {};
@@ -201,7 +213,12 @@ const saveNivel10 = function (extra) {
   ok(!/despensa|ESTRADA_|marcarObjetivo|nuvem/i.test(src), 'roxo.js não mexe na Despensa, na Estrada, nos objetivos nem na nuvem');
   const clique = src.slice(src.indexOf('function roxoBrindarClique()'));
   ok((src.match(/roxoBrindar\(/g) || []).length === 2 && clique.indexOf('roxoBrindar(') !== -1 && clique.indexOf('saveState(state)') !== -1 && (src.match(/saveState\(/g) || []).length === 1, 'só o clique (roxoBrindarClique) brinda e grava');
-  ok(g.ev('ROXO_CONFIG.imagemResultado') === 'assets/garrafas/garrafa_3_ambar.jpg' && fs.existsSync(path.join(RAIZ, 'assets/garrafas/garrafa_3_ambar.jpg')), 'imagem do resultado existe');
+  const garrafaRoxo = path.join(RAIZ, 'assets/garrafas/garrafa_roxo_uvas.jpg');
+  ok(g.ev('ROXO_CONFIG.imagemResultado') === 'assets/garrafas/garrafa_roxo_uvas.jpg' && fs.existsSync(garrafaRoxo), 'a imagem do resultado é a garrafa do Moscatel Roxo e existe');
+  const dRoxo = fs.existsSync(garrafaRoxo) ? dimensoesJpeg(garrafaRoxo) : null;
+  ok(dRoxo && dRoxo.w === 512 && dRoxo.h === 512 && fs.statSync(garrafaRoxo).size <= 60 * 1024, 'garrafa_roxo_uvas.jpg tem 512x512 e pesa no máximo 60 KB');
+  ok(fs.existsSync(path.join(RAIZ, 'assets/garrafas/garrafa_3_ambar.jpg')) && /garrafa_3_ambar\.jpg/.test(ler(path.join(RAIZ, 'js', 'garrafa.js'))), 'a garrafa âmbar continua na Adega (garrafa.js), só deixou de ser a da Cepa Roxa');
+  ok(fs.existsSync(path.join(RAIZ, 'assets/ecras/moscatel_roxo_com_uvas.jpg')) && !fs.existsSync(path.join(RAIZ, 'moscatel_roxo_com_uvas.jpg')), 'o original moscatel_roxo_com_uvas.jpg está em assets/ecras e já não está na raiz');
   const main = ler(path.join(RAIZ, 'js', 'main.js'));
   ok(/roxo:\s*\{\s*src:\s*'assets\/ecras\/yoshi_cat_festa_vindima\.jpg'/.test(main) && fs.existsSync(path.join(RAIZ, 'assets/ecras/yoshi_cat_festa_vindima.jpg')) && /roxo:\s*'explorar'/.test(main) && /renderRoxo\(\)/.test(main) && !/atualizarLinhaRoxoQuinta/.test(main), 'main.js liga a Cepa Roxa (fundo yoshi_cat_festa_vindima, barra acende o Explorar, render; já sem linha na Quinta)');
   ok(!/atualizarLinhaRoxoQuinta/.test(ler(path.join(RAIZ, 'js', 'niveis.js'))), 'o cartão do nível já não refaz nenhuma linha da Cepa Roxa (o cartão vive no Explorar)');

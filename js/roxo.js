@@ -18,8 +18,9 @@
 const ROXO_CONFIG = {
   reputacao: 15,         // a última tarefa do jogo: um pouco acima das outras (Câmara +8, mesa da vindima +12)
   garrafasMinimas: 10,   // garrafas feitas (state.garrafas) que é preciso ter; nunca se gastam (a conquista "Dez garrafas")
-  // Imagens que já existem. O fundo do ecrã está em FUNDO_DOS_ECRAS (js/main.js); esta é a do resultado do brinde.
-  imagemResultado: 'assets/garrafas/garrafa_3_ambar.jpg'
+  // O fundo do ecrã está em FUNDO_DOS_ECRAS (js/main.js); esta é a do resultado do brinde: a garrafa do Moscatel Roxo (vinho dourado,
+  // uvas roxas e fita roxa no rótulo), 512x512. A garrafa âmbar (garrafa_3_ambar.jpg) continua na Adega, na Coleção e na Câmara.
+  imagemResultado: 'assets/garrafas/garrafa_roxo_uvas.jpg'
 };
 
 const ROXO_DIA_REGEX = /^\d{4}-\d{2}-\d{2}$/;
