@@ -95,17 +95,6 @@ function camaraDiaDeHoje() {
   return diaLisboaDeHoje();
 }
 
-// Linha no cartão da Quinta, só com o ecrã desbloqueado (como a do Lagar).
-function atualizarLinhaCamaraQuinta() {
-  const container = document.getElementById('camara-linha-container');
-  if (!container) return;
-  if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('camara')) { container.innerHTML = ''; return; }
-  container.innerHTML =
-    '<div class="mini-bloco">' +
-      '<button type="button" class="visita-linha" onclick="goTo(\'camara\')">' + t('camara.linha') + '</button>' +
-    '</div>';
-}
-
 // O que o ecrã diz por baixo da descrição (só lê).
 function camaraTextoEstado(p) {
   if (p.motivo === 'ja_hoje') return t('camara.jaHoje');

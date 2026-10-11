@@ -115,17 +115,6 @@ function lojaDiaDeHoje() {
   return diaLisboaDeHoje();
 }
 
-// Linha no cartão da Quinta, só com o ecrã desbloqueado (como a da Estrada e a da Cepa Roxa).
-function atualizarLinhaLojaQuinta() {
-  const container = document.getElementById('loja-linha-container');
-  if (!container) return;
-  if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('loja')) { container.innerHTML = ''; return; }
-  container.innerHTML =
-    '<div class="mini-bloco">' +
-      '<button type="button" class="visita-linha" onclick="goTo(\'loja\')">' + t('loja.linha') + '</button>' +
-    '</div>';
-}
-
 // O que o ecrã diz por baixo da descrição (só lê).
 function lojaTextoEstado(p) {
   if (p.motivo === 'limite') return t('loja.limite').replace('{n}', p.limite);

@@ -79,17 +79,6 @@ function roxoDiaDeHoje() {
   return diaLisboaDeHoje();
 }
 
-// Linha no cartão da Quinta, só com o ecrã desbloqueado (como a da Câmara).
-function atualizarLinhaRoxoQuinta() {
-  const container = document.getElementById('roxo-linha-container');
-  if (!container) return;
-  if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('roxo')) { container.innerHTML = ''; return; }
-  container.innerHTML =
-    '<div class="mini-bloco">' +
-      '<button type="button" class="visita-linha" onclick="goTo(\'roxo\')">' + t('roxo.linha') + '</button>' +
-    '</div>';
-}
-
 // O que o ecrã diz por baixo da descrição (só lê).
 function roxoTextoEstado(p) {
   if (p.motivo === 'ja_hoje') return t('roxo.jaHoje');

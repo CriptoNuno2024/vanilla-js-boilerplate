@@ -11,8 +11,8 @@
 // (ver atualizarLinhaVisitaQuinta() em js/visitas.js, que chama estradaOfertaHtml()), também sem gravar;
 // só o clique (estradaOferecerClique) chama despensaOferecer e grava, UMA vez.
 //
-// Abre-se a partir da Quinta (linha no cartão, só com o ecrã desbloqueado: ver
-// ecraDesbloqueado('estrada') em js/niveis.js; um jogador antigo vê-a sempre).
+// Abre-se a partir do Explorar (cartão com foto, só com o ecrã desbloqueado: ver explorarCartoesHtml() em
+// js/explorar.js e ecraDesbloqueado('estrada') em js/niveis.js; um jogador antigo vê-o sempre).
 // ---------------------------------------------------------------------
 
 // Mesmo tipo de hash do cadernoHash() (js/caderno.js) e do visitasHash() (js/visitas.js).
@@ -40,17 +40,6 @@ function estradaFalaDoDia(vizinho, diaLisboa) {
 
 function estradaTexto(objeto) {
   return objeto ? (objeto[currentLang] || objeto.pt || '') : '';
-}
-
-// Linha no cartão da Quinta, só com o ecrã desbloqueado.
-function atualizarLinhaEstradaQuinta() {
-  const container = document.getElementById('estrada-linha-container');
-  if (!container) return;
-  if (typeof ecraDesbloqueado !== 'function' || !ecraDesbloqueado('estrada')) { container.innerHTML = ''; return; }
-  container.innerHTML =
-    '<div class="mini-bloco">' +
-      '<button type="button" class="visita-linha" onclick="goTo(\'estrada\')">' + t('estrada.linha') + '</button>' +
-    '</div>';
 }
 
 // O que o cartão mostra, calculado SÓ A LER (nunca chama despensaTrocar nem altera o estado), pela mesma

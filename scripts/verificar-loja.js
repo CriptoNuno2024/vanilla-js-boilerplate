@@ -185,11 +185,9 @@ function suite(fontes) {
     ok(abre(999, false) === false && abre(0, false) === false, 'abaixo do nível 7 (999 de Reputação) a Loja não abre');
     ok(abre(1000, false) === true && abre(5000, false) === true, 'no nível 7 (1000) e acima a Loja abre');
     ok(abre(10, true) === true, 'jogador antigo abre como nos outros ecrãs novos');
-    // linha na Quinta
-    g.ev('state.acesso.jogadorAntigo = false; state.reputacao = 999;'); g.ev('atualizarLinhaLojaQuinta()');
-    ok(g.el('loja-linha-container').innerHTML === '', 'nível 6: sem linha da Loja na Quinta');
-    g.ev('state.reputacao = 1000;'); g.ev('atualizarLinhaLojaQuinta()');
-    ok(/onclick="goTo\('loja'\)"/.test(g.el('loja-linha-container').innerHTML) && g.el('loja-linha-container').innerHTML.indexOf('A Loja: vende bagaceira por Reputação') !== -1, 'nível 7: linha na Quinta que abre a Loja');
+    // a linha da Quinta saiu: o cartão com foto vive no Explorar (scripts/verificar-explorar-cartoes.js)
+    g.ev('state.acesso.jogadorAntigo = false; state.reputacao = 999;');
+    ok(g.ev("typeof atualizarLinhaLojaQuinta") === 'undefined', 'a linha da Loja na Quinta já não existe');
   }
   // ---------------- 9. O ecrã e o clique (só o clique grava) ----------------
   {
@@ -243,7 +241,7 @@ function suite(fontes) {
   // ---------------- 11. Textos ----------------
   {
     const T = g0.json('TRANSLATIONS');
-    const chaves = ['loja.title', 'loja.linha', 'loja.desc', 'loja.estado', 'loja.btn', 'loja.ok', 'loja.semBagaceira', 'loja.limite', 'loja.fala', 'loja.erro'];
+    const chaves = ['loja.title', 'loja.desc', 'loja.estado', 'loja.btn', 'loja.ok', 'loja.semBagaceira', 'loja.limite', 'loja.fala', 'loja.erro'];
     ['pt', 'en', 'es'].forEach(function (l) {
       chaves.forEach(function (k) { ok(typeof T[l][k] === 'string' && T[l][k].trim() !== '', l + ': falta ' + k); });
       ok(/\{rep\}/.test(T[l]['loja.desc']) && /\{n\}/.test(T[l]['loja.desc']) && /\{n\}/.test(T[l]['loja.limite']) && /\{v\}/.test(T[l]['loja.estado']) && /\{max\}/.test(T[l]['loja.estado']) && /\{rep\}/.test(T[l]['loja.btn']) && /\{rep\}/.test(T[l]['loja.ok']), l + ': os marcadores {rep}, {n}, {v}, {max} estão nos textos certos');
@@ -251,6 +249,7 @@ function suite(fontes) {
       ok(!/\d/.test(T[l]['loja.fala'] + T[l]['loja.semBagaceira'] + T[l]['loja.erro']), l + ': falas e mensagens sem números');
     });
     ok(/pomace spirit/.test(T.en['loja.btn']) && /aguardiente de orujo/.test(T.es['loja.btn']) && /bagaceira/.test(T.pt['loja.btn']), 'PT "bagaceira", EN "pomace spirit", ES "aguardiente de orujo"');
+    ['pt', 'en', 'es'].forEach(function (l) { ok(typeof T[l]['explorar.sitio.loja'] === 'string' && T[l]['explorar.sitio.loja'].trim() !== '' && !/€|euro|dinheiro|money|dinero|preço|price|precio|mercado|market/i.test(T[l]['explorar.sitio.loja']), l + ': a frase do cartão da Loja no Explorar existe e não afirma preços'); });
     const lk = function (l) { return Object.keys(T[l]).filter(function (k) { return /^loja\./.test(k); }).sort().join(); };
     ok(lk('pt') === lk('en') && lk('en') === lk('es') && lk('pt').split(',').length === chaves.length, 'as 3 línguas têm as mesmas ' + chaves.length + ' chaves loja.*');
     ok(Object.keys(T.pt).length === Object.keys(T.en).length && Object.keys(T.en).length === Object.keys(T.es).length, 'as 3 línguas têm o mesmo número de chaves');
@@ -260,10 +259,10 @@ function suite(fontes) {
   {
     const main = semCom(fontes['main.js']);
     ok(/loja:\s*\{\s*src:\s*'assets\/ecras\/casa_loja_meio_da_vinha_4\.jpg'\s*\}/.test(main), 'FUNDO_DOS_ECRAS.loja = o fundo de sol (reserva)');
-    ok(/loja:\s*'quinta'/.test(main) && /if \(screen === 'loja'\) renderLoja\(\)/.test(main) && /atualizarLinhaLojaQuinta/.test(main), 'main.js: ecrã de voltar, goTo e linha da Quinta ligados');
-    ok(/atualizarLinhaLojaQuinta/.test(fontes['niveis.js'] || fs.readFileSync(path.join(RAIZ, 'js', 'niveis.js'), 'utf8')), 'niveis.js refaz a linha da Loja ao subir de nível');
+    ok(/loja:\s*'explorar'/.test(main) && /if \(screen === 'loja'\) renderLoja\(\)/.test(main) && !/atualizarLinhaLojaQuinta/.test(main), 'main.js: barra acende o Explorar, goTo ligado e sem linha na Quinta');
+    ok(!/atualizarLinhaLojaQuinta/.test(fontes['niveis.js'] || fs.readFileSync(path.join(RAIZ, 'js', 'niveis.js'), 'utf8')), 'niveis.js já não refaz nenhuma linha da Loja');
     const html = fontes['index.html'];
-    ok(/id="screen-loja"/.test(html) && /id="loja-container"/.test(html) && /id="loja-linha-container"/.test(html) && /#screen-loja\.content/.test(html), 'index.html tem o ecrã, o contentor, a linha da Quinta e a classe do jogo-cheio');
+    ok(/id="screen-loja"/.test(html) && /id="loja-container"/.test(html) && !/loja-linha-container/.test(html) && /#screen-loja\.content/.test(html), 'index.html tem o ecrã, o contentor e a classe do jogo-cheio, e já sem a linha da Loja na Quinta');
     const pos = function (f) { return html.indexOf('<script src="js/' + f + '.js'); };
     ok(pos('loja') > pos('alambique') && pos('loja') > pos('tempo') && pos('loja') < pos('main'), 'index.html: loja.js depois do alambique.js e do tempo.js e antes do main.js');
     ok(!/loja|Loja/.test(semCom(fontes['estrada.js'])), 'estrada.js não foi tocado (a Loja não parte a Estrada)');
@@ -339,9 +338,8 @@ const MUTACOES = [
   ['texto afirma um preço', 'i18n.js', "'Deal done! The Quinta says thanks.'", "'Deal done! At the market price of 5 euro.'"],
   ['rótulo ES errado', 'i18n.js', "'Vender 1 aguardiente de orujo (+{rep} de Reputación)'", "'Vender 1 aguardiente (+{rep} de Reputación)'"],
   ['o ecrã da Loja sai do index.html', 'index.html', '<div id="screen-loja" class="screen content">', '<div id="screen-xloja" class="screen content">'],
-  ['a linha da Quinta sai do main.js', 'main.js', "    if (typeof atualizarLinhaLojaQuinta === 'function') atualizarLinhaLojaQuinta();\n", ''],
   ['o goTo não abre a Loja', 'main.js', "  if (screen === 'loja') renderLoja();", ''],
-  ['a Loja deixa de acender o botão da Quinta', 'main.js', "  loja: 'quinta'", "  loja: 'vinha'"]
+  ['a Loja deixa de acender o botão do Explorar', 'main.js', "  loja: 'explorar'", "  loja: 'vinha'"]
 ];
 MUTACOES.forEach(function (m) {
   const f = mutar(m[1], m[2], m[3]);

@@ -155,40 +155,105 @@ function explorarTopcardHtml() {
   return '<div class="topcard"><p class="mini-title" data-i18n="explorar.title"></p></div>';
 }
 
+// ---------------------------------------------------------------------
+// CARTÕES DO EXPLORAR — por baixo do título: um cartão da Enciclopédia (sempre, com a Enciclopédia aberta) e um
+// cartão com foto por sítio já desbloqueado, no estilo dos cartões dos vizinhos da Estrada (.explorar-cartao em
+// index.html, com a foto mais alta). Só desenha: nada aqui grava, gasta uvas nem altera o estado; o botão de cada
+// sítio só faz goTo. As fotos são pequenas (640x340, assets/explorar/); os originais ficam em assets/ecras.
+// Os níveis de cada sítio são os de sempre (NIVEL_NECESSARIO_POR_ECRA em js/niveis.js, via ecraDesbloqueado).
+// ---------------------------------------------------------------------
+const EXPLORAR_SITIOS = [
+  { id: 'estrada', ecra: 'estrada', foto: 'assets/explorar/estrada.jpg', nomeKey: 'estrada.title', fraseKey: 'explorar.sitio.estrada' },
+  { id: 'loja', ecra: 'loja', foto: 'assets/explorar/loja.jpg', nomeKey: 'loja.title', fraseKey: 'explorar.sitio.loja' },
+  { id: 'lagar', ecra: 'lagar', foto: 'assets/explorar/lagar.jpg', nomeKey: 'lagar.title', fraseKey: 'explorar.sitio.lagar' },
+  { id: 'camara', ecra: 'camara', foto: 'assets/explorar/camara.jpg', nomeKey: 'camara.title', fraseKey: 'explorar.sitio.camara' },
+  { id: 'roxo', ecra: 'roxo', foto: 'assets/explorar/roxo.jpg', nomeKey: 'roxo.title', fraseKey: 'explorar.sitio.roxo' }
+];
+const EXPLORAR_FOTO_ENCICLOPEDIA = 'assets/explorar/enciclopedia.jpg';
+
+// Os sítios que o jogador já tem abertos, pela ordem de EXPLORAR_SITIOS. Só lê.
+function explorarSitiosVisiveis() {
+  return EXPLORAR_SITIOS.filter(function (x) {
+    return typeof ecraDesbloqueado !== 'function' || ecraDesbloqueado(x.ecra);
+  });
+}
+
+function explorarEscapar(texto) {
+  return String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function explorarFotoHtml(src) {
+  return '<img class="explorar-foto" src="' + src + '" width="640" height="340" alt="" decoding="async" loading="lazy">';
+}
+
+function explorarCartaoSitioHtml(x) {
+  return '<div class="explorar-cartao" data-sitio="' + x.id + '">' +
+    explorarFotoHtml(x.foto) +
+    '<div class="explorar-texto">' +
+      '<p class="explorar-nome">' + explorarEscapar(t(x.nomeKey)) + '</p>' +
+      '<p class="explorar-frase">' + explorarEscapar(t(x.fraseKey)) + '</p>' +
+      '<button type="button" class="btn-pill pill-main explorar-botao" onclick="goTo(\'' + x.ecra + '\')">' + explorarEscapar(t('explorar.btnIr')) + '</button>' +
+    '</div>' +
+  '</div>';
+}
+
+// O cartão do topo. Com entrada nova: "Nova entrada!", o título e o botão Ler; senão, quantas já descobriu, a mensagem
+// (se houver) e o botão para abrir a Enciclopédia. nova = entrada acabada de desbloquear ou null.
+function explorarCartaoEnciclopediaHtml(nova, mensagem) {
+  const total = state.encyclopedia.unlocked.length + ' / ' + encyclopediaEntries().length;
+  const corpo = nova
+    ? '<p class="explorar-etiqueta">' + explorarEscapar(t('explorar.novaEntradaCurta')) + '</p>' +
+      '<p class="explorar-frase explorar-novo">' + explorarEscapar(nova.titulo) + '</p>'
+    : '<p class="explorar-frase">' + total + '</p>' +
+      (mensagem ? '<p class="explorar-frase">' + explorarEscapar(mensagem) + '</p>' : '');
+  return '<div class="explorar-cartao explorar-cartao-enciclopedia" data-sitio="enciclopedia">' +
+    explorarFotoHtml(EXPLORAR_FOTO_ENCICLOPEDIA) +
+    '<div class="explorar-texto">' +
+      '<p class="explorar-nome">' + explorarEscapar(t('enciclopedia.title')) + '</p>' +
+      corpo +
+      '<button type="button" class="btn-pill pill-main explorar-botao" onclick="goTo(\'enciclopedia\')">' +
+        explorarEscapar(t(nova ? 'explorar.btnLer' : 'explorar.btnVerEnciclopedia')) + '</button>' +
+    '</div>' +
+  '</div>';
+}
+
+// A lista por baixo do título: o cartão da Enciclopédia (só com a Enciclopédia aberta) e os sítios abertos.
+function explorarListaHtml(nova, mensagem) {
+  const enciclopediaAberta = typeof ecraDesbloqueado !== 'function' || ecraDesbloqueado('enciclopedia');
+  return '<div class="scroll-panel explorar-lista">' +
+    (enciclopediaAberta ? explorarCartaoEnciclopediaHtml(nova, mensagem) : '') +
+    explorarSitiosVisiveis().map(explorarCartaoSitioHtml).join('') +
+  '</div>';
+}
+
 function enterExplorar() {
   const container = document.getElementById('explorar-container');
   const bloqueadas = entradasBloqueadas();
+  let nova = null;
+  let mensagem = '';
 
-  // Já sabe tudo o que existe, para sempre (mesmo contando as entradas
-  // de estação que só aparecem 3 meses por ano).
   if (state.encyclopedia.unlocked.length >= encyclopediaEntries().length) {
-    container.innerHTML = explorarTopcardHtml();
-    applyTranslations();
-    mostrarNovaEntrada(null);
-    atualizarDialogo(t('explorar.tudoDesbloqueado'), 'YoshiCat');
-    return;
+    // Já sabe tudo o que existe, para sempre (mesmo contando as entradas
+    // de estação que só aparecem 3 meses por ano).
+    mensagem = t('explorar.tudoDesbloqueado');
+  } else if (bloqueadas.length === 0) {
+    // Ainda há entradas por descobrir, mas nenhuma disponível nesta
+    // estação — voltam a aparecer quando a estação certa chegar.
+    mensagem = t('explorar.nadaNestaEstacao');
+  } else {
+    nova = bloqueadas[randInt(0, bloqueadas.length - 1)];
+    state.encyclopedia.unlocked.push(nova.id);
+    state.conhecimento += 1;
+    if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('explorar_descobrir');
+    saveState(state);
+    updateStatsDisplays();
   }
 
-  // Ainda há entradas por descobrir, mas nenhuma disponível nesta
-  // estação — voltam a aparecer quando a estação certa chegar.
-  if (bloqueadas.length === 0) {
-    container.innerHTML = explorarTopcardHtml();
-    applyTranslations();
-    mostrarNovaEntrada(null);
-    atualizarDialogo(t('explorar.nadaNestaEstacao'), 'YoshiCat');
-    return;
-  }
-
-  const nova = bloqueadas[randInt(0, bloqueadas.length - 1)];
-  state.encyclopedia.unlocked.push(nova.id);
-  state.conhecimento += 1;
-  if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('explorar_descobrir');
-  saveState(state);
-  updateStatsDisplays();
-
-  container.innerHTML = explorarTopcardHtml();
+  container.innerHTML = explorarTopcardHtml() + explorarListaHtml(nova, mensagem);
   applyTranslations();
-  mostrarNovaEntrada(nova);
+  // O aviso "Nova entrada!" está agora dentro do cartão da Enciclopédia (a lista): o cartão flutuante fica escondido aqui.
+  mostrarNovaEntrada(null);
+  if (nova && typeof cartaoNovaEntradaVisivel === 'function' && cartaoNovaEntradaVisivel(nova) && typeof tocarSom === 'function') tocarSom('novaEntrada');
   atualizarDialogo('', '');
 }
 

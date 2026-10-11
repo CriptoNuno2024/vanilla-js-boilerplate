@@ -72,12 +72,6 @@ function atualizarCartaoNivelQuinta() {
       '<p class="mini-bloco-titulo">' + t('nivel.label') + ' ' + nivelAtual + ' · ' + t(infoAtual.nomeKey) + '</p>' +
       progressoHtml +
     '</div>';
-  // A linha da Estrada depende do nível: acompanha o cartão (ver js/estrada.js).
-  if (typeof atualizarLinhaEstradaQuinta === 'function') atualizarLinhaEstradaQuinta();
-  if (typeof atualizarLinhaLojaQuinta === 'function') atualizarLinhaLojaQuinta();
-  if (typeof atualizarLinhaLagarQuinta === 'function') atualizarLinhaLagarQuinta();
-  if (typeof atualizarLinhaCamaraQuinta === 'function') atualizarLinhaCamaraQuinta();
-  if (typeof atualizarLinhaRoxoQuinta === 'function') atualizarLinhaRoxoQuinta();
 }
 
 // Guarda quantas garrafas já existem em state.adega.historico no momento
