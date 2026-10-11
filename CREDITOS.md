@@ -183,6 +183,9 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 | `assets/sons/chuva_sempreritmo.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/garrafa_ambiente.mp3` | Adega / Cave / Coleção | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/garrafa_engarrafar.mp3` | Adega / Cave / Coleção | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
+| `assets/sons/prado_grilos_ras.mp3` | Quinta e Vinha, noite de verão (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps e cortado num ciclo de 70 s sem salto (fim cruzado com o início) |
+| `assets/sons/vento_arvores_passaros.mp3` | Quinta e Vinha, dia calmo (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps |
+| `assets/sons/vento_grama_alta.mp3` | Quinta e Vinha, vento forte (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps |
 | `assets/sons/porco_grunhir.mp3` | Proteger | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/trovao_1.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/trovao_2_forte.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
@@ -192,7 +195,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 Podem ser sobras ou podem ter outro uso; confirmar antes de apagar. Origem: origem a confirmar pelo Nuno.
 
 - Imagens: `assets/ecras/barril_simples.jpg`, `assets/ecras/moscatel_roxo_com_uvas.jpg`, `assets/ecras/camera_.jpg`, `assets/ecras/cepa_roxa.jpg`, `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
-- Sons: `assets/sons/prado_grilos_ras.mp3`, `assets/sons/vento_arvores_passaros.mp3`, `assets/sons/vento_feito_a_mao.mp3`, `assets/sons/vento_grama_alta.mp3`
+- Sons: `assets/sons/vento_feito_a_mao.mp3`
 
 ### Sons sem ficheiro
 Os efeitos curtos de `js/som.js` (toques, avisos, prémios) são gerados no próprio jogo com a Web Audio API: não há ficheiros nem créditos para eles.

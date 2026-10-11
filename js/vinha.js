@@ -283,7 +283,7 @@ function enterVinha() {
   renderVinha();
   iniciarRelogioVinha();
   garantirTempoAtualizado().then(function () {
-    atualizarAmbienteChuva();
+    atualizarAmbienteExterior();
     tocarTrovaoSeTrovoada();
   });
 }

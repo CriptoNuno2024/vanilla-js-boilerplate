@@ -771,7 +771,7 @@ function goTo(screen, opcoes) {
     garantirTempoAtualizado().then(function () {
       atualizarLinhaTempoQuinta();
       atualizarFaixaFesta();
-      atualizarAmbienteChuva();
+      atualizarAmbienteExterior();
       tocarTrovaoSeTrovoada();
       if (document.getElementById('screen-quinta').classList.contains('active')) arcoIrisAvaliar();
     });
