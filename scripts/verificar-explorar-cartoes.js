@@ -184,7 +184,8 @@ function suite(fontes) {
   ['assets/ecras/camera_.jpg', 'assets/ecras/cepa_roxa.jpg', 'assets/ecras/enciclopedia.jpg', 'assets/ecras/casa_loja_meio_da_vinha_4.jpg', 'assets/ecras/festa_vindima_pessoas.jpg', 'imagens_JOGO_TELEGRAM/caminho_lojas_casa_trabalhadores_3.jpg'].forEach(function (f) {
     ok(fs.existsSync(path.join(RAIZ, f)), 'o original continua em ' + f);
   });
-  ['camera_.jpg', 'cepa_roxa.jpg'].forEach(function (f) { ok(!fs.existsSync(path.join(RAIZ, f)), f + ' já não está na raiz'); });
+  ['camera_.jpg', 'camera_3.png', 'camera_reuniao.jpg', 'cepa_roxa.jpg'].forEach(function (f) { ok(!fs.existsSync(path.join(RAIZ, f)), f + ' já não está na raiz (sem duplicados da Câmara nem da Cepa Roxa)'); });
+  ok(fs.existsSync(path.join(RAIZ, 'assets/ecras/camera_.jpg')) && fs.statSync(path.join(RAIZ, 'assets/ecras/camera_.jpg')).size <= 250 * 1024, 'assets/ecras/camera_.jpg (a versão final em JPEG) pesa no máximo 250 KB');
   ['moscatel_roxo_com_uvas.jpg', 'barril.jpg', 'Yoshi_Cat.jpg'].forEach(function (f) { ok(fs.existsSync(path.join(RAIZ, f)), f + ' fica na raiz (próximo PR)'); });
   const cred = fs.readFileSync(path.join(RAIZ, 'CREDITOS.md'), 'utf8');
   ok(/camera_\.jpg/.test(cred) && /cepa_roxa\.jpg/.test(cred), 'CREDITOS.md fala de camera_.jpg e cepa_roxa.jpg');

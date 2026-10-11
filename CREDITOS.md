@@ -17,7 +17,7 @@ Dados do tempo: Open-Meteo (open-meteo.com).
 ## Imagens novas
 Imagens geradas com IA (Grok/Gemini), sem marca de serviço, carregadas a 04/10/2026.
 
-`assets/ecras/camera_.jpg` e `assets/ecras/cepa_roxa.jpg` (carregadas a 11/10/2026): imagens geradas com IA pelo autor do jogo, sem marcas. Ficam em tamanho original para um uso futuro como fundo de ecrã; no Explorar usa-se só a versão pequena de cada uma (ver `assets/explorar/` mais abaixo).
+`assets/ecras/camera_.jpg` e `assets/ecras/cepa_roxa.jpg` (carregadas a 11/10/2026): imagens geradas com IA pelo autor do jogo, sem marcas. A `camera_.jpg` é a versão final da Câmara (enviada como `camera_3.png`, convertida para JPEG de 1145x1374 e 240 KB; a versão antiga e o `camera_reuniao.jpg` foram retirados). Ficam em tamanho original para um uso futuro como fundo de ecrã; no Explorar usa-se só a versão pequena de cada uma (ver `assets/explorar/` mais abaixo).
 
 ## Imagens e sons que o jogo usa
 
@@ -105,10 +105,10 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 
 | Ficheiro | Recorte de | Onde se usa |
 |---|---|---|
-| `assets/explorar/estrada.jpg` | `imagens_JOGO_TELEGRAM/caminho_lojas_casa_trabalhadores_3.jpg` | cartão da Estrada |
+| `assets/explorar/estrada.jpg` | `imagens_JOGO_TELEGRAM/caminho_lojas_casa_trabalhadores_3.jpg` (zona do caminho de terra, y 640 a 1019) | cartão da Estrada |
 | `assets/explorar/loja.jpg` | `assets/ecras/casa_loja_meio_da_vinha_4.jpg` (versão de sol) | cartão da Loja |
 | `assets/explorar/lagar.jpg` | `assets/ecras/festa_vindima_pessoas.jpg` | cartão do Lagar |
-| `assets/explorar/camara.jpg` | `assets/ecras/camera_.jpg` | cartão da Câmara |
+| `assets/explorar/camara.jpg` | `assets/ecras/camera_.jpg` (versão final, gato e Dr. Henrique à mesa) | cartão da Câmara |
 | `assets/explorar/roxo.jpg` | `assets/ecras/cepa_roxa.jpg` | cartão da Cepa Roxa |
 | `assets/explorar/enciclopedia.jpg` | `assets/ecras/enciclopedia.jpg` | cartão da Enciclopédia (topo do Explorar) |
 
