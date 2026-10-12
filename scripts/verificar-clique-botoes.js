@@ -17,7 +17,7 @@ const vm = require('vm');
 const RAIZ = path.join(__dirname, '..');
 const LER = function (f) { return fs.readFileSync(path.join(RAIZ, f), 'utf8'); };
 const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'alambique.js', 'garrafa.js', 'ronda.js', 'explorar.js',
-  'estrada-dados.js', 'despensa.js', 'visitas.js', 'estrada.js', 'lagar.js', 'objetivos.js', 'som.js'];
+  'estrada-dados.js', 'despensa.js', 'visitas.js', 'estrada.js', 'lagar.js', 'roxo.js', 'objetivos.js', 'som.js'];
 const FONTES = {};
 FICHEIROS.concat(['main.js']).forEach(function (f) { FONTES[f] = LER('js/' + f); });
 const HTML = LER('index.html');
@@ -119,7 +119,7 @@ async function suite(fontes) {
       somCarregarFicheiro = function (c) { FICH.push(c); return Promise.resolve({ caminho: c }); };
       var _saveReal = saveState; saveState = function (s) { SAVES++; return _saveReal(s); };
       renderAdega = function () {}; renderFestaHub = function () {}; renderEngarrafar = function () {}; renderVinha = function () {};
-      estradaDesenhar = function () {}; lagarDesenhar = function () {}; renderEstrada = function () {};
+      estradaDesenhar = function () {}; lagarDesenhar = function () {}; renderEstrada = function () {}; roxoDesenhar = function () {};
       function randInt(a) { return a; }
       function diaLisboaDeHoje() { return '${DIA}'; }
       state = defaultState(); state.som = true;
@@ -306,6 +306,15 @@ async function suite(fontes) {
     const rw = w.tocar(botao(['btn-choice']), function () { w.ev('lagarAssaltoResponder(' + certa + ')'); });
     ok(igual(rw.sons, []) && rw.ficheiros.length === 1, 'Lagar, defender a mesa a ganhar: só o ladrar, deu ' + JSON.stringify(rw));
   }
+  { // Cepa Roxa: brindar toca a rolha (ficheiro, conta como som: sem clique e sem o «ding»); o botão desativado não dá clique
+    const g = jogador(); g.ev('state.reputacao = 3000; state.garrafas = 12;');
+    const r = g.tocar(botao(), function () { g.ev('roxoBrindarClique()'); });
+    ok(igual(r.sons, []) && igual(r.ficheiros, ['assets/sons/rolha.mp3']), 'Cepa Roxa, brindar: só a rolha (sem ding nem clique), deu ' + JSON.stringify(r));
+    ok(igual(g.tocar(botao([], { disabled: true }), function () { g.ev('roxoBrindarClique()'); }).sons, []), 'Cepa Roxa, botão desativado: sem clique');
+    const h = jogador(); h.ev('state.reputacao = 3000; state.garrafas = 3;');
+    const rh = h.tocar(botao(), function () { h.ev('roxoBrindarClique()'); });
+    ok(igual(rh.sons, CLIQUE) && igual(rh.ficheiros, []), 'Cepa Roxa, brinde recusado (silencioso): só o clique do botão, deu ' + JSON.stringify(rh));
+  }
   { // "Som" desligado nas ações reais: nada, nem clique
     const g = jogador(); g.ev('state.som = false; state.vinha.fase = "preparar";');
     const r = g.tocar(botao(), function () { g.ev("executarAcaoVinha('cavar')"); });
@@ -366,7 +375,9 @@ async function suite(fontes) {
     M('som.js', "2400, 900, 0.03, false);", "2400, 900, 0.2, false);", 'Clique alto'),
     M('som.js', "somTocarTom(190, 0, 0.03, 'sine', 0.03);", "somTocarTom(1760, 0, 0.03, 'sine', 0.03);", 'Clique com beep agudo'),
     M('som.js', "'bandpass', 2400, 900,", "'bandpass', 9000, 6000,", 'Clique agudo (ruído de 9 kHz)'),
-    M('som.js', "  clique: function () {", "  cliqueX: function () {", 'Efeito clique inexistente')
+    M('som.js', "  clique: function () {", "  cliqueX: function () {", 'Efeito clique inexistente'),
+    M('roxo.js', "tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha", "tocarSom('objetivoCumprido'); // só a rolha", 'Brindar volta ao ding'),
+    M('roxo.js', "tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha", "tocarSomDaAcao(SOM_ROXO_BRINDE); tocarSom('objetivoCumprido'); // só a rolha", 'Brindar toca a rolha e o ding')
   ];
   for (const m of MUTANTES) {
     const src = FONTES[m.f];

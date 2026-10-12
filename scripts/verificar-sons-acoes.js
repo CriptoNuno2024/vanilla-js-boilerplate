@@ -2,7 +2,8 @@
 // Sons das ações (só efeitos que já existem em SOM_EFEITOS, js/som.js; sem ficheiros novos):
 //   Vinha (js/vinha.js, SOM_ACAO_VINHA): sons REAIS de assets/sons — Cavar, Plantar e Adubar = cavar_pa.mp3, Compostar = folhas_secas.mp3,
 //   Regar = rega.mp3, Colher e Podar = tesoura_podar.mp3 (todos a 0,7, a rega a 0,55); Ervas (arrancar ervas) fica com o efeito `colher`;
-//   rolha.mp3 existe mas não está ligada (nenhum texto fala de rolha a sair);
+//   rolha.mp3 (0,78 s) é o brinde da Cepa Roxa (js/roxo.js, a 0,7): toca EM VEZ do «ding» (o brinde não é objetivo do dia), recusar fica em silêncio,
+//   pré-carrega ao abrir o ecrã; nenhum outro sítio a usa;
 //   Destilar vinho e bagaço = regar, Fortificar = prensar, Prensar = prensar (js/garrafa.js, SOM_ACAO_ADEGA);
 //   Estrada Trocar e Oferecer = objetivoCumprido (js/estrada.js); tarefas das festas = objetivoCumprido só ao ACERTAR (js/festas.js).
 // Regras: só toca quando a ação resulta (recusada = silêncio); nunca dois sons juntos (se o "ding" do objetivo do dia vai
@@ -19,7 +20,7 @@ const vm = require('vm');
 const RAIZ = path.join(__dirname, '..');
 const LER = function (f) { return fs.readFileSync(path.join(RAIZ, f), 'utf8'); };
 const FICHEIROS = ['state.js', 'estacoes.js', 'tempo.js', 'festas.js', 'niveis.js', 'vinha.js', 'alambique.js', 'garrafa.js', 'ronda.js', 'explorar.js',
-  'estrada-dados.js', 'despensa.js', 'visitas.js', 'estrada.js', 'objetivos.js', 'som.js'];
+  'estrada-dados.js', 'despensa.js', 'visitas.js', 'estrada.js', 'roxo.js', 'objetivos.js', 'som.js'];
 const FONTES = {};
 FICHEIROS.forEach(function (f) { FONTES[f] = LER('js/' + f); });
 const AGORA = Date.parse('2026-10-09T10:00:00+01:00');
@@ -91,7 +92,7 @@ function suite(fontes) {
       tocarSom = function (nome) { if (somPodeTocar() && SOM_EFEITOS[nome]) SONS.push(nome); return _tocarReal(nome); };
       tocarSomFicheiro = function (c, v) { if (somPodeTocar()) FICH.push([c, v]); }; // ficheiros: só se contam (sem fetch)
       renderVinha = function () {}; renderAdega = function () {}; renderFestaHub = function () {}; renderFestaHub = function () {};
-      renderEstrada = function () {}; estradaDesenhar = function () {};
+      renderEstrada = function () {}; estradaDesenhar = function () {}; roxoDesenhar = function () {};
       function randInt(a) { return a; } // determinista (o state.js define um ao acaso)
       function diaLisboaDeHoje() { return '${DIA}'; }
       state = defaultState(); state.som = true;
@@ -406,7 +407,7 @@ function suite(fontes) {
     };
     // nome: [segundos mínimos, máximos, bytes máximos]
     const GESTOS = { 'cavar_pa.mp3': [1.0, 1.5, 20000], 'folhas_secas.mp3': [2.0, 3.0, 35000], 'rega.mp3': [2.5, 3.0, 35000],
-      'tesoura_podar.mp3': [0.5, 1.0, 15000], 'rolha.mp3': [1.4, 1.6, 20000] };
+      'tesoura_podar.mp3': [0.5, 1.0, 15000], 'rolha.mp3': [0.7, 0.9, 12000] };
     Object.keys(GESTOS).forEach(function (n) {
       const p = path.join(SONS_DIR, n), g = GESTOS[n];
       ok(fs.existsSync(p), n + ' devia existir em assets/sons');
@@ -425,9 +426,54 @@ function suite(fontes) {
     const pre = g.json('SOM_VINHA_FICHEIROS.map(function (f) { return f.ficheiro; })');
     ok(igual(pre.slice().sort(), ['assets/sons/cavar_pa.mp3', 'assets/sons/folhas_secas.mp3', 'assets/sons/rega.mp3', 'assets/sons/tesoura_podar.mp3']), 'a Vinha devia pré-carregar os 4 sons dos gestos, pré-carrega ' + JSON.stringify(pre));
     ok(/function enterVinha\(\) \{[\s\S]*?SOM_VINHA_FICHEIROS\.forEach\(function \(s\) \{ somCarregarFicheiro\(s\.ficheiro\); \}\);[\s\S]*?\n\}/.test(fontes['vinha.js']) && /if \(typeof somPodeTocar === 'function' && somPodeTocar\(\)\) SOM_VINHA_FICHEIROS/.test(fontes['vinha.js']), 'enterVinha devia pedir os sons só com o Som a poder tocar');
-    ok(!/rolha\.mp3/.test(Object.keys(fontes).map(function (k) { return fontes[k]; }).join('\n')) && !/rolha\.mp3/.test(fs.readFileSync(path.join(RAIZ, 'js', 'proteger.js'), 'utf8')), 'rolha.mp3 fica guardada sem ligar (nenhum texto do jogo fala de uma rolha a sair)');
+    // A rolha só é usada pelo brinde da Cepa Roxa (js/roxo.js); mais nenhum ficheiro de js/ a nomeia.
+    ok(Object.keys(fontes).every(function (k) { return /rolha\.mp3/.test(fontes[k]) === (k === 'roxo.js'); }), 'rolha.mp3 só devia ser usada em js/roxo.js');
     ok(/tocarSomDaAcao\(SOM_ACAO_ADEGA/.test(fontes['garrafa.js']) || /tocarSom\(SOM_ACAO_ADEGA\[acao\]\)/.test(fontes['garrafa.js']), 'a Adega continua com os efeitos feitos por código');
     ok(Object.keys(g.json('SOM_ACAO_ADEGA')).every(function (k) { return typeof g.json('SOM_ACAO_ADEGA')[k] === 'string'; }), 'prensar, destilar e fortificar ficam com efeitos (strings)');
+  }
+
+  // ---------------- 8. Cepa Roxa: o brinde toca a rolha ----------------
+  {
+    const preparar = function () {
+      const g = jogador({}, {});
+      g.ev("state.reputacao = 3000; state.garrafas = 12; var VIB = []; vibrar = function (t) { VIB.push(t); }; var PRE = []; somCarregarFicheiro = function (c) { PRE.push(c); return Promise.resolve(null); };");
+      return g;
+    };
+    const ROLHA = [['assets/sons/rolha.mp3', 0.7]];
+    const brindar = function (g) { g.limpar(); g.ev('VIB = []; roxoBrindarClique()'); return { efeitos: g.sons(), ficheiros: g.ficheiros(), vib: g.json('VIB') }; };
+    { // Brindar bem: só a rolha, sem o «ding», com a vibração de sucesso e uma só gravação
+      const g = preparar(); const r = brindar(g);
+      ok(igual(r.efeitos, []) && igual(r.ficheiros, ROLHA), 'brindar: devia tocar só a rolha (ficheiro a 0,7), tocou ' + JSON.stringify(r));
+      ok(igual(r.vib, ['sucesso']), 'brindar: devia manter a vibração de sucesso, fez ' + JSON.stringify(r.vib));
+      ok(g.ev('SAVES') === 1 && g.ev('state.roxo.dias') === 1, 'brindar: grava uma vez e conta o dia');
+      // Recusar (já brindou hoje): silêncio, sem vibração nem gravação
+      const r2 = brindar(g);
+      ok(igual(r2.efeitos, []) && igual(r2.ficheiros, []) && igual(r2.vib, []), 'brindar outra vez no mesmo dia (recusado): silêncio, tocou ' + JSON.stringify(r2));
+      ok(g.ev('SAVES') === 0, 'brinde recusado: não grava');
+    }
+    { // Brindar não é objetivo do dia: com objetivos por cumprir, continua só a rolha e nenhum objetivo muda
+      const g = preparar(); g.objetivos(['vinha_cavar', 'adega_prensar', 'explorar_descobrir']);
+      const r = brindar(g);
+      ok(igual(r.efeitos, []) && igual(r.ficheiros, ROLHA), 'brindar com objetivos do dia por cumprir: só a rolha, tocou ' + JSON.stringify(r));
+      ok(g.ev('state.objetivos.lista.every(function (o) { return !o.cumprido; })'), 'o brinde não devia cumprir nenhum objetivo do dia');
+      ok(!/marcarObjetivoCumprido\s*\(/.test(fontes['roxo.js']), 'js/roxo.js não devia marcar objetivos do dia (o brinde não é um)');
+    }
+    { // Recusas: poucas garrafas, e relógio atrás do último brinde
+      const g = preparar(); g.ev('state.garrafas = 3;');
+      const r = brindar(g); ok(igual(r.efeitos, []) && igual(r.ficheiros, []) && igual(r.vib, []), 'brindar sem garrafas que cheguem: silêncio, tocou ' + JSON.stringify(r));
+      const h = preparar(); h.ev("state.roxo.brindeDia = '2026-10-12';");
+      const rh = brindar(h); ok(igual(rh.efeitos, []) && igual(rh.ficheiros, []), 'brindar com o relógio atrás: silêncio');
+    }
+    { // «Som» desligado: nada
+      const g = preparar(); g.ev('state.som = false;'); const r = brindar(g);
+      ok(igual(r.efeitos, []) && igual(r.ficheiros, []), 'brindar com o Som desligado: nada toca, tocou ' + JSON.stringify(r));
+    }
+    { // Pré-carga ao abrir o ecrã (só com o «Som» a poder tocar)
+      const g = preparar(); g.ev('renderRoxo()');
+      ok(igual(g.json('PRE'), ['assets/sons/rolha.mp3']), 'abrir a Cepa Roxa devia pedir a rolha, pediu ' + JSON.stringify(g.json('PRE')));
+      const h = preparar(); h.ev('state.som = false; renderRoxo()');
+      ok(igual(h.json('PRE'), []), 'abrir a Cepa Roxa com o Som desligado não pede nada');
+    }
   }
   return falhas;
 }
@@ -463,6 +509,17 @@ const MUTANTES = [
   M('vinha.js', "  registarCooldownVinha(actionKey);\n  // Só aqui,", "  tocarSom('cavar');\n  registarCooldownVinha(actionKey);\n  // Só aqui,", 'Vinha toca antes de saber se resultou'),
   M('vinha.js', "if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);", "if (SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);", 'Vinha toca o som da ação por cima do ding'),
   M('vinha.js', "if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);", "", 'Vinha sem som nenhum'),
+  M('roxo.js', "tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha", "tocarSom('objetivoCumprido'); // só a rolha", 'Brindar volta ao ding'),
+  M('roxo.js', "tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha", "tocarSomDaAcao(SOM_ROXO_BRINDE); tocarSom('objetivoCumprido'); // só a rolha", 'Brindar toca a rolha e o ding'),
+  M('roxo.js', "tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha", "tocarSomDaAcao(SOM_ROXO_BRINDE); tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha", 'A rolha toca duas vezes'),
+  M('roxo.js', "      if (typeof tocarSomDaAcao === 'function') tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha, sem o «ding»\n", "", 'Brindar sem som'),
+  M('roxo.js', "    const r = roxoBrindar(state, roxoDiaDeHoje());\n", "    const r = roxoBrindar(state, roxoDiaDeHoje());\n    if (typeof tocarSomDaAcao === 'function') tocarSomDaAcao(SOM_ROXO_BRINDE);\n", 'Recusar também toca a rolha'),
+  M('roxo.js', "{ ficheiro: 'assets/sons/rolha.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/rolha.mp3', volume: 1 }", 'Rolha com o volume errado'),
+  M('roxo.js', "{ ficheiro: 'assets/sons/rolha.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/tesoura_podar.mp3', volume: 0.7 }", 'Brindar com o ficheiro errado'),
+  M('roxo.js', "      if (typeof vibrar === 'function') vibrar('sucesso');\n      if (typeof tocarSomDaAcao", "      if (typeof tocarSomDaAcao", 'Brindar sem vibração'),
+  M('roxo.js', "  if (typeof somPodeTocar === 'function' && somPodeTocar() && typeof somCarregarFicheiro === 'function') somCarregarFicheiro(SOM_ROXO_BRINDE.ficheiro);\n", "", 'A Cepa Roxa não pré-carrega a rolha'),
+  M('roxo.js', "typeof somPodeTocar === 'function' && somPodeTocar() && typeof somCarregarFicheiro", "typeof somPodeTocar === 'function' && typeof somCarregarFicheiro", 'Pré-carrega mesmo sem poder tocar'),
+  M('roxo.js', "    if (r.ok) {\n      saveState(state);", "    if (r.ok) {\n      marcarObjetivoCumprido('vinha_cavar');\n      saveState(state);", 'O brinde cumpre um objetivo do dia'),
   M('garrafa.js', "destilarVinho: 'regar'", "destilarVinho: 'prensar'", 'Destilar vinho com o som errado'),
   M('garrafa.js', "destilarBagaco: 'regar'", "destilarBagaco: 'cavar'", 'Destilar bagaço com o som errado'),
   M('garrafa.js', "fortificar: 'prensar'", "fortificar: 'regar'", 'Fortificar com o som errado'),

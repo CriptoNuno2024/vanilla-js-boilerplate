@@ -121,10 +121,16 @@ function roxoDesenhar() {
   applyTranslations();
 }
 
+// Som do brinde: a rolha a sair da garrafa (assets/sons/rolha.mp3, 0,78 s, a 0,7 como os outros sons de gestos). O brinde NÃO é um
+// objetivo do dia (nenhum marcarObjetivoCumprido aqui), por isso a rolha toca EM VEZ do «ding» objetivoCumprido: um só som.
+const SOM_ROXO_BRINDE = { ficheiro: 'assets/sons/rolha.mp3', volume: 0.7 };
+
 // Ao entrar no ecrã (ver goTo() em js/main.js): esquece o resultado da visita anterior.
 function renderRoxo() {
   roxoResultado = null;
   roxoDesenhar();
+  // Com "Som" ligado e o áudio já desbloqueado, pede já a rolha (pequena), para o «pop» não chegar atrasado.
+  if (typeof somPodeTocar === 'function' && somPodeTocar() && typeof somCarregarFicheiro === 'function') somCarregarFicheiro(SOM_ROXO_BRINDE.ficheiro);
 }
 
 // O ÚNICO sítio que brinda e grava. Toque no botão: desativa-o logo (clique duplo), brinda (roxoBrindar) e, se
@@ -141,7 +147,7 @@ function roxoBrindarClique() {
       updateStatsDisplays();
       roxoResultado = { rep: r.reputacaoGanha };
       if (typeof vibrar === 'function') vibrar('sucesso');
-      if (typeof tocarSom === 'function') tocarSom('objetivoCumprido');
+      if (typeof tocarSomDaAcao === 'function') tocarSomDaAcao(SOM_ROXO_BRINDE); // só a rolha, sem o «ding»
     }
   } finally {
     roxoOcupado = false;
