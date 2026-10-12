@@ -59,7 +59,7 @@ function suite(fontes) {
       var SAVES = 0, OBJ = [];
       function t(k) { return k; }
       function randInt(a) { return a; }
-      function mostrarFalas() {} function vibrar() {} function tocarSom() {} function updateStatsDisplays() {}
+      function mostrarFalas() {} function vibrar() {} function tocarSom() {} function tocarSomDaAcao() {} function updateStatsDisplays() {}
       function reposicionarFlutuantes() {} function atualizarCartaoObjetivosQuinta() {}
       function localeAtual() { return 'pt-PT'; }
       function faseRealAtual() { return 'repouso'; }

@@ -245,7 +245,8 @@ async function suite(fontes) {
   // Adega e Alambique
   [['prensar', 'prensar'], ['destilarVinho', 'regar'], ['destilarBagaco', 'regar'], ['fortificar', 'prensar']].forEach(function (c) {
     const g = jogador(); const r = g.tocar(botao(), function () { g.ev("executarAcaoAdega('" + c[0] + "')"); });
-    ok(igual(r.sons, [c[1]]), 'Adega ' + c[0] + ': só ' + c[1] + ', deu ' + JSON.stringify(r.sons));
+    if (c[0] === 'prensar') ok(igual(r.sons, []) && r.ficheiros.length === 1 && /prensa\.mp3/.test(JSON.stringify(r.ficheiros)), 'Adega prensar: só o ficheiro da prensa, sem clique, deu ' + JSON.stringify(r));
+    else ok(igual(r.sons, [c[1]]), 'Adega ' + c[0] + ': só ' + c[1] + ', deu ' + JSON.stringify(r.sons));
   });
   { // Ver o lote / Voltar: silenciosos, clique
     const g = jogador(); ok(igual(g.tocar(botao(), function () { g.ev("goTo('engarrafar')"); }).sons, CLIQUE), 'Ver o lote: clique');
