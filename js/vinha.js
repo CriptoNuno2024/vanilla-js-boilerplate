@@ -282,6 +282,8 @@ function enterVinha() {
   aplicarChuvaAutomatica();
   renderVinha();
   iniciarRelogioVinha();
+  // Com "Som" ligado e o áudio já desbloqueado, pede já os 4 sons dos gestos (pequenos), para o 1.º não chegar atrasado.
+  if (typeof somPodeTocar === 'function' && somPodeTocar()) SOM_VINHA_FICHEIROS.forEach(function (s) { somCarregarFicheiro(s.ficheiro); });
   garantirTempoAtualizado().then(function () {
     atualizarAmbienteExterior();
     tocarTrovaoSeTrovoada();
@@ -448,10 +450,18 @@ function sufixoSeSubiuNivel(nivelAntes) {
   return nivelPelaReputacao(state.reputacao) > nivelAntes ? ' ' + t('vinha.subiuNivelAviso') : '';
 }
 
-// Som de cada ação da Vinha (só efeitos que já existem em SOM_EFEITOS, js/som.js).
+// Som de cada ação da Vinha: sons reais de assets/sons (a pá, as folhas secas, a água e a tesoura, todos mono a 64 kbps, a
+// 0,7 como os outros sons de ficheiro; a rega, mais comprida e contínua, a 0,55) ou, onde não há som real, um efeito que já
+// existe em SOM_EFEITOS (js/som.js). "Ervas" é arrancar ervas daninhas (vinha.dica.ervas): fica com o efeito de sempre.
+// A Adega (prensar, destilar, fortificar) mantém os efeitos feitos por código (SOM_ACAO_ADEGA, js/garrafa.js).
+const SOM_VINHA_PA = { ficheiro: 'assets/sons/cavar_pa.mp3', volume: 0.7 };
+const SOM_VINHA_FOLHAS = { ficheiro: 'assets/sons/folhas_secas.mp3', volume: 0.7 };
+const SOM_VINHA_REGA = { ficheiro: 'assets/sons/rega.mp3', volume: 0.55 };
+const SOM_VINHA_TESOURA = { ficheiro: 'assets/sons/tesoura_podar.mp3', volume: 0.7 };
+const SOM_VINHA_FICHEIROS = [SOM_VINHA_PA, SOM_VINHA_FOLHAS, SOM_VINHA_REGA, SOM_VINHA_TESOURA];
 const SOM_ACAO_VINHA = {
-  cavar: 'cavar', plantar: 'cavar', ervas: 'colher', regar: 'regar', adubar: 'cavar',
-  compostagem: 'prensar', colher: 'colher', podar: 'colher'
+  cavar: SOM_VINHA_PA, plantar: SOM_VINHA_PA, ervas: 'colher', regar: SOM_VINHA_REGA, adubar: SOM_VINHA_PA,
+  compostagem: SOM_VINHA_FOLHAS, colher: SOM_VINHA_TESOURA, podar: SOM_VINHA_TESOURA
 };
 
 function executarAcaoVinha(actionKey) {
@@ -525,7 +535,7 @@ function executarAcaoVinha(actionKey) {
     sufixoColheita += ')';
     // Um só som: o "ding" do objetivo do dia, se vai tocar, ou o da ação (ver SOM_ACAO_VINHA).
     const dingColher = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('vinha_colher') === true;
-    if (!dingColher) tocarSom(SOM_ACAO_VINHA.colher);
+    if (!dingColher) tocarSomDaAcao(SOM_ACAO_VINHA.colher);
     vinhaMensagemAtual = dicaVinha('colher') + sufixoColheita + premiarPrimeiroPasso('colher') + sufixoSeSubiuNivel(nivelAntes);
     vinhaFotoAtual = VINHA_FOTOS.colher;
     saveState(state);
@@ -544,7 +554,7 @@ function executarAcaoVinha(actionKey) {
     vinhaMensagemAtual = t('vinha.bonusPodaAtivo').replace('{pct}', Math.round(REGRAS_PODA.bonusVindima * 100));
     vinhaNovaEntrada = desbloquearEntradaEnciclopedia('poda');
     vinhaFotoAtual = VINHA_FOTOS.podar;
-    tocarSom(SOM_ACAO_VINHA.podar); // a Poda não é objetivo do dia: não há "ding" por cima
+    tocarSomDaAcao(SOM_ACAO_VINHA.podar); // a Poda não é objetivo do dia: não há "ding" por cima
     saveState(state);
     updateStatsDisplays();
     renderVinha();
@@ -588,7 +598,7 @@ function executarAcaoVinha(actionKey) {
   registarCooldownVinha(actionKey);
   // Só aqui, depois de a ação ter sucesso, e um só som: o "ding" do objetivo do dia, se vai tocar, ou o da ação.
   const dingAcao = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('vinha_' + actionKey) === true;
-  if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSom(SOM_ACAO_VINHA[actionKey]);
+  if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);
   vinhaMensagemAtual = dicaVinha(actionKey) + premiarPrimeiroPasso(actionKey) + sufixoSeSubiuNivel(nivelAntes);
   vinhaFotoAtual = VINHA_FOTOS[actionKey] || null;
   saveState(state);

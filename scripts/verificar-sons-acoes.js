@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Sons das ações (só efeitos que já existem em SOM_EFEITOS, js/som.js; sem ficheiros novos):
-//   Plantar = cavar, Ervas = colher, Adubar = cavar, Compostar = prensar, Podar = colher (js/vinha.js, SOM_ACAO_VINHA);
+//   Vinha (js/vinha.js, SOM_ACAO_VINHA): sons REAIS de assets/sons — Cavar, Plantar e Adubar = cavar_pa.mp3, Compostar = folhas_secas.mp3,
+//   Regar = rega.mp3, Colher e Podar = tesoura_podar.mp3 (todos a 0,7, a rega a 0,55); Ervas (arrancar ervas) fica com o efeito `colher`;
+//   rolha.mp3 existe mas não está ligada (nenhum texto fala de rolha a sair);
 //   Destilar vinho e bagaço = regar, Fortificar = prensar, Prensar = prensar (js/garrafa.js, SOM_ACAO_ADEGA);
 //   Estrada Trocar e Oferecer = objetivoCumprido (js/estrada.js); tarefas das festas = objetivoCumprido só ao ACERTAR (js/festas.js).
 // Regras: só toca quando a ação resulta (recusada = silêncio); nunca dois sons juntos (se o "ding" do objetivo do dia vai
@@ -119,15 +121,20 @@ function suite(fontes) {
     g.objetivos([]);
     return g;
   }
-  const acao = function (g, nome, setup) { g.ev(setup || ''); g.limpar(); g.ev("executarAcaoVinha('" + nome + "')"); return g.sons(); };
+  // Os sons de uma ação da Vinha: efeitos pelo nome e ficheiros como 'nome.mp3@volume' (ver SOM_ACAO_VINHA).
+  const acao = function (g, nome, setup) {
+    g.ev(setup || ''); g.limpar(); g.ev("executarAcaoVinha('" + nome + "')");
+    return g.sons().concat(g.ficheiros().map(function (f) { return f[0].split('/').pop() + '@' + f[1]; }));
+  };
+  const PA = 'cavar_pa.mp3@0.7', FOLHAS = 'folhas_secas.mp3@0.7', REGA = 'rega.mp3@0.55', TESOURA = 'tesoura_podar.mp3@0.7';
   const adega = function (g, nome) { g.limpar(); g.ev("executarAcaoAdega('" + nome + "')"); return g.sons(); };
   const igual = function (a, b) { return JSON.stringify(a) === JSON.stringify(b); };
 
   // ---------------- 1. Vinha: cada ação com o seu som ----------------
   const VINHA = [
-    ['cavar', { fase: 'preparar' }, 'cavar'], ['plantar', { fase: 'preparada' }, 'cavar'], ['ervas', { fase: 'preparada' }, 'colher'],
-    ['ervas', { fase: 'crescendo' }, 'colher'], ['regar', { fase: 'crescendo' }, 'regar'], ['adubar', { fase: 'crescendo', adubo: 1 }, 'cavar'],
-    ['compostagem', { fase: 'preparar', residuos: 5 }, 'prensar'], ['colher', { fase: 'pronta', pontosCuidado: 4 }, 'colher']
+    ['cavar', { fase: 'preparar' }, PA], ['plantar', { fase: 'preparada' }, PA], ['ervas', { fase: 'preparada' }, 'colher'],
+    ['ervas', { fase: 'crescendo' }, 'colher'], ['regar', { fase: 'crescendo' }, REGA], ['adubar', { fase: 'crescendo', adubo: 1 }, PA],
+    ['compostagem', { fase: 'preparar', residuos: 5 }, FOLHAS], ['colher', { fase: 'pronta', pontosCuidado: 4 }, TESOURA]
   ];
   VINHA.forEach(function (c) {
     const g = jogador(c[1]);
@@ -139,7 +146,7 @@ function suite(fontes) {
     const g = jogador({ fase: 'crescendo' });
     g.ev("estacaoAtual = function () { return 'inverno'; };");
     const s = acao(g, 'podar');
-    ok(igual(s, ['colher']), 'podar devia tocar só colher, tocou ' + JSON.stringify(s));
+    ok(igual(s, [TESOURA]), 'podar devia tocar só a tesoura, tocou ' + JSON.stringify(s));
     ok(igual(acao(g, 'podar'), []), 'podar outra vez no mesmo inverno (recusado): silêncio');
     const h = jogador({ fase: 'crescendo' }); h.ev("estacaoAtual = function () { return 'verao'; };");
     ok(igual(acao(h, 'podar'), []), 'podar fora do inverno: silêncio');
@@ -159,7 +166,7 @@ function suite(fontes) {
     });
     // Cooldown: a 2.ª vez seguida é recusada, em silêncio.
     const g = jogador({ fase: 'preparar' });
-    ok(igual(acao(g, 'cavar'), ['cavar']), 'cavar a 1.ª vez toca');
+    ok(igual(acao(g, 'cavar'), [PA]), 'cavar a 1.ª vez toca');
     const w = jogador({ fase: 'preparada' });
     ok(igual(acao(w, 'ervas'), ['colher']), 'ervas a 1.ª vez toca');
     ok(igual(acao(w, 'ervas'), []), 'ervas em cooldown (2 h): silêncio');
@@ -345,8 +352,8 @@ function suite(fontes) {
     const efeitos = g.json('Object.keys(SOM_EFEITOS)');
     const usados = [];
     (fontes['vinha.js'] + fontes['garrafa.js']).replace(/(?:SOM_ACAO_(?:VINHA|ADEGA) = \{)([^}]*)\}/g, function (m, corpo) { corpo.replace(/:\s*'(\w+)'/g, function (m2, n) { usados.push(n); }); return m; });
-    ok(usados.length >= 10 && usados.every(function (n) { return efeitos.indexOf(n) !== -1; }), 'todos os sons das ações existem em SOM_EFEITOS: ' + usados.join(','));
-    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 14, 'assets/sons não devia ter ficheiros novos (14 como antes)');
+    ok(usados.length >= 5 && usados.every(function (n) { return efeitos.indexOf(n) !== -1; }), 'todos os sons das ações existem em SOM_EFEITOS: ' + usados.join(','));
+    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 19, 'assets/sons não devia ter ficheiros novos (19: os 14 de antes e os 5 dos gestos)');
   }
 
   // ---------------- 8. 1.º toque: o áudio lança-se em cada toque enquanto não corre ----------------
@@ -381,6 +388,47 @@ function suite(fontes) {
     (h.sb.ouvintes.pointerdown || []).forEach(function (fn) { fn({}); });
     ok(h.ev('somCtx') === null, 'com o "Som" desligado o toque não cria o contexto');
   }
+
+  // ---------------- 7. Os sons reais dos gestos (ficheiros) ----------------
+  {
+    const SONS_DIR = path.join(RAIZ, 'assets', 'sons');
+    const cab = function (buf) { // cabeçalho do 1.º frame MP3 (MPEG-1 Layer III): { mono, kbps }
+      let i = 0;
+      if (buf.slice(0, 3).toString('latin1') === 'ID3') i = 10 + (((buf[6] & 0x7f) << 21) | ((buf[7] & 0x7f) << 14) | ((buf[8] & 0x7f) << 7) | (buf[9] & 0x7f));
+      for (; i < buf.length - 4; i++) {
+        if (buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0) {
+          const v = (buf[i + 1] >> 3) & 3, c = (buf[i + 1] >> 1) & 3, b = buf[i + 2] >> 4;
+          if (v !== 3 || c !== 1 || b === 0 || b === 15) continue;
+          return { mono: ((buf[i + 3] >> 6) & 3) === 3, kbps: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320][b] };
+        }
+      }
+      return null;
+    };
+    // nome: [segundos mínimos, máximos, bytes máximos]
+    const GESTOS = { 'cavar_pa.mp3': [1.0, 1.5, 20000], 'folhas_secas.mp3': [2.0, 3.0, 35000], 'rega.mp3': [2.5, 3.0, 35000],
+      'tesoura_podar.mp3': [0.5, 1.0, 15000], 'rolha.mp3': [1.4, 1.6, 20000] };
+    Object.keys(GESTOS).forEach(function (n) {
+      const p = path.join(SONS_DIR, n), g = GESTOS[n];
+      ok(fs.existsSync(p), n + ' devia existir em assets/sons');
+      if (!fs.existsSync(p)) return;
+      const b = fs.readFileSync(p), h = cab(b), seg = b.length / 8000; // 64 kbps = 8000 bytes por segundo
+      ok(h && h.mono && h.kbps === 64, n + ' devia ser MP3 mono a 64 kbps, é ' + JSON.stringify(h));
+      ok(seg >= g[0] && seg <= g[1], n + ' devia durar ' + g[0] + ' a ' + g[1] + ' s, dura ' + seg.toFixed(2));
+      ok(b.length <= g[2], n + ' devia pesar no máximo ' + g[2] + ' bytes, pesa ' + b.length);
+    });
+    ['cavar_usar_uma_pa', 'folhas_secas_a_mexer', 'regar', 'rolha_sair_ware_Wine', 'tesoura_podar_curtar'].forEach(function (n) {
+      ok(!fs.existsSync(path.join(RAIZ, n + '.mp3')), 'o original ' + n + '.mp3 devia ter saído da pasta principal');
+    });
+    const g = abrir();
+    const mapa = g.json('Object.keys(SOM_ACAO_VINHA).reduce(function (m, k) { var v = SOM_ACAO_VINHA[k]; m[k] = typeof v === "string" ? v : v.ficheiro.split("/").pop() + "@" + v.volume; return m; }, {})');
+    ok(igual(mapa, { cavar: PA, plantar: PA, ervas: 'colher', regar: REGA, adubar: PA, compostagem: FOLHAS, colher: TESOURA, podar: TESOURA }), 'SOM_ACAO_VINHA devia ligar os gestos aos ficheiros certos, é ' + JSON.stringify(mapa));
+    const pre = g.json('SOM_VINHA_FICHEIROS.map(function (f) { return f.ficheiro; })');
+    ok(igual(pre.slice().sort(), ['assets/sons/cavar_pa.mp3', 'assets/sons/folhas_secas.mp3', 'assets/sons/rega.mp3', 'assets/sons/tesoura_podar.mp3']), 'a Vinha devia pré-carregar os 4 sons dos gestos, pré-carrega ' + JSON.stringify(pre));
+    ok(/function enterVinha\(\) \{[\s\S]*?SOM_VINHA_FICHEIROS\.forEach\(function \(s\) \{ somCarregarFicheiro\(s\.ficheiro\); \}\);[\s\S]*?\n\}/.test(fontes['vinha.js']) && /if \(typeof somPodeTocar === 'function' && somPodeTocar\(\)\) SOM_VINHA_FICHEIROS/.test(fontes['vinha.js']), 'enterVinha devia pedir os sons só com o Som a poder tocar');
+    ok(!/rolha\.mp3/.test(Object.keys(fontes).map(function (k) { return fontes[k]; }).join('\n')) && !/rolha\.mp3/.test(fs.readFileSync(path.join(RAIZ, 'js', 'proteger.js'), 'utf8')), 'rolha.mp3 fica guardada sem ligar (nenhum texto do jogo fala de uma rolha a sair)');
+    ok(/tocarSomDaAcao\(SOM_ACAO_ADEGA/.test(fontes['garrafa.js']) || /tocarSom\(SOM_ACAO_ADEGA\[acao\]\)/.test(fontes['garrafa.js']), 'a Adega continua com os efeitos feitos por código');
+    ok(Object.keys(g.json('SOM_ACAO_ADEGA')).every(function (k) { return typeof g.json('SOM_ACAO_ADEGA')[k] === 'string'; }), 'prensar, destilar e fortificar ficam com efeitos (strings)');
+  }
   return falhas;
 }
 
@@ -391,17 +439,30 @@ base.forEach(function (m) { console.log('FALHA: ' + m); falhou++; });
 // ---------------- Mutantes ----------------
 const M = function (f, a, b, nome) { return { f: f, a: a, b: b, nome: nome }; };
 const MUTANTES = [
-  M('vinha.js', "plantar: 'cavar'", "plantar: 'colher'", 'Plantar com o som errado'),
-  M('vinha.js', "ervas: 'colher'", "ervas: 'cavar'", 'Ervas com o som errado'),
-  M('vinha.js', "adubar: 'cavar'", "adubar: 'regar'", 'Adubar com o som errado'),
-  M('vinha.js', "compostagem: 'prensar'", "compostagem: 'cavar'", 'Compostar com o som errado'),
-  M('vinha.js', "podar: 'colher'", "podar: 'prensar'", 'Podar com o som errado'),
-  M('vinha.js', "tocarSom(SOM_ACAO_VINHA.podar);", "", 'Podar sem som'),
-  M('vinha.js', "regar: 'regar'", "regar: 'colher'", 'Regar com o som errado'),
-  M('vinha.js', "if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSom(SOM_ACAO_VINHA[actionKey]);", "if (SOM_ACAO_VINHA[actionKey]) tocarSom(SOM_ACAO_VINHA[actionKey]);", 'Vinha toca o som da ação por cima do ding'),
-  M('vinha.js', "if (!dingColher) tocarSom(SOM_ACAO_VINHA.colher);", "tocarSom(SOM_ACAO_VINHA.colher);", 'Colher toca por cima do ding'),
-  M('vinha.js', "if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSom(SOM_ACAO_VINHA[actionKey]);", "", 'Vinha sem som nenhum'),
+  M('vinha.js', "plantar: SOM_VINHA_PA", "plantar: SOM_VINHA_TESOURA", 'Plantar com o som errado'),
+  M('vinha.js', "ervas: 'colher'", "ervas: SOM_VINHA_PA", 'Ervas com o som errado'),
+  M('vinha.js', "adubar: SOM_VINHA_PA", "adubar: SOM_VINHA_REGA", 'Adubar com o som errado'),
+  M('vinha.js', "cavar: SOM_VINHA_PA, plantar", "cavar: SOM_VINHA_FOLHAS, plantar", 'Cavar com o som errado'),
+  M('vinha.js', "compostagem: SOM_VINHA_FOLHAS", "compostagem: 'prensar'", 'Compostar volta ao efeito'),
+  M('vinha.js', "compostagem: SOM_VINHA_FOLHAS", "compostagem: SOM_VINHA_PA", 'Compostar com o som errado'),
+  M('vinha.js', "podar: SOM_VINHA_TESOURA", "podar: SOM_VINHA_PA", 'Podar com o som errado'),
+  M('vinha.js', "colher: SOM_VINHA_TESOURA", "colher: 'colher'", 'Colher volta ao efeito'),
+  M('vinha.js', "tocarSomDaAcao(SOM_ACAO_VINHA.podar);", "", 'Podar sem som'),
+  M('vinha.js', "regar: SOM_VINHA_REGA", "regar: SOM_VINHA_FOLHAS", 'Regar com o som errado'),
+  M('vinha.js', "regar: SOM_VINHA_REGA", "regar: 'regar'", 'Regar volta ao efeito'),
+  M('vinha.js', "{ ficheiro: 'assets/sons/cavar_pa.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/cavar_pa.mp3', volume: 1 }", 'Pá com o volume errado'),
+  M('vinha.js', "{ ficheiro: 'assets/sons/rega.mp3', volume: 0.55 }", "{ ficheiro: 'assets/sons/rega.mp3', volume: 0.7 }", 'Rega com o volume errado'),
+  M('vinha.js', "{ ficheiro: 'assets/sons/tesoura_podar.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/cavar_pa.mp3', volume: 0.7 }", 'Tesoura com o ficheiro errado'),
+  M('vinha.js', "{ ficheiro: 'assets/sons/folhas_secas.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/folhas.mp3', volume: 0.7 }", 'Folhas com um ficheiro que não existe'),
+  M('vinha.js', "if (typeof somPodeTocar === 'function' && somPodeTocar()) SOM_VINHA_FICHEIROS", "if (typeof somPodeTocar === 'function') SOM_VINHA_FICHEIROS", 'Pré-carrega mesmo sem poder tocar'),
+  M('vinha.js', "const SOM_VINHA_FICHEIROS = [SOM_VINHA_PA, SOM_VINHA_FOLHAS, SOM_VINHA_REGA, SOM_VINHA_TESOURA];", "const SOM_VINHA_FICHEIROS = [SOM_VINHA_PA, SOM_VINHA_FOLHAS, SOM_VINHA_REGA];", 'Não pré-carrega a tesoura'),
+  M('vinha.js', "adubar: SOM_VINHA_PA,\n", "adubar: SOM_VINHA_PA, rolha: { ficheiro: 'assets/sons/rolha.mp3', volume: 0.7 },\n", 'Liga a rolha'),
+  M('som.js', "  if (typeof som === 'string') tocarSom(som);\n  else tocarSomFicheiro(som.ficheiro, som.volume);", "  tocarSom(som);", 'tocarSomDaAcao só toca efeitos'),
+  M('som.js', "  else tocarSomFicheiro(som.ficheiro, som.volume);", "  else { tocarSomFicheiro(som.ficheiro, som.volume); tocarSomFicheiro(som.ficheiro, som.volume); }", 'O ficheiro toca duas vezes'),
+  M('vinha.js', "if (!dingColher) tocarSomDaAcao(SOM_ACAO_VINHA.colher);", "tocarSomDaAcao(SOM_ACAO_VINHA.colher);", 'Colher toca por cima do ding'),
   M('vinha.js', "  registarCooldownVinha(actionKey);\n  // Só aqui,", "  tocarSom('cavar');\n  registarCooldownVinha(actionKey);\n  // Só aqui,", 'Vinha toca antes de saber se resultou'),
+  M('vinha.js', "if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);", "if (SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);", 'Vinha toca o som da ação por cima do ding'),
+  M('vinha.js', "if (!dingAcao && SOM_ACAO_VINHA[actionKey]) tocarSomDaAcao(SOM_ACAO_VINHA[actionKey]);", "", 'Vinha sem som nenhum'),
   M('garrafa.js', "destilarVinho: 'regar'", "destilarVinho: 'prensar'", 'Destilar vinho com o som errado'),
   M('garrafa.js', "destilarBagaco: 'regar'", "destilarBagaco: 'cavar'", 'Destilar bagaço com o som errado'),
   M('garrafa.js', "fortificar: 'prensar'", "fortificar: 'regar'", 'Fortificar com o som errado'),

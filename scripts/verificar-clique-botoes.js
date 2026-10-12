@@ -213,18 +213,24 @@ async function suite(fontes) {
 
   // ---------------- 3. As ações reais ----------------
   // Vinha: cada ação com o seu som (e o clique calado)
+  // 'f:nome.mp3' = som real de assets/sons (ficheiro), senão o nome do efeito.
   const VINHA = [
-    ['cavar', { fase: 'preparar' }, 'cavar'], ['plantar', { fase: 'preparada' }, 'cavar'], ['ervas', { fase: 'crescendo' }, 'colher'],
-    ['regar', { fase: 'crescendo' }, 'regar'], ['adubar', { fase: 'crescendo', adubo: 1 }, 'cavar'],
-    ['compostagem', { fase: 'preparar', residuos: 5 }, 'prensar'], ['colher', { fase: 'pronta', pontosCuidado: 4 }, 'colher']
+    ['cavar', { fase: 'preparar' }, 'f:cavar_pa.mp3'], ['plantar', { fase: 'preparada' }, 'f:cavar_pa.mp3'], ['ervas', { fase: 'crescendo' }, 'colher'],
+    ['regar', { fase: 'crescendo' }, 'f:rega.mp3'], ['adubar', { fase: 'crescendo', adubo: 1 }, 'f:cavar_pa.mp3'],
+    ['compostagem', { fase: 'preparar', residuos: 5 }, 'f:folhas_secas.mp3'], ['colher', { fase: 'pronta', pontosCuidado: 4 }, 'f:tesoura_podar.mp3']
   ];
+  const somDaVinha = function (r, esperado) {
+    return esperado.indexOf('f:') === 0
+      ? igual(r.sons, []) && igual(r.ficheiros, ['assets/sons/' + esperado.slice(2)])
+      : igual(r.sons, [esperado]) && igual(r.ficheiros, []);
+  };
   VINHA.forEach(function (c) {
     const g = jogador(); g.ev('state.vinha = Object.assign(state.vinha, ' + JSON.stringify(c[1]) + ');');
     const r = g.tocar(botao(['btn-pill']), function () { g.ev("executarAcaoVinha('" + c[0] + "')"); });
-    ok(igual(r.sons, [c[2]]), 'Vinha ' + c[0] + ': só ' + c[2] + ' (sem clique), deu ' + JSON.stringify(r.sons));
+    ok(somDaVinha(r, c[2]), 'Vinha ' + c[0] + ': só ' + c[2] + ' (sem clique), deu ' + JSON.stringify(r));
   });
   { const g = jogador(); g.ev("estacaoAtual = function () { return 'inverno'; }; state.vinha.fase = 'crescendo';");
-    const r = g.tocar(botao(), function () { g.ev("executarAcaoVinha('podar')"); }); ok(igual(r.sons, ['colher']), 'Vinha podar: só colher, deu ' + JSON.stringify(r.sons)); }
+    const r = g.tocar(botao(), function () { g.ev("executarAcaoVinha('podar')"); }); ok(somDaVinha(r, 'f:tesoura_podar.mp3'), 'Vinha podar: só a tesoura, deu ' + JSON.stringify(r)); }
   { // Reparar estacas não tem som próprio: clique; com o objetivo do dia, só o "ding"
     const g = jogador(); g.ev('_tempoAtual = condicaoDeTeste(18, 45, "sol");');
     const r = g.tocar(botao(), function () { g.ev("executarAcaoVinha('repararEstacas')"); });

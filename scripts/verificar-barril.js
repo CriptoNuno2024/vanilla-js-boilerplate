@@ -325,7 +325,7 @@ function suite(fontes) {
     ok(!/prado_grilos_ras/.test(cod), 'não usar o prado_grilos_ras.mp3');
     ok(!/sons\/[a-z_0-9]*barril|barril[a-z_0-9]*\.mp3/i.test(cod), 'sem ficheiros de som novos para o barril');
     ok((cod.match(/tocarSomFicheiro\(/g) || []).length === 4, 'o número de sons de ficheiro do Proteger não devia mudar (porco e cão, mais passos e porta do passo "Escutar à porta")');
-    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 14, 'assets/sons não devia ter ficheiros novos (só cave_passos e cave_porta, do passo "Escutar à porta")');
+    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 19, 'assets/sons não devia ter ficheiros novos (19: os 14 de antes e os 5 dos gestos: cavar_pa, folhas_secas, rega, rolha, tesoura_podar)');
     const a = INDEX.indexOf('<script src="js/barril.js'), b = INDEX.indexOf('<script src="js/proteger.js'), c = INDEX.indexOf('<script src="js/assaltos.js');
     ok(a !== -1 && b !== -1 && a < b && c < b, 'index.html: barril.js (e assaltos.js) antes do proteger.js');
   }

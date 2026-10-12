@@ -199,7 +199,7 @@ function suite(fontes) {
   ['festas.js', 'lagar.js', 'ronda.js'].forEach(function (f) {
     ok(!/porco_grunhir/.test(fontes[f]), 'js/' + f + ' não devia usar porco_grunhir.mp3 (nenhum texto o pede)');
   });
-  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 14, 'assets/sons devia continuar com os 14 ficheiros de sempre');
+  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 19, 'assets/sons devia ter 19 ficheiros (os 14 de sempre e os 5 dos gestos)');
   ok(/const SOM_CHIZO_LADRAR = 'assets\/sons\/chizo_ladrar\.mp3'/.test(fontes['som.js']) && /SOM_CHIZO_LADRAR_VOLUME = 0\.7/.test(fontes['som.js']), 'o ladrar devia ser chizo_ladrar.mp3 a 0,7');
   return falhas;
 }

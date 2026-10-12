@@ -264,6 +264,15 @@ function tocarSom(nome) {
   if (efeito) { somToques++; efeito(); }
 }
 
+// O som de uma ação (SOM_ACAO_VINHA, SOM_ACAO_ADEGA): ou o nome de um efeito feito por código (SOM_EFEITOS), ou um som real
+// { ficheiro, volume } de assets/sons. As regras são as de sempre: quem chama só o toca depois de a ação resultar e se o
+// "ding" do objetivo do dia não vai tocar; respeita o "Som" do Perfil; nada interrompe um som que já está a tocar.
+function tocarSomDaAcao(som) {
+  if (!som) return;
+  if (typeof som === 'string') tocarSom(som);
+  else tocarSomFicheiro(som.ficheiro, som.volume);
+}
+
 // Clique suave de um botão — UM só som por toque. Chamada no início do clique (antes da ação do botão); só decide
 // depois de a ação correr (setTimeout 0, já com todos os cliques tratados): se entretanto algum som foi pedido (o da ação,
 // o "ding" do objetivo do dia, subir de nível, o ecrã trancado...) o clique fica calado; se a ação foi silenciosa
