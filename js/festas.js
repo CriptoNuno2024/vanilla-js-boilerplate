@@ -512,12 +512,12 @@ const FESTAS_STRINGS = {
       boloReiSubtitulo: 'O Fygmo e o Fygmo2 andam a rondar o bolo',
       boloReiJaFeitaHoje: 'Hoje o bolo-rei já foi defendido. Amanhã há outra ronda.',
       boloReiCenas: [
-        { situacao: 'O bolo-rei está a arrefecer em cima da mesa. O Fygmo e o Fygmo2 fazem de conta que estão só a admirar a decoração.', opcoes: ['Deixar o bolo sozinho para eles o admirarem à vontade', 'Tapar o bolo com um pano e pôr o Chizo de guarda', 'Cortar logo uma fatia enorme para os distrair'], correta: 1 },
-        { situacao: 'O Fygmo2 sobe para uma cadeira e estica o focinho para o bolo-rei, com ar de quem só quer espreitar.', opcoes: ['Pôr o bolo no alto do armário', 'Dar-lhe os parabéns pela pontaria', 'Ir buscar rabanadas para a mesa'], correta: 0 },
-        { situacao: 'O Fygmo distrai-te com uma história comprida enquanto o Fygmo2 se aproxima do bolo, pé ante pé.', opcoes: ['Ouvir a história toda, que parece boa', 'Esconder o bolo debaixo do casaco', 'Chamar o Chizo para vigiar o bolo'], correta: 2 }
+        { situacao: 'O bolo-rei arrefece na mesa da consoada. O Fygmo e o Fygmo2 contemplam-no com o respeito de quem já escolheu a fatia.', opcoes: ['Pedir-lhes que esperem pela meia-noite, como manda a tradição', 'Cobrir o bolo com um pano e deixar o Chizo a vigiar', 'Servir já uma fatia grande a cada um, para encerrar o assunto'], correta: 1 },
+        { situacao: 'O Fygmo2 sobe para uma cadeira e estica o focinho para o bolo-rei, com o ar de quem só veio ver se está bem cozinhado.', opcoes: ['Pôr o bolo em cima do armário, onde a cadeira não chega', 'Explicar-lhe que o bolo-rei é só depois da Missa do Galo', 'Afastar a cadeira devagar, com ele ainda lá em cima'], correta: 0 },
+        { situacao: 'O Fygmo puxa conversa sobre o preço do bacalhau enquanto o Fygmo2 contorna a mesa, pé ante pé, rumo ao bolo.', opcoes: ['Responder com paciência, que o bacalhau é assunto sério', 'Esconder o bolo debaixo do casaco e sair de fininho', 'Chamar o Chizo para tomar conta do bolo e da mesa toda'], correta: 2 }
       ],
-      boloReiVitoria: 'O bolo-rei fica a salvo! O Fygmo e o Fygmo2 suspiram, olham para as migalhas que não há e prometem portar-se bem. Até ao próximo bolo.',
-      boloReiDerrota: 'Tarde demais... o Fygmo e o Fygmo2 já fogem com uma fatia cada. Não faz mal: não se perdeu nada, e o Natal é para partilhar.'
+      boloReiVitoria: 'O bolo-rei fica a salvo. O Fygmo e o Fygmo2 olham para as migalhas que não existem, suspiram e prometem portar-se bem até ao Dia de Reis.',
+      boloReiDerrota: 'Tarde demais: o Fygmo e o Fygmo2 já vão a caminho da mata, uma fatia cada. Quem encontrar a fava paga o próximo bolo-rei. Nada se perdeu.'
     },
     en: {
       faixa: "It's Christmas on the Quinta!",
@@ -543,12 +543,12 @@ const FESTAS_STRINGS = {
       boloReiSubtitulo: 'Fygmo and Fygmo2 are circling the cake',
       boloReiJaFeitaHoje: "Today the bolo-rei has already been defended. Tomorrow there's another round.",
       boloReiCenas: [
-        { situacao: 'The bolo-rei is cooling on the table. Fygmo and Fygmo2 pretend they are just admiring the decorations.', opcoes: ['Leave the cake alone so they can admire it in peace', 'Cover the cake with a cloth and put Chizo on guard', 'Cut a huge slice right away to distract them'], correta: 1 },
-        { situacao: 'Fygmo2 climbs onto a chair and stretches his snout towards the bolo-rei, looking like he only wants a peek.', opcoes: ['Put the cake on top of the cupboard', 'Congratulate him on his great aim', 'Go and fetch rabanadas for the table'], correta: 0 },
-        { situacao: 'Fygmo distracts you with a very long story while Fygmo2 tiptoes towards the cake.', opcoes: ['Listen to the story, it sounds good', 'Hide the cake under your big coat', 'Call Chizo to watch over the cake'], correta: 2 }
+        { situacao: 'The bolo-rei is cooling on the consoada table. Fygmo and Fygmo2 contemplate it with the respect of those who have already picked their slice.', opcoes: ['Ask them to wait until midnight, as tradition demands', 'Cover the cake with a cloth and leave Chizo on watch', 'Serve each of them a big slice right now, to close the matter'], correta: 1 },
+        { situacao: 'Fygmo2 climbs onto a chair and stretches his snout towards the bolo-rei, looking like he only came to check it is properly baked.', opcoes: ['Put the cake on the cupboard, where no chair reaches', 'Explain that bolo-rei is only for after Midnight Mass', 'Slowly pull the chair away, with him still up there'], correta: 0 },
+        { situacao: 'Fygmo strikes up a chat about the price of salt cod while Fygmo2 circles the table, tiptoeing towards the cake.', opcoes: ['Answer patiently, since salt cod is serious business', 'Hide the cake under your coat and slip away quietly', 'Call Chizo to guard the cake and the whole table'], correta: 2 }
       ],
-      boloReiVitoria: 'The bolo-rei is safe! Fygmo and Fygmo2 sigh, look at the crumbs that are not there and promise to behave. Until the next cake.',
-      boloReiDerrota: "Too late... Fygmo and Fygmo2 are already running off with a slice each. Never mind: nothing was lost, and Christmas is for sharing."
+      boloReiVitoria: 'The bolo-rei stays safe. Fygmo and Fygmo2 look at the crumbs that do not exist, sigh and promise to behave until Three Kings Day.',
+      boloReiDerrota: 'Too late: Fygmo and Fygmo2 are already on their way to the woods, a slice each. Whoever finds the fava pays for the next bolo-rei. Nothing was lost.'
     },
     es: {
       faixa: '¡Es Navidad en la Quinta!',
@@ -574,12 +574,12 @@ const FESTAS_STRINGS = {
       boloReiSubtitulo: 'El Fygmo y el Fygmo2 rondan el bizcocho',
       boloReiJaFeitaHoje: 'Hoy el bolo-rei ya ha sido defendido. Mañana hay otra ronda.',
       boloReiCenas: [
-        { situacao: 'El bolo-rei se enfría sobre la mesa. El Fygmo y el Fygmo2 fingen que solo admiran la decoración.', opcoes: ['Dejar el bolo solo para que lo admiren a gusto', 'Tapar el bolo y poner al Chizo de guardia', 'Cortar ya una porción enorme para distraerlos'], correta: 1 },
-        { situacao: 'El Fygmo2 se sube a una silla y estira el hocico hacia el bolo-rei, con aire de querer solo echar un vistazo.', opcoes: ['Poner el bolo encima del armario', 'Felicitarlo por su buena puntería', 'Ir a buscar rabanadas para la mesa'], correta: 0 },
-        { situacao: 'El Fygmo te distrae con una historia larguísima mientras el Fygmo2 se acerca al bolo de puntillas.', opcoes: ['Escuchar la historia, que parece buena', 'Esconder el bolo bajo el abrigo largo', 'Llamar al Chizo para vigilar el bolo'], correta: 2 }
+        { situacao: 'El bolo-rei se enfría en la mesa de la consoada. El Fygmo y el Fygmo2 lo contemplan con el respeto de quien ya ha elegido su porción.', opcoes: ['Pedirles que esperen a la medianoche, como manda la tradición', 'Tapar el bolo con un paño y dejar al Chizo vigilando', 'Servir ya una porción grande a cada uno, para cerrar el asunto'], correta: 1 },
+        { situacao: 'El Fygmo2 se sube a una silla y estira el hocico hacia el bolo-rei, con aire de quien solo viene a ver si está bien cocido.', opcoes: ['Poner el bolo encima del armario, donde la silla no llega', 'Explicarle que el bolo-rei es solo después de la Misa del Gallo', 'Apartar la silla despacio, con él todavía allí arriba'], correta: 0 },
+        { situacao: 'El Fygmo da conversación sobre el precio del bacalao mientras el Fygmo2 rodea la mesa de puntillas, rumbo al bolo.', opcoes: ['Responder con paciencia, que el bacalao es cosa seria', 'Esconder el bolo bajo el abrigo y marcharse con disimulo', 'Llamar al Chizo para que cuide del bolo y de la mesa'], correta: 2 }
       ],
-      boloReiVitoria: '¡El bolo-rei está a salvo! El Fygmo y el Fygmo2 suspiran, miran las migas que no hay y prometen portarse bien. Hasta el próximo bolo.',
-      boloReiDerrota: 'Demasiado tarde... el Fygmo y el Fygmo2 ya huyen con una porción cada uno. No pasa nada: no se perdió nada, y la Navidad es para compartir.'
+      boloReiVitoria: 'El bolo-rei queda a salvo. El Fygmo y el Fygmo2 miran las migas que no hay, suspiran y prometen portarse bien hasta el Día de Reyes.',
+      boloReiDerrota: 'Demasiado tarde: el Fygmo y el Fygmo2 ya van camino del monte, una porción cada uno. Quien encuentre el haba paga el próximo bolo-rei. No se perdió nada.'
     }
   },
   carnaval: {
