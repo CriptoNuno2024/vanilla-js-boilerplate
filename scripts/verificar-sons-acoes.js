@@ -129,7 +129,12 @@ function suite(fontes) {
     return g.sons().concat(g.ficheiros().map(function (f) { return f[0].split('/').pop() + '@' + f[1]; }));
   };
   const PA = 'cavar_pa.mp3@0.7', FOLHAS = 'folhas_secas.mp3@0.7', REGA = 'rega.mp3@0.55', TESOURA = 'tesoura_podar.mp3@0.7';
-  const adega = function (g, nome) { g.limpar(); g.ev("executarAcaoAdega('" + nome + "')"); return g.sons(); };
+  // Os sons de uma ação da Adega: efeitos pelo nome e ficheiros como 'nome.mp3@volume' (ver SOM_ACAO_ADEGA).
+  const adega = function (g, nome) {
+    g.limpar(); g.ev("executarAcaoAdega('" + nome + "')");
+    return g.sons().concat(g.ficheiros().map(function (f) { return f[0].split('/').pop() + '@' + f[1]; }));
+  };
+  const PRENSA = 'prensa.mp3@0.7';
   const igual = function (a, b) { return JSON.stringify(a) === JSON.stringify(b); };
 
   // ---------------- 1. Vinha: cada ação com o seu som ----------------
@@ -195,7 +200,7 @@ function suite(fontes) {
   // ---------------- 3. Adega ----------------
   {
     const casos = [
-      ['prensar', {}, {}, 'prensar'], ['destilarVinho', {}, {}, 'regar'], ['destilarBagaco', {}, { bagaco: 9 }, 'regar'],
+      ['prensar', {}, {}, PRENSA], ['destilarVinho', {}, {}, 'regar'], ['destilarBagaco', {}, { bagaco: 9 }, 'regar'],
       ['fortificar', {}, { aguardente: 4 }, 'prensar']
     ];
     casos.forEach(function (c) {
@@ -354,8 +359,8 @@ function suite(fontes) {
     const efeitos = g.json('Object.keys(SOM_EFEITOS)');
     const usados = [];
     (fontes['vinha.js'] + fontes['garrafa.js']).replace(/(?:SOM_ACAO_(?:VINHA|ADEGA) = \{)([^}]*)\}/g, function (m, corpo) { corpo.replace(/:\s*'(\w+)'/g, function (m2, n) { usados.push(n); }); return m; });
-    ok(usados.length >= 5 && usados.every(function (n) { return efeitos.indexOf(n) !== -1; }), 'todos os sons das ações existem em SOM_EFEITOS: ' + usados.join(','));
-    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 22, 'assets/sons não devia ter ficheiros novos (22: os 14 de antes, os 5 dos gestos e os 3 de São Martinho)');
+    ok(usados.length >= 4 && usados.every(function (n) { return efeitos.indexOf(n) !== -1; }), 'todos os sons das ações existem em SOM_EFEITOS: ' + usados.join(','));
+    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 23, 'assets/sons não devia ter ficheiros novos (23: os 14 de antes, os 5 dos gestos os 3 de São Martinho e a prensa)');
   }
 
   // ---------------- 8. 1.º toque: o áudio lança-se em cada toque enquanto não corre ----------------
@@ -408,7 +413,7 @@ function suite(fontes) {
     };
     // nome: [segundos mínimos, máximos, bytes máximos]
     const GESTOS = { 'cavar_pa.mp3': [1.0, 1.5, 20000], 'folhas_secas.mp3': [2.0, 3.0, 35000], 'rega.mp3': [2.5, 3.0, 35000],
-      'tesoura_podar.mp3': [0.5, 1.0, 15000], 'rolha.mp3': [0.7, 0.9, 12000] };
+      'tesoura_podar.mp3': [0.5, 1.0, 15000], 'rolha.mp3': [0.7, 0.9, 12000], 'prensa.mp3': [0.9, 1.2, 12000] };
     Object.keys(GESTOS).forEach(function (n) {
       const p = path.join(SONS_DIR, n), g = GESTOS[n];
       ok(fs.existsSync(p), n + ' devia existir em assets/sons');
@@ -421,6 +426,7 @@ function suite(fontes) {
     ['cavar_usar_uma_pa', 'folhas_secas_a_mexer', 'regar', 'rolha_sair_ware_Wine', 'tesoura_podar_curtar'].forEach(function (n) {
       ok(!fs.existsSync(path.join(RAIZ, n + '.mp3')), 'o original ' + n + '.mp3 devia ter saído da pasta principal');
     });
+    ok(!fs.existsSync(path.join(RAIZ, 'prensa.mp3')), 'o original prensa.mp3 devia ter saído da pasta principal');
     const g = abrir();
     const mapa = g.json('Object.keys(SOM_ACAO_VINHA).reduce(function (m, k) { var v = SOM_ACAO_VINHA[k]; m[k] = typeof v === "string" ? v : v.ficheiro.split("/").pop() + "@" + v.volume; return m; }, {})');
     ok(igual(mapa, { cavar: PA, plantar: PA, ervas: 'colher', regar: REGA, adubar: PA, compostagem: FOLHAS, colher: TESOURA, podar: TESOURA }), 'SOM_ACAO_VINHA devia ligar os gestos aos ficheiros certos, é ' + JSON.stringify(mapa));
@@ -430,7 +436,18 @@ function suite(fontes) {
     // A rolha só é usada pelo brinde da Cepa Roxa (js/roxo.js); mais nenhum ficheiro de js/ a nomeia.
     ok(Object.keys(fontes).every(function (k) { return /rolha\.mp3/.test(fontes[k]) === (k === 'roxo.js'); }), 'rolha.mp3 só devia ser usada em js/roxo.js');
     ok(/tocarSomDaAcao\(SOM_ACAO_ADEGA/.test(fontes['garrafa.js']) || /tocarSom\(SOM_ACAO_ADEGA\[acao\]\)/.test(fontes['garrafa.js']), 'a Adega continua com os efeitos feitos por código');
-    ok(Object.keys(g.json('SOM_ACAO_ADEGA')).every(function (k) { return typeof g.json('SOM_ACAO_ADEGA')[k] === 'string'; }), 'prensar, destilar e fortificar ficam com efeitos (strings)');
+    const ad = g.json('SOM_ACAO_ADEGA');
+    ok(ad.prensar && ad.prensar.ficheiro === 'assets/sons/prensa.mp3' && ad.prensar.volume === 0.7, 'prensar devia tocar assets/sons/prensa.mp3 a 0,7');
+    ok(ad.destilarVinho === 'regar' && ad.destilarBagaco === 'regar' && ad.fortificar === 'prensar', 'destilar e fortificar ficam com efeitos (fortificar não é prensar uvas)');
+    ok(Object.keys(fontes).every(function (k) { return /prensa\.mp3/.test(fontes[k]) === (k === 'garrafa.js'); }), 'prensa.mp3 só devia ser usada em js/garrafa.js');
+    // Entrar na Adega pré-carrega a prensa (com Som ligado), e não com Som desligado.
+    const pa = abrir();
+    pa.ev('PRE = []; somCarregarFicheiro = function (c) { PRE.push(c); };');
+    pa.ev('state.som = true; renderGarrafaScreen();');
+    ok(igual(pa.json('PRE'), ['assets/sons/prensa.mp3']), 'entrar na Adega devia pré-carregar a prensa, pré-carregou ' + pa.ev('JSON.stringify(PRE)'));
+    const pb = abrir();
+    pb.ev('PRE = []; somCarregarFicheiro = function (c) { PRE.push(c); }; state.som = false; renderGarrafaScreen();');
+    ok(igual(pb.json('PRE'), []), 'com o Som desligado a Adega não devia pré-carregar nada');
   }
 
   // ---------------- 8. Cepa Roxa: o brinde toca a rolha ----------------
@@ -524,9 +541,17 @@ const MUTANTES = [
   M('garrafa.js', "destilarVinho: 'regar'", "destilarVinho: 'prensar'", 'Destilar vinho com o som errado'),
   M('garrafa.js', "destilarBagaco: 'regar'", "destilarBagaco: 'cavar'", 'Destilar bagaço com o som errado'),
   M('garrafa.js', "fortificar: 'prensar'", "fortificar: 'regar'", 'Fortificar com o som errado'),
-  M('garrafa.js', "prensar: 'prensar'", "prensar: 'colher'", 'Prensar com o som errado'),
-  M('garrafa.js', "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSom(SOM_ACAO_ADEGA[acao]);", "if (SOM_ACAO_ADEGA[acao]) tocarSom(SOM_ACAO_ADEGA[acao]);", 'Adega toca por cima do ding'),
-  M('garrafa.js', "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSom(SOM_ACAO_ADEGA[acao]);", "", 'Adega sem som'),
+  M('garrafa.js', "prensar: SOM_ADEGA_PRENSA,", "prensar: 'colher',", 'Prensar com o som errado'),
+  M('garrafa.js', "prensar: SOM_ADEGA_PRENSA,", "prensar: 'prensar',", 'Prensar volta ao efeito'),
+  M('garrafa.js', "fortificar: 'prensar' }", "fortificar: SOM_ADEGA_PRENSA }", 'Fortificar toca a prensa de ficheiro'),
+  M('garrafa.js', "{ ficheiro: 'assets/sons/prensa.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/prensa.mp3', volume: 1 }", 'Prensa com o volume errado'),
+  M('garrafa.js', "{ ficheiro: 'assets/sons/prensa.mp3', volume: 0.7 }", "{ ficheiro: 'assets/sons/rolha.mp3', volume: 0.7 }", 'Prensa com o ficheiro errado'),
+  M('garrafa.js', "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSomDaAcao(SOM_ACAO_ADEGA[acao]);", "if (SOM_ACAO_ADEGA[acao]) tocarSomDaAcao(SOM_ACAO_ADEGA[acao]);", 'Adega toca por cima do ding'),
+  M('garrafa.js', "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSomDaAcao(SOM_ACAO_ADEGA[acao]);", "if (!dingAdega && SOM_ACAO_ADEGA[acao]) { tocarSomDaAcao(SOM_ACAO_ADEGA[acao]); tocarSomDaAcao(SOM_ACAO_ADEGA[acao]); }", 'A prensa toca duas vezes'),
+  M('garrafa.js', "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSomDaAcao(SOM_ACAO_ADEGA[acao]);", "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSom(SOM_ACAO_ADEGA[acao]);", 'Adega só toca efeitos'),
+  M('garrafa.js', "if (!dingAdega && SOM_ACAO_ADEGA[acao]) tocarSomDaAcao(SOM_ACAO_ADEGA[acao]);", "", 'Adega sem som'),
+  M('garrafa.js', "  if (typeof somPodeTocar === 'function' && somPodeTocar() && typeof somCarregarFicheiro === 'function') somCarregarFicheiro(SOM_ADEGA_PRENSA.ficheiro);\n", "", 'A Adega não pré-carrega a prensa'),
+  M('garrafa.js', "typeof somPodeTocar === 'function' && somPodeTocar() && typeof somCarregarFicheiro === 'function') somCarregarFicheiro(SOM_ADEGA_PRENSA", "typeof somPodeTocar === 'function' && typeof somCarregarFicheiro === 'function') somCarregarFicheiro(SOM_ADEGA_PRENSA", 'A Adega pré-carrega mesmo sem poder tocar'),
   M('estrada.js', "      tocarSom('objetivoCumprido'); // a troca", "      // a troca", 'Estrada Trocar sem som'),
   M('estrada.js', "        tocarSom('objetivoCumprido'); // a oferta", "        // a oferta", 'Estrada Oferecer sem som'),
   M('estrada.js', "      tocarSom('objetivoCumprido'); // a troca não é objetivo do dia: não há outro \"ding\"\n      estradaResultado", "      estradaResultado", 'Estrada Trocar sem som (2)'),

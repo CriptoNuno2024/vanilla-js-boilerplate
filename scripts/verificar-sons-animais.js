@@ -336,7 +336,7 @@ function suite(fontes) {
   ['festas.js', 'lagar.js', 'ronda.js'].forEach(function (f) {
     ok(!/porco_grunhir/.test(fontes[f]), 'js/' + f + ' não devia usar porco_grunhir.mp3 (nenhum texto o pede)');
   });
-  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 22, 'assets/sons devia ter 22 ficheiros (os 14 de sempre, os 5 dos gestos e os 3 de São Martinho)');
+  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 23, 'assets/sons devia ter 23 ficheiros (os 14 de sempre, os 5 dos gestos os 3 de São Martinho e a prensa)');
   { // Os 3 sons de São Martinho: existem, MP3 mono a 64 kbps, com a duração e o peso certos; os originais saíram da pasta principal
     const cab = function (buf) {
       let i = 0;
