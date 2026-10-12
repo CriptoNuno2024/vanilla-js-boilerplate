@@ -401,7 +401,7 @@ const FESTAS_STRINGS = {
       castanhasCenas: [
         { situacao: 'O Fygmo cheira o fumo das castanhas a assar e aproxima-se, faca e garfo já na mão.', opcoes: ['Tapar o assador com a tampa', 'Dar-lhe uma castanha, a sorrir', 'Fingir que não o viu e assobiar'], correta: 0 },
         { situacao: 'O Fygmo2 rasteja por baixo do banco, de olho nas castanhas mais douradas.', opcoes: ['Cantar-lhe uma canção de embalar', 'Chamar o Chizo com um assobio', 'Ir buscar mais lenha para a fogueira'], correta: 1 },
-        { situacao: 'Os dois porcos combinam um plano em surdina: um distrai, o outro rouba.', opcoes: ['Virar as costas e ir buscar castanhas', 'Pôr o Chizo mesmo ao pé do assador', 'Ler-lhes uma história para os acalmar'], correta: 1 },
+        { situacao: 'Os dois porcos combinam um plano em segredo: um distrai, o outro rouba.', opcoes: ['Virar as costas e ir buscar castanhas', 'Pôr o Chizo mesmo ao pé do assador', 'Ler-lhes uma história para os acalmar'], correta: 1 },
         { situacao: 'O cheiro das castanhas atrai também um bando de pardais, além dos porcos.', opcoes: ['Espantar só os pardais, não os porcos', 'Pôr uma rede grande à volta do assador', 'Assobiar alto para acordar o Chizo'], correta: 2 }
       ],
       castanhasVitoria: 'O Chizo acorda a tempo e ladra! O Fygmo e o Fygmo2 fogem a correr, de mãos a abanar — as castanhas estão salvas.',
@@ -434,8 +434,8 @@ const FESTAS_STRINGS = {
       castanhasSubtitulo: 'Chizo helps you defend the roaster',
       castanhasCenas: [
         { situacao: 'Fygmo smells the smoke of the roasting chestnuts and creeps closer, fork and knife already in paw.', opcoes: ['Cover the roaster with the lid', 'Offer him a chestnut with a smile', 'Pretend not to see him, whistling'], correta: 0 },
-        { situacao: 'Fygmo2 crawls under the bench, eyeing the goldenest chestnuts.', opcoes: ['Sing him a lullaby, nice and slow', 'Call Chizo over with a whistle', 'Go and fetch more firewood fast'], correta: 1 },
-        { situacao: 'The two pigs hatch a quiet plan: one distracts, the other steals.', opcoes: ['Turn your back to fetch more chestnuts', 'Bring Chizo right next to the roaster', 'Read them a story to calm them down'], correta: 1 },
+        { situacao: 'Fygmo2 crawls under the bench, eyeing the most golden chestnuts.', opcoes: ['Sing him a lullaby, nice and slow', 'Call Chizo over with a whistle', 'Go and fetch more firewood fast'], correta: 1 },
+        { situacao: 'The two pigs hatch a secret plan: one distracts, the other steals.', opcoes: ['Turn your back to fetch more chestnuts', 'Bring Chizo right next to the roaster', 'Read them a story to calm them down'], correta: 1 },
         { situacao: 'The smell of chestnuts also draws a flock of sparrows, on top of the pigs.', opcoes: ['Shoo the sparrows, ignore the pigs', 'Put a big net around the roaster', 'Whistle loudly to wake up Chizo'], correta: 2 }
       ],
       castanhasVitoria: 'Chizo wakes up just in time and barks! Fygmo and Fygmo2 run off empty-handed — the chestnuts are safe.',
