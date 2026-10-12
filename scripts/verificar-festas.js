@@ -1000,9 +1000,9 @@ function mutar(ficheiro, de, para) {
 }
 const MUTACOES = [
   ['Cenas: no Carnaval a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Reconhecer o Fygmo e pedir-lhe que largue os doces'", "'Reconhecer o Fygmo pelas orelhas e pedir-lhe, com bons modos, que deixe os doces em paz'"],
-  ['Cenas: no Natal as opções voltam a ficar desiguais (PT, cena 2)', 'festas.js', "'Pôr o bolo no alto do armário'", "'Pôr o bolo em cima do armário, fora do alcance'"],
+  ['Cenas: no Natal as opções voltam a ficar desiguais (PT, cena 2)', 'festas.js', "'Pôr o bolo em cima do armário, onde a cadeira não chega'", "'Pôr o bolo no armário'"],
   ['Cenas: no São Martinho a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Tapar o assador com a tampa antes que chegue'", "'Tapar o assador com a tampa de ferro, bem apertada, antes que ele chegue'"],
-  ['Cenas: no Natal a certa deixa de ser a mesma nas línguas (PT, cena 2)', 'festas.js', "'Ir buscar rabanadas para a mesa'], correta: 0", "'Ir buscar rabanadas para a mesa'], correta: 1"],
+  ['Cenas: no Natal a certa deixa de ser a mesma nas línguas (PT, cena 2)', 'festas.js', "'Afastar a cadeira devagar, com ele ainda lá em cima'], correta: 0", "'Afastar a cadeira devagar, com ele ainda lá em cima'], correta: 1"],
   ['Cenas: no São Martinho duas opções ficam iguais (EN, cena 4)', 'festas.js', "'Put a big net all the way around the roaster'", "'Shoo only the sparrows, they make the most noise'"],
   ['Páscoa: a janela começa na quinta-feira', 'festas.js', "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 }", "movel: { base: 'pascoa', inicioDias: -3, fimDias: 0, diaGrandeDias: 0 }"],
   ['Páscoa: o dia grande passa para sábado', 'festas.js', "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 }", "movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: -1 }"],
