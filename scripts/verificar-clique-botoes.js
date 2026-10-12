@@ -277,6 +277,17 @@ async function suite(fontes) {
     const f = jogador(); f.ev("festaAtual = function () { return FESTAS_CONFIG.filter(function (f) { return f.id === 'saomartinho'; })[0]; }; iniciarTarefaFesta('castanhas');");
     const rf = f.tocar(botao(['btn-choice']), function () { f.ev('responderCastanha(' + ((certa + 1) % 3) + ')'); });
     ok(igual(rf.sons, CLIQUE) && rf.ficheiros.length === 0, 'Castanhas, falhar: só o clique do botão (o resultado continua em silêncio), deu ' + JSON.stringify(rf));
+    // Cena de assobiar (2.ª): o assobio é um ficheiro, por isso o clique cala-se (e o ladrar fica à espera do fim do assobio)
+    const w = jogador(); w.ev("festaAtual = function () { return FESTAS_CONFIG.filter(function (f) { return f.id === 'saomartinho'; })[0]; }; iniciarTarefaFesta('castanhas'); castanhasCenaIndex = 1;");
+    const rw = w.tocar(botao(['btn-choice']), function () { w.ev('responderCastanha(1)'); });
+    ok(igual(rw.sons, []) && igual(rw.ficheiros, ['assets/sons/assobio_chizo.mp3']), 'Castanhas, cena de assobiar: só o assobio (sem clique), deu ' + JSON.stringify(rw));
+    // Prova do Vinho Novo com vinho: o tilintar cala o clique; sem vinho (silenciosa) só dá o clique
+    const p = jogador(); p.ev("festaAtual = function () { return FESTAS_CONFIG.filter(function (f) { return f.id === 'saomartinho'; })[0]; }; state.adega.lote = { iniciadoEm: " + AGORA + " };");
+    const rp = p.tocar(botao(), function () { p.ev("iniciarTarefaFesta('prova')"); });
+    ok(igual(rp.sons, []) && igual(rp.ficheiros, ['assets/sons/tilintar_copos.mp3']), 'Prova com vinho: só o tilintar (sem clique), deu ' + JSON.stringify(rp));
+    const q = jogador(); q.ev("festaAtual = function () { return FESTAS_CONFIG.filter(function (f) { return f.id === 'saomartinho'; })[0]; };");
+    const rq = q.tocar(botao(), function () { q.ev("iniciarTarefaFesta('prova')"); });
+    ok(igual(rq.sons, CLIQUE) && rq.ficheiros.length === 0, 'Prova sem vinho (silenciosa): só o clique, deu ' + JSON.stringify(rq));
   }
   { // Ronda do Chizo: Mandar não tem som (clique); meia taça tem o ding; o regresso (ao entrar na Quinta) ladra
     const g = jogador(); g.ev("rondaChizoMostrarPedido('mandar')");

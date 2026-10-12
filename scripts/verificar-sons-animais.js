@@ -6,6 +6,10 @@
 //     - Castanhas ganhas (castanhasVitoria: "ladra"): é o som da ação em vez do "ding"; se o "ding" do objetivo do dia
 //       vai tocar, o ladrar fica calado. Perder continua em silêncio. As outras tarefas das festas (Consoada, Bolo-Rei,
 //       Ovos...) não ladram: o texto de sucesso não o diz.
+//   São Martinho (js/festas.js, FESTA_SONS): fogueira.mp3 em ciclo, como ambiente, só durante a cena das castanhas (pára ao responder, ao voltar ao menu e
+//     ao sair do ecrã; nunca choca com o ambiente do tempo, que só toca na Quinta e na Vinha); nas castanhas ganhas em que a opção certa é assobiar (2.ª e 4.ª
+//     cenas, em PT, EN e ES) toca assobio_chizo.mp3 e SÓ QUANDO ACABA (evento ended) o Chizo ladra; nas outras ganhas ladra logo; falhar, nada; com o «ding»
+//     do objetivo do dia, só o «ding». Prova do Vinho Novo: tilintar_copos.mp3 só com vinho na Cave (em vez do «ding» genérico, nunca por cima do do objetivo).
 //   Engarrafar: se o "ding" do objetivo do dia toca, garrafa_engarrafar.mp3 não toca; sem objetivo, toca.
 //   Nunca dois sons; o "Som" do Perfil manda; porco_grunhir.mp3 só toca no Proteger (nenhum texto do Lagar ou das festas o pede).
 // Depois ESTRAGA as regras de propósito (mutantes). Uso: node scripts/verificar-sons-animais.js
@@ -58,7 +62,7 @@ function suite(fontes) {
     };
     const cx = vm.createContext(sb);
     vm.runInContext(`
-      var DINGS = [], FICH = [];
+      var DINGS = [], FICH = [], ACABAR = [], AMB = [], PRE = [];
       function t(k) { return k; }
       function mostrarFalas() {} function applyTranslations() {} function restaurarFundoDoEcraAtual() {} function vibrar() {} function updateStatsDisplays() {}
       function reposicionarFlutuantes() {} function atualizarCartaoObjetivosQuinta() {}
@@ -79,8 +83,12 @@ function suite(fontes) {
       // Os sons que se ouvem: efeitos (tocarSom REAL) e ficheiros (tocarSomFicheiro REAL, só se o "Som" deixa tocar).
       var _tocarReal = tocarSom;
       tocarSom = function (nome) { if (somPodeTocar() && SOM_EFEITOS[nome]) DINGS.push(nome); return _tocarReal(nome); };
-      tocarSomFicheiro = function (c, v) { if (somPodeTocar()) FICH.push([c, v]); };
-      renderAdega = function () {}; renderFestaHub = function () {}; renderEngarrafar = function () {};
+      tocarSomFicheiro = function (c, v, aoAcabar) { if (somPodeTocar()) { FICH.push([c, v]); if (aoAcabar) ACABAR.push(aoAcabar); } };
+      // Ambiente: só se regista (iniciar com o «Som» ligado, parar); pré-carga: só se regista o que se pede.
+      iniciarSomAmbiente = function (c, v, fade) { if (state.som) AMB.push(['ini', c, v, fade || null]); };
+      pararSomAmbiente = function () { AMB.push(['par']); };
+      somCarregarFicheiro = function (c) { PRE.push(c); return Promise.resolve(null); };
+      var _renderFestaHubReal = renderFestaHub; renderAdega = function () {}; renderFestaHub = function () {}; renderEngarrafar = function () {};
       estradaDesenhar = function () {}; lagarDesenhar = function () {};
       function randInt(a) { return a; }
       function diaLisboaDeHoje() { return '${DIA}'; }
@@ -90,15 +98,53 @@ function suite(fontes) {
     const g = { cx: cx };
     g.ev = function (c) { return vm.runInContext(c, cx); };
     g.json = function (c) { return JSON.parse(vm.runInContext('JSON.stringify(' + c + ')', cx)); };
-    g.limpar = function () { g.ev('DINGS = []; FICH = [];'); };
+    g.limpar = function () { g.ev('DINGS = []; FICH = []; ACABAR = []; AMB = []; PRE = [];'); };
     g.efeitos = function () { return g.json('DINGS'); };
     g.ficheiros = function () { return g.json('FICH'); };
+    g.ambiente = function () { return g.json('AMB'); };
+    g.acabar = function () { g.ev('ACABAR.length ? ACABAR.shift()() : null'); };
+    g.pendentes = function () { return g.ev('ACABAR.length'); };
     g.objetivos = function (ids) {
       if (ids.length === 0) ids = ['objetivo_que_nenhuma_acao_cumpre'];
       g.ev('garantirObjetivosDoDia(); state.objetivos.lista = ' + JSON.stringify(ids.map(function (id) { return { id: id, cumprido: false }; })) + '; state.objetivos.bonusDiaDado = false;');
     };
     g.cumprido = function (id) { return g.ev('state.objetivos.lista.filter(function (o) { return o.id === "' + id + '"; })[0].cumprido === true'); };
     return g;
+  }
+  // Só o som.js REAL (e o state.js) com fontes de áudio de mentira: para provar que o aoAcabar corre no evento 'ended' do ficheiro.
+  function abrirSom() {
+    const fontesAudio = [];
+    const sb = {
+      console: { log() {}, warn() {}, error() {} }, localStorage: { getItem: function () { return null; }, setItem: function () {}, removeItem: function () {} },
+      location: { search: '' }, URLSearchParams: URLSearchParams, Intl: Intl,
+      document: { hidden: false, addEventListener: function () {}, querySelector: function () { return null; }, querySelectorAll: function () { return []; }, getElementById: function () { return null; } },
+      setTimeout: function () { return 1; }, clearTimeout: function () {}, Image: function () {}
+    };
+    sb.window = sb; sb.addEventListener = function () {}; sb.Telegram = { WebApp: {} };
+    sb.AudioContext = function () {
+      const p = function () { return { value: 1, setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {}, cancelScheduledValues() {} }; };
+      const node = function () { return { connect() {}, start() {}, stop() {}, frequency: p(), gain: p(), type: '' }; };
+      return { state: 'running', currentTime: 0, sampleRate: 8000, destination: {}, resume: function () { return Promise.resolve(); }, suspend: function () { return Promise.resolve(); },
+        createGain: node, createBiquadFilter: node, createOscillator: node, createBuffer: function (c, n) { return { getChannelData: function () { return new Float32Array(n); } }; },
+        createBufferSource: function () { const f = { buffer: null, comecou: false, onended: null, connect() {}, start() { f.comecou = true; }, stop() {} }; fontesAudio.push(f); return f; } };
+    };
+    const cx = vm.createContext(sb);
+    ['state.js', 'som.js'].forEach(function (n) { vm.runInContext(fontes[n], cx, { filename: n }); });
+    // O carregamento do ficheiro é um "thenable" síncrono, que se pode atrasar (ATRASAR) e dar sem ficheiro (NULO).
+    vm.runInContext(`var NULO = false, ATRASAR = false, PEND = [];
+      somCarregarFicheiro = function (c) { var r = { then: function (f) { var d = function () { f(NULO ? null : { caminho: c }); }; if (ATRASAR) PEND.push(d); else d(); return r; } }; return r; };
+      state.som = true; somCriarContextoSePreciso();`, cx);
+    const m = { chamadas: [], nulo: false, cb: null };
+    m.ev = function (c) { return vm.runInContext(c, cx); };
+    m.fontes = function () { return fontesAudio.filter(function (f) { return f.comecou; }); };
+    m.tocar = function (caminho, aoAcabar) {
+      m.ev('NULO = ' + m.nulo + '; ATRASAR = ' + (!!m.cb) + ';');
+      sb.__cb = aoAcabar;
+      m.ev("tocarSomFicheiro('" + caminho + "', 0.5, __cb)");
+      if (m.cb) { m.cb(); m.ev('PEND.splice(0).forEach(function (d) { d(); })'); }
+      return { fontes: m.fontes() };
+    };
+    return m;
   }
   const jogador = function () {
     const g = abrir();
@@ -169,7 +215,7 @@ function suite(fontes) {
   { const g = jogador(); castanhasJogar(g, false); nada(g, 'Castanhas falhadas'); }
   { const g = jogador(); g.objetivos(['festa_tarefa']); castanhasJogar(g, false); nada(g, 'Castanhas falhadas com objetivo'); ok(g.cumprido('festa_tarefa'), 'Castanhas falhadas: o objetivo conta na mesma'); }
   { const g = jogador(); g.ev('state.som = false;'); castanhasJogar(g, true); nada(g, 'Castanhas ganhas com o Som desligado'); }
-  // As outras tarefas não ladram (o texto de sucesso não o diz): Consoada, Bolo-Rei, Ovos, Jeropiga, Prova.
+  // As outras tarefas não ladram (o texto de sucesso não o diz): Consoada, Bolo-Rei, Ovos, Jeropiga.
   { const g = jogador(); g.limpar(); g.ev('iniciarTarefaFesta("consoada")'.replace('iniciarTarefaFesta("consoada")', 'festaTarefaSimples(' + festa('natal') + ', festaTarefa(' + festa('natal') + ', "consoada"))'));
     so(g, ['objetivoCumprido'], [], 'Consoada (sem ladrar)'); }
   [['natal', 'boloRei'], ['pascoa', 'ovos'], ['carnaval', 'quemEstaMascarado']].forEach(function (c) {
@@ -179,7 +225,98 @@ function suite(fontes) {
     so(g, ['objetivoCumprido'], [], c[1] + ' ganho (sem ladrar)');
   });
   { const g = jogador(); g.limpar(); g.ev('fazerJeropiga(' + festa('saomartinho') + ')'); so(g, ['objetivoCumprido'], [], 'Jeropiga (sem ladrar)'); }
-  { const g = jogador(); g.ev('state.adega.lote = { iniciadoEm: ' + AGORA + ' };'); g.limpar(); g.ev('provarVinhoNovo(' + festa('saomartinho') + ')'); so(g, ['objetivoCumprido'], [], 'Prova (sem ladrar)'); }
+  { const g = jogador(); g.ev('state.adega.lote = { iniciadoEm: ' + AGORA + ' };'); g.limpar(); g.ev('provarVinhoNovo(' + festa('saomartinho') + ')'); so(g, [], [['assets/sons/tilintar_copos.mp3', 0.6]], 'Prova (o tilintar, sem ladrar)'); }
+
+  // ---------------- 3b. São Martinho: fogueira, assobio + ladrar, tilintar ----------------
+  const SM = festa('saomartinho');
+  const ASSOBIO = ['assets/sons/assobio_chizo.mp3', 0.7], TILINTAR = ['assets/sons/tilintar_copos.mp3', 0.6];
+  const FOGUEIRA = ['ini', 'assets/sons/fogueira.mp3', 0.35, { entrarS: 1.5, sairS: 1.0 }];
+  // Joga a cena k das castanhas: abre (fogueira), escolhe a opção certa (ou uma errada) e devolve o que ficou a tocar.
+  const cena = function (g, k, vence) {
+    g.ev('iniciarCastanhas(' + SM + '); castanhasCenaIndex = ' + k + ';');
+    const certa = g.ev('fStr("saomartinho").castanhasCenas[' + k + '].correta');
+    const aberta = g.ambiente();
+    g.limpar();
+    g.ev('responderCastanha(' + (vence ? certa : (certa + 1) % 3) + ')');
+    return aberta;
+  };
+  { // A fogueira liga ao abrir a cena e pára ao responder; o assobio e o ladrar nunca ao mesmo tempo
+    for (let k = 0; k < 4; k++) {
+      const assobia = k === 1 || k === 3;
+      const g = jogador(); const aberta = cena(g, k, true);
+      ok(igual(aberta, [FOGUEIRA]), 'cena ' + k + ': ao abrir devia ligar a fogueira (0,35, fade 1,5/1,0), ligou ' + JSON.stringify(aberta));
+      ok(igual(g.ambiente(), [['par']]), 'cena ' + k + ': ao mostrar o resultado a fogueira devia parar, fez ' + JSON.stringify(g.ambiente()));
+      if (assobia) {
+        ok(igual(g.efeitos(), []) && igual(g.ficheiros(), [ASSOBIO]) && g.pendentes() === 1, 'cena ' + k + ' (opção certa = assobiar): só o assobio, o ladrar à espera; tocou ' + JSON.stringify(g.ficheiros()));
+        g.acabar();
+        ok(igual(g.ficheiros(), [ASSOBIO, LADRAR]), 'cena ' + k + ': quando o assobio acaba o Chizo ladra, por esta ordem: ' + JSON.stringify(g.ficheiros()));
+      } else {
+        ok(igual(g.efeitos(), []) && igual(g.ficheiros(), [LADRAR]) && g.pendentes() === 0, 'cena ' + k + ' (sem assobio): só o ladrar, logo; tocou ' + JSON.stringify(g.ficheiros()));
+      }
+      const e = jogador(); cena(e, k, false);
+      nada(e, 'cena ' + k + ' falhada (inclui a opção errada de assobiar)'); ok(e.pendentes() === 0, 'cena ' + k + ' falhada: nada à espera');
+      const h = jogador(); h.objetivos(['festa_tarefa']); cena(h, k, true);
+      so(h, ['objetivoCumprido'], [], 'cena ' + k + ' com objetivo do dia: só o ding'); ok(h.pendentes() === 0, 'cena ' + k + ' com ding: nem assobio nem ladrar');
+      const m = jogador(); m.ev('state.som = false;'); const am = cena(m, k, true);
+      nada(m, 'cena ' + k + ' com o Som desligado'); ok(igual(am, []), 'cena ' + k + ' com o Som desligado: sem fogueira');
+    }
+    // Saiu do ecrã da festa enquanto o assobio tocava: o ladrar não toca
+    const g = jogador();
+    const p = jogador(); cena(p, 3, true); p.ev("document.querySelector = function () { return { id: 'screen-quinta' }; };"); const antes = p.ficheiros().length; p.acabar();
+    ok(p.ficheiros().length === antes, 'se já se saiu da festa, o ladrar depois do assobio não toca');
+    // Conferência pelos textos das 3 línguas: as cenas de assobiar são as 2.ª e a 4.ª (pela opção CERTA)
+    const L = { pt: /assobi/i, en: /whistl/i, es: /silb/i };
+    Object.keys(L).forEach(function (lg) {
+      const n = g.ev('FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas.length');
+      const cert = []; for (let k = 0; k < n; k++) { if (L[lg].test(g.ev('(function (c) { return c.opcoes[c.correta]; })(FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas[' + k + '])'))) cert.push(k); }
+      ok(igual(cert, g.json('FESTA_SONS.assobioCenas')), lg + ': as cenas em que a opção certa é assobiar são ' + JSON.stringify(cert) + ' e FESTA_SONS.assobioCenas é ' + JSON.stringify(g.json('FESTA_SONS.assobioCenas')));
+      // A única opção de assobiar ERRADA é na 1.ª cena (fica em silêncio)
+      const erradas = []; for (let k = 0; k < n; k++) { for (let o = 0; o < 3; o++) { if (o !== g.ev('FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas[' + k + '].correta') && L[lg].test(g.ev('FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas[' + k + '].opcoes[' + o + ']'))) erradas.push([k, o]); } }
+      ok(igual(erradas, [[0, 2]]), lg + ': a opção errada de assobiar devia ser só a da 1.ª cena (índice 2), é ' + JSON.stringify(erradas));
+    });
+  }
+  { // A fogueira: nunca fora das castanhas; pára ao voltar ao menu; cena já feita hoje não liga
+    const g = jogador(); g.ev('iniciarCastanhas(' + SM + ')'); g.limpar(); g.ev('_renderFestaHubReal()');
+    ok(igual(g.ambiente(), [['par']]), 'voltar ao menu da festa devia parar a fogueira, fez ' + JSON.stringify(g.ambiente()));
+    const f = jogador(); f.ev('iniciarCastanhas(' + SM + '); castanhasCenaIndex = 0; responderCastanha(0);'); f.limpar(); f.ev('iniciarCastanhas(' + SM + ')');
+    ok(!f.ambiente().some(function (a) { return a[0] === 'ini'; }), 'castanhas já feitas hoje: a fogueira não devia ligar');
+    const c = jogador(); c.limpar(); c.ev('festaTarefaSimples(' + festa('natal') + ', festaTarefa(' + festa('natal') + ', "consoada"))');
+    ok(!c.ambiente().some(function (a) { return a[0] === 'ini'; }), 'a Consoada não devia ligar a fogueira');
+    const j = jogador(); j.limpar(); j.ev('fazerJeropiga(' + SM + ')'); ok(!j.ambiente().some(function (a) { return a[0] === 'ini'; }), 'a Jeropiga não devia ligar a fogueira');
+    // Não choca com o ambiente do tempo: este só liga na Quinta e na Vinha
+    const t = jogador(); t.ev("_tempoAtual = condicaoDeTeste(20, 45, 'sol'); document.querySelector = function () { return { id: 'screen-festa' }; }; atualizarAmbienteExterior();");
+    ok(t.ambiente().length === 0, 'o ambiente do tempo não devia ligar no ecrã da festa, ligou ' + JSON.stringify(t.ambiente()));
+    ok(/SOM_TEMPO_ECRAS_EXTERIORES = \['screen-quinta', 'screen-vinha'\]/.test(fontes['tempo.js']), 'o tempo só toca na Quinta e na Vinha');
+  }
+  { // Prova do Vinho Novo: o tilintar só com vinho, nunca por cima do ding
+    const g = jogador(); g.ev('state.adega.lote = { iniciadoEm: ' + AGORA + ' };'); g.limpar(); g.ev('provarVinhoNovo(' + SM + ')');
+    so(g, [], [TILINTAR], 'Prova com vinho: só o tilintar (0,6)');
+    const h = jogador(); h.objetivos(['festa_tarefa']); h.ev('state.adega.lote = { iniciadoEm: ' + AGORA + ' };'); h.limpar(); h.ev('provarVinhoNovo(' + SM + ')');
+    so(h, ['objetivoCumprido'], [], 'Prova com o objetivo do dia: só o ding'); ok(h.cumprido('festa_tarefa'), 'Prova: o objetivo devia contar');
+    const s = jogador(); s.limpar(); s.ev('provarVinhoNovo(' + SM + ')'); nada(s, 'Prova sem vinho na Cave'); 
+    const r = jogador(); r.ev('state.adega.lote = { iniciadoEm: ' + AGORA + ' };'); r.ev('provarVinhoNovo(' + SM + ')'); r.limpar(); r.ev('provarVinhoNovo(' + SM + ')'); nada(r, 'Prova já feita hoje');
+    const m = jogador(); m.ev('state.som = false; state.adega.lote = { iniciadoEm: ' + AGORA + ' };'); m.limpar(); m.ev('provarVinhoNovo(' + SM + ')'); nada(m, 'Prova com o Som desligado');
+  }
+  { // Pré-carga ao entrar na festa de São Martinho (só com o Som a poder tocar); as outras festas não pedem nada
+    const g = jogador(); g.ev("festaAtual = function () { return " + SM + "; }; enterFesta();");
+    ok(igual(g.json('PRE').slice().sort(), ['assets/sons/assobio_chizo.mp3', 'assets/sons/chizo_ladrar.mp3', 'assets/sons/tilintar_copos.mp3']), 'entrar na festa devia pedir o assobio, o tilintar e o ladrar, pediu ' + JSON.stringify(g.json('PRE')));
+    const n = jogador(); n.ev("festaAtual = function () { return " + festa('natal') + "; }; enterFesta();"); ok(igual(n.json('PRE'), []), 'a festa de Natal não pede estes sons');
+    const m = jogador(); m.ev("state.som = false; festaAtual = function () { return " + SM + "; }; enterFesta();"); ok(igual(m.json('PRE'), []), 'com o Som desligado não se pede nada');
+  }
+  { // O mecanismo (som.js real): o ladrar só vem do 'ended' do assobio; sem ficheiro segue logo; sem Som não segue
+    const mini = abrirSom();
+    const r = mini.tocar('assets/sons/a.mp3', function () { mini.chamadas.push('depois'); });
+    ok(r.fontes.length === 1 && typeof r.fontes[0].onended === 'function', 'tocarSomFicheiro devia ligar o aoAcabar ao evento ended da fonte');
+    ok(!mini.chamadas.length, 'o aoAcabar não devia correr antes de o som acabar');
+    r.fontes[0].onended(); ok(igual(mini.chamadas, ['depois']), 'o aoAcabar devia correr quando o som acaba');
+    const sem = abrirSom(); sem.nulo = true; sem.tocar('assets/sons/a.mp3', function () { sem.chamadas.push('seguiu'); });
+    ok(igual(sem.chamadas, ['seguiu']), 'se o ficheiro não carregar, a sequência segue logo');
+    const mudo = abrirSom(); mudo.ev('state.som = false;'); mudo.tocar('assets/sons/a.mp3', function () { mudo.chamadas.push('x'); });
+    ok(!mudo.chamadas.length && mudo.fontes().length === 0, 'com o Som desligado nada toca nem segue');
+    const mid = abrirSom(); mid.cb = function () { mid.ev('state.som = false;'); }; mid.tocar('assets/sons/a.mp3', function () { mid.chamadas.push('x'); });
+    ok(!mid.chamadas.length && mid.fontes().length === 0, 'se o Som for desligado antes de o ficheiro carregar, nada toca nem segue');
+    const sem2 = abrirSom(); sem2.tocar('assets/sons/a.mp3'); ok(sem2.fontes().length === 1 && sem2.fontes()[0].onended === null, 'sem aoAcabar não há ended');
+  }
 
   // ---------------- 4. Engarrafar ----------------
   const engarrafar = function (g, dias) {
@@ -199,7 +336,34 @@ function suite(fontes) {
   ['festas.js', 'lagar.js', 'ronda.js'].forEach(function (f) {
     ok(!/porco_grunhir/.test(fontes[f]), 'js/' + f + ' não devia usar porco_grunhir.mp3 (nenhum texto o pede)');
   });
-  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 19, 'assets/sons devia ter 19 ficheiros (os 14 de sempre e os 5 dos gestos)');
+  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 22, 'assets/sons devia ter 22 ficheiros (os 14 de sempre, os 5 dos gestos e os 3 de São Martinho)');
+  { // Os 3 sons de São Martinho: existem, MP3 mono a 64 kbps, com a duração e o peso certos; os originais saíram da pasta principal
+    const cab = function (buf) {
+      let i = 0;
+      if (buf.slice(0, 3).toString('latin1') === 'ID3') i = 10 + (((buf[6] & 0x7f) << 21) | ((buf[7] & 0x7f) << 14) | ((buf[8] & 0x7f) << 7) | (buf[9] & 0x7f));
+      for (; i < buf.length - 4; i++) {
+        if (buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0) {
+          const v = (buf[i + 1] >> 3) & 3, c = (buf[i + 1] >> 1) & 3, b = buf[i + 2] >> 4;
+          if (v !== 3 || c !== 1 || b === 0 || b === 15) continue;
+          return { mono: ((buf[i + 3] >> 6) & 3) === 3, kbps: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320][b] };
+        }
+      }
+      return null;
+    };
+    const SMF = { 'fogueira.mp3': [23.5, 24.5, 200000], 'assobio_chizo.mp3': [0.6, 0.9, 8000], 'tilintar_copos.mp3': [0.7, 0.95, 8500] };
+    Object.keys(SMF).forEach(function (n) {
+      const p = path.join(RAIZ, 'assets', 'sons', n);
+      ok(fs.existsSync(p), n + ' devia existir');
+      if (!fs.existsSync(p)) return;
+      const b = fs.readFileSync(p), h = cab(b), seg = b.length / 8000;
+      ok(h && h.mono && h.kbps === 64, n + ' devia ser MP3 mono a 64 kbps, é ' + JSON.stringify(h));
+      ok(seg >= SMF[n][0] && seg <= SMF[n][1], n + ' devia durar ' + SMF[n][0] + ' a ' + SMF[n][1] + ' s, dura ' + seg.toFixed(2));
+      ok(b.length <= SMF[n][2], n + ' devia pesar no máximo ' + SMF[n][2] + ' bytes, pesa ' + b.length);
+    });
+    ['big_branching_fire', 'assobiar_chamar_chizo'].forEach(function (n) { ok(!fs.existsSync(path.join(RAIZ, n + '.mp3')), 'o original ' + n + '.mp3 devia ter saído da pasta principal'); });
+    ok(/goTo[\s\S]*?if \(idAnterior && idAnterior !== screen\) pararSomAmbiente\(\);/.test(fontes['main.js'] || LER('js/main.js')), 'goTo devia continuar a parar o ambiente ao sair de um ecrã');
+    ok(!/atualizarAmbienteExterior/.test(fontes['festas.js']), 'a festa não liga o ambiente do tempo');
+  }
   ok(/const SOM_CHIZO_LADRAR = 'assets\/sons\/chizo_ladrar\.mp3'/.test(fontes['som.js']) && /SOM_CHIZO_LADRAR_VOLUME = 0\.7/.test(fontes['som.js']), 'o ladrar devia ser chizo_ladrar.mp3 a 0,7');
   return falhas;
 }
@@ -219,14 +383,47 @@ const MUTANTES = [
   M('lagar.js', "if (r.venceu && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();", "if (typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();", 'Lagar ladra ao perder'),
   M('lagar.js', "if (r.venceu && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();", "if (r.venceu && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();\n      if (r.venceu) tocarSom('objetivoCumprido');", 'Lagar ladra e toca o ding (dois sons)'),
   M('lagar.js', "if (r.venceu && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();", "if (r.venceu && typeof tocarSom === 'function') tocarSom('objetivoCumprido');", 'Lagar volta ao ding'),
-  M('festas.js', "if (ladra && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();\n  else tocarSom('objetivoCumprido');", "tocarSom('objetivoCumprido');", 'Castanhas sem ladrar'),
+  M('festas.js', "  } else if (typeof tocarSomChizoLadrar === 'function') {\n    tocarSomChizoLadrar();\n  }\n}", "  }\n}", 'Castanhas ganhas sem assobio não ladram'),
   M('festas.js', "if (!ok || ding) return;", "if (!ok) return;", 'Castanhas ladram por cima do ding do objetivo'),
   M('festas.js', "if (!ok || ding) return;", "if (ding) return;", 'Festas tocam ao falhar'),
-  M('festas.js', "  festaSomTarefa(venceu, venceu);", "  festaSomTarefa(venceu, false);", 'Castanhas ganhas só com o ding'),
-  M('festas.js', "  festaSomTarefa(true);\n  saveState(state);\n  updateStatsDisplays();\n  festaMostrarResultado(festa, tarefa,\n    S[tarefa.id + 'Sucesso']", "  festaSomTarefa(true, true);\n  saveState(state);\n  updateStatsDisplays();\n  festaMostrarResultado(festa, tarefa,\n    S[tarefa.id + 'Sucesso']", 'Consoada e doces ladram'),
-  M('festas.js', "  festaSomTarefa(r.venceu);", "  festaSomTarefa(r.venceu, r.venceu);", 'Bolo-Rei, Ovos e Mascarados ladram'),
-  M('festas.js', "  festaSomTarefa(true);\n\n  const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');", "  festaSomTarefa(true, true);\n\n  const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');", 'Jeropiga ladra'),
+  M('festas.js', "festaSomTarefa(venceu, venceu ? function () { festaSomCastanhasVitoria(castanhasCenaIndex); } : null);", "festaSomTarefa(venceu, null);", 'Castanhas ganhas só com o ding'),
+  M('festas.js', "festaSomTarefa(venceu, venceu ? function () { festaSomCastanhasVitoria(castanhasCenaIndex); } : null);", "festaSomTarefa(true, function () { festaSomCastanhasVitoria(castanhasCenaIndex); });", 'Castanhas falhadas tocam'),
+  M('festas.js', "  if (typeof tocarAcao === 'function') tocarAcao();\n  else tocarSom('objetivoCumprido');", "  if (typeof tocarAcao === 'function') tocarAcao();\n  tocarSom('objetivoCumprido');", 'O som da ação e o ding genérico juntos'),
+  M('festas.js', "  festaSomTarefa(true);\n  saveState(state);\n  updateStatsDisplays();\n  festaMostrarResultado(festa, tarefa,\n    S[tarefa.id + 'Sucesso']", "  festaSomTarefa(true, function () { tocarSomChizoLadrar(); });\n  saveState(state);\n  updateStatsDisplays();\n  festaMostrarResultado(festa, tarefa,\n    S[tarefa.id + 'Sucesso']", 'Consoada e doces ladram'),
+  M('festas.js', "  festaSomTarefa(r.venceu);", "  festaSomTarefa(r.venceu, function () { tocarSomChizoLadrar(); });", 'Bolo-Rei, Ovos e Mascarados ladram'),
+  M('festas.js', "  festaSomTarefa(true);\n\n  const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');", "  festaSomTarefa(true, function () { tocarSomChizoLadrar(); });\n\n  const novaEntrada = desbloquearEntradaEnciclopedia('jeropiga');", 'Jeropiga ladra'),
   M('festas.js', "  castanhasVitoria", "  tocarSomFicheiro('assets/sons/porco_grunhir.mp3', 0.7); castanhasVitoria", 'Festas com o porco a grunhir'),
+  // Assobio e ladrar
+  M('festas.js', "assobioCenas: [1, 3]", "assobioCenas: [0, 1, 3]", 'Assobio também na cena em que assobiar é a opção errada'),
+  M('festas.js', "assobioCenas: [1, 3]", "assobioCenas: [1]", 'Assobio só numa cena'),
+  M('festas.js', "assobioCenas: [1, 3]", "assobioCenas: [3]", 'Assobio na cena errada'),
+  M('festas.js', "assobioCenas: [1, 3]", "assobioCenas: []", 'Sem assobio'),
+  M('festas.js', "FESTA_SONS.assobio.volume, festaLadrarSeAindaAqui);", "FESTA_SONS.assobio.volume); festaLadrarSeAindaAqui();", 'O ladrar começa em cima do assobio'),
+  M('festas.js', "FESTA_SONS.assobio.volume, festaLadrarSeAindaAqui);", "FESTA_SONS.assobio.volume);", 'O Chizo nunca ladra depois do assobio'),
+  M('festas.js', "  if (festaEcraAtivo() && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();", "  if (typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();", 'O Chizo ladra mesmo depois de sair da festa'),
+  M('festas.js', "assobio: { ficheiro: 'assets/sons/assobio_chizo.mp3', volume: 0.7 }", "assobio: { ficheiro: 'assets/sons/assobio_chizo.mp3', volume: 1 }", 'Assobio com o volume errado'),
+  M('festas.js', "assobio: { ficheiro: 'assets/sons/assobio_chizo.mp3'", "assobio: { ficheiro: 'assets/sons/tilintar_copos.mp3'", 'Assobio com o ficheiro errado'),
+  // Fogueira
+  M('festas.js', "  festaIniciarFogueira(); // o Assador a crepitar, só durante a cena\n", "", 'A fogueira nunca liga'),
+  M('festas.js', "  festaPararFogueira(); // o resultado final: a fogueira sai em fundo\n", "", 'A fogueira não pára no resultado'),
+  M('festas.js', "  festaPararFogueira(); // voltar ao menu da festa: a fogueira das castanhas acaba\n", "", 'A fogueira não pára ao voltar ao menu'),
+  M('festas.js', "fogueira: { ficheiro: 'assets/sons/fogueira.mp3', volume: 0.35, fade: { entrarS: 1.5, sairS: 1.0 } }", "fogueira: { ficheiro: 'assets/sons/fogueira.mp3', volume: 0.35 }", 'Fogueira sem fade'),
+  M('festas.js', "volume: 0.35, fade", "volume: 1, fade", 'Fogueira alta'),
+  M('festas.js', "fogueira: { ficheiro: 'assets/sons/fogueira.mp3'", "fogueira: { ficheiro: 'assets/sons/cave_porta.mp3'", 'Fogueira com o ficheiro errado'),
+  M('festas.js', "  festaSomTarefa(true);\n  saveState(state);\n  updateStatsDisplays();\n  festaMostrarResultado(festa, tarefa,\n    S[tarefa.id + 'Sucesso']", "  festaIniciarFogueira();\n  festaSomTarefa(true);\n  saveState(state);\n  updateStatsDisplays();\n  festaMostrarResultado(festa, tarefa,\n    S[tarefa.id + 'Sucesso']", 'A fogueira liga na Consoada'),
+  M('tempo.js', "['screen-quinta', 'screen-vinha']", "['screen-quinta', 'screen-vinha', 'screen-festa']", 'O ambiente do tempo liga na festa'),
+  // Prova
+  M('festas.js', "festaSomTarefa(true, festaSomProva);", "festaSomTarefa(true);", 'Prova só com o ding genérico'),
+  M('festas.js', "    festaMensagemAtual = S.provaSemVinho;\n", "    festaMensagemAtual = S.provaSemVinho;\n    festaSomProva();\n", 'Prova toca sem vinho'),
+  M('festas.js', "tilintar: { ficheiro: 'assets/sons/tilintar_copos.mp3', volume: 0.6 }", "tilintar: { ficheiro: 'assets/sons/tilintar_copos.mp3', volume: 1 }", 'Tilintar com o volume errado'),
+  M('festas.js', "tilintar: { ficheiro: 'assets/sons/tilintar_copos.mp3'", "tilintar: { ficheiro: 'assets/sons/assobio_chizo.mp3'", 'Tilintar com o ficheiro errado'),
+  // Pré-carga
+  M('festas.js', "  renderFestaHub();\n  festaPreCarregarSons(festa);\n", "  renderFestaHub();\n", 'Não pré-carrega ao entrar na festa'),
+  M('festas.js', "if (!festa || festa.id !== 'saomartinho') return;", "if (!festa) return;", 'Pré-carrega em todas as festas'),
+  M('festas.js', "if (typeof somPodeTocar !== 'function' || !somPodeTocar() || typeof somCarregarFicheiro !== 'function') return;", "if (typeof somCarregarFicheiro !== 'function') return;", 'Pré-carrega com o Som desligado'),
+  // som.js
+  M('som.js', "    if (aoAcabar) fonte.onended = aoAcabar;\n", "", 'O aoAcabar nunca corre'),
+  M('som.js', "    if (!buffer) { if (aoAcabar) aoAcabar(); return; }", "    if (!buffer) return;", 'Sem ficheiro a sequência não segue'),
   M('garrafa.js', "if (!adegaDingTocou) tocarSomFicheiro(", "if (true) tocarSomFicheiro(", 'Engarrafar toca o ficheiro por cima do ding'),
   M('garrafa.js', "if (!adegaDingTocou) tocarSomFicheiro(", "if (adegaDingTocou) tocarSomFicheiro(", 'Engarrafar só toca com ding'),
   M('garrafa.js', "  adegaDingTocou = dingAdega;\n", "", 'Engarrafar não guarda se houve ding'),

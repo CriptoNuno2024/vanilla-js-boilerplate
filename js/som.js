@@ -304,17 +304,22 @@ function somCarregarFicheiro(caminho) {
   return somFicheirosCache[caminho];
 }
 
-function tocarSomFicheiro(caminho, volume) {
+// aoAcabar (opcional): chamada quando o som acaba (evento 'ended' do Web Audio, com a duração real do ficheiro), para outro som
+// começar só depois deste e nunca por cima (ex.: o assobio e a seguir o Chizo a ladrar, js/festas.js). Se o ficheiro não carregar,
+// chama-a logo (a sequência segue); se o «Som» for desligado entretanto, não a chama.
+function tocarSomFicheiro(caminho, volume, aoAcabar) {
   if (!somPodeTocar()) return;
   somToques++;
   somCarregarFicheiro(caminho).then(function (buffer) {
-    if (!buffer || !somPodeTocar()) return;
+    if (!buffer) { if (aoAcabar) aoAcabar(); return; }
+    if (!somPodeTocar()) return;
     const fonte = somCtx.createBufferSource();
     fonte.buffer = buffer;
     const gain = somCtx.createGain();
     gain.gain.value = volume == null ? 1 : volume;
     fonte.connect(gain);
     gain.connect(somGainMestre);
+    if (aoAcabar) fonte.onended = aoAcabar;
     fonte.start();
   });
 }

@@ -11,7 +11,7 @@
 //   - o interruptor "Som" do Perfil manda (desligado = nada; desligar a meio pára);
 //   - só tempo.js liga estes ficheiros; só main.js (Quinta) e vinha.js (enterVinha) chamam atualizarAmbienteExterior;
 //   - os 3 ficheiros existem, são MP3 mono a 64 kbps com o peso certo (os grilos num ciclo de 70 s), o vento_feito_a_mao
-//     fica como estava e assets/sons tem 19 ficheiros (os 14 de antes e os 5 dos gestos).
+//     fica como estava e assets/sons tem 22 ficheiros (os 14 de antes, os 5 dos gestos e os 3 de São Martinho).
 // Depois ESTRAGA as regras de propósito (mutantes). Uso: node scripts/verificar-ambiente-vento.js
 const fs = require('fs');
 const path = require('path');
@@ -251,7 +251,7 @@ async function suite(fontes) {
     ok(seg >= p[2] && seg <= p[3], f + ' devia durar cerca de ' + p[2] + ' a ' + p[3] + ' s, dura ' + seg.toFixed(1));
   });
   ok(peso('vento_feito_a_mao.mp3') === 3579968, 'vento_feito_a_mao.mp3 devia ficar como estava (sem uso)');
-  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 19, 'assets/sons devia ter 19 ficheiros (14 de antes e os 5 dos gestos)');
+  ok(fs.readdirSync(path.join(RAIZ, 'assets/sons')).length === 22, 'assets/sons devia ter 22 ficheiros (14 de antes, 5 dos gestos e 3 de São Martinho)');
   return falhas;
 }
 

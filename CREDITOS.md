@@ -7,6 +7,8 @@ O vertido de vinho, o tilintar de copos e o borbulhar de fermentação da págin
 
 Os sons dos gestos da Vinha (a pá a cavar, as folhas secas a mexer, a água a regar, a tesoura a podar e a rolha a sair de uma garrafa de vinho) vêm também do BigSoundBank (CC0); a autoria de cada um está por confirmar pelo Nuno. Os originais (mono, 48 kHz, 320 kbps; 71 s, 3,3 s, 32 s, 13 s e 1,5 s) foram carregados na pasta principal a 11/10/2026 como `cavar_usar_uma_pa.mp3`, `folhas_secas_a_mexer.mp3`, `regar.mp3`, `tesoura_podar_curtar.mp3` e `rolha_sair_ware_Wine.mp3`, e já saíram de lá. Em `assets/sons/` ficam pedaços cortados (com fade), convertidos a MP3 mono de 64 kbps e normalizados para um nível parecido com os outros sons: `cavar_pa.mp3` (1,25 s, de 16,24 s a 17,49 s do original), `folhas_secas.mp3` (2,7 s, de 0,30 s a 3,00 s), `rega.mp3` (2,8 s, de 14,70 s a 17,50 s), `tesoura_podar.mp3` (0,8 s, de 7,68 s a 8,48 s) e `rolha.mp3` (de 0,72 s ao fim do original, 0,78 s: sem o silêncio do início, fica a rolha a deslizar e o «pop»; fades de 5 ms e 50 ms), que é o brinde da Cepa Roxa.
 
+Os sons de São Martinho (a fogueira a crepitar e o assobio para chamar o Chizo) vêm também do BigSoundBank (CC0), com autoria por confirmar pelo Nuno. Os originais (mono, 48 kHz, 320 kbps) foram carregados na pasta principal a 12/10/2026 como `big_branching_fire.mp3` (38 s, com silêncio e estalos fortes) e `assobiar_chamar_chizo.mp3` (4,2 s, com três assobios), e já saíram de lá. Em `assets/sons/` ficam: `fogueira.mp3` (ciclo de 24 s feito com o pedaço de 8,0 s a 35,0 s do original, o fim cruzado 3 s com o início para não haver salto, com os estalos comprimidos e o nível baixado e nivelado; MP3 mono 64 kbps), `assobio_chizo.mp3` (0,68 s, o 3.º assobio, de 3,27 s a 3,95 s do original, fades de 5 ms e 80 ms, normalizado) e `tilintar_copos.mp3` (0,77 s, o tilintar de copos que fecha `garrafa_engarrafar.mp3`, de 2,13 s a 2,90 s dessa gravação, fades de 5 ms e 50 ms, normalizado).
+
 O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, também do BigSoundBank (CC0): a porta tem autoria de Joseph Sardin & Axeline T.; para os passos, a página de origem está por confirmar pelo Nuno. Foram cortados, convertidos para mono e normalizados.
 
 ## Tipos de letra
@@ -178,6 +180,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 
 | Ficheiro | Onde se usa | Origem |
 |---|---|---|
+| `assets/sons/assobio_chizo.mp3` | As Castanhas de São Martinho (cenas em que se assobia ao Chizo) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
 | `assets/sons/cavar_pa.mp3` | Vinha (Cavar, Plantar, Adubar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
 | `assets/sons/folhas_secas.mp3` | Vinha (Compostar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
 | `assets/sons/rega.mp3` | Vinha (Regar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
@@ -187,6 +190,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 | `assets/sons/chizo_ladrar.mp3` | Proteger, história dos níveis | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/chuva.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/chuva_sempreritmo.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
+| `assets/sons/fogueira.mp3` | As Castanhas de São Martinho (ambiente em ciclo durante a cena) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado num ciclo de 24 s sem salto, mono 64 kbps e nivelado |
 | `assets/sons/garrafa_ambiente.mp3` | Adega / Cave / Coleção | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/garrafa_engarrafar.mp3` | Adega / Cave / Coleção | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/rolha.mp3` | A Cepa Roxa (botão «Brindar com o Moscatel Roxo»: toca em vez do «ding») | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado (sem o silêncio do início), mono 64 kbps e normalizado |
@@ -194,6 +198,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 | `assets/sons/vento_arvores_passaros.mp3` | Quinta e Vinha, dia calmo (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps |
 | `assets/sons/vento_grama_alta.mp3` | Quinta e Vinha, vento forte (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps |
 | `assets/sons/porco_grunhir.mp3` | Proteger | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
+| `assets/sons/tilintar_copos.mp3` | A Prova do Vinho Novo (São Martinho) | BigSoundBank, CC0 (corte de `garrafa_engarrafar.mp3`, por confirmar pelo Nuno); cortado, mono 64 kbps e normalizado |
 | `assets/sons/trovao_1.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/trovao_2_forte.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 

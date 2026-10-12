@@ -806,13 +806,72 @@ function atualizarFaixaFesta() {
 let festaMensagemAtual = '';
 let festaNovaEntrada = null;
 
+// ---------------------------------------------------------------------
+// SONS DE SÃO MARTINHO (ficheiros de assets/sons, mono 64 kbps; só as castanhas e a Prova, que são do São Martinho):
+//   fogueira      ambiente em ciclo (24 s) na cena das castanhas, a 0,35 com fade (um nível médio perto da chuva e dos grilos:
+//                 -40 dB); pára ao responder (resultado), ao voltar ao menu da festa e ao sair do ecrã (goTo pára o ambiente)
+//   assobio       0,7: nas castanhas ganhas em que a opção certa é assobiar (a 2.ª e a 4.ª cenas, nas 3 línguas: "Chamar o Chizo
+//                 com um assobio", "Assobiar alto para acordar o Chizo"); o Chizo ladra a seguir, só quando o assobio acaba
+//   tilintar      0,6: a Prova do Vinho Novo, só com vinho na Cave ("copo na mão")
+// Nas outras cenas ganhas o Chizo ladra logo (castanhasVitoria). Falhar fica em silêncio. Se o "ding" do objetivo do dia vai
+// tocar, só ele toca (festaSomTarefa). Os ficheiros curtos são pedidos ao entrar na festa.
+// ---------------------------------------------------------------------
+const FESTA_SONS = {
+  fogueira: { ficheiro: 'assets/sons/fogueira.mp3', volume: 0.35, fade: { entrarS: 1.5, sairS: 1.0 } },
+  assobio: { ficheiro: 'assets/sons/assobio_chizo.mp3', volume: 0.7 },
+  tilintar: { ficheiro: 'assets/sons/tilintar_copos.mp3', volume: 0.6 },
+  // Índices (0 a 3) das cenas das castanhas cuja opção CERTA é assobiar; iguais em PT, EN e ES (o teste confere pelo texto).
+  assobioCenas: [1, 3]
+};
+
+function festaEcraAtivo() {
+  const ativo = document.querySelector('.screen.active');
+  return !ativo || ativo.id === 'screen-festa'; // sem ecrã conhecido, conta como ativo
+}
+
+// O Chizo ladra a seguir ao assobio, quando este acaba (nunca por cima); se entretanto se saiu do ecrã da festa, não ladra.
+function festaLadrarSeAindaAqui() {
+  if (festaEcraAtivo() && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();
+}
+
+// O som de uma cena das castanhas ganha: assobio e depois o ladrar (cenas de assobiar), ou só o ladrar.
+function festaSomCastanhasVitoria(cenaIndex) {
+  if (FESTA_SONS.assobioCenas.indexOf(cenaIndex) !== -1 && typeof tocarSomFicheiro === 'function') {
+    tocarSomFicheiro(FESTA_SONS.assobio.ficheiro, FESTA_SONS.assobio.volume, festaLadrarSeAindaAqui);
+  } else if (typeof tocarSomChizoLadrar === 'function') {
+    tocarSomChizoLadrar();
+  }
+}
+
+function festaSomProva() {
+  if (typeof tocarSomFicheiro !== 'function') return;
+  tocarSomFicheiro(FESTA_SONS.tilintar.ficheiro, FESTA_SONS.tilintar.volume);
+}
+
+function festaIniciarFogueira() {
+  if (typeof iniciarSomAmbiente === 'function') iniciarSomAmbiente(FESTA_SONS.fogueira.ficheiro, FESTA_SONS.fogueira.volume, FESTA_SONS.fogueira.fade);
+}
+
+function festaPararFogueira() {
+  if (typeof pararSomAmbiente === 'function') pararSomAmbiente();
+}
+
+// Ao entrar na festa de São Martinho, com o "Som" a poder tocar: pede já os 3 sons curtos (assobio, tilintar, ladrar).
+function festaPreCarregarSons(festa) {
+  if (!festa || festa.id !== 'saomartinho') return;
+  if (typeof somPodeTocar !== 'function' || !somPodeTocar() || typeof somCarregarFicheiro !== 'function') return;
+  [FESTA_SONS.assobio.ficheiro, FESTA_SONS.tilintar.ficheiro, typeof SOM_CHIZO_LADRAR === 'string' ? SOM_CHIZO_LADRAR : 'assets/sons/chizo_ladrar.mp3']
+    .forEach(function (c) { somCarregarFicheiro(c); });
+}
+
 // Marca a tarefa da festa no objetivo do dia e dá o som da tarefa: um só, o "objetivoCumprido" (o "ding" do
 // objetivo, se vai tocar, ou o da ação). Falhar uma cena (ok = false) cumpre o objetivo na mesma, mas sem som.
-// ladra = true só nas castanhas ganhas (castanhasVitoria diz que o Chizo ladra): então o som da ação é o ladrar em vez do "ding".
-function festaSomTarefa(ok, ladra) {
+// tocarAcao (opcional): o som próprio da ação (as castanhas ganhas, a Prova), em vez do "ding" genérico, mas nunca por cima do "ding"
+// do objetivo do dia, que tem prioridade.
+function festaSomTarefa(ok, tocarAcao) {
   const ding = typeof marcarObjetivoCumprido === 'function' && marcarObjetivoCumprido('festa_tarefa', { semSom: !ok }) === true;
   if (!ok || ding) return;
-  if (ladra && typeof tocarSomChizoLadrar === 'function') tocarSomChizoLadrar();
+  if (typeof tocarAcao === 'function') tocarAcao();
   else tocarSom('objetivoCumprido');
 }
 
@@ -840,9 +899,11 @@ function enterFesta() {
     }
   }
   renderFestaHub();
+  festaPreCarregarSons(festa);
 }
 
 function renderFestaHub() {
+  festaPararFogueira(); // voltar ao menu da festa: a fogueira das castanhas acaba
   const container = document.getElementById('festa-container');
   const festa = festaAtual();
 
@@ -925,6 +986,7 @@ function iniciarCastanhas(festa) {
 
   definirFundo('foto', festa.imagens.castanhasRoubo);
   atualizarDialogo(cena.situacao, 'YoshiCat');
+  festaIniciarFogueira(); // o Assador a crepitar, só durante a cena
 }
 
 function responderCastanha(i) {
@@ -934,7 +996,7 @@ function responderCastanha(i) {
   const venceu = i === cena.correta;
 
   festaRegistarTarefaHoje(festa.id, 'castanhas');
-  festaSomTarefa(venceu, venceu);
+  festaSomTarefa(venceu, venceu ? function () { festaSomCastanhasVitoria(castanhasCenaIndex); } : null);
 
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const tempo = tempoAtual();
@@ -980,6 +1042,7 @@ function responderCastanha(i) {
 }
 
 function mostrarResultadoCastanhas(mensagem, foto, magustoDesbloqueado) {
+  festaPararFogueira(); // o resultado final: a fogueira sai em fundo
   const container = document.getElementById('festa-container');
   const S = fStr(castanhasFestaAtual.id);
   container.innerHTML =
@@ -1057,7 +1120,7 @@ function provarVinhoNovo(festa) {
   }
 
   festaRegistarTarefaHoje(festa.id, 'prova');
-  festaSomTarefa(true);
+  festaSomTarefa(true, festaSomProva); // o tilintar (só com vinho na Cave, já verificado acima), em vez do "ding" genérico
   const diaGrande = estaNoDiaGrandeFesta(festa);
   const repGanha = festaTarefa(festa, 'prova').premio.reputacao * (diaGrande ? festa.recompensas.multiplicadorDiaGrande : 1);
   state.reputacao += repGanha;
