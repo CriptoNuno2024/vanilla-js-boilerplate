@@ -20,6 +20,32 @@ const ler = function (f) { return fs.readFileSync(path.join(RAIZ, f), 'utf8'); }
 const NOVO = ler('js/proteger.js');
 let ANTES = null;
 try { ANTES = execFileSync('git', ['show', 'b2ea33f:js/proteger.js'], { cwd: RAIZ, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch (e) { ANTES = null; }
+// O js/proteger.js de b2ea33f tem os textos antigos da Fechadura (opções erradas e vitória). Pôr-lhe os de agora, para a comparação
+// continuar a provar só o que interessa: o passo novo não mexe na Fechadura (os textos reescritos em tom adulto não contam).
+const TEXTOS_FECHADURA = [
+  ["'Ir embora e voltar amanhã'", "'Deixar uma luz acesa e esperar que ele desista'"],
+  ["'Fechar os olhos e esperar que passe'", "'Esperar que ele abra a porta para o apanhar com as mãos na massa'"],
+  ["'Chamar o Fygmo pelo nome, a rir'", "'Descer devagar para os apanhar de surpresa'"],
+  ["'Deixar-lhe uma nota simpática'", "'Prender a porta com uma cadeira, por dentro'"],
+  ["'Ignorar e voltar a dormir'", "'Ignorar: com tantas trancas, ele não entra'"],
+  ["'Walk away and come back tomorrow'", "'Leave a light on and wait for him to give up'"],
+  ["'Close your eyes and hope it passes'", "'Wait for him to open the door and catch him red-handed'"],
+  ["\"Call out Fygmo's name, laughing\"", "'Creep down slowly to take them by surprise'"],
+  ["'Leave him a friendly note'", "'Wedge the door shut with a chair, from the inside'"],
+  ["'Ignore it and go back to sleep'", "\"Ignore it: with that many bolts, he won't get in\""],
+  ["'Irte y volver mañana'", "'Dejar una luz encendida y esperar a que desista'"],
+  ["'Cerrar los ojos y esperar que pase'", "'Esperar a que abra la puerta para pillarlo con las manos en la masa'"],
+  ["'Llamar al Fygmo por su nombre, riendo'", "'Bajar despacio para pillarlos por sorpresa'"],
+  ["'Dejarle una nota simpática'", "'Atrancar la puerta con una silla, por dentro'"],
+  ["'Ignorarlo y volver a dormir'", "'Ignorarlo: con tantos cerrojos, no entra'"],
+  ["'O Fygmo2 desiste, guarda o monóculo e foge pela vinha fora — a adega está a salvo.'", "'O Fygmo2 guarda o monóculo com a dignidade possível e retira-se pela vinha. A adega fica a salvo.'"],
+  ["'O Fygmo2 desiste, guarda o monóculo e foge pela vinha fora — a Reserva Especial está a salvo.'", "'O Fygmo2 guarda o monóculo com a dignidade possível e retira-se pela vinha. A Reserva Especial fica a salvo.'"],
+  ["'Fygmo2 gives up, puts away his monocle and flees across the vineyard — the winery is safe.'", "'Fygmo2 pockets his monocle with what dignity he can muster and withdraws through the vineyard. The winery stays safe.'"],
+  ["'Fygmo2 gives up, puts away his monocle and flees across the vineyard — the Special Reserve is safe.'", "'Fygmo2 pockets his monocle with what dignity he can muster and withdraws through the vineyard. The Special Reserve stays safe.'"],
+  ["'El Fygmo2 se rinde, guarda el monóculo y huye por el viñedo — la bodega está a salvo.'", "'El Fygmo2 guarda el monóculo con la dignidad que le queda y se retira por el viñedo. La bodega queda a salvo.'"],
+  ["'El Fygmo2 se rinde, guarda el monóculo y huye por el viñedo — la Reserva Especial está a salvo.'", "'El Fygmo2 guarda el monóculo con la dignidad que le queda y se retira por el viñedo. La Reserva Especial queda a salvo.'"]
+];
+if (ANTES) TEXTOS_FECHADURA.forEach(function (par) { ANTES = ANTES.split(par[0]).join(par[1]); });
 const HOJE = '2026-12-10';
 
 function abrir(src, opcoes) {
