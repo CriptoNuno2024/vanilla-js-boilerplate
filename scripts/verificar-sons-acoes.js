@@ -91,6 +91,7 @@ function suite(fontes) {
       var _efeitos = SOM_EFEITOS; var _tocarReal = tocarSom;
       tocarSom = function (nome) { if (somPodeTocar() && SOM_EFEITOS[nome]) SONS.push(nome); return _tocarReal(nome); };
       tocarSomFicheiro = function (c, v) { if (somPodeTocar()) FICH.push([c, v]); }; // ficheiros: só se contam (sem fetch)
+      iniciarSomAmbiente = function () {}; pararSomAmbiente = function () {}; somCarregarFicheiro = function () { return Promise.resolve(null); };
       renderVinha = function () {}; renderAdega = function () {}; renderFestaHub = function () {}; renderFestaHub = function () {};
       renderEstrada = function () {}; estradaDesenhar = function () {}; roxoDesenhar = function () {};
       function randInt(a) { return a; } // determinista (o state.js define um ao acaso)
@@ -317,7 +318,7 @@ function suite(fontes) {
     g = jogador({}, { bagaceira: 0, aguardente: 0 }); festa(g, 'saomartinho'); tarefa(g, 'jeropiga');
     ok(igual(g.sons(), []), 'jeropiga sem aguardente (recusado): silêncio');
     g = jogador({}, { lote: { iniciadoEm: AGORA } }); festa(g, 'saomartinho'); tarefa(g, 'prova');
-    ok(igual(g.sons(), ['objetivoCumprido']), 'prova do vinho novo: devia tocar objetivoCumprido, tocou ' + JSON.stringify(g.sons()));
+    ok(igual(g.sons(), []) && igual(g.ficheiros(), [['assets/sons/tilintar_copos.mp3', 0.6]]), 'prova do vinho novo: devia tocar só o tilintar, tocou ' + JSON.stringify([g.sons(), g.ficheiros()]));
     g = jogador({}, { lote: null }); festa(g, 'saomartinho'); tarefa(g, 'prova');
     ok(igual(g.sons(), []), 'prova sem vinho a descansar (recusado): silêncio');
   }
@@ -354,7 +355,7 @@ function suite(fontes) {
     const usados = [];
     (fontes['vinha.js'] + fontes['garrafa.js']).replace(/(?:SOM_ACAO_(?:VINHA|ADEGA) = \{)([^}]*)\}/g, function (m, corpo) { corpo.replace(/:\s*'(\w+)'/g, function (m2, n) { usados.push(n); }); return m; });
     ok(usados.length >= 5 && usados.every(function (n) { return efeitos.indexOf(n) !== -1; }), 'todos os sons das ações existem em SOM_EFEITOS: ' + usados.join(','));
-    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 19, 'assets/sons não devia ter ficheiros novos (19: os 14 de antes e os 5 dos gestos)');
+    ok(fs.readdirSync(path.join(RAIZ, 'assets', 'sons')).length === 22, 'assets/sons não devia ter ficheiros novos (22: os 14 de antes, os 5 dos gestos e os 3 de São Martinho)');
   }
 
   // ---------------- 8. 1.º toque: o áudio lança-se em cada toque enquanto não corre ----------------
@@ -533,7 +534,7 @@ const MUTANTES = [
   M('festas.js', "{ semSom: !ok }", "{}", 'Festas: falhar deixa o ding do objetivo'),
   M('festas.js', "if (!ok || ding) return;", "if (!ok) return;", 'Festas tocam por cima do ding'),
   M('festas.js', "  else tocarSom('objetivoCumprido');", "", 'Festas sem som'),
-  M('festas.js', "  festaSomTarefa(venceu, venceu);", "  festaSomTarefa(true, true);", 'Castanhas tocam ao falhar'),
+  M('festas.js', "festaSomTarefa(venceu, venceu ? function () { festaSomCastanhasVitoria(castanhasCenaIndex); } : null);", "festaSomTarefa(true, function () { festaSomCastanhasVitoria(castanhasCenaIndex); });", 'Castanhas tocam ao falhar'),
   M('festas.js', "  festaSomTarefa(r.venceu);", "  festaSomTarefa(true);", 'Cenas do dia tocam ao falhar'),
   M('objetivos.js', "  return !semSom;\n}", "  return false;\n}", 'marcarObjetivoCumprido nunca avisa do ding'),
   M('objetivos.js', "if (!semSom) tocarSom('objetivoCumprido');", "tocarSom('objetivoCumprido');", 'ding mesmo com semSom'),
