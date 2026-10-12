@@ -399,13 +399,13 @@ const FESTAS_STRINGS = {
       castanhasTitulo: 'O Assador de Castanhas',
       castanhasSubtitulo: 'O Chizo ajuda-te a defender o assador',
       castanhasCenas: [
-        { situacao: 'O Fygmo cheira o fumo das castanhas a assar e aproxima-se, faca e garfo já na mão.', opcoes: ['Tapar o assador com a tampa', 'Dar-lhe uma castanha, a sorrir', 'Fingir que não o viu e assobiar'], correta: 0 },
-        { situacao: 'O Fygmo2 rasteja por baixo do banco, de olho nas castanhas mais douradas.', opcoes: ['Cantar-lhe uma canção de embalar', 'Chamar o Chizo com um assobio', 'Ir buscar mais lenha para a fogueira'], correta: 1 },
-        { situacao: 'Os dois porcos combinam um plano em segredo: um distrai, o outro rouba.', opcoes: ['Virar as costas e ir buscar castanhas', 'Pôr o Chizo mesmo ao pé do assador', 'Ler-lhes uma história para os acalmar'], correta: 1 },
-        { situacao: 'O cheiro das castanhas atrai também um bando de pardais, além dos porcos.', opcoes: ['Espantar só os pardais, não os porcos', 'Pôr uma rede grande à volta do assador', 'Assobiar alto para acordar o Chizo'], correta: 2 }
+        { situacao: 'O assador está ao rubro e a primeira dúzia já abriu a casca. Do outro lado do muro, o Fygmo finge que vem só aquecer as mãos, mas não tira os olhos do tabuleiro.', opcoes: ['Tapar o assador com a tampa antes que chegue', 'Oferecer-lhe um copo de água-pé e puxar conversa', 'Fingir que não o vês e continuar a descascar'], correta: 0 },
+        { situacao: 'O Fygmo2 rasteja por baixo do banco, de olho nas castanhas mais douradas, com o ar de quem só procura uma moeda caída.', opcoes: ['Ir buscar lenha, que a fogueira está a baixar', 'Chamar o Chizo com um assobio curto e seco', 'Pousar o tabuleiro no muro, fora do alcance'], correta: 1 },
+        { situacao: 'Os dois porcos cochicham à parte: um distrai, o outro rouba. Já ensaiaram, vê-se.', opcoes: ['Virar as costas um instante para buscar castanhas', 'Pôr o Chizo mesmo ao pé do assador, a vigiar', 'Vigiar só o que distrai; o outro que desista'], correta: 1 },
+        { situacao: 'O cheiro das castanhas atrai um bando de pardais, e os porcos aproveitam a confusão.', opcoes: ['Espantar só os pardais, que fazem mais barulho', 'Pôr uma rede grande à volta de todo o assador', 'Assobiar alto para acordar o Chizo da soneca'], correta: 2 }
       ],
-      castanhasVitoria: 'O Chizo acorda a tempo e ladra! O Fygmo e o Fygmo2 fogem a correr, de mãos a abanar — as castanhas estão salvas.',
-      castanhasDerrota: 'Tarde demais... o Fygmo e o Fygmo2 fogem com um cartucho de castanhas quentes.',
+      castanhasVitoria: 'O Chizo ladra uma vez e o Fygmo e o Fygmo2 recuam de mãos a abanar: as castanhas ficam todas no tabuleiro.',
+      castanhasDerrota: 'Tarde demais: o Fygmo e o Fygmo2 fogem com um cartucho de castanhas ainda a fumegar, a soprar nos dedos. Há castanhas que valem a queimadura.',
       castanhasBonusVerao: ' Com este sol de São Martinho, o assador rendeu ainda mais castanhas!',
 
       jeropigaTitulo: 'A Jeropiga de São Martinho',
@@ -433,13 +433,13 @@ const FESTAS_STRINGS = {
       castanhasTitulo: 'The Chestnut Roaster',
       castanhasSubtitulo: 'Chizo helps you defend the roaster',
       castanhasCenas: [
-        { situacao: 'Fygmo smells the smoke of the roasting chestnuts and creeps closer, fork and knife already in paw.', opcoes: ['Cover the roaster with the lid', 'Offer him a chestnut with a smile', 'Pretend not to see him, whistling'], correta: 0 },
-        { situacao: 'Fygmo2 crawls under the bench, eyeing the most golden chestnuts.', opcoes: ['Sing him a lullaby, nice and slow', 'Call Chizo over with a whistle', 'Go and fetch more firewood fast'], correta: 1 },
-        { situacao: 'The two pigs hatch a secret plan: one distracts, the other steals.', opcoes: ['Turn your back to fetch more chestnuts', 'Bring Chizo right next to the roaster', 'Read them a story to calm them down'], correta: 1 },
-        { situacao: 'The smell of chestnuts also draws a flock of sparrows, on top of the pigs.', opcoes: ['Shoo the sparrows, ignore the pigs', 'Put a big net around the roaster', 'Whistle loudly to wake up Chizo'], correta: 2 }
+        { situacao: 'The roaster is red-hot and the first dozen have already split their shells. On the other side of the wall, Fygmo pretends he only came to warm his hands, but his eyes never leave the tray.', opcoes: ['Put the lid on the roaster before he gets close', 'Offer him a glass of água-pé and strike up a chat', 'Pretend you don\'t see him and keep peeling'], correta: 0 },
+        { situacao: 'Fygmo2 crawls under the bench, eyeing the most golden chestnuts, with the air of someone merely looking for a dropped coin.', opcoes: ['Fetch more firewood, the fire is getting low', 'Call Chizo over with a short, dry whistle', 'Set the tray on the wall, out of his reach'], correta: 1 },
+        { situacao: 'The two pigs whisper off to one side: one distracts, the other steals. They\'ve rehearsed it, you can tell.', opcoes: ['Turn your back a moment to fetch more chestnuts', 'Put Chizo right next to the roaster, on watch', 'Watch only the distracter; the other will give up'], correta: 1 },
+        { situacao: 'The smell of the chestnuts draws a flock of sparrows, and the pigs take advantage of the confusion.', opcoes: ['Shoo only the sparrows, they make the most noise', 'Put a big net all the way around the roaster', 'Whistle loudly to wake Chizo from his nap'], correta: 2 }
       ],
-      castanhasVitoria: 'Chizo wakes up just in time and barks! Fygmo and Fygmo2 run off empty-handed — the chestnuts are safe.',
-      castanhasDerrota: 'Too late... Fygmo and Fygmo2 escape with a bag of warm chestnuts.',
+      castanhasVitoria: 'Chizo barks once and Fygmo and Fygmo2 back off empty-handed: every chestnut stays on the tray.',
+      castanhasDerrota: 'Too late: Fygmo and Fygmo2 flee with a paper cone of chestnuts still steaming, blowing on their fingers. Some chestnuts are worth the burn.',
       castanhasBonusVerao: " With this St. Martin's summer sun, the roaster yielded even more chestnuts!",
 
       jeropigaTitulo: "St. Martin's Jeropiga",
@@ -467,13 +467,13 @@ const FESTAS_STRINGS = {
       castanhasTitulo: 'El Asador de Castañas',
       castanhasSubtitulo: 'El Chizo te ayuda a defender el asador',
       castanhasCenas: [
-        { situacao: 'El Fygmo huele el humo de las castañas asándose y se acerca, con tenedor y cuchillo ya en la pata.', opcoes: ['Tapar el asador con la tapa', 'Darle una castaña, sonriendo', 'Fingir que no lo ves y silbar'], correta: 0 },
-        { situacao: 'El Fygmo2 se arrastra bajo el banco, con la mirada puesta en las castañas más doradas.', opcoes: ['Cantarle una canción de cuna', 'Llamar al Chizo con un silbido', 'Ir a buscar más leña para el fuego'], correta: 1 },
-        { situacao: 'Los dos cerdos traman un plan en voz baja: uno distrae, el otro roba.', opcoes: ['Dar la espalda e ir a por castañas', 'Poner al Chizo junto al asador', 'Leerles un cuento para calmarlos'], correta: 1 },
-        { situacao: 'El olor de las castañas también atrae a una bandada de gorriones, además de los cerdos.', opcoes: ['Espantar gorriones e ignorar los cerdos', 'Poner una red grande alrededor del asador', 'Silbar fuerte para despertar al Chizo'], correta: 2 }
+        { situacao: 'El asador está al rojo y la primera docena ya ha abierto la cáscara. Al otro lado del muro, el Fygmo finge que solo viene a calentarse las manos, pero no le quita los ojos a la bandeja.', opcoes: ['Tapar el asador con la tapa antes de que llegue', 'Ofrecerle un vaso de aguapié y darle conversación', 'Hacer como que no lo ves y seguir pelando'], correta: 0 },
+        { situacao: 'El Fygmo2 se arrastra bajo el banco, con la mirada puesta en las castañas más doradas y el aire de quien solo busca una moneda caída.', opcoes: ['Ir a por leña, que el fuego está bajando', 'Llamar al Chizo con un silbido corto y seco', 'Dejar la bandeja en el muro, fuera de su alcance'], correta: 1 },
+        { situacao: 'Los dos cerdos cuchichean aparte: uno distrae, el otro roba. Lo han ensayado, se nota.', opcoes: ['Darles la espalda un momento para ir a por castañas', 'Poner al Chizo junto al asador, de vigilancia', 'Vigilar solo al que distrae; el otro desistirá'], correta: 1 },
+        { situacao: 'El olor de las castañas atrae a una bandada de gorriones, y los cerdos aprovechan la confusión.', opcoes: ['Espantar solo a los gorriones, que hacen más ruido', 'Poner una red grande alrededor de todo el asador', 'Silbar fuerte para despertar al Chizo dormido'], correta: 2 }
       ],
-      castanhasVitoria: '¡El Chizo se despierta a tiempo y ladra! El Fygmo y el Fygmo2 huyen corriendo con las patas vacías — las castañas están a salvo.',
-      castanhasDerrota: 'Demasiado tarde... el Fygmo y el Fygmo2 escapan con un cucurucho de castañas calientes.',
+      castanhasVitoria: 'El Chizo ladra una vez y el Fygmo y el Fygmo2 retroceden con las manos vacías: todas las castañas se quedan en la bandeja.',
+      castanhasDerrota: 'Demasiado tarde: el Fygmo y el Fygmo2 huyen con un cucurucho de castañas aún humeantes, soplándose los dedos. Hay castañas que valen la quemadura.',
       castanhasBonusVerao: ' ¡Con este sol del veranillo de San Martín, el asador rindió todavía más castañas!',
 
       jeropigaTitulo: 'La Jeropiga de San Martín',

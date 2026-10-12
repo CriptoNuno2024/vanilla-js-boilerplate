@@ -185,7 +185,7 @@ function suite(fontes) {
     ok(/'ronda\.ponte': 'Wuf\./.test(i18n) && /'ronda\.ponte': 'Woof\./.test(i18n) && /'ronda\.ponte': 'Guau\./.test(i18n), 'ronda.ponte devia começar por Wuf/Woof/Guau');
     ok(/'lagar\.assaltoVitoria': 'O Chizo ladra/.test(i18n) && /'lagar\.assaltoVitoria': 'Chizo barks/.test(i18n) && /'lagar\.assaltoVitoria': 'El Chizo ladra/.test(i18n), 'lagar.assaltoVitoria devia dizer que o Chizo ladra');
     const f = LER('js/festas.js');
-    ok(/castanhasVitoria: 'O Chizo acorda a tempo e ladra!/.test(f) && /castanhasVitoria: 'Chizo wakes up just in time and barks!/.test(f) && /castanhasVitoria: '¡El Chizo se despierta a tiempo y ladra!/.test(f), 'castanhasVitoria devia dizer que o Chizo ladra');
+    ok(/castanhasVitoria: 'O Chizo ladra/.test(f) && /castanhasVitoria: 'Chizo barks/.test(f) && /castanhasVitoria: 'El Chizo ladra/.test(f), 'castanhasVitoria devia dizer que o Chizo ladra');
   }
 
   // ---------------- 2. Lagar: defender a mesa ----------------
@@ -254,7 +254,7 @@ function suite(fontes) {
         ok(igual(g.efeitos(), []) && igual(g.ficheiros(), [LADRAR]) && g.pendentes() === 0, 'cena ' + k + ' (sem assobio): só o ladrar, logo; tocou ' + JSON.stringify(g.ficheiros()));
       }
       const e = jogador(); cena(e, k, false);
-      nada(e, 'cena ' + k + ' falhada (inclui a opção errada de assobiar)'); ok(e.pendentes() === 0, 'cena ' + k + ' falhada: nada à espera');
+      nada(e, 'cena ' + k + ' falhada (uma opção errada)'); ok(e.pendentes() === 0, 'cena ' + k + ' falhada: nada à espera');
       const h = jogador(); h.objetivos(['festa_tarefa']); cena(h, k, true);
       so(h, ['objetivoCumprido'], [], 'cena ' + k + ' com objetivo do dia: só o ding'); ok(h.pendentes() === 0, 'cena ' + k + ' com ding: nem assobio nem ladrar');
       const m = jogador(); m.ev('state.som = false;'); const am = cena(m, k, true);
@@ -270,9 +270,9 @@ function suite(fontes) {
       const n = g.ev('FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas.length');
       const cert = []; for (let k = 0; k < n; k++) { if (L[lg].test(g.ev('(function (c) { return c.opcoes[c.correta]; })(FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas[' + k + '])'))) cert.push(k); }
       ok(igual(cert, g.json('FESTA_SONS.assobioCenas')), lg + ': as cenas em que a opção certa é assobiar são ' + JSON.stringify(cert) + ' e FESTA_SONS.assobioCenas é ' + JSON.stringify(g.json('FESTA_SONS.assobioCenas')));
-      // A única opção de assobiar ERRADA é na 1.ª cena (fica em silêncio)
+      // Nenhuma opção ERRADA manda assobiar (falhar fica sempre em silêncio)
       const erradas = []; for (let k = 0; k < n; k++) { for (let o = 0; o < 3; o++) { if (o !== g.ev('FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas[' + k + '].correta') && L[lg].test(g.ev('FESTAS_STRINGS.saomartinho.' + lg + '.castanhasCenas[' + k + '].opcoes[' + o + ']'))) erradas.push([k, o]); } }
-      ok(igual(erradas, [[0, 2]]), lg + ': a opção errada de assobiar devia ser só a da 1.ª cena (índice 2), é ' + JSON.stringify(erradas));
+      ok(igual(erradas, []), lg + ': nenhuma opção errada devia mandar assobiar, mas há ' + JSON.stringify(erradas));
     });
   }
   { // A fogueira: nunca fora das castanhas; pára ao voltar ao menu; cena já feita hoje não liga
