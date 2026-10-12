@@ -5,6 +5,8 @@ Os sons reais do jogo (Chizo a ladrar, porco a grunhir, chuva normal e forte, tr
 
 O vertido de vinho, o tilintar de copos e o borbulhar de fermentação da página do lote vêm também do BigSoundBank (Joseph Sardin, CC0); foram cortados, convertidos e normalizados.
 
+Os sons dos gestos da Vinha (a pá a cavar, as folhas secas a mexer, a água a regar, a tesoura a podar e a rolha a sair de uma garrafa de vinho) vêm também do BigSoundBank (CC0); a autoria de cada um está por confirmar pelo Nuno. Os originais (mono, 48 kHz, 320 kbps; 71 s, 3,3 s, 32 s, 13 s e 1,5 s) foram carregados na pasta principal a 11/10/2026 como `cavar_usar_uma_pa.mp3`, `folhas_secas_a_mexer.mp3`, `regar.mp3`, `tesoura_podar_curtar.mp3` e `rolha_sair_ware_Wine.mp3`, e já saíram de lá. Em `assets/sons/` ficam pedaços cortados (com fade), convertidos a MP3 mono de 64 kbps e normalizados para um nível parecido com os outros sons: `cavar_pa.mp3` (1,25 s, de 16,24 s a 17,49 s do original), `folhas_secas.mp3` (2,7 s, de 0,30 s a 3,00 s), `rega.mp3` (2,8 s, de 14,70 s a 17,50 s), `tesoura_podar.mp3` (0,8 s, de 7,68 s a 8,48 s) e `rolha.mp3` (o ficheiro inteiro, 1,5 s).
+
 O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, também do BigSoundBank (CC0): a porta tem autoria de Joseph Sardin & Axeline T.; para os passos, a página de origem está por confirmar pelo Nuno. Foram cortados, convertidos para mono e normalizados.
 
 ## Tipos de letra
@@ -176,6 +178,10 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 
 | Ficheiro | Onde se usa | Origem |
 |---|---|---|
+| `assets/sons/cavar_pa.mp3` | Vinha (Cavar, Plantar, Adubar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
+| `assets/sons/folhas_secas.mp3` | Vinha (Compostar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
+| `assets/sons/rega.mp3` | Vinha (Regar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
+| `assets/sons/tesoura_podar.mp3` | Vinha (Colher, Podar) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; cortado, mono 64 kbps e normalizado |
 | `assets/sons/cave_passos.mp3` | Proteger (Escutar à porta) | BigSoundBank, CC0; página de origem por confirmar pelo Nuno |
 | `assets/sons/cave_porta.mp3` | Proteger (Escutar à porta) | BigSoundBank, CC0 (Joseph Sardin & Axeline T.) |
 | `assets/sons/chizo_ladrar.mp3` | Proteger, história dos níveis | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
@@ -183,6 +189,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 | `assets/sons/chuva_sempreritmo.mp3` | tempo real de Setúbal | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/garrafa_ambiente.mp3` | Adega / Cave / Coleção | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
 | `assets/sons/garrafa_engarrafar.mp3` | Adega / Cave / Coleção | origem a confirmar pelo Nuno (ver a nota sobre o BigSoundBank acima) |
+| `assets/sons/rolha.mp3` | ainda sem uso no código (nenhum texto fala de uma rolha a sair) | BigSoundBank, CC0; autoria por confirmar pelo Nuno; inteiro, mono 64 kbps e normalizado |
 | `assets/sons/prado_grilos_ras.mp3` | Quinta e Vinha, noite de verão (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps e cortado num ciclo de 70 s sem salto (fim cruzado com o início) |
 | `assets/sons/vento_arvores_passaros.mp3` | Quinta e Vinha, dia calmo (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps |
 | `assets/sons/vento_grama_alta.mp3` | Quinta e Vinha, vento forte (ambiente) | origem a confirmar pelo Nuno; comprimido para MP3 mono a 64 kbps |
