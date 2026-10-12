@@ -43,7 +43,7 @@ const PROTEGER_STRINGS = {
     tentarOutraVez: 'Tentar Outra Vez',
     fechadura: [
       { situacao: 'O Fygmo2 tira o monóculo e mede a fechadura da Reserva Especial milimetricamente, à procura do ponto fraco.', opcoes: ['Trocar a fechadura por um cadeado reforçado', 'Ir embora e voltar amanhã', 'Gritar "quem está aí?" às escuras'], correta: 0 },
-      { situacao: 'Um barulho de metal ecoa na cave — o Fygmo2 está a testar picos diferentes na fechadura.', opcoes: ['Ir dormir, deve ser só o vento', 'Colocar uma tranca extra na porta', 'Abrir a porta para ver quem é'], correta: 1 },
+      { situacao: 'Um barulho de metal ecoa na cave — o Fygmo2 está a testar ganzuas diferentes na fechadura.', opcoes: ['Ir dormir, deve ser só o vento', 'Colocar uma tranca extra na porta', 'Abrir a porta para ver quem é'], correta: 1 },
       { situacao: 'O Fygmo, escondido nas escadas da cave, aponta o binóculo e faz sinal ao Fygmo2 para avançar.', opcoes: ['Acender as luzes da adega de repente', 'Fechar os olhos e esperar que passe', 'Chamar o Fygmo pelo nome, a rir'], correta: 0 },
       { situacao: 'De monóculo posto, o Fygmo2 encosta o ouvido à fechadura da Reserva Especial para ouvir as engrenagens.', opcoes: ['Distraí-lo com um balde a cair ruidosamente', 'Deixar-lhe uma nota simpática', 'Ignorar e voltar a dormir'], correta: 0 }
     ],
@@ -51,7 +51,7 @@ const PROTEGER_STRINGS = {
     fechaduraSubtituloSemCave: 'A Fechadura da Adega',
     fechaduraSituacoesSemCave: [
       'O Fygmo2 tira o monóculo e mede a fechadura da adega, milimetricamente, à procura do ponto fraco.',
-      'Um barulho de metal ecoa na adega — o Fygmo2 está a testar picos diferentes na fechadura.',
+      'Um barulho de metal ecoa na adega — o Fygmo2 está a testar ganzuas diferentes na fechadura.',
       'O Fygmo, escondido atrás dos barris da adega, aponta o binóculo e faz sinal ao Fygmo2 para avançar.',
       'De monóculo posto, o Fygmo2 encosta o ouvido à fechadura da adega para ouvir as engrenagens.'
     ],
