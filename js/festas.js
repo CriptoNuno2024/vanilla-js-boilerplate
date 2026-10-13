@@ -123,6 +123,8 @@ const FESTAS_CONFIG = [
   },
   {
     id: 'pascoa',
+    // Entrada da Enciclopédia que abre ao entrar na festa.
+    entradaEnciclopedia: 'folar',
     // Data móvel: da Sexta-feira Santa ao Domingo de Páscoa (Páscoa menos 2 a 0 dias; o dia grande é o domingo).
     movel: { base: 'pascoa', inicioDias: -2, fimDias: 0, diaGrandeDias: 0 },
     imagens: {
@@ -139,7 +141,8 @@ const FESTAS_CONFIG = [
         premio: { reputacao: 5 } },
       { id: 'amendoas', onde: 'festa', regra: 'gastar_gotas', btn: 'btnAmendoas',
         premio: { custoGotas: 30, reputacao: 12 } },
-      { id: 'ovos', onde: 'festa', regra: 'cena_do_dia', btn: 'btnOvos',
+      // entradaEnciclopedia (opcional, numa tarefa): abre ao responder à cena, ganhe ou perca.
+      { id: 'ovos', onde: 'festa', regra: 'cena_do_dia', btn: 'btnOvos', entradaEnciclopedia: 'ovosAmendoas',
         premio: { reputacao: 6 } }
     ],
     recompensas: {

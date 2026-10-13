@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// Verifica as entradas de festas da Enciclopédia (js/explorar.js, ENCYCLOPEDIA_ENTRIES): 'consoada' e 'boloRei' (Natal), 'entrudo' e 'caretos' (Carnaval).
+// Verifica as entradas de festas da Enciclopédia (js/explorar.js, ENCYCLOPEDIA_ENTRIES): 'consoada' e 'boloRei' (Natal), 'entrudo' e 'caretos' (Carnaval), 'folar' e 'ovosAmendoas' (Páscoa).
 // Só LÊ js/, corre-os num ambiente simulado (vm): nunca toca em browser, Telegram nem conta real.
 //
-//   (a) as 3 línguas (pt, en, es) têm exatamente as mesmas entradas, pela mesma ordem, sem ids repetidos (30 hoje)
+//   (a) as 3 línguas (pt, en, es) têm exatamente as mesmas entradas, pela mesma ordem, sem ids repetidos (32 hoje)
 //   (b) as duas entradas existem nas 3 línguas, com o título e o texto pedidos palavra por palavra (os textos estão escritos
 //       à mão neste ficheiro, de propósito, para não dependerem do código que se verifica)
 //   (c) são manuais (o Explorar nunca as oferece), sem imagem, sem meses e sem estação
 //   (d) o Explorar não as oferece (entradasBloqueadas() nunca as devolve) e desbloquear-se uma só vez conta 1 de conhecimento
-//   (e) o «Sábio» (js/conquistas.js) e a medalha do Perfil (tituloEspecialDesbloqueado()) passam a exigir as 30 entradas
-//   (f) os desbloqueios (festas do Natal e do Carnaval e as tarefas do bolo-rei e do quem está mascarado) estão ligados em js/festas.js (a prova de comportamento está em verificar-festas.js)
+//   (e) o «Sábio» (js/conquistas.js) e a medalha do Perfil (tituloEspecialDesbloqueado()) passam a exigir as 32 entradas
+//   (f) os desbloqueios (festas do Natal, do Carnaval e da Páscoa e as tarefas do bolo-rei, do quem está mascarado e dos ovos) estão ligados em js/festas.js (a prova de comportamento está em verificar-festas.js)
 // No fim corre mutações: estraga js/explorar.js de propósito e confirma que este teste dá por isso.
 //
 // Uso: node scripts/verificar-enciclopedia-natal.js
@@ -22,30 +22,36 @@ const RAIZ = path.join(__dirname, '..');
 const EXPLORAR_JS = fs.readFileSync(path.join(RAIZ, 'js', 'explorar.js'), 'utf8');
 const CONQUISTAS_JS = fs.readFileSync(path.join(RAIZ, 'js', 'conquistas.js'), 'utf8');
 const FESTAS_JS = fs.readFileSync(path.join(RAIZ, 'js', 'festas.js'), 'utf8');
-const TOTAL = 30;
+const TOTAL = 32;
 
 const PEDIDO = {
   pt: {
     consoada: ['A Consoada', 'A consoada é a ceia da noite de 24 de dezembro, em que a família se reúne à mesa. O nome vem do latim consolata, «consolada». O prato mais típico é o bacalhau cozido com batatas e couves (em algumas zonas do Norte, o polvo), e as sobremesas são as rabanadas, os filhós e a aletria. Depois, há quem vá à Missa do Galo. O Chizo instala-se debaixo da mesa, à espera do que cair.'],
     boloRei: ['O Bolo-Rei', 'O bolo-rei é um bolo doce e redondo, cheio de frutas cristalizadas e frutos secos, que se come do Natal ao Dia de Reis, a 6 de janeiro. Chegou a Portugal no século XIX, vindo de França, e foi a Confeitaria Nacional, em Lisboa, que o introduziu. Tradicionalmente levava uma fava escondida: quem a encontrasse pagava o bolo seguinte. Um cálice de Moscatel de Setúbal, doce e com notas de mel e damasco seco, costuma acompanhar as sobremesas de Natal.'],
     entrudo: ['O Entrudo e o Carnaval', 'O Carnaval é a festa que vem mesmo antes da Quaresma, por isso cai sempre numa terça-feira, 47 dias antes da Páscoa. Em Portugal chamava-se Entrudo, que quer dizer «entrada» na Quaresma, e já se falava dele no século XIII. Antigamente brincava-se com água, farinha e ovos. Na Península de Setúbal, em Sesimbra, o Carnaval fecha com o Enterro do Bacalhau. Quem não se fantasia é o Chizo, que só aceita um laço.'],
-    caretos: ['Os Caretos de Podence', 'Em Podence, em Trás-os-Montes, os caretos saem à rua no Entrudo com fatos de franjas de lã coloridas, máscaras de metal e chocalhos à cintura. Correm e saltam pela aldeia e «chocalham» quem apanham. É uma festa de despedida do inverno, e a UNESCO reconheceu-a como Património Cultural Imaterial da Humanidade em 2019. As máscaras do Fygmo e do Fygmo2 são só de brincadeira, e nem sempre convencem.']
+    caretos: ['Os Caretos de Podence', 'Em Podence, em Trás-os-Montes, os caretos saem à rua no Entrudo com fatos de franjas de lã coloridas, máscaras de metal e chocalhos à cintura. Correm e saltam pela aldeia e «chocalham» quem apanham. É uma festa de despedida do inverno, e a UNESCO reconheceu-a como Património Cultural Imaterial da Humanidade em 2019. As máscaras do Fygmo e do Fygmo2 são só de brincadeira, e nem sempre convencem.'],
+    folar: ['O Folar', 'O folar é o pão da Páscoa em Portugal e a oferta tradicional dos padrinhos aos afilhados. Marca a fartura depois do jejum da Quaresma e muda de terra para terra: em Trás-os-Montes é de carne, com porco, presunto e enchidos; em Olhão é doce, de folhas, com canela e limão; há quem lhe junte um ovo cozido. É um símbolo de amizade e de reconciliação. O Chizo espera sempre pela sua fatia.'],
+    ovosAmendoas: ['O Ovo e as Amêndoas', 'O ovo é o símbolo da Páscoa porque lembra a vida nova: a casca fechada que se abre. Na Europa medieval ofereciam-se ovos cozidos e pintados, e os de chocolate só surgiram no século XIX, em França e na Alemanha. As amêndoas de Páscoa, doces e cobertas de açúcar, são um dos costumes mais antigos da época e homenageiam esse ovo. Em Ponta Delgada, nos Açores, ainda se fazem à mão em tachos de cobre, durante cerca de dez horas. O Fygmo2 jura que não provou nenhuma.']
   },
   en: {
     consoada: ['The Consoada', 'The consoada is the family supper on the night of 24 December. The word comes from the Latin consolata, "consoled". The most traditional dish is boiled salt cod with potatoes and cabbage (in some parts of the north, octopus), and dessert means rabanadas (a Portuguese take on French toast), filhós (fried dough) and aletria (sweet vermicelli pudding). Afterwards, some go to the Missa do Galo, the midnight mass. Chizo settles under the table, waiting for whatever falls.'],
     boloRei: ['The Bolo-Rei (King Cake)', 'The bolo-rei is a round, sweet cake full of candied fruit and dried nuts, eaten from Christmas to Epiphany on 6 January. It reached Portugal in the 19th century from France, introduced by Confeitaria Nacional in Lisbon. Traditionally it hid a dried fava bean: whoever found it paid for the next cake. A glass of Setúbal Moscatel, sweet with notes of honey and dried apricot, is a good match for Christmas desserts.'],
     entrudo: ['Carnival and the Entrudo', 'Carnival is the feast that comes right before Lent, so it always falls on a Tuesday, 47 days before Easter. In Portugal it was called the Entrudo, meaning the "entry" into Lent, and it is mentioned as far back as the 13th century. In the old days, people played with water, flour and eggs. On the Setúbal Peninsula, in Sesimbra, Carnival ends with the Enterro do Bacalhau, the "Burial of the Cod". The one who never dresses up is Chizo, who only accepts a bow.'],
-    caretos: ['The Caretos of Podence', 'In Podence, in Trás-os-Montes, the caretos take to the streets at the Entrudo in suits with colourful wool fringes, metal masks and bells at the waist. They run and leap through the village and "shake their bells" at whoever they catch. It is a farewell to winter, and UNESCO recognised it as Intangible Cultural Heritage of Humanity in 2019. The masks of Fygmo and Fygmo2 are only for fun, and they don\'t always fool anyone.']
+    caretos: ['The Caretos of Podence', 'In Podence, in Trás-os-Montes, the caretos take to the streets at the Entrudo in suits with colourful wool fringes, metal masks and bells at the waist. They run and leap through the village and "shake their bells" at whoever they catch. It is a farewell to winter, and UNESCO recognised it as Intangible Cultural Heritage of Humanity in 2019. The masks of Fygmo and Fygmo2 are only for fun, and they don\'t always fool anyone.'],
+    folar: ['The Folar', "The folar is Portugal's Easter bread and the traditional gift from godparents to their godchildren. It marks the plenty after the fast of Lent and changes from place to place: in Trás-os-Montes it is a meat bread, with pork, ham and smoked sausages; in Olhão it is sweet and flaky, with cinnamon and lemon; some add a boiled egg. It is a symbol of friendship and reconciliation. Chizo always waits for his slice."],
+    ovosAmendoas: ['The Egg and the Easter Almonds', "The egg is a symbol of Easter because it stands for new life: the closed shell that opens. In medieval Europe, people gave each other painted boiled eggs, and chocolate ones only appeared in the 19th century, in France and Germany. Easter almonds, sweet and sugar-coated, are one of the oldest customs of the season and pay tribute to that egg. In Ponta Delgada, in the Azores, they are still made by hand in copper pots, over about ten hours. Fygmo2 swears he didn't taste a single one."]
   },
   es: {
     consoada: ['La Consoada', 'La consoada es la cena de la noche del 24 de diciembre, en la que la familia se reúne a la mesa. El nombre viene del latín consolata, «consolada». El plato más típico es el bacalao cocido con patatas y col (en algunas zonas del norte, el pulpo), y de postre hay rabanadas, filhós (masa frita) y aletria (pudin dulce de fideos). Después, algunos van a la Misa del Gallo. Chizo se acomoda debajo de la mesa, esperando lo que caiga.'],
     boloRei: ['El Bolo-Rei (roscón de Reyes portugués)', 'El bolo-rei es un bizcocho dulce y redondo, lleno de fruta confitada y frutos secos, que se come desde Navidad hasta el Día de Reyes, el 6 de enero. Llegó a Portugal en el siglo XIX desde Francia, y fue la Confeitaria Nacional, en Lisboa, quien lo introdujo. Tradicionalmente llevaba un haba escondida: quien la encontraba pagaba el siguiente bolo. Una copa de Moscatel de Setúbal, dulce y con notas de miel y orejón, suele acompañar los postres navideños.'],
     entrudo: ['El Entrudo y el Carnaval', 'El Carnaval es la fiesta que llega justo antes de la Cuaresma, por eso cae siempre en martes, 47 días antes de la Pascua. En Portugal se llamaba Entrudo, que significa «entrada» en la Cuaresma, y ya se hablaba de él en el siglo XIII. Antiguamente se jugaba con agua, harina y huevos. En la Península de Setúbal, en Sesimbra, el Carnaval se cierra con el Enterro do Bacalhau, el «Entierro del Bacalao». Quien no se disfraza es Chizo, que solo acepta un lazo.'],
-    caretos: ['Los Caretos de Podence', 'En Podence, en Trás-os-Montes, los caretos salen a la calle en el Entrudo con trajes de flecos de lana de colores, máscaras de metal y cascabeles en la cintura. Corren y saltan por el pueblo y «hacen sonar los cascabeles» a quien atrapan. Es una fiesta de despedida del invierno, y la UNESCO la reconoció como Patrimonio Cultural Inmaterial de la Humanidad en 2019. Las máscaras de Fygmo y Fygmo2 son solo de broma, y no siempre convencen.']
+    caretos: ['Los Caretos de Podence', 'En Podence, en Trás-os-Montes, los caretos salen a la calle en el Entrudo con trajes de flecos de lana de colores, máscaras de metal y cascabeles en la cintura. Corren y saltan por el pueblo y «hacen sonar los cascabeles» a quien atrapan. Es una fiesta de despedida del invierno, y la UNESCO la reconoció como Patrimonio Cultural Inmaterial de la Humanidad en 2019. Las máscaras de Fygmo y Fygmo2 son solo de broma, y no siempre convencen.'],
+    folar: ['El Folar', 'El folar es el pan de Pascua de Portugal y el regalo tradicional de los padrinos a sus ahijados. Marca la abundancia después del ayuno de la Cuaresma y cambia de un lugar a otro: en Trás-os-Montes es de carne, con cerdo, jamón y embutidos; en Olhão es dulce y de hojaldre, con canela y limón; hay quien le añade un huevo cocido. Es un símbolo de amistad y de reconciliación. Chizo siempre espera su porción.'],
+    ovosAmendoas: ['El Huevo y las Almendras de Pascua', 'El huevo es un símbolo de la Pascua porque representa la vida nueva: la cáscara cerrada que se abre. En la Europa medieval se regalaban huevos cocidos y pintados, y los de chocolate solo aparecieron en el siglo XIX, en Francia y Alemania. Las almendras de Pascua, dulces y cubiertas de azúcar, son una de las costumbres más antiguas de la época y rinden homenaje a ese huevo. En Ponta Delgada, en las Azores, todavía se hacen a mano en calderos de cobre, durante unas diez horas. Fygmo2 jura que no probó ni una.']
   }
 };
 const LINGUAS = ['pt', 'en', 'es'];
-const IDS_NATAL = ['consoada', 'boloRei', 'entrudo', 'caretos']; // as 4 entradas de festas (Natal e Carnaval)
+const IDS_NATAL = ['consoada', 'boloRei', 'entrudo', 'caretos', 'folar', 'ovosAmendoas']; // as 6 entradas de festas (Natal, Carnaval e Páscoa)
 
 function J(x) { return JSON.stringify(x); }
 
@@ -114,11 +120,11 @@ function correr(explorarJs, festasJs) {
   const todas = g.json('ENCYCLOPEDIA_ENTRIES.pt.map(function (e) { return e.id; })');
   const antigas = todas.filter(function (id) { return IDS_NATAL.indexOf(id) === -1; });
   g.ev('state.encyclopedia.unlocked = ' + J(antigas));
-  ok(antigas.length === TOTAL - 4 && sabio() === false && g.ev('tituloEspecialDesbloqueado()') === false, '(e) com as ' + (TOTAL - 4) + ' de antes já não chega para o «Sábio» nem para a medalha');
-  g.ev('state.encyclopedia.unlocked = ' + J(antigas.concat(['consoada', 'boloRei', 'entrudo'])));
-  ok(sabio() === false && g.ev('tituloEspecialDesbloqueado()') === false, '(e) com 29 ainda não chega');
+  ok(antigas.length === TOTAL - 6 && sabio() === false && g.ev('tituloEspecialDesbloqueado()') === false, '(e) com as ' + (TOTAL - 6) + ' de antes já não chega para o «Sábio» nem para a medalha');
+  g.ev('state.encyclopedia.unlocked = ' + J(antigas.concat(['consoada', 'boloRei', 'entrudo', 'caretos', 'folar'])));
+  ok(sabio() === false && g.ev('tituloEspecialDesbloqueado()') === false, '(e) com 31 ainda não chega');
   g.ev('state.encyclopedia.unlocked = ' + J(todas));
-  ok(sabio() === true && g.ev('tituloEspecialDesbloqueado()') === true, '(e) com as 30 o «Sábio» e a medalha voltam');
+  ok(sabio() === true && g.ev('tituloEspecialDesbloqueado()') === true, '(e) com as 32 o «Sábio» e a medalha voltam');
 
   // (f) ligação dos desbloqueios em js/festas.js
   const f = vm.createContext({ console: { log() {} } });
@@ -127,13 +133,15 @@ function correr(explorarJs, festasJs) {
     const cfg = f.__cfg || [];
     const festa = function (id) { return cfg.filter(function (x) { return x.id === id; })[0]; };
     const tarefa = function (f, id) { return f && f.tarefas.filter(function (t) { return t.id === id; })[0]; };
-    const natal = festa('natal'), carnaval = festa('carnaval');
+    const natal = festa('natal'), carnaval = festa('carnaval'), pascoa = festa('pascoa');
     ok(natal && natal.entradaEnciclopedia === 'consoada', '(f) a festa do Natal devia abrir a consoada ao entrar');
     ok(tarefa(natal, 'boloRei') && tarefa(natal, 'boloRei').entradaEnciclopedia === 'boloRei', '(f) a tarefa do bolo-rei devia abrir o boloRei');
     ok(carnaval && carnaval.entradaEnciclopedia === 'entrudo', '(f) a festa do Carnaval devia abrir o entrudo ao entrar');
     ok(tarefa(carnaval, 'quemEstaMascarado') && tarefa(carnaval, 'quemEstaMascarado').entradaEnciclopedia === 'caretos', '(f) a tarefa quemEstaMascarado devia abrir os caretos');
-    ok(cfg.filter(function (x) { return x.id !== 'saomartinho' && x.id !== 'natal' && x.id !== 'carnaval' && x.entradaEnciclopedia; }).length === 0, '(f) as outras festas (Páscoa, ...) não abrem entradas');
-    ok(cfg.every(function (x) { return x.tarefas.every(function (t) { return !t.entradaEnciclopedia || (x.id === 'natal' && t.id === 'boloRei') || (x.id === 'carnaval' && t.id === 'quemEstaMascarado'); }); }), '(f) só o bolo-rei e o quem está mascarado abrem uma entrada (o corso, as fantasias, a consoada e os doces não)');
+    ok(pascoa && pascoa.entradaEnciclopedia === 'folar', '(f) a festa da Páscoa devia abrir o folar ao entrar');
+    ok(tarefa(pascoa, 'ovos') && tarefa(pascoa, 'ovos').entradaEnciclopedia === 'ovosAmendoas', '(f) a tarefa dos ovos devia abrir o ovosAmendoas');
+    ok(cfg.filter(function (x) { return x.id !== 'saomartinho' && x.id !== 'natal' && x.id !== 'carnaval' && x.id !== 'pascoa' && x.entradaEnciclopedia; }).length === 0, '(f) não há outras festas a abrir entradas');
+    ok(cfg.every(function (x) { return x.tarefas.every(function (t) { return !t.entradaEnciclopedia || (x.id === 'natal' && t.id === 'boloRei') || (x.id === 'carnaval' && t.id === 'quemEstaMascarado') || (x.id === 'pascoa' && t.id === 'ovos'); }); }), '(f) só o bolo-rei, o quem está mascarado e os ovos abrem uma entrada (a consoada, os doces, o corso, as fantasias, a tarefa do folar e as amêndoas não)');
   } catch (e) { ok(false, '(f) FESTAS_CONFIG não carrega: ' + e.message); }
   return falhas;
 }
@@ -167,7 +175,8 @@ LINGUAS.forEach(function (l) {
     }), FESTAS_JS]);
     // uma palavra do texto muda
     mutacoes.push(['uma palavra do texto de ' + id + ' em ' + l + ' muda', noBloco(l, function (b) {
-      const texto = PEDIDO[l][id][1].replace(/'/g, "\\'"); // no código, os apóstrofos vão escapados (texto com aspas duplas e apóstrofo)
+      const cru = PEDIDO[l][id][1], escapado = cru.replace(/'/g, "\\'"); // no código, o apóstrofo vai escapado (aspas simples) ou cru (aspas duplas)
+      const texto = b.indexOf(cru) !== -1 ? cru : escapado;
       const i = b.indexOf(texto);
       return i === -1 ? null : b.replace(texto, texto.replace(/ (\S+)\.$/, ' outra.'));
     }), FESTAS_JS]);
@@ -180,7 +189,7 @@ LINGUAS.forEach(function (l) {
     mutacoes.push(['a entrada ' + id + ' em ' + l + ' ganha meses', noBloco(l, function (b) { return trocar(b, "{ id: '" + id + "', manual: true,", "{ id: '" + id + "', manual: true, meses: [12],"); }), FESTAS_JS]);
   });
   // ids trocados entre línguas (a ordem deixa de bater)
-  [['consoada', 'boloRei'], ['entrudo', 'caretos'], ['boloRei', 'entrudo']].forEach(function (par) {
+  [['consoada', 'boloRei'], ['entrudo', 'caretos'], ['boloRei', 'entrudo'], ['caretos', 'folar'], ['folar', 'ovosAmendoas']].forEach(function (par) {
     // duas entradas vizinhas trocam de ordem (os ids deixam de bater com as outras línguas)
     mutacoes.push(['as entradas ' + par.join(' e ') + ' trocam de ordem em ' + l, noBloco(l, function (b) {
       const linhas = b.split('\n');
@@ -201,7 +210,13 @@ mutacoes.push(['o Natal deixa de abrir a consoada (festas.js)', EXPLORAR_JS, tro
 mutacoes.push(['o bolo-rei deixa de abrir o boloRei (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, " entradaEnciclopedia: 'boloRei',", '')]);
 mutacoes.push(['o Carnaval deixa de abrir o entrudo (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    entradaEnciclopedia: 'entrudo',\n", '')]);
 mutacoes.push(['os caretos deixam de abrir (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, " entradaEnciclopedia: 'caretos',", '')]);
-mutacoes.push(['a Páscoa passa a abrir uma entrada (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    id: 'pascoa',\n", "    id: 'pascoa',\n    entradaEnciclopedia: 'entrudo',\n")]);
+mutacoes.push(['a Páscoa deixa de abrir o folar (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    entradaEnciclopedia: 'folar',\n", '')]);
+mutacoes.push(['a Páscoa abre a entrada errada ao entrar (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    entradaEnciclopedia: 'folar',\n", "    entradaEnciclopedia: 'ovosAmendoas',\n")]);
+mutacoes.push(['os ovos deixam de abrir (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, " entradaEnciclopedia: 'ovosAmendoas',", '')]);
+mutacoes.push(['os ovos abrem a entrada errada (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, " entradaEnciclopedia: 'ovosAmendoas',", " entradaEnciclopedia: 'folar',")]);
+mutacoes.push(['a tarefa do folar passa a abrir uma entrada (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "btn: 'btnFolar',", "btn: 'btnFolar', entradaEnciclopedia: 'folar',")]);
+mutacoes.push(['as amêndoas passam a abrir uma entrada (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "btn: 'btnAmendoas',", "btn: 'btnAmendoas', entradaEnciclopedia: 'ovosAmendoas',")]);
+mutacoes.push(['o Carnaval passa a abrir uma entrada de Páscoa (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    entradaEnciclopedia: 'entrudo',\n", "    entradaEnciclopedia: 'folar',\n")]);
 mutacoes.push(['o corso passa a abrir uma entrada (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "btn: 'btnCorso',", "btn: 'btnCorso', entradaEnciclopedia: 'caretos',")]);
 
 let apanhadas = 0;
