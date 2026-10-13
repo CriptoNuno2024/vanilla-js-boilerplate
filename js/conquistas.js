@@ -3,8 +3,10 @@
 //
 // Cada conquista é um DADO em CONQUISTAS_CONFIG: id, chaves de texto e
 // "cumprida", uma função que só LÊ o state. Não há prémios, Reputação,
-// balões, vibração, som, campos novos no state nem gravação: o estado de
-// cada conquista calcula-se sempre a partir do progresso que já existe.
+// balões, vibração nem som. O estado de cada conquista calcula-se a partir
+// do progresso, MAS uma conquista ganha nunca mais desaparece: quando está
+// cumprida regista-se em state.conquistasGanhas (conquistasRegistarGanhas()),
+// e conta como feita se constar de lá OU se estiver cumprida agora.
 //
 // Para acrescentar uma conquista: põe mais uma linha aqui e os dois
 // textos (nome e descrição) em js/i18n.js. O "n / total" do Perfil e a
@@ -94,8 +96,45 @@ const CONQUISTAS_CONFIG = [
     cumprida: function () { return !!(state.capitulos && state.capitulos.concluidos && state.capitulos.concluidos.cap7 === true); } }
 ];
 
+// Conquistas ganhas (permanentes): state.conquistasGanhas, id -> true. A medalha
+// «Guardião» regista-se com o id 'guardiao' (ver tituloEspecialDesbloqueado() em js/explorar.js).
+const CONQUISTAS_ID_MEDALHA = 'guardiao';
+
+function conquistaRegistada(id) {
+  const m = state && state.conquistasGanhas;
+  return !!m && typeof m === 'object' && !Array.isArray(m) && Object.prototype.hasOwnProperty.call(m, id) && m[id] === true;
+}
+
+function conquistaCumpridaAgora(c) {
+  try { return c.cumprida() === true; } catch (e) { return false; }
+}
+
+// Feita = já ganha antes OU cumprida agora (nunca se tira nada).
+function conquistaFeita(c) {
+  return conquistaRegistada(c.id) || conquistaCumpridaAgora(c);
+}
+
+// Regista as conquistas (e a medalha) cumpridas agora que ainda não constam do mapa. Se registou
+// algo novo grava UMA vez; sem novidades não grava nada (idempotente e barato). Devolve true se registou.
+function conquistasRegistarGanhas() {
+  if ((typeof apagando !== 'undefined' && apagando) || !state) return false;
+  const novas = CONQUISTAS_CONFIG.filter(function (c) {
+    return !conquistaRegistada(c.id) && conquistaCumpridaAgora(c);
+  }).map(function (c) { return c.id; });
+  if (!conquistaRegistada(CONQUISTAS_ID_MEDALHA) && typeof tituloEspecialCumprido === 'function') {
+    let medalha = false;
+    try { medalha = tituloEspecialCumprido() === true; } catch (e) { medalha = false; }
+    if (medalha) novas.push(CONQUISTAS_ID_MEDALHA);
+  }
+  if (novas.length === 0) return false;
+  if (!state.conquistasGanhas || typeof state.conquistasGanhas !== 'object' || Array.isArray(state.conquistasGanhas)) state.conquistasGanhas = {};
+  novas.forEach(function (id) { state.conquistasGanhas[id] = true; });
+  if (typeof saveState === 'function') saveState(state);
+  return true;
+}
+
 function conquistasCumpridas() {
-  return CONQUISTAS_CONFIG.filter(function (c) { return c.cumprida(); }).length;
+  return CONQUISTAS_CONFIG.filter(conquistaFeita).length;
 }
 
 // "n / total" do mosaico do Perfil.
@@ -105,8 +144,9 @@ function conquistasResumo() {
 
 function renderConquistas() {
   const container = document.getElementById('conquistas-container');
+  conquistasRegistarGanhas();
   const cardsHtml = CONQUISTAS_CONFIG.map(function (c) {
-    const feita = c.cumprida();
+    const feita = conquistaFeita(c);
     return '<div class="encyclopedia-card' + (feita ? '' : ' locked') + '">' +
       '<h3>' + t(c.nomeKey) + '</h3>' +
       '<p>' + t(c.descKey) + '</p>' +
@@ -129,3 +169,20 @@ function renderConquistas() {
   atualizarDialogo('', '');
   applyTranslations();
 }
+
+// Quando registar (além de ao desbloquear uma entrada e ao desenhar o Perfil e as Conquistas):
+// ao arrancar, com a nuvem já sincronizada, e depois de uma releitura da nuvem. Este ficheiro
+// carrega depois de js/nuvem.js, por isso acrescenta o registo a seguir às duas funções que
+// decidem entre o local e a nuvem, sem alterar o seu fluxo. Só depois de arranque.respondeu
+// (nunca antes de a nuvem ter respondido, para não gravar por cima da cópia boa).
+['nuvemTratarLeitura', 'nuvemAplicarReleitura'].forEach(function (nome) {
+  if (typeof globalThis[nome] !== 'function') return;
+  const original = globalThis[nome];
+  globalThis[nome] = function () {
+    const r = original.apply(this, arguments);
+    if (typeof arranque !== 'undefined' && arranque.respondeu) conquistasRegistarGanhas();
+    return r;
+  };
+});
+// Sem nuvem (ou se ela já respondeu antes de este ficheiro carregar): regista já.
+if (typeof arranque !== 'undefined' && arranque.respondeu) conquistasRegistarGanhas();

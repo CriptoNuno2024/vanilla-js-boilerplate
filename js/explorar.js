@@ -152,8 +152,16 @@ function entradasBloqueadas() {
   });
 }
 
-function tituloEspecialDesbloqueado() {
+// A medalha «Guardião» do Perfil: cumprida agora (todas as entradas) ou já ganha antes
+// (state.conquistasGanhas.guardiao, ver conquistasRegistarGanhas() em js/conquistas.js):
+// acrescentar entradas novas não a tira a quem já a tinha.
+function tituloEspecialCumprido() {
   return state.encyclopedia.unlocked.length >= encyclopediaEntries().length;
+}
+
+function tituloEspecialDesbloqueado() {
+  const ganhas = state.conquistasGanhas;
+  return (!!ganhas && typeof ganhas === 'object' && ganhas.guardiao === true) || tituloEspecialCumprido();
 }
 
 // Desbloqueia uma entrada por uma ação do jogo (não pelo Explorar), ex:
@@ -165,6 +173,8 @@ function desbloquearEntradaEnciclopedia(id) {
   if (state.encyclopedia.unlocked.indexOf(id) !== -1) return null;
   state.encyclopedia.unlocked.push(id);
   state.conhecimento += 1;
+  // É aqui que o «Sábio» e o «Guardião» passam a valer: fica registado já (ver js/conquistas.js).
+  if (typeof conquistasRegistarGanhas === 'function') conquistasRegistarGanhas();
   const entrada = encyclopediaEntries().filter(function (e) { return e.id === id; })[0];
   return entrada || null;
 }

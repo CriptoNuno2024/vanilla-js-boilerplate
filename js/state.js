@@ -44,6 +44,11 @@ function defaultState() {
     // neste aparelho — usada por js/nuvem.js para saber se o localStorage
     // ou o CloudStorage do Telegram têm a versão mais recente.
     ultimaGravacaoEm: 0,
+    // Conquistas (e a medalha «Guardião», id 'guardiao') já ganhas: id -> true.
+    // Depois de ganha, uma conquista nunca desaparece, mesmo que se acrescente
+    // conteúdo que a faça deixar de estar cumprida (ver conquistasRegistarGanhas()
+    // em js/conquistas.js). Junta-se entre aparelhos por união (js/nuvem.js).
+    conquistasGanhas: {},
     encyclopedia: {
       unlocked: []
     },
