@@ -95,6 +95,8 @@ const FESTAS_CONFIG = [
   },
   {
     id: 'carnaval',
+    // Entrada da Enciclopédia que abre ao entrar na festa.
+    entradaEnciclopedia: 'entrudo',
     // Data móvel: de sábado a terça-feira de Carnaval (Páscoa menos 50 a menos 47 dias; o dia grande é a terça).
     movel: { base: 'pascoa', inicioDias: -50, fimDias: -47, diaGrandeDias: -47 },
     imagens: {
@@ -111,7 +113,8 @@ const FESTAS_CONFIG = [
         premio: { reputacao: 5 } },
       { id: 'fantasias', onde: 'festa', regra: 'gastar_gotas', btn: 'btnFantasias',
         premio: { custoGotas: 30, reputacao: 12 } },
-      { id: 'quemEstaMascarado', onde: 'festa', regra: 'cena_do_dia', btn: 'btnQuemEstaMascarado',
+      // entradaEnciclopedia (opcional, numa tarefa): abre ao responder à cena, ganhe ou perca (como o bolo-rei do Natal).
+      { id: 'quemEstaMascarado', onde: 'festa', regra: 'cena_do_dia', btn: 'btnQuemEstaMascarado', entradaEnciclopedia: 'caretos',
         premio: { reputacao: 6 } }
     ],
     recompensas: {

@@ -440,8 +440,10 @@ function suite(fontes) {
     const errada = (cena.correta + 1) % 3;
     n.ev('festaResponderCenaDoDia(' + errada + ')');
     ok(n.ev('state.reputacao') === 389 && n.ev('state.gotas') === 10 && n.ev('SAVES') === 3 && n.ev("festaJaFezTarefaHoje('carnaval', 'quemEstaMascarado')") === true, 'ecrã: quem está mascarado errado não custa nada e gasta a tentativa do dia');
+    ok(n.json('ENTRADAS').join() === 'caretos' && n.json('AVISOS').join() === 'caretos', 'ecrã: responder à cena do quem está mascarado (mesmo errando) abre a entrada caretos e mostra o aviso de entrada nova: ' + n.json('ENTRADAS').join() + ' / ' + n.json('AVISOS').join());
     n.ev('festaResponderCenaDoDia(' + cena.correta + ')');
     ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 3, 'ecrã: toque duplo na mesma cena não paga nem grava outra vez');
+    ok(n.json('ENTRADAS').join() === 'caretos' && n.json('AVISOS').join() === 'caretos', 'ecrã: toque duplo na mesma cena do Carnaval não abre a entrada outra vez');
     n.ev("iniciarTarefaFesta('quemEstaMascarado')");
     ok(n.ev('festaCenaAtual') === null, 'ecrã: quem está mascarado já tentado hoje não abre outra cena');
     n.ir(lis(2, 15));
@@ -449,9 +451,22 @@ function suite(fontes) {
     const cena2 = n.json('festaCenaAtual.cena');
     n.ev('festaResponderCenaDoDia(' + cena2.correta + ')');
     ok(n.ev('state.reputacao') === 395 && n.ev('SAVES') === 4, 'ecrã: no dia seguinte volta, e acertar dá +6');
-    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').length === 0, 'ecrã: cada tarefa conta para o objetivo do dia e o Carnaval não abre nada na Enciclopédia');
+    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').every(function (x) { return x === 'caretos'; }), 'ecrã: cada tarefa conta para o objetivo do dia e o corso e as fantasias não abrem entradas');
     n.ev('enterFesta()');
-    ok(n.json('ENTRADAS').length === 0, 'enterFesta no Carnaval não abre a lenda de São Martinho');
+    ok(n.json('ENTRADAS').slice(-1)[0] === 'entrudo' && n.json('ENTRADAS').indexOf('lendaSaoMartinho') === -1, 'enterFesta no Carnaval abre o entrudo (e não a lenda de São Martinho)');
+    ok(n.json('AVISOS').slice(-1)[0] === 'entrudo', 'enterFesta no Carnaval mostra o aviso de entrada nova do entrudo');
+    {
+      // ganhar e perder a cena dos caretos; corso e fantasias não abrem nada
+      const v = abrir(lis(2, 15), '?festa=carnaval');
+      v.ev("iniciarTarefaFesta('corso')"); v.ev("iniciarTarefaFesta('fantasias')");
+      ok(v.json('ENTRADAS').length === 0, 'Carnaval: fazer o corso e as fantasias não abre entradas');
+      v.ev("iniciarTarefaFesta('quemEstaMascarado')");
+      ok(v.json('ENTRADAS').length === 0, 'Carnaval: abrir a cena do quem está mascarado ainda não abre a entrada');
+      v.ev('festaResponderCenaDoDia(' + v.json('festaCenaAtual.cena.correta') + ')');
+      ok(v.json('ENTRADAS').join() === 'caretos' && v.json('AVISOS').join() === 'caretos', 'Carnaval: acertar na cena abre a entrada caretos com o aviso');
+      v.ev("iniciarTarefaFesta('quemEstaMascarado')");
+      ok(v.json('ENTRADAS').join() === 'caretos', 'Carnaval: cena já feita hoje não abre a entrada outra vez');
+    }
     n.ev('renderFestaHub()');
     const html = n.ev('caixa.innerHTML');
     ok(/iniciarTarefaFesta\('corso'\)/.test(html) && /iniciarTarefaFesta\('fantasias'\)/.test(html) && /iniciarTarefaFesta\('quemEstaMascarado'\)/.test(html) && !/castanhas|jeropiga|prova/.test(html), 'hub do Carnaval: os 3 botões do Carnaval e nenhum do São Martinho');
@@ -688,7 +703,8 @@ function suite(fontes) {
     if (cv) {
       ok(JSON.stringify(cv.movel) === '{"base":"pascoa","inicioDias":-50,"fimDias":-47,"diaGrandeDias":-47}', 'Carnaval: data móvel a partir da Páscoa (-50 a -47, dia grande -47)');
       ok(cv.inicio === undefined && cv.fim === undefined && cv.diaGrande === undefined, 'Carnaval: sem datas fixas (só a data móvel)');
-      ok(cv.recompensas.multiplicadorDiaGrande === 2 && cv.entradaEnciclopedia === undefined, 'Carnaval: dia grande a dobrar e nenhuma entrada da Enciclopédia');
+      ok(cv.recompensas.multiplicadorDiaGrande === 2 && cv.entradaEnciclopedia === 'entrudo', 'Carnaval: dia grande a dobrar e abre a entrada entrudo ao entrar');
+      ok(cv.tarefas.map(function (x) { return x.entradaEnciclopedia; }).join() === ',,caretos', 'Carnaval: só a tarefa quemEstaMascarado abre uma entrada (caretos); corso e fantasias não');
       ok(JSON.stringify(cv.tarefas.map(function (x) { return x.id; })) === '["corso","fantasias","quemEstaMascarado"]' && cv.tarefas.every(function (x) { return x.onde === 'festa'; }), 'Carnaval: corso, fantasias e quemEstaMascarado, todas no ecrã da festa');
       ok(cv.tarefas.map(function (x) { return x.regra; }).join() === 'oferta,gastar_gotas,cena_do_dia', 'Carnaval: regras do Natal (oferta, gastar_gotas, cena_do_dia), nenhuma nova');
       ok(JSON.stringify(cv.tarefas[0].premio) === '{"reputacao":5}' && JSON.stringify(cv.tarefas[1].premio) === '{"custoGotas":30,"reputacao":12}' && JSON.stringify(cv.tarefas[2].premio) === '{"reputacao":6}', 'Carnaval: corso +5 (sem custo), fantasias 30 Gotas e +12, quem está mascarado +6');
@@ -1105,10 +1121,16 @@ const MUTACOES = [
   ['corso paga 6', 'festas.js', "btn: 'btnCorso',\n        premio: { reputacao: 5 }", "btn: 'btnCorso',\n        premio: { reputacao: 6 }"],
   ['fantasias custam 40 Gotas', 'festas.js', "btn: 'btnFantasias',\n        premio: { custoGotas: 30,", "btn: 'btnFantasias',\n        premio: { custoGotas: 40,"],
   ['fantasias pagam 13', 'festas.js', "btn: 'btnFantasias',\n        premio: { custoGotas: 30, reputacao: 12 }", "btn: 'btnFantasias',\n        premio: { custoGotas: 30, reputacao: 13 }"],
-  ['quem está mascarado paga 7', 'festas.js', "btn: 'btnQuemEstaMascarado',\n        premio: { reputacao: 6 }", "btn: 'btnQuemEstaMascarado',\n        premio: { reputacao: 7 }"],
+  ['quem está mascarado paga 7', 'festas.js', "entradaEnciclopedia: 'caretos',\n        premio: { reputacao: 6 }", "entradaEnciclopedia: 'caretos',\n        premio: { reputacao: 7 }"],
   ['quem está mascarado deixa de ser a cena do dia', 'festas.js', "regra: 'cena_do_dia', btn: 'btnQuemEstaMascarado'", "regra: 'oferta', btn: 'btnQuemEstaMascarado'"],
   ['tarefa do Carnaval fora do ecrã da festa', 'festas.js', "{ id: 'corso', onde: 'festa'", "{ id: 'corso', onde: 'outro'"],
-  ['Carnaval abre a lenda de São Martinho', 'festas.js', "    id: 'carnaval',\n", "    id: 'carnaval',\n    entradaEnciclopedia: 'lendaSaoMartinho',\n"],
+  ['Carnaval abre a lenda de São Martinho', 'festas.js', "    entradaEnciclopedia: 'entrudo',\n", "    entradaEnciclopedia: 'lendaSaoMartinho',\n"],
+  ['Carnaval deixa de abrir o entrudo', 'festas.js', "    entradaEnciclopedia: 'entrudo',\n", ''],
+  ['Carnaval abre a entrada errada ao entrar', 'festas.js', "    entradaEnciclopedia: 'entrudo',\n", "    entradaEnciclopedia: 'caretos',\n"],
+  ['os caretos deixam de abrir', 'festas.js', " entradaEnciclopedia: 'caretos',", ''],
+  ['os caretos abrem a entrada errada', 'festas.js', " entradaEnciclopedia: 'caretos',", " entradaEnciclopedia: 'entrudo',"],
+  ['a Páscoa passa a abrir uma entrada', 'festas.js', "    id: 'pascoa',\n", "    id: 'pascoa',\n    entradaEnciclopedia: 'entrudo',\n"],
+  ['o corso passa a abrir uma entrada', 'festas.js', "{ id: 'corso', onde: 'festa', regra: 'oferta', btn: 'btnCorso',", "{ id: 'corso', onde: 'festa', regra: 'oferta', btn: 'btnCorso', entradaEnciclopedia: 'caretos',"],
   ['Carnaval sem dia grande a dobrar', 'festas.js', "recompensas: {\n      multiplicadorDiaGrande: 2\n    }\n  }\n];", "recompensas: {\n      multiplicadorDiaGrande: 1\n    }\n  }\n];"],
   ['imagem do dia grande do Carnaval = a da festa', 'festas.js', "diaGrande: 'assets/ecras/carnaval_dia_grande.jpg'", "diaGrande: 'assets/ecras/carnaval_festa.jpg'"],
   ['imagem da festa do Carnaval = a do dia grande', 'festas.js', "faixa: 'assets/ecras/carnaval_festa.jpg',", "faixa: 'assets/ecras/carnaval_dia_grande.jpg',"],

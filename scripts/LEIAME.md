@@ -156,3 +156,7 @@ Sem estado novo, sem custos, sem nuvem, sem textos novos. (1) O fundo do Lagar *
 # Cenas de 3 opções equilibradas
 
 `node scripts/verificar-festas.js` (secção I) confirma, para o São Martinho (castanhas, 4 cenas), o Natal (bolo-rei), o Carnaval (quem está mascarado) e a Páscoa (os ovos), em PT, EN e ES: 3 opções diferentes por cena, a mesma opção certa nas 3 línguas, a certa NUNCA é a mais comprida, as 3 opções diferem no máximo 20% de comprimento e a posição da certa varia entre as cenas. Agora são 100 mutações.
+
+# Entradas de festas na Enciclopédia
+
+`node scripts/verificar-enciclopedia-natal.js` — js/explorar.js e js/festas.js em vm: as 4 entradas de festas (`consoada` e `boloRei` do Natal, `entrudo` e `caretos` do Carnaval) existem nas 3 línguas, com o título e o texto pedidos palavra por palavra, só os campos `id`, `manual`, `titulo` e `texto` (sem imagem, meses nem estação), as 3 línguas com os mesmos 30 ids pela mesma ordem, o Explorar nunca as oferece, cada desbloqueio conta uma vez, o «Sábio» e a medalha exigem as 30 e os desbloqueios estão ligados em `FESTAS_CONFIG` (consoada e entrudo ao entrar na festa; boloRei e caretos ao responder à cena; corso, fantasias, consoada, doces e a Páscoa não abrem nada). A prova de comportamento está em `verificar-festas.js`. 102 mutações.
