@@ -291,7 +291,7 @@ function suite(fontes) {
     });
     ok(!fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'caminho_lojas_casa_trabalhadores_3.jpg')), 'a 4.ª imagem (caminho_lojas_casa_trabalhadores_3) não foi copiada');
     const creditos = fs.readFileSync(path.join(RAIZ, 'CREDITOS.md'), 'utf8');
-    ['lojas_casas.jpg', 'lojas_casas_janelas_abertas_2.jpg', 'casa_loja_meio_da_vinha_4.jpg'].forEach(function (f) { ok(new RegExp('\\| `assets/ecras/' + f.replace(/\./g, '\\.') + '` \\|[^\\n]*origem a confirmar pelo Nuno').test(creditos), 'CREDITOS.md lista ' + f + ' (origem a confirmar pelo Nuno)'); });
+    ['lojas_casas.jpg', 'lojas_casas_janelas_abertas_2.jpg', 'casa_loja_meio_da_vinha_4.jpg'].forEach(function (f) { ok(new RegExp('\\| `assets/ecras/' + f.replace(/\./g, '\\.') + '` \\|[^\\n]*gerada com IA \\(Gemini, Grok ou ChatGPT\\)').test(creditos), 'CREDITOS.md lista ' + f + ' (gerada com IA (Gemini, Grok ou ChatGPT))'); });
   }
   return falhas;
 }

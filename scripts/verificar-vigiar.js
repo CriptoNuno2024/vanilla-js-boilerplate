@@ -409,7 +409,7 @@ function suite(fontes) {
     const cfg = g0.json('VIGIAR_CONFIG.imagens');
     ok(JSON.stringify(cfg) === JSON.stringify(IMG), 'VIGIAR_CONFIG aponta para as 4 imagens certas');
     const creditos = fs.readFileSync(path.join(RAIZ, 'CREDITOS.md'), 'utf8');
-    ['doencas_e_pragas.jpg', 'doencas_e_pragas_2.jpg', 'pragas_sol.jpg', 'pragas_sol_2.jpg'].forEach(function (f) { ok(new RegExp('\\| `assets/ecras/' + f.replace(/\./g, '\\.') + '` \\|[^\\n]*origem a confirmar pelo Nuno').test(creditos), 'CREDITOS.md lista ' + f + ' (origem a confirmar pelo Nuno)'); });
+    ['doencas_e_pragas.jpg', 'doencas_e_pragas_2.jpg', 'pragas_sol.jpg', 'pragas_sol_2.jpg'].forEach(function (f) { ok(new RegExp('\\| `assets/ecras/' + f.replace(/\./g, '\\.') + '` \\|[^\\n]*gerada com IA \\(Gemini, Grok ou ChatGPT\\)').test(creditos), 'CREDITOS.md lista ' + f + ' (gerada com IA (Gemini, Grok ou ChatGPT))'); });
   }
   return falhas;
 }
