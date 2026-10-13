@@ -35,7 +35,7 @@ function bloco(src, nome) {
 const LAYOUTS = {
   adegaSemLote: { acoes: ['prensar', 'destilarVinho', 'destilarBagaco', 'fortificar'], larguras: [90, 130, 141, 109] },
   adegaLotePronto: { acoes: ['prensar', 'destilarVinho', 'destilarBagaco', 'engarrafar'], larguras: [90, 130, 141, 109] },
-  vinhaPronta: { acoes: ['colher', 'compostagem'], larguras: [372, 111] },
+  vinhaPronta: { acoes: ['colher', 'compostagem'], larguras: [272, 111] },
   vinhaPreparadaVento: { acoes: ['ervas', 'plantar', 'compostagem', 'repararEstacas'], larguras: [77, 82, 111, 89] },
   vinhaCrescendoVento: { acoes: ['regar', 'adubar', 'ervas', 'compostagem', 'repararEstacas'], larguras: [79, 89, 77, 111, 89] },
   vinhaCrescendoFrio: { acoes: ['regar', 'adubar', 'ervas', 'compostagem', 'protegerFrio'], larguras: [79, 89, 77, 111, 89] },
@@ -209,7 +209,7 @@ function suite(fontes) {
     A = abrirAmbiente(); r = abrir(A, 'vinha', LAYOUTS.vinhaPronta, ['vinha_compostagem']);
     ok(r.desliza === 1 && r.fila.inteiro('compostagem'), 'Vinha pronta + Compostar (escondido): desliza e fica inteiro');
     A = abrirAmbiente(); r = abrir(A, 'vinha', LAYOUTS.vinhaPronta, ['vinha_colher']);
-    ok(r.desliza === 0 && r.fila.scrollLeft === 0, 'Colher (outono) é mais largo do que a fila (372 px): nunca ficaria inteiro, por isso não mexe');
+    ok(r.desliza === 0 && r.fila.scrollLeft === 0, 'Colher (outono) é mais largo do que a janela livre da fila (272 px, o máximo do CSS): nunca ficaria inteiro, por isso não mexe');
     A = abrirAmbiente(); r = abrir(A, 'vinha', LAYOUTS.vinhaPreparadaVento, ['vinha_compostagem']);
     ok(r.desliza === 1 && r.fila.inteiro('compostagem'), 'Compostar tapado pela seta (sob a seta): desliza até ficar inteiro');
     A = abrirAmbiente(); r = abrir(A, 'vinha', LAYOUTS.vinhaCrescendoVento, ['tempo_vento']);
