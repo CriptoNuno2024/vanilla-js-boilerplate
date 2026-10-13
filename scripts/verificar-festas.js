@@ -825,7 +825,8 @@ function suite(fontes) {
     if (pa) {
       ok(JSON.stringify(pa.movel) === '{"base":"pascoa","inicioDias":-2,"fimDias":0,"diaGrandeDias":0}', 'Páscoa: data móvel (Páscoa -2 a 0, dia grande 0)');
       ok(pa.inicio === undefined && pa.fim === undefined && pa.diaGrande === undefined, 'Páscoa: sem datas fixas (só a data móvel)');
-      ok(pa.recompensas.multiplicadorDiaGrande === 2 && pa.entradaEnciclopedia === undefined, 'Páscoa: dia grande a dobrar e nenhuma entrada da Enciclopédia');
+      ok(pa.recompensas.multiplicadorDiaGrande === 2 && pa.entradaEnciclopedia === 'folar', 'Páscoa: dia grande a dobrar e abre a entrada folar ao entrar');
+      ok(pa.tarefas.map(function (x) { return x.entradaEnciclopedia; }).join() === ',,ovosAmendoas', 'Páscoa: só a tarefa dos ovos abre uma entrada (ovosAmendoas); a tarefa do folar e as amêndoas não');
       ok(JSON.stringify(pa.tarefas.map(function (x) { return x.id; })) === '["folar","amendoas","ovos"]' && pa.tarefas.every(function (x) { return x.onde === 'festa'; }), 'Páscoa: folar, amendoas e ovos, todas no ecrã da festa');
       ok(pa.tarefas.map(function (x) { return x.regra; }).join() === 'oferta,gastar_gotas,cena_do_dia', 'Páscoa: regras do Natal e do Carnaval (oferta, gastar_gotas, cena_do_dia), nenhuma nova');
       ok(JSON.stringify(pa.tarefas[0].premio) === '{"reputacao":5}' && JSON.stringify(pa.tarefas[1].premio) === '{"custoGotas":30,"reputacao":12}' && JSON.stringify(pa.tarefas[2].premio) === '{"reputacao":6}', 'Páscoa: folar +5 (sem custo), amêndoas 30 Gotas e +12, ovos +6');
@@ -932,17 +933,32 @@ function suite(fontes) {
     ok(cenaO && cenaO.opcoes.length === 3, 'ecrã: os ovos mostram uma cena de 3 opções');
     n.ev('festaResponderCenaDoDia(' + ((cenaO.correta + 1) % 3) + ')');
     ok(n.ev('state.reputacao') === 389 && n.ev('state.gotas') === 10 && n.ev('SAVES') === 3 && n.ev("festaJaFezTarefaHoje('pascoa', 'ovos')") === true, 'ecrã: ovos errados não custam nada e gastam a tentativa do dia');
+    ok(n.json('ENTRADAS').join() === 'ovosAmendoas' && n.json('AVISOS').join() === 'ovosAmendoas', 'ecrã: responder à cena dos ovos (mesmo errando) abre a entrada ovosAmendoas e mostra o aviso de entrada nova: ' + n.json('ENTRADAS').join() + ' / ' + n.json('AVISOS').join());
     n.ev('festaResponderCenaDoDia(' + cenaO.correta + ')');
     ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 3, 'ecrã: toque duplo na mesma cena não paga nem grava outra vez');
+    ok(n.json('ENTRADAS').join() === 'ovosAmendoas' && n.json('AVISOS').join() === 'ovosAmendoas', 'ecrã: toque duplo na mesma cena da Páscoa não abre a entrada outra vez');
     n.ev("iniciarTarefaFesta('ovos')");
     ok(n.ev('festaCenaAtual') === null, 'ecrã: ovos já tentados hoje não abrem outra cena');
     n.ir(lis(4, 4));
     n.ev("iniciarTarefaFesta('ovos')");
     n.ev('festaResponderCenaDoDia(festaCenaAtual.cena.correta)');
     ok(n.ev('state.reputacao') === 395 && n.ev('SAVES') === 4, 'ecrã: no dia seguinte volta, e acertar dá +6');
-    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').length === 0, 'ecrã: cada tarefa conta para o objetivo do dia e a Páscoa não abre nada na Enciclopédia');
+    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').every(function (x) { return x === 'ovosAmendoas'; }), 'ecrã: cada tarefa conta para o objetivo do dia e a tarefa do folar e as amêndoas não abrem entradas');
     n.ev('enterFesta()');
-    ok(n.json('ENTRADAS').length === 0, 'enterFesta na Páscoa não abre a lenda de São Martinho');
+    ok(n.json('ENTRADAS').slice(-1)[0] === 'folar' && n.json('ENTRADAS').indexOf('lendaSaoMartinho') === -1, 'enterFesta na Páscoa abre o folar (e não a lenda de São Martinho)');
+    ok(n.json('AVISOS').slice(-1)[0] === 'folar', 'enterFesta na Páscoa mostra o aviso de entrada nova do folar');
+    {
+      // ganhar e perder a cena dos ovos; a tarefa do folar e as amêndoas não abrem nada
+      const v = abrir(lis(4, 3), '?festa=pascoa');
+      v.ev("iniciarTarefaFesta('folar')"); v.ev("iniciarTarefaFesta('amendoas')");
+      ok(v.json('ENTRADAS').length === 0, 'Páscoa: fazer a tarefa do folar e as amêndoas não abre entradas');
+      v.ev("iniciarTarefaFesta('ovos')");
+      ok(v.json('ENTRADAS').length === 0, 'Páscoa: abrir a cena dos ovos ainda não abre a entrada');
+      v.ev('festaResponderCenaDoDia(' + v.json('festaCenaAtual.cena.correta') + ')');
+      ok(v.json('ENTRADAS').join() === 'ovosAmendoas' && v.json('AVISOS').join() === 'ovosAmendoas', 'Páscoa: acertar na cena dos ovos abre a entrada ovosAmendoas com o aviso');
+      v.ev("iniciarTarefaFesta('ovos')");
+      ok(v.json('ENTRADAS').join() === 'ovosAmendoas', 'Páscoa: cena já feita hoje não abre a entrada outra vez');
+    }
     n.ev('renderFestaHub()');
     const hp = n.ev('caixa.innerHTML');
     ok(/iniciarTarefaFesta\('folar'\)/.test(hp) && /iniciarTarefaFesta\('amendoas'\)/.test(hp) && /iniciarTarefaFesta\('ovos'\)/.test(hp) && !/castanhas|jeropiga|prova|corso|fantasias|quemEstaMascarado/.test(hp), 'hub da Páscoa: os 3 botões da Páscoa e nenhum de outra festa');
@@ -1058,7 +1074,7 @@ const MUTACOES = [
   ['cena sem a semente da tarefa', 'festas.js', "const semente = dia + '#' + festaId + '#' + tarefaId;", "const semente = dia + '#' + festaId;"],
   ['resultado inválido aceite', 'festas.js', "if (op.venceu !== true && op.venceu !== false) return recusa('resultado_invalido');", ''],
   ['regra não pura aceite', 'festas.js', "FESTAS_REGRAS_PURAS.indexOf(tarefa.regra) === -1", 'false'],
-  ['Natal abre a lenda de São Martinho', 'festas.js', 'if (festa.entradaEnciclopedia) {', 'if (true) {'],
+  ['Natal abre a lenda de São Martinho', 'festas.js', 'desbloquearEntradaEnciclopedia(festa.entradaEnciclopedia)', "desbloquearEntradaEnciclopedia('lendaSaoMartinho')"],
   ['Natal deixa de abrir a consoada', 'festas.js', "    entradaEnciclopedia: 'consoada',\n", ''],
   ['Natal abre a entrada errada ao entrar', 'festas.js', "    entradaEnciclopedia: 'consoada',\n", "    entradaEnciclopedia: 'boloRei',\n"],
   ['o bolo-rei deixa de abrir a sua entrada', 'festas.js', " entradaEnciclopedia: 'boloRei',", ''],
@@ -1129,7 +1145,12 @@ const MUTACOES = [
   ['Carnaval abre a entrada errada ao entrar', 'festas.js', "    entradaEnciclopedia: 'entrudo',\n", "    entradaEnciclopedia: 'caretos',\n"],
   ['os caretos deixam de abrir', 'festas.js', " entradaEnciclopedia: 'caretos',", ''],
   ['os caretos abrem a entrada errada', 'festas.js', " entradaEnciclopedia: 'caretos',", " entradaEnciclopedia: 'entrudo',"],
-  ['a Páscoa passa a abrir uma entrada', 'festas.js', "    id: 'pascoa',\n", "    id: 'pascoa',\n    entradaEnciclopedia: 'entrudo',\n"],
+  ['a Páscoa abre a entrada errada ao entrar', 'festas.js', "    entradaEnciclopedia: 'folar',\n", "    entradaEnciclopedia: 'entrudo',\n"],
+  ['a Páscoa deixa de abrir o folar', 'festas.js', "    entradaEnciclopedia: 'folar',\n", ''],
+  ['os ovos deixam de abrir a entrada', 'festas.js', " entradaEnciclopedia: 'ovosAmendoas',", ''],
+  ['os ovos abrem a entrada errada', 'festas.js', " entradaEnciclopedia: 'ovosAmendoas',", " entradaEnciclopedia: 'folar',"],
+  ['a tarefa do folar passa a abrir uma entrada', 'festas.js', "btn: 'btnFolar',", "btn: 'btnFolar', entradaEnciclopedia: 'folar',"],
+  ['as amêndoas passam a abrir uma entrada', 'festas.js', "btn: 'btnAmendoas',", "btn: 'btnAmendoas', entradaEnciclopedia: 'ovosAmendoas',"],
   ['o corso passa a abrir uma entrada', 'festas.js', "{ id: 'corso', onde: 'festa', regra: 'oferta', btn: 'btnCorso',", "{ id: 'corso', onde: 'festa', regra: 'oferta', btn: 'btnCorso', entradaEnciclopedia: 'caretos',"],
   ['Carnaval sem dia grande a dobrar', 'festas.js', "recompensas: {\n      multiplicadorDiaGrande: 2\n    }\n  }\n];", "recompensas: {\n      multiplicadorDiaGrande: 1\n    }\n  }\n];"],
   ['imagem do dia grande do Carnaval = a da festa', 'festas.js', "diaGrande: 'assets/ecras/carnaval_dia_grande.jpg'", "diaGrande: 'assets/ecras/carnaval_festa.jpg'"],
