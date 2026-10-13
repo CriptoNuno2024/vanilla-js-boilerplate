@@ -355,6 +355,175 @@ function nuvemJuntarCaderno(a, b) {
   return junto;
 }
 
+// Junta as áreas "leves" de dois estados (state.despensa, state.visitas, state.lagar, state.camara, state.roxo,
+// state.loja, state.reserva e state.colecao) por regras que NUNCA fazem nada descer. Antes só seguiam o estado inteiro
+// que ganhava (e os comentários "NÃO se junta na nuvem" em js/state.js ficam desatualizados com isto: aquelas áreas
+// juntam-se aqui). Pura: sem relógio nem sorteio; devolve objetos novos, com a mesma forma que defaultState() (a ordem
+// das chaves também, para uma junção sem novidades dar o mesmo JSON: ver o teste "mudou" em nuvemTratarLeitura).
+// Tipos errados, chaves estranhas e '__proto__' ignoram-se; uma data só vale com o formato AAAA-MM-DD.
+//   datas simples (ultimoDia, mesaDia, assaltoDia, provaDia, brindeDia, visitaDia, arrumouDia): a MAIS RECENTE (null se nenhuma válida)
+//   contadores (dias): o MAIOR (inteiro finito >= 0)
+//   loja {dia, vendasHoje}: o par do dia mais recente; no mesmo dia, o MAIOR vendasHoje; com um dia null, fica o outro
+//   despensa.recebidos e .entregues: por bem, o MAIOR (recebidos menos entregues nunca fica negativo: se cada lado tem
+//     entregues <= recebidos, o maior dos recebidos é >= o maior dos entregues); .primeiraTroca: por bem, a data MAIS ANTIGA
+//   despensa.hoje {dia, feitas}: o dia mais recente; no mesmo dia, feitas = união (só os true); com um dia null, fica o outro
+//   visitas.feitas: por id, a data MAIS RECENTE
+//   visitas.hoje {dia, id, feita, bagaceiraDia}: com um null fica o outro; senão o dia mais recente; no mesmo dia e com o mesmo id,
+//     feita = true se algum for true e bagaceiraDia = a data mais recente (o copo oferecido à visita, 1 por dia, js/visitas.js,
+//     nunca se "desoferece"); no mesmo dia com ids diferentes fica o do "base".
+const NUVEM_LEVES_AREAS = ['despensa', 'visitas', 'lagar', 'camara', 'roxo', 'loja', 'reserva', 'colecao'];
+
+function nuvemLevesData(x) {
+  return (typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x)) ? x : null;
+}
+
+function nuvemLevesMaisRecente(a, b) {
+  const x = nuvemLevesData(a), y = nuvemLevesData(b);
+  if (x === null) return y;
+  if (y === null) return x;
+  return y > x ? y : x;
+}
+
+function nuvemLevesMaisAntiga(a, b) {
+  const x = nuvemLevesData(a), y = nuvemLevesData(b);
+  if (x === null) return y;
+  if (y === null) return x;
+  return y < x ? y : x;
+}
+
+function nuvemLevesInteiro(x) {
+  return (typeof x === 'number' && Number.isFinite(x) && Number.isInteger(x) && x >= 0) ? x : 0;
+}
+
+function nuvemLevesObjeto(x) {
+  return (x && typeof x === 'object' && !Array.isArray(x)) ? x : {};
+}
+
+// Junta dois mapas chave -> valor com uma regra por chave; as chaves do 1.º primeiro. Valores inválidos (a regra devolve
+// undefined) deixam a chave de fora.
+function nuvemLevesMapa(a, b, regra) {
+  const x = nuvemLevesObjeto(a), y = nuvemLevesObjeto(b);
+  const r = {};
+  [x, y].forEach(function (m) {
+    Object.keys(m).forEach(function (k) {
+      if (k === '__proto__' || Object.prototype.hasOwnProperty.call(r, k)) return;
+      const v = regra(Object.prototype.hasOwnProperty.call(x, k) ? x[k] : undefined, Object.prototype.hasOwnProperty.call(y, k) ? y[k] : undefined);
+      if (v !== undefined) r[k] = v;
+    });
+  });
+  return r;
+}
+
+function nuvemLevesMapaMaior(a, b) {
+  return nuvemLevesMapa(a, b, function (p, q) {
+    const ok1 = typeof p === 'number' && Number.isFinite(p) && Number.isInteger(p) && p >= 0;
+    const ok2 = typeof q === 'number' && Number.isFinite(q) && Number.isInteger(q) && q >= 0;
+    if (!ok1 && !ok2) return undefined;
+    return Math.max(ok1 ? p : 0, ok2 ? q : 0);
+  });
+}
+
+function nuvemLevesMapaData(a, b, regraData) {
+  return nuvemLevesMapa(a, b, function (p, q) {
+    const d = regraData(p, q);
+    return d === null ? undefined : d;
+  });
+}
+
+// Só os true, chaves sem '__proto__'.
+function nuvemLevesFeitas(x) {
+  const m = nuvemLevesObjeto(x), r = {};
+  Object.keys(m).forEach(function (k) { if (k !== '__proto__' && m[k] === true) r[k] = true; });
+  return r;
+}
+
+function nuvemLevesDespensaHoje(a, b) {
+  const x = nuvemLevesObjeto(a), y = nuvemLevesObjeto(b);
+  const dx = nuvemLevesData(x.dia), dy = nuvemLevesData(y.dia);
+  if (dx === null && dy === null) return { dia: null, feitas: {} };
+  if (dy === null) return { dia: dx, feitas: nuvemLevesFeitas(x.feitas) };
+  if (dx === null) return { dia: dy, feitas: nuvemLevesFeitas(y.feitas) };
+  if (dx > dy) return { dia: dx, feitas: nuvemLevesFeitas(x.feitas) };
+  if (dy > dx) return { dia: dy, feitas: nuvemLevesFeitas(y.feitas) };
+  return { dia: dx, feitas: nuvemLevesMapa(nuvemLevesFeitas(x.feitas), nuvemLevesFeitas(y.feitas), function () { return true; }) };
+}
+
+// Uma visita de hoje válida (dia AAAA-MM-DD e id texto) ou null.
+function nuvemLevesVisitaHoje(x) {
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
+  const dia = nuvemLevesData(x.dia);
+  if (dia === null || typeof x.id !== 'string' || x.id === '' || x.id === '__proto__') return null;
+  const h = { dia: dia, id: x.id, feita: x.feita === true };
+  const b = nuvemLevesData(x.bagaceiraDia);
+  if (b !== null) h.bagaceiraDia = b;
+  return h;
+}
+
+function nuvemLevesVisitasHoje(a, b) {
+  const x = nuvemLevesVisitaHoje(a), y = nuvemLevesVisitaHoje(b);
+  if (x === null) return y;
+  if (y === null) return x;
+  if (y.dia > x.dia) return y;
+  if (x.dia > y.dia) return x;
+  if (x.id !== y.id) return x; // mesmo dia, visitas diferentes: fica a do "base"
+  const h = { dia: x.dia, id: x.id, feita: x.feita || y.feita };
+  const bag = nuvemLevesMaisRecente(x.bagaceiraDia, y.bagaceiraDia);
+  if (bag !== null) h.bagaceiraDia = bag;
+  return h;
+}
+
+function nuvemJuntarLeves(base, outro) {
+  const a = nuvemLevesObjeto(base), b = nuvemLevesObjeto(outro);
+  const da = nuvemLevesObjeto(a.despensa), db = nuvemLevesObjeto(b.despensa);
+  const va = nuvemLevesObjeto(a.visitas), vb = nuvemLevesObjeto(b.visitas);
+  const la = nuvemLevesObjeto(a.lagar), lb = nuvemLevesObjeto(b.lagar);
+  const ca = nuvemLevesObjeto(a.camara), cb = nuvemLevesObjeto(b.camara);
+  const ra = nuvemLevesObjeto(a.roxo), rb = nuvemLevesObjeto(b.roxo);
+  const oa = nuvemLevesObjeto(a.loja), ob = nuvemLevesObjeto(b.loja);
+  const sa = nuvemLevesObjeto(a.reserva), sb = nuvemLevesObjeto(b.reserva);
+  const ka = nuvemLevesObjeto(a.colecao), kb = nuvemLevesObjeto(b.colecao);
+
+  // Loja: o par do dia mais recente; no mesmo dia, o maior vendasHoje; com um dia null, fica o outro.
+  const lojaDa = nuvemLevesData(oa.dia), lojaDb = nuvemLevesData(ob.dia);
+  let loja;
+  if (lojaDa === null && lojaDb === null) loja = { dia: null, vendasHoje: Math.max(nuvemLevesInteiro(oa.vendasHoje), nuvemLevesInteiro(ob.vendasHoje)) };
+  else if (lojaDb === null) loja = { dia: lojaDa, vendasHoje: nuvemLevesInteiro(oa.vendasHoje) };
+  else if (lojaDa === null) loja = { dia: lojaDb, vendasHoje: nuvemLevesInteiro(ob.vendasHoje) };
+  else if (lojaDa > lojaDb) loja = { dia: lojaDa, vendasHoje: nuvemLevesInteiro(oa.vendasHoje) };
+  else if (lojaDb > lojaDa) loja = { dia: lojaDb, vendasHoje: nuvemLevesInteiro(ob.vendasHoje) };
+  else loja = { dia: lojaDa, vendasHoje: Math.max(nuvemLevesInteiro(oa.vendasHoje), nuvemLevesInteiro(ob.vendasHoje)) };
+
+  return {
+    despensa: {
+      recebidos: nuvemLevesMapaMaior(da.recebidos, db.recebidos),
+      entregues: nuvemLevesMapaMaior(da.entregues, db.entregues),
+      primeiraTroca: nuvemLevesMapaData(da.primeiraTroca, db.primeiraTroca, nuvemLevesMaisAntiga),
+      hoje: nuvemLevesDespensaHoje(da.hoje, db.hoje)
+    },
+    visitas: {
+      feitas: nuvemLevesMapaData(va.feitas, vb.feitas, nuvemLevesMaisRecente),
+      hoje: nuvemLevesVisitasHoje(va.hoje, vb.hoje)
+    },
+    lagar: {
+      ultimoDia: nuvemLevesMaisRecente(la.ultimoDia, lb.ultimoDia),
+      dias: Math.max(nuvemLevesInteiro(la.dias), nuvemLevesInteiro(lb.dias)),
+      mesaDia: nuvemLevesMaisRecente(la.mesaDia, lb.mesaDia),
+      assaltoDia: nuvemLevesMaisRecente(la.assaltoDia, lb.assaltoDia)
+    },
+    camara: {
+      provaDia: nuvemLevesMaisRecente(ca.provaDia, cb.provaDia),
+      dias: Math.max(nuvemLevesInteiro(ca.dias), nuvemLevesInteiro(cb.dias))
+    },
+    loja: loja,
+    roxo: {
+      brindeDia: nuvemLevesMaisRecente(ra.brindeDia, rb.brindeDia),
+      dias: Math.max(nuvemLevesInteiro(ra.dias), nuvemLevesInteiro(rb.dias))
+    },
+    reserva: { visitaDia: nuvemLevesMaisRecente(sa.visitaDia, sb.visitaDia) },
+    colecao: { arrumouDia: nuvemLevesMaisRecente(ka.arrumouDia, kb.arrumouDia) }
+  };
+}
+
 // Leitura da nuvem ao abrir (ver nuvemTratarLeitura() para o que se faz com
 // cada estatuto). Só enquanto arranque.respondeu for false: uma leitura bem
 // sucedida (ou conta nova sem progresso) é que liberta o envio (nuvemPodeEnviar()).
@@ -453,9 +622,16 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
     // Capítulos: o que a nuvem tiver a mais (outro aparelho) entra por união.
     const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
     const juntoCaderno = nuvemJuntarCaderno(state.caderno, estadoNuvem.caderno);
+    // Áreas leves (ver NUVEM_LEVES_AREAS): base = local, outro = nuvem.
+    const leves = nuvemJuntarLeves(state, estadoNuvem);
     const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos) ||
-      JSON.stringify(juntoCaderno) !== JSON.stringify(state.caderno);
-    if (mudou) { state.capitulos = juntos; state.caderno = juntoCaderno; }
+      JSON.stringify(juntoCaderno) !== JSON.stringify(state.caderno) ||
+      NUVEM_LEVES_AREAS.some(function (k) { return JSON.stringify(leves[k]) !== JSON.stringify(state[k]); });
+    if (mudou) {
+      state.capitulos = juntos;
+      state.caderno = juntoCaderno;
+      NUVEM_LEVES_AREAS.forEach(function (k) { state[k] = leves[k]; });
+    }
     const havia = arranque.adiada;
     arranque.adiada = false;
     if (localEm > nuvemEm || mudou || havia) nuvemGuardarEstado(state); // UMA só gravação: alinha a nuvem com o local, que é mais recente
@@ -470,9 +646,13 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
   arranque.adiada = false;
   const capitulosLocais = state.capitulos;
   const cadernoLocal = state.caderno;
+  const estadoLocalAntes = state;
   state = mergeDeep(defaultState(), estadoNuvem);
   state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
   state.caderno = nuvemJuntarCaderno(cadernoLocal, state.caderno);
+  // Áreas leves: base = a nuvem (que acabou de ganhar), outro = o local de antes de a substituir.
+  const levesJuntas = nuvemJuntarLeves(state, estadoLocalAntes);
+  NUVEM_LEVES_AREAS.forEach(function (k) { state[k] = levesJuntas[k]; });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   // Só agora (progresso local + nuvem já juntos) é que se pode
   // confirmar com segurança se é um jogador antigo — ver

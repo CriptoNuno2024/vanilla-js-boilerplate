@@ -244,7 +244,8 @@ function suite(fontes) {
   {
     ok(g0.ev('Object.keys(defaultState().despensa).sort().join()') === 'entregues,hoje,primeiraTroca,recebidos', 'a Despensa não ganhou campos');
     ok(g0.ev('defaultState().adega.bagaceira') === 0, 'a bagaceira continua a ser o campo de sempre (0 por omissão)');
-    ok(!/bagaceira|despensa/.test(fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8')), 'nuvem.js não foi tocado');
+    // nuvemJuntarLeves (bloco "Junta as áreas leves") junta a Despensa e o bagaceiraDia das visitas, de propósito (ver verificar-nuvem-juntar.js): esse bloco não conta.
+    ok(!/bagaceira|despensa/.test(fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8').replace(/\/\/ Junta as áreas "leves"[\s\S]*?(?=\/\/ Leitura da nuvem ao abrir)/, '')), 'nuvem.js não foi tocado (fora de nuvemJuntarLeves)');
   }
   return falhas;
 }

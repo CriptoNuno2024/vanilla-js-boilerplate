@@ -313,7 +313,8 @@ if (!process.env.DESPENSA_JS) {
   // os textos (js/i18n.js, js/capitulos.js) dizem "Despensa" com maiúscula, js/estrada.js usa a despensa (ver verificar-estrada.js) e js/lagar.js só lê despensaQuantos e chama despensaMesaVindima (ver verificar-mesa.js).
   const PERMITIDOS_TEXTO = ['capitulos.js', 'i18n.js'];
   fs.readdirSync(path.join(RAIZ, 'js')).filter(function (f) { return /\.js$/.test(f) && f !== 'state.js' && f !== 'despensa.js'; }).forEach(function (f) {
-    let codigo = ler(path.join(RAIZ, 'js', f)).split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
+    // js/nuvem.js junta a Despensa entre aparelhos (nuvemJuntarLeves, ver verificar-nuvem-juntar.js): esse bloco não conta.
+    let codigo = ler(path.join(RAIZ, 'js', f)).replace(/\/\/ Junta as áreas "leves"[\s\S]*?(?=\/\/ Leitura da nuvem ao abrir)/, '').split('\n').filter(function (l) { return !/^\s*\/\//.test(l); }).join('\n');
     if (PERMITIDOS_TEXTO.indexOf(f) !== -1) codigo = codigo.replace(/'despensa\.recebidos'/g, '').replace(/Despensa/g, '');
     if (f === 'estrada.js') {
       // O ecrã (PR 5B) usa a despensa: lê para mostrar e, no clique, chama despensaTrocar (ver verificar-estrada.js).
