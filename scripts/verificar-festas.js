@@ -999,7 +999,7 @@ function mutar(ficheiro, de, para) {
   return f;
 }
 const MUTACOES = [
-  ['Cenas: no Carnaval a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Reconhecer o Fygmo e pedir-lhe que largue os doces'", "'Reconhecer o Fygmo pelas orelhas e pedir-lhe, com bons modos, que deixe os doces em paz'"],
+  ['Cenas: no Carnaval a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Reconhecer o Fygmo pelas orelhas e mandar largar os doces'", "'Reconhecer o Fygmo pelas orelhas e pedir-lhe, com bons modos, que deixe os doces em paz'"],
   ['Cenas: no Natal as opções voltam a ficar desiguais (PT, cena 2)', 'festas.js', "'Pôr o bolo em cima do armário, onde a cadeira não chega'", "'Pôr o bolo no armário'"],
   ['Cenas: no São Martinho a certa volta a ser a mais comprida (PT, cena 1)', 'festas.js', "'Tapar o assador com a tampa antes que chegue'", "'Tapar o assador com a tampa de ferro, bem apertada, antes que ele chegue'"],
   ['Cenas: no Natal a certa deixa de ser a mesma nas línguas (PT, cena 2)', 'festas.js', "'Afastar a cadeira devagar, com ele ainda lá em cima'], correta: 0", "'Afastar a cadeira devagar, com ele ainda lá em cima'], correta: 1"],
@@ -1092,8 +1092,8 @@ const MUTACOES = [
   ['PT do Carnaval sem o texto de falta de Gotas', 'festas.js', "      fantasiasFalta: 'Ainda faltam Gotas para as fantasias. Junta mais e volta cá.',\n", ''],
   ['EN do Carnaval sem o texto do corso', 'festas.js', "      corsoSucesso: \"The corso parades", "      corsoSucessoX: \"The corso parades"],
   ['ES do Carnaval sem o aviso do dia grande', 'festas.js', "      diaGrandeAviso: '¡Hoy es martes de Carnaval! Los premios cuentan el doble.',\n", ''],
-  ['cena do Carnaval com a opção certa trocada', 'festas.js', "convidá-los a desfilar'], correta: 2 }", "convidá-los a desfilar'], correta: 1 }"],
-  ['cena do Carnaval em ES sem 3 opções diferentes', 'festas.js', "'Hacer como que no ves nada e irte a bailar el corso'], correta: 1 }", "'Saludarlo con ceremonia y darle un sitio en la mesa'], correta: 1 }"],
+  ['cena do Carnaval com a opção certa trocada', 'festas.js', "convidá-los a desfilar à vista'], correta: 2 }", "convidá-los a desfilar à vista'], correta: 1 }"],
+  ['cena do Carnaval em ES sem 3 opções diferentes', 'festas.js', "'Elogiar el disfraz y dejar que se sirva, que estamos en Carnaval'], correta: 1 }", "'Saludarlo con mucha ceremonia y ofrecerle un sitio en la mesa'], correta: 1 }"],
   ['resto do Natal no texto do Carnaval', 'festas.js', 'carros enfeitados, música e confetes', 'rabanadas a dourar, música e confetes'],
   ['Entrudo no texto do Carnaval', 'festas.js', "subtitulo: 'Uns dias de Carnaval, com o dia grande na terça-feira.'", "subtitulo: 'Uns dias de Entrudo, com o dia grande na terça-feira.'"],
   ['número no texto do Carnaval', 'festas.js', "subtitulo: 'Uns dias de Carnaval, com o dia grande na terça-feira.'", "subtitulo: 'Uns 4 dias de Carnaval, com o dia grande na terça-feira.'"],

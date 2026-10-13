@@ -607,12 +607,12 @@ const FESTAS_STRINGS = {
       quemEstaMascaradoSubtitulo: 'O Fygmo e o Fygmo2 vieram de máscara',
       quemEstaMascaradoJaFeitaHoje: 'Hoje já descobriste os mascarados. Amanhã há mais disfarces.',
       quemEstaMascaradoCenas: [
-        { situacao: 'Um mascarado de capa comprida anda a rondar a mesa dos doces, com umas orelhas cor-de-rosa a espreitar do capuz.', opcoes: ['Cumprimentá-lo com cerimónia e dar-lhe um lugar à mesa', 'Reconhecer o Fygmo e pedir-lhe que largue os doces', 'Fingir que não vês nada e ir dançar para o corso'], correta: 1 },
-        { situacao: 'Dois mascarados tentam entrar no corso a fingir que são um só: o Fygmo às cavalitas do Fygmo2, com um casaco comprido por cima.', opcoes: ['Aplaudir a elegante pessoa de duas cabeças, tão misteriosa', 'Fechar o portão do corso para que ninguém mais entre', 'Reparar nas quatro orelhas e convidá-los a desfilar'], correta: 2 },
-        { situacao: 'O Fygmo2 pôs uma máscara de gato e anda a miar baixinho atrás do YoshiCat, a ver se lhe leva o chapéu.', opcoes: ['Virar-te de repente e dizer "Olá, Fygmo2!"', 'Miar de volta e deixá-lo ficar com o chapéu', 'Fugir a correr, que há outro gato na Quinta'], correta: 0 }
+        { situacao: 'Um mascarado de capa comprida rodeia a mesa dos doces, com umas orelhas cor-de-rosa a espreitar do capuz e um passo muito pouco convincente.', opcoes: ['Cumprimentá-lo com cerimónia e oferecer-lhe um lugar à mesa', 'Reconhecer o Fygmo pelas orelhas e mandar largar os doces', 'Elogiar o disfarce e deixá-lo servir-se, que é Carnaval'], correta: 1 },
+        { situacao: 'Dois mascarados tentam entrar no corso fingindo ser um só: o Fygmo às cavalitas do Fygmo2, com um sobretudo comprido por cima.', opcoes: ['Aplaudir o cavalheiro de duas cabeças, tão misterioso', 'Fechar o portão do corso para ninguém mais entrar', 'Contar as orelhas e convidá-los a desfilar à vista'], correta: 2 },
+        { situacao: 'O Fygmo2 pôs uma máscara de gato e mia baixinho atrás do YoshiCat, a ver se lhe leva o chapéu.', opcoes: ['Virar-te de repente e dizer «Boa noite, Fygmo2»', 'Miar de volta e deixar-lhe o chapéu, por cortesia', 'Fugir, que um gato desconhecido é mau sinal'], correta: 0 }
       ],
-      quemEstaMascaradoVitoria: 'Descobertos! O Fygmo e o Fygmo2 tiram a máscara, riem-se e prometem não fazer mais confusão. O corso continua, agora com todos à vista.',
-      quemEstaMascaradoDerrota: 'Desta vez enganaste-te e o mascarado safou-se, a assobiar. Não faz mal: não se perdeu nada, e o Carnaval é para brincar.'
+      quemEstaMascaradoVitoria: 'Descobertos. O Fygmo e o Fygmo2 tiram a máscara, riem-se e prometem comportar-se até à Quarta-feira de Cinzas. O corso segue, agora com todos à vista.',
+      quemEstaMascaradoDerrota: 'Desta vez o mascarado safou-se a assobiar, de capa ao vento. Ninguém leva a mal: é Carnaval, e nada se perdeu.'
     },
     en: {
       faixa: "It's Carnival on the Quinta!",
@@ -638,12 +638,12 @@ const FESTAS_STRINGS = {
       quemEstaMascaradoSubtitulo: 'Fygmo and Fygmo2 have come in masks',
       quemEstaMascaradoJaFeitaHoje: "Today you have already unmasked them. Tomorrow brings more disguises.",
       quemEstaMascaradoCenas: [
-        { situacao: 'A masked figure in a long cape is lurking around the sweets table, with a pair of pink ears sticking out of the hood.', opcoes: ['Greet them formally and offer them a seat at the table', 'Recognise Fygmo by the ears and ask him to stop', 'Pretend you see nothing and go and dance in the corso'], correta: 1 },
-        { situacao: 'Two masked figures try to join the corso pretending to be one: Fygmo riding on the back of Fygmo2, with a long coat over both.', opcoes: ['Applaud the elegant two-headed person, so mysterious', 'Shut the corso gate so that nobody else gets in', 'Notice the four ears and invite them to parade'], correta: 2 },
-        { situacao: 'Fygmo2 has put on a cat mask and is softly meowing behind YoshiCat, trying to take his hat.', opcoes: ['Turn and say "Hello, Fygmo2!"', 'Meow back and let him keep the hat', 'Run away, there is another cat here'], correta: 0 }
+        { situacao: 'A masked figure in a long cape circles the sweets table, pink ears poking out of the hood and a very unconvincing stride.', opcoes: ['Greet them with ceremony and offer them a seat at the table', 'Recognise Fygmo by the ears and tell him to drop the sweets', 'Praise the costume and let them help themselves, it is Carnival'], correta: 1 },
+        { situacao: 'Two masked figures try to join the corso pretending to be one: Fygmo riding on the back of Fygmo2, with a long overcoat over both.', opcoes: ['Applaud the two-headed gentleman, so very mysterious', 'Shut the corso gate so that nobody else gets in', 'Count the ears and invite them to parade openly'], correta: 2 },
+        { situacao: 'Fygmo2 has put on a cat mask and meows softly behind YoshiCat, hoping to lift his hat.', opcoes: ['Turn around and say "Good evening, Fygmo2"', 'Meow back and let him keep the hat, out of courtesy', 'Run away: an unknown cat is a very bad omen'], correta: 0 }
       ],
-      quemEstaMascaradoVitoria: 'Found out! Fygmo and Fygmo2 take off their masks, laugh and promise not to cause more trouble. The corso carries on, now with everyone in plain sight.',
-      quemEstaMascaradoDerrota: "You got it wrong this time and the masked one slipped away, whistling. Never mind: nothing was lost, and Carnival is for playing."
+      quemEstaMascaradoVitoria: 'Found out. Fygmo and Fygmo2 take off their masks, laugh and promise to behave until Ash Wednesday. The corso carries on, now with everyone in plain sight.',
+      quemEstaMascaradoDerrota: 'This time the masked one got away whistling, cape in the wind. Nobody minds: it is Carnival, and nothing was lost.'
     },
     es: {
       faixa: '¡Es Carnaval en la Quinta!',
@@ -669,12 +669,12 @@ const FESTAS_STRINGS = {
       quemEstaMascaradoSubtitulo: 'El Fygmo y el Fygmo2 han venido con máscara',
       quemEstaMascaradoJaFeitaHoje: 'Hoy ya has descubierto a los enmascarados. Mañana habrá más disfraces.',
       quemEstaMascaradoCenas: [
-        { situacao: 'Un enmascarado de capa larga ronda la mesa de los dulces, con unas orejas rosadas asomando por la capucha.', opcoes: ['Saludarlo con ceremonia y darle un sitio en la mesa', 'Reconocer al Fygmo y pedirle que suelte los dulces', 'Hacer como que no ves nada e irte a bailar el corso'], correta: 1 },
-        { situacao: 'Dos enmascarados intentan entrar en el corso haciéndose pasar por uno solo: el Fygmo a caballito del Fygmo2, con un abrigo largo por encima.', opcoes: ['Aplaudir a la persona de dos cabezas, tan misteriosa', 'Cerrar el portón del corso para que nadie más entre', 'Fijarte en las cuatro orejas y dejarlos desfilar'], correta: 2 },
-        { situacao: 'El Fygmo2 se ha puesto una máscara de gato y maúlla bajito detrás del YoshiCat, a ver si le quita el sombrero.', opcoes: ['Girarte y decir "¡Hola, Fygmo2!"', 'Maullar de vuelta y dejarle el sombrero', 'Salir corriendo, que hay otro gato aquí'], correta: 0 }
+        { situacao: 'Un enmascarado de capa larga ronda la mesa de los dulces, con unas orejas rosadas asomando por la capucha y un paso muy poco convincente.', opcoes: ['Saludarlo con mucha ceremonia y ofrecerle un sitio en la mesa', 'Reconocer al Fygmo por las orejas y mandarle soltar los dulces', 'Elogiar el disfraz y dejar que se sirva, que estamos en Carnaval'], correta: 1 },
+        { situacao: 'Dos enmascarados intentan entrar en el corso haciéndose pasar por uno solo: el Fygmo a caballito del Fygmo2, con un abrigo largo por encima.', opcoes: ['Aplaudir al distinguido caballero de dos cabezas, tan misterioso', 'Cerrar el portón del corso para que nadie más pueda entrar', 'Contar las orejas e invitarlos a desfilar a la vista'], correta: 2 },
+        { situacao: 'El Fygmo2 se ha puesto una máscara de gato y maúlla bajito detrás del YoshiCat, a ver si le quita el sombrero.', opcoes: ['Girarte de golpe y decir «Buenas noches, Fygmo2»', 'Maullar de vuelta y dejarle el sombrero, por cortesía', 'Huir, que un gato desconocido es mala señal'], correta: 0 }
       ],
-      quemEstaMascaradoVitoria: '¡Descubiertos! El Fygmo y el Fygmo2 se quitan la máscara, se ríen y prometen no armar más lío. El corso continúa, ahora con todos a la vista.',
-      quemEstaMascaradoDerrota: 'Esta vez te has equivocado y el enmascarado se escapó, silbando. No pasa nada: no se perdió nada, y el Carnaval es para jugar.'
+      quemEstaMascaradoVitoria: 'Descubiertos. El Fygmo y el Fygmo2 se quitan la máscara, se ríen y prometen portarse bien hasta el Miércoles de Ceniza. El corso sigue, ahora con todos a la vista.',
+      quemEstaMascaradoDerrota: 'Esta vez el enmascarado se escapó silbando, con la capa al viento. Nadie se lo toma a mal: es Carnaval, y no se perdió nada.'
     }
   },
   pascoa: {
