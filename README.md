@@ -66,4 +66,4 @@ Cada `<script src="js/...?v=N">` do `index.html` tem um número de versão que s
 
 ## Origem
 
-Nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT (ver `LICENSE`).
+Nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT (ver `LICENSE-MIT-TON`); o resto do projeto está sob «todos os direitos reservados» (ver `LICENSE`).

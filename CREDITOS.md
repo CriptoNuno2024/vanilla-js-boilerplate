@@ -17,7 +17,7 @@ O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, també
 Fraunces e Nunito, com a licença SIL Open Font License 1.1. As licenças estão em assets/fontes/.
 
 ## Base do projeto
-O projeto nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT. Ver o ficheiro LICENSE.
+O projeto nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT. O resto do projeto está sob «todos os direitos reservados» (ver `LICENSE`), e a licença MIT do modelo está em `LICENSE-MIT-TON`.
 
 ## Meteorologia
 Dados do tempo: Open-Meteo (open-meteo.com).

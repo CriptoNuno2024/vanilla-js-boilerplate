@@ -1,21 +1,10 @@
-MIT License
+Copyright (c) 2026 CriptoNuno2024. Todos os direitos reservados. / All rights reserved.
 
-Copyright (c) 2023 TON Foundation
+«YoshiCat e a Quinta do Moscatel»: o código escrito para este projeto, os textos, as personagens (YoshiCat, Chizo, Fygmo, Fygmo2 e as restantes), as histórias e o desenho do jogo pertencem ao autor e NÃO estão licenciados para copiar, modificar, distribuir ou usar comercialmente sem autorização escrita prévia. Poder ver este repositório no GitHub não dá nenhuma dessas permissões. Pedidos de autorização: através do perfil do GitHub CriptoNuno2024.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+The code written for this project, the texts, the characters (YoshiCat, Chizo, Fygmo, Fygmo2 and the others), the stories and the game design belong to the author and are NOT licensed for copying, modification, distribution or commercial use without prior written permission. Being able to view this repository on GitHub does not grant any of those permissions. Requests for permission: via the GitHub profile CriptoNuno2024.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Exceções, cada uma com a sua licença / Exceptions, each under its own licence:
+- O esqueleto original do modelo vanilla-js-boilerplate (Telegram Mini Apps) está sob a licença MIT, Copyright (c) 2023 TON Foundation: ver LICENSE-MIT-TON. / The original skeleton of the vanilla-js-boilerplate template is under the MIT licence: see LICENSE-MIT-TON.
+- Os sons CC0 do BigSoundBank, os tipos de letra Fraunces e Nunito (SIL Open Font License 1.1, em assets/fontes/) e os dados do Open-Meteo: ver CREDITOS.md. / CC0 sounds, fonts and Open-Meteo data: see CREDITOS.md.
+- As imagens geradas com IA estão sujeitas também aos termos dos serviços que as geraram. / AI-generated images are also subject to the terms of the services that generated them.
