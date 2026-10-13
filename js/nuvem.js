@@ -774,4 +774,175 @@ function nuvemApagarTudo(callback) {
   });
 }
 
+// -----------------------------------------------------------------
+// RELER A NUVEM AO VOLTAR À APP (passo B de "progresso entre aparelhos")
+//
+// Quem joga em dois aparelhos pode deixar a app aberta e escondida num deles
+// durante horas: o progresso feito no outro só aparecia ao reabrir de raiz.
+// Agora, quando a app volta a ficar visível depois de pelo menos 2 min
+// escondida (e a última releitura foi há pelo menos 2 min), lê-se a nuvem
+// outra vez e decide-se com as MESMAS regras da abertura (nuvemTratarLeitura).
+// Só acrescenta código: o fluxo de abertura acima não foi tocado.
+//
+// Só age com a leitura 'ok'. Com 'erro' ou 'vazio' não faz nada (não grava,
+// não marca erro, não agenda nada). Nunca troca o estado a meio de uma
+// ação: com um minijogo/ecrã com estado em memória ativo, ou com uma
+// gravação por enviar/a decorrer, adia-se para a volta seguinte.
+// -----------------------------------------------------------------
+
+const NUVEM_RELER_ESCONDIDA_MS = 120000; // a app tem de ter estado escondida pelo menos 2 min
+const NUVEM_RELER_ENTRE_MS = 120000;     // e a última releitura tem de ter sido há pelo menos 2 min
+const NUVEM_GRAVACAO_MAX_MS = 30000;     // uma gravação sem resposta há mais de 30 s deixa de contar como "a decorrer"
+// Ecrãs em que trocar o estado é seguro: não guardam estado de uma ação em
+// variáveis (nuvemAtualizarEcraAposSync() refresca-os, ou lêem sempre do
+// estado). Todos os outros (vinha, proteger, garrafa, engarrafar, lagar,
+// camara, roxo, estrada, colecao, explorar, festa, garrafas,
+// conquistas, lingua) guardam resultados/relógios/rondas em memória e adiam.
+const NUVEM_RELER_ECRAS_SEGUROS = ['home', 'quinta', 'perfil', 'enciclopedia', 'caderno'];
+
+// Gravações em curso: mede-se por fora, sem mexer em nuvemGuardarEstado()
+// (a original corre inteira por dentro deste invólucro, com os mesmos argumentos).
+let _nuvemGravacoesEmCurso = 0;
+let _nuvemGravacaoDesde = 0;
+const _nuvemGuardarEstadoOriginal = nuvemGuardarEstado;
+nuvemGuardarEstado = function (s, callback) {
+  _nuvemGravacoesEmCurso += 1;
+  _nuvemGravacaoDesde = Date.now();
+  let contada = true;
+  function fim() { if (contada) { contada = false; _nuvemGravacoesEmCurso = Math.max(0, _nuvemGravacoesEmCurso - 1); } }
+  try {
+    return _nuvemGuardarEstadoOriginal(s, function (ok) {
+      fim();
+      if (callback) callback(ok);
+    });
+  } catch (e) {
+    fim();
+    throw e;
+  }
+};
+
+function nuvemGravacaoEmCurso() {
+  if (_nuvemGravacoesEmCurso <= 0) return false;
+  const dt = Date.now() - _nuvemGravacaoDesde;
+  return !(dt >= NUVEM_GRAVACAO_MAX_MS); // sem resposta há muito: não bloqueia para sempre
+}
+
+let _nuvemEscondidaDesde = null;
+let _nuvemUltimaReleitura = Date.now(); // a leitura da abertura conta como a última
+let _nuvemRelerEmCurso = false;
+let _nuvemRelerAdiada = false; // a última volta não pôde ler/aplicar: a próxima dispensa os 2 min escondida
+let _nuvemRelerVoltas = 0;     // sobe de cada vez que a app esconde: uma resposta de uma volta anterior ignora-se
+
+function nuvemEcraSeguroParaReler() {
+  const ativo = document.querySelector('.screen.active');
+  if (!ativo) return true;
+  return NUVEM_RELER_ECRAS_SEGUROS.indexOf(String(ativo.id).replace(/^screen-/, '')) !== -1;
+}
+
+function nuvemRelerPodeAplicar() {
+  return !_nuvemTimerGravacao && !_nuvemEstadoPendente && !nuvemGravacaoEmCurso() && nuvemEcraSeguroParaReler();
+}
+
+function nuvemRelerAoVoltar() {
+  const desde = _nuvemEscondidaDesde;
+  _nuvemEscondidaDesde = null;
+  if (apagando || !arranque.respondeu || _nuvemALer || _nuvemRelerEmCurso || !nuvemStorage()) return;
+  const agora = Date.now();
+  const escondidaChega = _nuvemRelerAdiada || (desde !== null && agora - desde >= NUVEM_RELER_ESCONDIDA_MS);
+  if (!escondidaChega) return;
+  const desdeUltima = agora - _nuvemUltimaReleitura;
+  if (desdeUltima >= 0 && desdeUltima < NUVEM_RELER_ENTRE_MS) return;
+  if (_nuvemTimerGravacao || _nuvemEstadoPendente || nuvemGravacaoEmCurso()) {
+    nuvemGravarJa(); // o que estiver por enviar vai primeiro; lê-se na volta seguinte
+    _nuvemRelerAdiada = true;
+    return;
+  }
+  nuvemReler();
+}
+
+function nuvemReler() {
+  if (apagando || !arranque.respondeu || _nuvemALer || _nuvemRelerEmCurso) return;
+  const volta = _nuvemRelerVoltas;
+  _nuvemRelerEmCurso = true;
+  let respondida = false;
+  const limite = setTimeout(function () { // sem resposta: desiste (uma resposta tardia ignora-se)
+    if (respondida) return;
+    respondida = true;
+    _nuvemRelerEmCurso = false;
+    _nuvemUltimaReleitura = Date.now();
+  }, NUVEM_ESPERA_LEITURA_MS);
+
+  nuvemLerEstado(function (estadoNuvem, estatus) {
+    if (respondida) return;
+    respondida = true;
+    clearTimeout(limite);
+    _nuvemRelerEmCurso = false;
+    if (apagando || volta !== _nuvemRelerVoltas || document.visibilityState === 'hidden') return;
+    if (estatus !== 'ok' || !estadoNuvem || typeof estadoNuvem !== 'object') {
+      _nuvemUltimaReleitura = Date.now(); // 'erro' ou 'vazio': nada muda, nada se grava; só não repete já
+      return;
+    }
+    if (!nuvemRelerPodeAplicar()) { _nuvemRelerAdiada = true; return; } // gravação por enviar ou ecrã a meio de uma ação
+    try {
+      nuvemAplicarReleitura(estadoNuvem);
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('Nuvem: a releitura falhou.');
+    }
+    _nuvemUltimaReleitura = Date.now();
+    _nuvemRelerAdiada = false;
+  });
+}
+
+// Mesmas regras de nuvemTratarLeitura() para um estatuto 'ok' (sem o
+// arranque: o local conta com o carimbo atual).
+function nuvemAplicarReleitura(estadoNuvem) {
+  const localEm = state.ultimaGravacaoEm || 0;
+  const nuvemEm = estadoNuvem.ultimaGravacaoEm || 0;
+  const repLocal = Number.isFinite(state.reputacao) ? state.reputacao : 0;
+  const repNuvem = Number.isFinite(estadoNuvem.reputacao) ? estadoNuvem.reputacao : 0;
+  const nuvemTemMaisReputacao = repNuvem > repLocal;
+
+  if (localEm >= nuvemEm && !nuvemTemMaisReputacao) {
+    const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
+    const juntoCaderno = nuvemJuntarCaderno(state.caderno, estadoNuvem.caderno);
+    const leves = nuvemJuntarLeves(state, estadoNuvem);
+    const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos) ||
+      JSON.stringify(juntoCaderno) !== JSON.stringify(state.caderno) ||
+      NUVEM_LEVES_AREAS.some(function (k) { return JSON.stringify(leves[k]) !== JSON.stringify(state[k]); });
+    if (mudou) {
+      state.capitulos = juntos;
+      state.caderno = juntoCaderno;
+      NUVEM_LEVES_AREAS.forEach(function (k) { state[k] = leves[k]; });
+    }
+    if (localEm > nuvemEm || mudou) nuvemGuardarEstado(state); // alinha a nuvem com o local
+    return;
+  }
+
+  // A nuvem tem progresso mais recente (ou mais Reputação): adota-a, junta o que
+  // o local tinha a mais, guarda no localStorage e refresca o ecrã.
+  const capitulosLocais = state.capitulos;
+  const cadernoLocal = state.caderno;
+  const estadoLocalAntes = state;
+  state = mergeDeep(defaultState(), estadoNuvem);
+  state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
+  state.caderno = nuvemJuntarCaderno(cadernoLocal, state.caderno);
+  const levesJuntas = nuvemJuntarLeves(state, estadoLocalAntes);
+  NUVEM_LEVES_AREAS.forEach(function (k) { state[k] = levesJuntas[k]; });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (typeof avaliarJogadorAntigo === 'function') avaliarJogadorAntigo();
+  if (typeof capitulosAvaliarEmSilencio === 'function') capitulosAvaliarEmSilencio();
+  if (typeof garantirObjetivosDoDia === 'function') garantirObjetivosDoDia();
+  nuvemAtualizarEcraAposSync();
+  nuvemRefazerQuinta();
+}
+
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden') {
+    _nuvemEscondidaDesde = Date.now();
+    _nuvemRelerVoltas += 1;
+  } else if (document.visibilityState === 'visible') {
+    nuvemRelerAoVoltar();
+  }
+});
+
 nuvemSincronizarAoAbrir();
