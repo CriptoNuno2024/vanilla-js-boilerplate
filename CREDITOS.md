@@ -7,7 +7,7 @@ O vertido de vinho, o tilintar de copos e o borbulhar de fermentação da págin
 
 Os sons dos gestos da Vinha (a pá a cavar, as folhas secas a mexer, a água a regar, a tesoura a podar e a rolha a sair de uma garrafa de vinho) vêm também do BigSoundBank (CC0); a autoria de cada um está por confirmar pelo Nuno. Os originais (mono, 48 kHz, 320 kbps; 71 s, 3,3 s, 32 s, 13 s e 1,5 s) foram carregados na pasta principal a 11/10/2026 como `cavar_usar_uma_pa.mp3`, `folhas_secas_a_mexer.mp3`, `regar.mp3`, `tesoura_podar_curtar.mp3` e `rolha_sair_ware_Wine.mp3`, e já saíram de lá. Em `assets/sons/` ficam pedaços cortados (com fade), convertidos a MP3 mono de 64 kbps e normalizados para um nível parecido com os outros sons: `cavar_pa.mp3` (1,25 s, de 16,24 s a 17,49 s do original), `folhas_secas.mp3` (2,7 s, de 0,30 s a 3,00 s), `rega.mp3` (2,8 s, de 14,70 s a 17,50 s), `tesoura_podar.mp3` (0,8 s, de 7,68 s a 8,48 s) e `rolha.mp3` (de 0,72 s ao fim do original, 0,78 s: sem o silêncio do início, fica a rolha a deslizar e o «pop»; fades de 5 ms e 50 ms), que é o brinde da Cepa Roxa.
 
-O som da prensa da Adega (`assets/sons/prensa.mp3`) foi enviado pelo Nuno (18 s, mono, 48 kHz, 320 kbps, com cerca de 12 ranger curtos); o site de origem e a licença estão por confirmar pelo Nuno. Foi cortado a um só ranger (~1 s), mono 64 kbps e normalizado; o original saiu da pasta principal.
+O som da prensa da Adega (`assets/sons/prensa.mp3`) foi enviado pelo Nuno (18 s, mono, 48 kHz, 320 kbps, com cerca de 12 ranger curtos); vem também do BigSoundBank (CC0), confirmado pelo Nuno a 13/10/2026. Foi cortado a um só ranger (~1 s), mono 64 kbps e normalizado; o original saiu da pasta principal.
 
 Os sons de São Martinho (a fogueira a crepitar e o assobio para chamar o Chizo) vêm também do BigSoundBank (CC0), com autoria por confirmar pelo Nuno. Os originais (mono, 48 kHz, 320 kbps) foram carregados na pasta principal a 12/10/2026 como `big_branching_fire.mp3` (38 s, com silêncio e estalos fortes) e `assobiar_chamar_chizo.mp3` (4,2 s, com três assobios), e já saíram de lá. Em `assets/sons/` ficam: `fogueira.mp3` (ciclo de 24 s feito com o pedaço de 8,0 s a 35,0 s do original, o fim cruzado 3 s com o início para não haver salto, com os estalos comprimidos e o nível baixado e nivelado; MP3 mono 64 kbps), `assobio_chizo.mp3` (0,68 s, o 3.º assobio, de 3,27 s a 3,95 s do original, fades de 5 ms e 80 ms, normalizado) e `tilintar_copos.mp3` (0,77 s, o tilintar de copos que fecha `garrafa_engarrafar.mp3`, de 2,13 s a 2,90 s dessa gravação, fades de 5 ms e 50 ms, normalizado).
 
@@ -15,6 +15,9 @@ O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, també
 
 ## Tipos de letra
 Fraunces e Nunito, com a licença SIL Open Font License 1.1. As licenças estão em assets/fontes/.
+
+## Imagens
+As imagens do jogo foram geradas com ferramentas de IA (Gemini, Grok e ChatGPT), usadas pelo Nuno. Segundo os termos dessas ferramentas, o utilizador fica com os direitos sobre o que gera, mas as imagens podem ser parecidas com as de outros utilizadores e, sendo geradas por IA, podem não ter proteção de direitos de autor. Os termos deverão ser revistos se o jogo vier a ter fins comerciais.
 
 ## Base do projeto
 O projeto nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT. O resto do projeto está sob «todos os direitos reservados» (ver `LICENSE`), e a licença MIT do modelo está em `LICENSE-MIT-TON`.
