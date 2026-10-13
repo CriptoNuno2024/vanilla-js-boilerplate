@@ -524,6 +524,22 @@ function nuvemJuntarLeves(base, outro) {
   };
 }
 
+// Conquistas ganhas (state.conquistasGanhas, id -> true): junção por UNIÃO. Só contam chaves de texto
+// (1 a 64 caracteres, nunca '__proto__') com o valor exatamente true; o resto ignora-se. Devolve sempre
+// um objeto novo, com as chaves por ordem (o resultado não depende da ordem dos argumentos).
+function nuvemJuntarConquistas(a, b) {
+  const ids = {};
+  [a, b].forEach(function (m) {
+    if (!m || typeof m !== 'object' || Array.isArray(m)) return;
+    Object.keys(m).forEach(function (k) {
+      if (k.length >= 1 && k.length <= 64 && k !== '__proto__' && m[k] === true) ids[k] = true;
+    });
+  });
+  const r = {};
+  Object.keys(ids).sort().forEach(function (k) { r[k] = true; });
+  return r;
+}
+
 // Leitura da nuvem ao abrir (ver nuvemTratarLeitura() para o que se faz com
 // cada estatuto). Só enquanto arranque.respondeu for false: uma leitura bem
 // sucedida (ou conta nova sem progresso) é que liberta o envio (nuvemPodeEnviar()).
@@ -624,10 +640,13 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
     const juntoCaderno = nuvemJuntarCaderno(state.caderno, estadoNuvem.caderno);
     // Áreas leves (ver NUVEM_LEVES_AREAS): base = local, outro = nuvem.
     const leves = nuvemJuntarLeves(state, estadoNuvem);
+    const conquistasJuntas = nuvemJuntarConquistas(state.conquistasGanhas, estadoNuvem.conquistasGanhas);
     const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos) ||
       JSON.stringify(juntoCaderno) !== JSON.stringify(state.caderno) ||
-      NUVEM_LEVES_AREAS.some(function (k) { return JSON.stringify(leves[k]) !== JSON.stringify(state[k]); });
+      NUVEM_LEVES_AREAS.some(function (k) { return JSON.stringify(leves[k]) !== JSON.stringify(state[k]); }) ||
+      JSON.stringify(conquistasJuntas) !== JSON.stringify(nuvemJuntarConquistas(state.conquistasGanhas, null));
     if (mudou) {
+      state.conquistasGanhas = conquistasJuntas;
       state.capitulos = juntos;
       state.caderno = juntoCaderno;
       NUVEM_LEVES_AREAS.forEach(function (k) { state[k] = leves[k]; });
@@ -648,6 +667,7 @@ function nuvemTratarLeitura(estadoNuvem, estatus, confirmandoVazio) {
   const cadernoLocal = state.caderno;
   const estadoLocalAntes = state;
   state = mergeDeep(defaultState(), estadoNuvem);
+  state.conquistasGanhas = nuvemJuntarConquistas(state.conquistasGanhas, estadoLocalAntes.conquistasGanhas);
   state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
   state.caderno = nuvemJuntarCaderno(cadernoLocal, state.caderno);
   // Áreas leves: base = a nuvem (que acabou de ganhar), outro = o local de antes de a substituir.
@@ -906,10 +926,13 @@ function nuvemAplicarReleitura(estadoNuvem) {
     const juntos = nuvemJuntarCapitulos(state.capitulos, estadoNuvem.capitulos);
     const juntoCaderno = nuvemJuntarCaderno(state.caderno, estadoNuvem.caderno);
     const leves = nuvemJuntarLeves(state, estadoNuvem);
+    const conquistasJuntas = nuvemJuntarConquistas(state.conquistasGanhas, estadoNuvem.conquistasGanhas);
     const mudou = JSON.stringify(juntos) !== JSON.stringify(state.capitulos) ||
       JSON.stringify(juntoCaderno) !== JSON.stringify(state.caderno) ||
-      NUVEM_LEVES_AREAS.some(function (k) { return JSON.stringify(leves[k]) !== JSON.stringify(state[k]); });
+      NUVEM_LEVES_AREAS.some(function (k) { return JSON.stringify(leves[k]) !== JSON.stringify(state[k]); }) ||
+      JSON.stringify(conquistasJuntas) !== JSON.stringify(nuvemJuntarConquistas(state.conquistasGanhas, null));
     if (mudou) {
+      state.conquistasGanhas = conquistasJuntas;
       state.capitulos = juntos;
       state.caderno = juntoCaderno;
       NUVEM_LEVES_AREAS.forEach(function (k) { state[k] = leves[k]; });
@@ -924,6 +947,7 @@ function nuvemAplicarReleitura(estadoNuvem) {
   const cadernoLocal = state.caderno;
   const estadoLocalAntes = state;
   state = mergeDeep(defaultState(), estadoNuvem);
+  state.conquistasGanhas = nuvemJuntarConquistas(state.conquistasGanhas, estadoLocalAntes.conquistasGanhas);
   state.capitulos = nuvemJuntarCapitulos(capitulosLocais, state.capitulos);
   state.caderno = nuvemJuntarCaderno(cadernoLocal, state.caderno);
   const levesJuntas = nuvemJuntarLeves(state, estadoLocalAntes);

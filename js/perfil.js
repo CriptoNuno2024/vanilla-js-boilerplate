@@ -56,6 +56,7 @@ function renderGaleriaGarrafas() {
 
 function renderPerfil() {
   const container = document.getElementById('perfil-container');
+  if (typeof conquistasRegistarGanhas === 'function') conquistasRegistarGanhas(); // conquistas e medalha já ganhas ficam registadas
 
   const tituloHtml = tituloEspecialDesbloqueado()
     ? '<div class="badge-title">' + PERFIL_MEDALHA_SVG + ' <span data-i18n="perfil.titulo.guardiao"></span></div>'
