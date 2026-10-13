@@ -702,12 +702,12 @@ const FESTAS_STRINGS = {
       ovosSubtitulo: 'Onde está o ovo?',
       ovosJaFeitaHoje: 'Hoje já encontraste o ovo. Amanhã há outro esconderijo.',
       ovosCenas: [
-        { situacao: 'O YoshiCat escondeu o ovo onde o Fygmo não chega: bem no alto, longe do focinho de qualquer porco.', opcoes: ['Dentro do cesto, no chão do pátio', 'No alto da prateleira da cozinha', 'Debaixo da mesa, junto às patas dele'], correta: 1 },
-        { situacao: 'O Fygmo2 finge que dorme e não sabe de nada. Mas o YoshiCat viu o ovo num sítio macio e quentinho.', opcoes: ['No balde da água, bem fresquinho', 'Em cima do muro de pedra do pátio', 'Na palha quentinha do galinheiro'], correta: 2 },
-        { situacao: 'O Chizo não levanta o focinho do chão e abana a cauda: o ovo está onde cheira a folar quentinho.', opcoes: ['Junto ao forno, a cheirar a folar', 'Junto ao poço, onde cheira a musgo', 'Junto à horta, onde cheira a terra'], correta: 0 }
+        { situacao: 'O YoshiCat escondeu o ovo onde o focinho do Fygmo não chega: bem no alto, fora do alcance de qualquer porco com ambições.', opcoes: ['No cesto do pátio, escondido debaixo de um pano', 'No alto da prateleira, atrás dos tachos de cobre', 'Debaixo da mesa, que ninguém procura onde se come'], correta: 1 },
+        { situacao: 'O Fygmo2 finge que dorme e não sabe de nada. Mas o YoshiCat viu o ovo num sítio macio e quente, onde as galinhas têm autoridade.', opcoes: ['No balde da água, onde ninguém olharia', 'No muro de pedra do pátio, ao sol da manhã', 'Na palha do galinheiro, ainda morna'], correta: 2 },
+        { situacao: 'O Chizo não levanta o focinho do chão e abana a cauda: o ovo está onde o ar cheira a folar acabado de sair do forno.', opcoes: ['Junto ao forno, onde o folar ainda fumega', 'Junto ao poço, onde só cheira a musgo', 'Junto à horta, onde cheira a terra e couves'], correta: 0 }
       ],
-      ovosVitoria: 'Encontraste o ovo! O Fygmo e o Fygmo2 suspiram, prometem não voltar a espreitar e o ovo volta para a mesa.',
-      ovosDerrota: 'Desta vez enganaste-te e o ovo sumiu. Não faz mal: não se perdeu nada, e a Páscoa é para brincar.'
+      ovosVitoria: 'Ovo encontrado. O Fygmo e o Fygmo2 suspiram, juram que só passavam por ali e o ovo volta para a mesa, ao lado do folar.',
+      ovosDerrota: 'Desta vez enganaste-te e o ovo mudou de dono. Nada se perdeu: amanhã há outro esconderijo.'
     },
     en: {
       faixa: 'It\'s Easter on the Quinta!',
@@ -733,12 +733,12 @@ const FESTAS_STRINGS = {
       ovosSubtitulo: 'Where is the egg?',
       ovosJaFeitaHoje: 'Today you have already found the egg. Tomorrow there is another hiding place.',
       ovosCenas: [
-        { situacao: 'YoshiCat hid the egg where Fygmo cannot reach: way up high, far from any pig\'s snout.', opcoes: ['Inside the basket on the patio floor', 'On the high shelf in the kitchen', 'Under the table, by his trotters'], correta: 1 },
-        { situacao: 'Fygmo2 pretends to sleep and knows nothing. But YoshiCat saw the egg somewhere soft and warm.', opcoes: ['In the water bucket, nice and cool', 'On top of the stone wall in the yard', 'In the warm straw of the henhouse'], correta: 2 },
-        { situacao: 'Chizo keeps his nose to the ground, tail wagging: the egg is where it smells of warm folar.', opcoes: ['Next to the oven, smelling of folar', 'Next to the well, smelling of moss', 'Next to the garden, smelling of soil'], correta: 0 }
+        { situacao: 'YoshiCat hid the egg where Fygmo\'s snout cannot reach: way up high, out of range of any pig with ambitions.', opcoes: ['In the patio basket, hidden under a cloth', 'On the high shelf, behind the copper pots', 'Under the table, where nobody looks while eating'], correta: 1 },
+        { situacao: 'Fygmo2 pretends to sleep and knows nothing. But YoshiCat saw the egg somewhere soft and warm, where the hens are in charge.', opcoes: ['In the water bucket, where nobody would look', 'On the stone wall, in the morning sun', 'In the straw of the henhouse, still warm'], correta: 2 },
+        { situacao: 'Chizo will not lift his nose from the ground and wags his tail: the egg is where the air smells of folar fresh from the oven.', opcoes: ['Next to the oven, where the folar still steams', 'Next to the well, where it only smells of moss', 'Next to the garden, where it smells of soil and cabbages'], correta: 0 }
       ],
-      ovosVitoria: 'You found the egg! Fygmo and Fygmo2 sigh, promise not to peek again, and the egg goes back on the table.',
-      ovosDerrota: 'You got it wrong this time and the egg vanished. Never mind: nothing was lost, and Easter is for playing.'
+      ovosVitoria: 'Egg found. Fygmo and Fygmo2 sigh, swear they were only passing by, and the egg goes back on the table, next to the folar.',
+      ovosDerrota: 'This time you got it wrong and the egg changed owners. Nothing was lost: tomorrow there is another hiding place.'
     },
     es: {
       faixa: '¡Es Pascua en la Quinta!',
@@ -764,12 +764,12 @@ const FESTAS_STRINGS = {
       ovosSubtitulo: '¿Dónde está el huevo?',
       ovosJaFeitaHoje: 'Hoy ya has encontrado el huevo. Mañana hay otro escondite.',
       ovosCenas: [
-        { situacao: 'El YoshiCat escondió el huevo donde el Fygmo no llega: bien alto, lejos del hocico de cualquier cerdo.', opcoes: ['Dentro del cesto, en el suelo del patio', 'En lo alto del estante de la cocina', 'Debajo de la mesa, junto a sus patas'], correta: 1 },
-        { situacao: 'El Fygmo2 finge dormir y no sabe nada. Pero el YoshiCat vio el huevo en un sitio blandito y calentito.', opcoes: ['En el cubo del agua, bien fresquito', 'Encima del muro de piedra del patio', 'En la paja calentita del gallinero'], correta: 2 },
-        { situacao: 'El Chizo pega el hocico al suelo y mueve la cola: el huevo está donde huele a folar calentito.', opcoes: ['Junto al horno, donde huele a folar', 'Junto al pozo, donde huele a musgo', 'Junto al huerto, donde huele a tierra'], correta: 0 }
+        { situacao: 'El YoshiCat escondió el huevo donde el hocico del Fygmo no llega: bien en lo alto, fuera del alcance de cualquier cerdo con ambiciones.', opcoes: ['En el cesto del patio, escondido bajo un paño', 'En lo alto del estante, tras las ollas de cobre', 'Debajo de la mesa, donde nadie busca mientras come'], correta: 1 },
+        { situacao: 'El Fygmo2 finge dormir y no sabe nada. Pero el YoshiCat vio el huevo en un sitio blando y caliente, donde las gallinas mandan.', opcoes: ['En el cubo del agua, donde nadie miraría', 'En el muro del patio, al sol de la mañana', 'En la paja del gallinero, todavía tibia'], correta: 2 },
+        { situacao: 'El Chizo no levanta el hocico del suelo y mueve la cola: el huevo está donde el aire huele a folar recién salido del horno.', opcoes: ['Junto al horno, donde el folar aún humea', 'Junto al pozo, donde solo huele a musgo', 'Junto al huerto, donde huele a tierra y a coles'], correta: 0 }
       ],
-      ovosVitoria: '¡Encontraste el huevo! El Fygmo y el Fygmo2 suspiran, prometen no volver a espiar y el huevo vuelve a la mesa.',
-      ovosDerrota: 'Esta vez te has equivocado y el huevo desapareció. No pasa nada: no se perdió nada, y la Pascua es para jugar.'
+      ovosVitoria: 'Huevo encontrado. El Fygmo y el Fygmo2 suspiran, juran que solo pasaban por allí y el huevo vuelve a la mesa, junto al folar.',
+      ovosDerrota: 'Esta vez te has equivocado y el huevo cambió de dueño. No se perdió nada: mañana hay otro escondite.'
     }
   }
 };
