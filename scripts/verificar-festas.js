@@ -59,16 +59,16 @@ function suite(fontes) {
     sb.Telegram = { WebApp: {} };
     const cx = vm.createContext(sb);
     vm.runInContext(`
-      var SAVES = 0, FUNDO = null, DIALOGO = null, CAIXA_LOG = [], ENTRADAS = [], OBJETIVOS = [], currentLang = 'pt';
+      var SAVES = 0, FUNDO = null, DIALOGO = null, CAIXA_LOG = [], ENTRADAS = [], AVISOS = [], OBJETIVOS = [], currentLang = 'pt';
       function t(k) { return k; }
       function randInt(a) { return a; }
       function localeAtual() { return 'pt-PT'; }
       function definirFundo(m, src) { FUNDO = src; }
       function atualizarDialogo(msg) { DIALOGO = msg; }
       function updateStatsDisplays() {} function vibrar() {} function tocarSom() {}
-      function mostrarNovaEntrada() {} function construirFilaPastilhas(id, html) { return html; }
+      function mostrarNovaEntrada(e) { if (e) AVISOS.push(e.id); } function construirFilaPastilhas(id, html) { return html; }
       function marcarPastilhaPrincipal() {} function configurarFilaPastilhas() {} function goTo() {}
-      function desbloquearEntradaEnciclopedia(id) { ENTRADAS.push(id); return null; }
+      function desbloquearEntradaEnciclopedia(id) { ENTRADAS.push(id); return { id: id }; }
       function marcarObjetivoCumprido(id) { OBJETIVOS.push(id); }
       function estacaoAtual() { return 'inverno'; }
       function tempoAtual() { return { disponivel: false }; }
@@ -140,7 +140,8 @@ function suite(fontes) {
     if (n) {
       ok(n.inicio.mes === 11 && n.inicio.dia === 20 && n.fim.mes === 11 && n.fim.dia === 26 && n.diaGrande.mes === 11 && n.diaGrande.dia === 25, 'Natal: 20 a 26 de dezembro, dia grande 25');
       ok(n.recompensas.multiplicadorDiaGrande === 2, 'Natal: dia grande a dobrar, como o São Martinho');
-      ok(n.entradaEnciclopedia === undefined, 'Natal: não abre nenhuma entrada da Enciclopédia');
+      ok(n.entradaEnciclopedia === 'consoada', 'Natal: abre a entrada consoada ao entrar na festa');
+      ok(n.tarefas.map(function (x) { return x.entradaEnciclopedia; }).join() === ',,boloRei', 'Natal: só a tarefa do bolo-rei abre uma entrada (boloRei); consoada e doces não');
       ok(JSON.stringify(n.tarefas.map(function (x) { return x.id; })) === '["consoada","doces","boloRei"]' && n.tarefas.every(function (x) { return x.onde === 'festa'; }), 'Natal: consoada, doces e bolo-rei, todas no ecrã da festa');
       ok(n.tarefas.map(function (x) { return x.regra; }).join() === 'oferta,gastar_gotas,cena_do_dia', 'Natal: regras oferta, gastar_gotas, cena_do_dia');
       ok(JSON.stringify(n.tarefas[0].premio) === '{"reputacao":5}', 'Natal: consoada +5 Reputação, sem custo nem bem');
@@ -284,8 +285,10 @@ function suite(fontes) {
     const errada = (cena.correta + 1) % 3;
     n.ev('festaResponderCenaDoDia(' + errada + ')');
     ok(n.ev('state.reputacao') === 389 && n.ev('state.gotas') === 10 && n.ev('SAVES') === 3 && n.ev("festaJaFezTarefaHoje('natal', 'boloRei')") === true, 'ecrã: bolo-rei errado não custa nada e gasta a tentativa do dia');
+    ok(n.json('ENTRADAS').join() === 'boloRei' && n.json('AVISOS').join() === 'boloRei', 'ecrã: responder à cena do bolo-rei (mesmo errando) abre a entrada boloRei e mostra o aviso de entrada nova: ' + n.json('ENTRADAS').join() + ' / ' + n.json('AVISOS').join());
     n.ev('festaResponderCenaDoDia(' + cena.correta + ')');
     ok(n.ev('state.reputacao') === 389 && n.ev('SAVES') === 3, 'ecrã: toque duplo na mesma cena não paga nem grava outra vez');
+    ok(n.json('ENTRADAS').join() === 'boloRei' && n.json('AVISOS').join() === 'boloRei', 'ecrã: toque duplo na mesma cena não abre a entrada outra vez');
     n.ev("iniciarTarefaFesta('boloRei')");
     ok(n.ev('festaCenaAtual') === null, 'ecrã: bolo-rei já tentado hoje não abre outra cena');
     n.ir(lis(12, 23));
@@ -293,9 +296,22 @@ function suite(fontes) {
     const cena2 = n.json('festaCenaAtual.cena');
     n.ev('festaResponderCenaDoDia(' + cena2.correta + ')');
     ok(n.ev('state.reputacao') === 395 && n.ev('SAVES') === 4, 'ecrã: no dia seguinte volta, e acertar dá +6');
-    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').length === 0, 'ecrã: cada tarefa conta para o objetivo do dia e o Natal não abre nada na Enciclopédia');
+    ok(n.json('OBJETIVOS').length === 4 && n.json('ENTRADAS').every(function (x) { return x === 'boloRei'; }), 'ecrã: cada tarefa conta para o objetivo do dia e a consoada e os doces não abrem entradas');
     n.ev('enterFesta()');
-    ok(n.json('ENTRADAS').length === 0, 'enterFesta no Natal não abre a lenda de São Martinho');
+    ok(n.json('ENTRADAS').indexOf('consoada') !== -1 && n.json('ENTRADAS').indexOf('lendaSaoMartinho') === -1 && n.json('ENTRADAS').slice(-1)[0] === 'consoada', 'enterFesta no Natal abre a consoada (e não a lenda de São Martinho)');
+    ok(n.json('AVISOS').slice(-1)[0] === 'consoada', 'enterFesta no Natal mostra o aviso de entrada nova da consoada');
+    {
+      // acertar à primeira também abre o bolo-rei (ganhe ou perca); a consoada e os doces não abrem nada
+      const v = abrir(lis(12, 22), '?festa=natal');
+      v.ev("iniciarTarefaFesta('consoada')"); v.ev("iniciarTarefaFesta('doces')");
+      ok(v.json('ENTRADAS').length === 0, 'Natal: fazer a consoada e os doces não abre entradas');
+      v.ev("iniciarTarefaFesta('boloRei')");
+      ok(v.json('ENTRADAS').length === 0, 'Natal: abrir a cena do bolo-rei ainda não abre a entrada');
+      v.ev('festaResponderCenaDoDia(' + v.json('festaCenaAtual.cena.correta') + ')');
+      ok(v.json('ENTRADAS').join() === 'boloRei' && v.json('AVISOS').join() === 'boloRei', 'Natal: acertar na cena do bolo-rei abre a entrada boloRei com o aviso');
+      v.ev("iniciarTarefaFesta('boloRei')"); // já feito hoje: não abre cena nem entrada
+      ok(v.json('ENTRADAS').join() === 'boloRei', 'Natal: bolo-rei já feito hoje não abre a entrada outra vez');
+    }
     n.ev('renderFestaHub()');
     const html = n.ev('caixa.innerHTML');
     ok(/iniciarTarefaFesta\('consoada'\)/.test(html) && /iniciarTarefaFesta\('doces'\)/.test(html) && /iniciarTarefaFesta\('boloRei'\)/.test(html) && !/castanhas|jeropiga|prova/.test(html), 'hub do Natal: os 3 botões do Natal e nenhum do São Martinho');
@@ -498,9 +514,9 @@ function suite(fontes) {
     });
     // São Martinho: os textos não mudaram (amostra)
     ok(TXT.saomartinho.pt.btnCastanhas === 'Assar Castanhas' && TXT.saomartinho.en.btnProva === 'Taste the New Wine' && TXT.saomartinho.es.btnJeropiga === 'Hacer Jeropiga' && TXT.saomartinho.pt.faixa === 'É São Martinho na Quinta!', 'São Martinho: textos iguais aos de antes');
-    // sem entradas novas na Enciclopédia neste PR
+    // a Enciclopédia tem as entradas de Natal (consoada e boloRei), uma por língua, e nenhuma "natal" (texto e forma: verificar-enciclopedia-natal.js)
     const explorar = fs.readFileSync(path.join(RAIZ, 'js', 'explorar.js'), 'utf8');
-    ok(!/id: 'natal|id: 'consoada|id: 'boloRei/i.test(explorar), 'a Enciclopédia não ganhou entradas de Natal');
+    ok((explorar.match(/id: 'consoada'/g) || []).length === 3 && (explorar.match(/id: 'boloRei'/g) || []).length === 3 && !/id: 'natal/i.test(explorar), 'a Enciclopédia tem a consoada e o boloRei nas 3 línguas');
     // Natal não mexe em js/nuvem.js nem no state.js (a forma de state.festas é a de antes)
     ok(g.json('Object.keys(defaultState().festas)').join() === 'tarefasDia', 'state.festas continua a ter só tarefasDia');
   }
@@ -1027,6 +1043,14 @@ const MUTACOES = [
   ['resultado inválido aceite', 'festas.js', "if (op.venceu !== true && op.venceu !== false) return recusa('resultado_invalido');", ''],
   ['regra não pura aceite', 'festas.js', "FESTAS_REGRAS_PURAS.indexOf(tarefa.regra) === -1", 'false'],
   ['Natal abre a lenda de São Martinho', 'festas.js', 'if (festa.entradaEnciclopedia) {', 'if (true) {'],
+  ['Natal deixa de abrir a consoada', 'festas.js', "    entradaEnciclopedia: 'consoada',\n", ''],
+  ['Natal abre a entrada errada ao entrar', 'festas.js', "    entradaEnciclopedia: 'consoada',\n", "    entradaEnciclopedia: 'boloRei',\n"],
+  ['o bolo-rei deixa de abrir a sua entrada', 'festas.js', " entradaEnciclopedia: 'boloRei',", ''],
+  ['o bolo-rei abre a entrada errada', 'festas.js', " entradaEnciclopedia: 'boloRei',", " entradaEnciclopedia: 'consoada',"],
+  ['o bolo-rei só abre a entrada se acertar', 'festas.js', 'const novaEntrada = tarefa.entradaEnciclopedia ? ', 'const novaEntrada = (tarefa.entradaEnciclopedia && r.venceu) ? '],
+  ['o bolo-rei não mostra o aviso de entrada nova', 'festas.js', 'if (novaEntrada) mostrarNovaEntrada(novaEntrada);', ''],
+  ['toda a cena do dia abre a entrada do bolo-rei', 'festas.js', 'const novaEntrada = tarefa.entradaEnciclopedia ? desbloquearEntradaEnciclopedia(tarefa.entradaEnciclopedia) : null;', "const novaEntrada = desbloquearEntradaEnciclopedia('boloRei');"],
+  ['o bolo-rei abre a entrada ao abrir a cena', 'festas.js', "  festaCenaAtual = { festa: festa, tarefa: tarefa, cena: cena };\n", "  festaCenaAtual = { festa: festa, tarefa: tarefa, cena: cena };\n  desbloquearEntradaEnciclopedia('boloRei');\n"],
   ['aviso do verão de São Martinho no Natal', 'festas.js', "if (ehVerao && S.veraoAviso)", 'if (ehVerao)'],
   ['objetivo do dia: basta uma tarefa feita para sair', 'festas.js', 'return festaTarefas(festa).some(function (x) { return !festaJaFezTarefaHoje(festa.id, x.id); });', 'return festaTarefas(festa).every(function (x) { return !festaJaFezTarefaHoje(festa.id, x.id); });'],
   ['objetivos.js volta aos nomes escritos à mão', 'objetivos.js', 'festaTemTarefaPorFazerHoje(festa)', "(!festaJaFezTarefaHoje(festa.id, 'castanhas') || !festaJaFezTarefaHoje(festa.id, 'jeropiga') || !festaJaFezTarefaHoje(festa.id, 'prova'))"],
