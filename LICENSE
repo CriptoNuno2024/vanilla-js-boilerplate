@@ -7,4 +7,4 @@ The code written for this project, the texts, the characters (YoshiCat, Chizo, F
 Exceções, cada uma com a sua licença / Exceptions, each under its own licence:
 - O esqueleto original do modelo vanilla-js-boilerplate (Telegram Mini Apps) está sob a licença MIT, Copyright (c) 2023 TON Foundation: ver LICENSE-MIT-TON. / The original skeleton of the vanilla-js-boilerplate template is under the MIT licence: see LICENSE-MIT-TON.
 - Os sons CC0 do BigSoundBank, os tipos de letra Fraunces e Nunito (SIL Open Font License 1.1, em assets/fontes/) e os dados do Open-Meteo: ver CREDITOS.md. / CC0 sounds, fonts and Open-Meteo data: see CREDITOS.md.
-- As imagens geradas com IA estão sujeitas também aos termos dos serviços que as geraram. / AI-generated images are also subject to the terms of the services that generated them.
+- As imagens do jogo foram geradas com IA (Gemini, Grok e ChatGPT), estão sujeitas aos termos desses serviços e podem não ter proteção de direitos de autor. / The game's images were generated with AI (Gemini, Grok and ChatGPT), are subject to those services' terms and may not be protected by copyright.
