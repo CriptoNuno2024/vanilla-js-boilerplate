@@ -796,7 +796,7 @@ const NUVEM_GRAVACAO_MAX_MS = 30000;     // uma gravação sem resposta há mais
 // Ecrãs em que trocar o estado é seguro: não guardam estado de uma ação em
 // variáveis (nuvemAtualizarEcraAposSync() refresca-os, ou lêem sempre do
 // estado). Todos os outros (vinha, proteger, garrafa, engarrafar, lagar,
-// camara, roxo, loja, estrada, colecao, explorar, festa, garrafas,
+// camara, roxo, estrada, colecao, explorar, festa, garrafas,
 // conquistas, lingua) guardam resultados/relógios/rondas em memória e adiam.
 const NUVEM_RELER_ECRAS_SEGUROS = ['home', 'quinta', 'perfil', 'enciclopedia', 'caderno'];
 
