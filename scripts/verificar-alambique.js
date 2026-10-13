@@ -334,7 +334,7 @@ function suite(fontes) {
     // versão antiga a abrir um estado com bagaceira: o mergeDeep dela mantém o campo (não o apaga)
     const velho = g.json('mergeDeep({ adega: { bagaco: 0, aguardente: 0, cooldowns: {}, lote: null, historico: [] } }, { adega: { bagaco: 3, aguardente: 2, bagaceira: 4 } })');
     ok(velho.adega.bagaceira === 4 && velho.adega.aguardente === 2, 'versão antiga: o campo bagaceira não se perde ao ler/gravar');
-    ok(!/bagaceira/.test(fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8')), 'nuvem.js não foi tocado (nenhuma junta fala da bagaceira)');
+    ok(!/bagaceira/.test(fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8').replace(/\/\/ Junta as áreas "leves"[\s\S]*?(?=\/\/ Leitura da nuvem ao abrir)/, '')), 'nuvem.js não foi tocado (fora de nuvemJuntarLeves, nenhuma junta fala da bagaceira)');
   }
   {
     const E = vm.createContext({ console: { log() {}, warn() {}, error() {} }, document: { querySelectorAll: function () { return []; }, getElementById: function () { return null; } }, state: { lang: 'pt' }, localStorage: { getItem: function () { return null; }, setItem: function () {} }, navigator: { language: 'pt-PT' }, location: { search: '' }, URLSearchParams: URLSearchParams });

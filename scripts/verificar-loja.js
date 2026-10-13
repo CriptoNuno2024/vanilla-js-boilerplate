@@ -236,7 +236,8 @@ function suite(fontes) {
     ok(comLoja.loja.dia === '2026-10-09' && comLoja.loja.vendasHoje === 2, 'save com loja: mantém-se');
     const velho = g.json('mergeDeep({ reputacao: 0 }, { reputacao: 3, loja: { dia: "2026-10-09", vendasHoje: 1 } })');
     ok(velho.loja.vendasHoje === 1, 'versão antiga a abrir um estado com loja: o campo não se perde');
-    ok(!/loja/i.test(fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8')), 'nuvem.js não foi tocado (nenhuma junta fala da loja)');
+    // nuvemJuntarLeves (bloco "Junta as áreas leves") junta a Loja entre aparelhos, de propósito (ver verificar-nuvem-juntar.js): esse bloco não conta.
+    ok(!/loja/i.test(fs.readFileSync(path.join(RAIZ, 'js', 'nuvem.js'), 'utf8').replace(/\/\/ Junta as áreas "leves"[\s\S]*?(?=\/\/ Leitura da nuvem ao abrir)/, '')), 'nuvem.js não foi tocado (fora de nuvemJuntarLeves, nenhuma junta fala da loja)');
   }
   // ---------------- 11. Textos ----------------
   {
