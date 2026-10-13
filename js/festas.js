@@ -67,6 +67,8 @@ const FESTAS_CONFIG = [
     inicio: { mes: 11, dia: 20 },     // 20 de dezembro
     fim: { mes: 11, dia: 26 },        // 26 de dezembro
     diaGrande: { mes: 11, dia: 25 },  // 25 de dezembro
+    // Entrada da Enciclopédia que abre ao entrar na festa.
+    entradaEnciclopedia: 'consoada',
     imagens: {
       diaGrande: 'assets/ecras/natal_dia25.jpg',
       faixa: 'assets/ecras/natal_festa.jpg',
@@ -83,7 +85,8 @@ const FESTAS_CONFIG = [
         premio: { reputacao: 5 } },
       { id: 'doces', onde: 'festa', regra: 'gastar_gotas', btn: 'btnDoces',
         premio: { custoGotas: 30, reputacao: 12 } },
-      { id: 'boloRei', onde: 'festa', regra: 'cena_do_dia', btn: 'btnBoloRei',
+      // entradaEnciclopedia (opcional, numa tarefa): abre ao responder à cena, ganhe ou perca (como o Magusto).
+      { id: 'boloRei', onde: 'festa', regra: 'cena_do_dia', btn: 'btnBoloRei', entradaEnciclopedia: 'boloRei',
         premio: { reputacao: 6 } }
     ],
     recompensas: {
@@ -1141,13 +1144,14 @@ function provarVinhoNovo(festa) {
 // mostra o ecrã e se grava UMA vez. Textos: S[tarefa.id + 'Titulo'], etc.
 // -----------------------------------------------------------------
 
-function festaMostrarResultado(festa, tarefa, mensagem, foto) {
+function festaMostrarResultado(festa, tarefa, mensagem, foto, novaEntrada) {
   const S = fStr(festa.id);
   const container = document.getElementById('festa-container');
   container.innerHTML =
     '<div class="topcard"><p class="mini-title">' + S[tarefa.id + 'Titulo'] + '</p></div>' +
     '<div class="action-panel"><button type="button" class="btn-pill pill-main pill-grande" onclick="renderFestaHub()">' + S.btnVoltar + '</button></div>';
   definirFundo('foto', foto);
+  if (novaEntrada) mostrarNovaEntrada(novaEntrada); // mesmo aviso de entrada nova das outras festas
   atualizarDialogo(mensagem, 'YoshiCat');
 }
 
@@ -1201,9 +1205,10 @@ function festaResponderCenaDoDia(i) {
   const r = festaResolverTarefa(state, festa, tarefa, diaLisboaDeHoje(), { diaGrande: estaNoDiaGrandeFesta(festa), venceu: i === atual.cena.correta });
   if (!r.ok) { renderFestaHub(); return; }
   festaSomTarefa(r.venceu);
+  const novaEntrada = tarefa.entradaEnciclopedia ? desbloquearEntradaEnciclopedia(tarefa.entradaEnciclopedia) : null;
   saveState(state);
   updateStatsDisplays();
   festaMostrarResultado(festa, tarefa,
     r.venceu ? S[tarefa.id + 'Vitoria'] + ' (+' + r.rep + ' ' + t('stat.reputacao') + ')' : S[tarefa.id + 'Derrota'],
-    festa.imagens[tarefa.id]);
+    festa.imagens[tarefa.id], novaEntrada);
 }
