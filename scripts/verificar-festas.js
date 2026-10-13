@@ -730,7 +730,7 @@ function suite(fontes) {
       ok(fs.statSync(path.join(RAIZ, cv.imagens.diaGrande)).size < fs.statSync(orig2).size && JSON.stringify(dim(orig2)) === '[714,1280]', 'carnaval_dia_grande.jpg é a versão comprimida (mais pequena) de carnaval_patio_vindimas_2_personagens.jpg');
       ['carnaval_festa.jpg', 'carnaval_dia_grande.jpg'].forEach(function (f) {
         const linha = CREDITOS.split('\n').filter(function (l) { return l.indexOf('assets/ecras/' + f) !== -1; })[0];
-        ok(!!linha && linha.indexOf('origem a confirmar pelo Nuno') !== -1, 'CREDITOS.md devia listar ' + f + ' com "origem a confirmar pelo Nuno"');
+        ok(!!linha && linha.indexOf('gerada com IA (Gemini, Grok ou ChatGPT)') !== -1, 'CREDITOS.md devia listar ' + f + ' com "gerada com IA (Gemini, Grok ou ChatGPT)"');
       });
     }
 
@@ -847,7 +847,7 @@ function suite(fontes) {
       ok(!fs.existsSync(path.join(RAIZ, 'pascoa_festa.jpg')) && !fs.existsSync(path.join(RAIZ, 'pascoa_dia_grande.jpg')), 'Páscoa: a raiz já não tem os dois originais');
       ['pascoa_festa.jpg', 'pascoa_dia_grande.jpg'].forEach(function (f) {
         const linha = CREDITOS.split('\n').filter(function (l) { return l.indexOf('assets/ecras/' + f) !== -1; })[0];
-        ok(!!linha && linha.indexOf('origem a confirmar pelo Nuno') !== -1, 'CREDITOS.md devia listar ' + f + ' com "origem a confirmar pelo Nuno"');
+        ok(!!linha && linha.indexOf('gerada com IA (Gemini, Grok ou ChatGPT)') !== -1, 'CREDITOS.md devia listar ' + f + ' com "gerada com IA (Gemini, Grok ou ChatGPT)"');
       });
     }
 

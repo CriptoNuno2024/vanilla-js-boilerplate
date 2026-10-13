@@ -11,7 +11,7 @@ O som da prensa da Adega (`assets/sons/prensa.mp3`) foi enviado pelo Nuno (18 s,
 
 Os sons de São Martinho (a fogueira a crepitar e o assobio para chamar o Chizo) vêm também do BigSoundBank (CC0), com autoria por confirmar pelo Nuno. Os originais (mono, 48 kHz, 320 kbps) foram carregados na pasta principal a 12/10/2026 como `big_branching_fire.mp3` (38 s, com silêncio e estalos fortes) e `assobiar_chamar_chizo.mp3` (4,2 s, com três assobios), e já saíram de lá. Em `assets/sons/` ficam: `fogueira.mp3` (ciclo de 24 s feito com o pedaço de 8,0 s a 35,0 s do original, o fim cruzado 3 s com o início para não haver salto, com os estalos comprimidos e o nível baixado e nivelado; MP3 mono 64 kbps), `assobio_chizo.mp3` (0,68 s, o 3.º assobio, de 3,27 s a 3,95 s do original, fades de 5 ms e 80 ms, normalizado) e `tilintar_copos.mp3` (0,77 s, o tilintar de copos que fecha `garrafa_engarrafar.mp3`, de 2,13 s a 2,90 s dessa gravação, fades de 5 ms e 50 ms, normalizado).
 
-O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, também do BigSoundBank (CC0): a porta tem autoria de Joseph Sardin & Axeline T.; para os passos, a página de origem está por confirmar pelo Nuno. Foram cortados, convertidos para mono e normalizados.
+O passo "Escutar à porta" da Cave usa os passos e o ranger de uma porta, também do BigSoundBank (CC0): a porta tem autoria de Joseph Sardin & Axeline T.; para os passos, origem confirmada pelo Nuno a 13/10/2026. Foram cortados, convertidos para mono e normalizados.
 
 ## Tipos de letra
 Fraunces e Nunito, com a licença SIL Open Font License 1.1. As licenças estão em assets/fontes/.
@@ -204,7 +204,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 | `assets/sons/vento_arvores_passaros.mp3` | Quinta e Vinha, dia calmo (ambiente) | BigSoundBank, CC0 (confirmado pelo Nuno a 13/10/2026); comprimido para MP3 mono a 64 kbps |
 | `assets/sons/vento_grama_alta.mp3` | Quinta e Vinha, vento forte (ambiente) | BigSoundBank, CC0 (confirmado pelo Nuno a 13/10/2026); comprimido para MP3 mono a 64 kbps |
 | `assets/sons/porco_grunhir.mp3` | Proteger | BigSoundBank, CC0 (confirmado pelo Nuno a 13/10/2026) |
-| `assets/sons/tilintar_copos.mp3` | A Prova do Vinho Novo (São Martinho) | BigSoundBank, CC0 (corte de `garrafa_engarrafar.mp3`, por confirmar pelo Nuno); cortado, mono 64 kbps e normalizado |
+| `assets/sons/tilintar_copos.mp3` | A Prova do Vinho Novo (São Martinho) | BigSoundBank, CC0 (corte de `garrafa_engarrafar.mp3`, confirmado pelo Nuno a 13/10/2026); cortado, mono 64 kbps e normalizado |
 | `assets/sons/trovao_1.mp3` | tempo real de Setúbal | BigSoundBank, CC0 (confirmado pelo Nuno a 13/10/2026) |
 | `assets/sons/trovao_2_forte.mp3` | tempo real de Setúbal | BigSoundBank, CC0 (confirmado pelo Nuno a 13/10/2026) |
 
