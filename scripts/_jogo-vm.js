@@ -6,7 +6,7 @@
 //   jsDir     pasta dos js/ (por omissão a do projeto)
 //   dadosDir  pasta dos dados/ (por omissão a do projeto); null = não carrega os ficheiros de dados
 //   aoAvisar  função chamada com cada console.warn do jogo
-// Devolve { cx, ev(expressão) }.
+// Devolve { cx, ev(expressão), el(id) } (el: o elemento simulado com esse id, ex.: o innerHTML de um cartão).
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -75,7 +75,7 @@ function abrirJogo(opcoes) {
       });
     }
   }
-  return { cx: cx, ev: function (c) { return vm.runInContext(c, cx); } };
+  return { cx: cx, ev: function (c) { return vm.runInContext(c, cx); }, el: el };
 }
 
 module.exports = { abrirJogo, FICHEIROS_DE_DADOS };

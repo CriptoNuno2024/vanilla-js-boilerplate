@@ -43,7 +43,7 @@ node scripts/verificar-dados-carregar.js
 
 1. **Id**: só letras minúsculas `a-z`, números `0-9` e `_` (ex.: `valentim_5`). Tem de ser único dentro do seu tipo.
 2. **Texto nas 3 línguas**: `{ pt: '...', en: '...', es: '...' }`, nenhuma vazia. Pode também vir de uma chave do `js/i18n.js`, mas nas 3 línguas.
-3. **Sem `<`, `>` nem `&`** nos textos: alguns cartões montam o ecrã com HTML e estes caracteres podem partir tudo. Escreve «e» em vez de «&».
+3. **Sem `<`, `>` nem `&`** nos textos. Os cartões do jogo (objetivos, capítulos, nome do nível) já escapam o texto antes de o meter no ecrã, por isso um destes caracteres não o parte, mas o validador continua a recusá-los nas entradas novas: escreve «e» em vez de «&». As aspas são normais.
 4. **Sem dados pessoais nem segredos** nos textos: nada de emails, links, endereços, `chat_id`, nome real ou morada.
 5. **Imagens e sons**: os ficheiros têm de existir em `assets/` (e ser enviados ao repositório à parte). O caminho tem de estar certo.
 6. **Visitas**: a personagem tem de existir, `reputacao` é um número de 1 a 3, e a condição é de um tipo que o jogo conhece (`estacao`, `fase`, `festa`, `garrafa`, `cave`) com um valor válido (as 4 estações; as fases da videira).

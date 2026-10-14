@@ -263,7 +263,7 @@ function atualizarCartaoObjetivosQuinta() {
 
   const linhasHtml = objetivosComDados().map(function (o) {
     return '<p class="objetivo-linha' + (o.cumprido ? ' feito' : '') + '">' +
-      (o.cumprido ? '✓ ' : '· ') + objetivoTexto(o.id) +
+      (o.cumprido ? '✓ ' : '· ') + escaparHtml(objetivoTexto(o.id)) +
       ' <span class="objetivo-premio">(+' + OBJETIVO_RECOMPENSA_PONTOS + ')</span>' +
     '</p>';
   }).join('');

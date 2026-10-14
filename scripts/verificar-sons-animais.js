@@ -64,6 +64,7 @@ function suite(fontes) {
     vm.runInContext(`
       var DINGS = [], FICH = [], ACABAR = [], AMB = [], PRE = [];
       function t(k) { return k; }
+      function escaparHtml(s) { return String(s); } // o texto do i18n.js simulado não tem nada a escapar
       function mostrarFalas() {} function applyTranslations() {} function restaurarFundoDoEcraAtual() {} function vibrar() {} function updateStatsDisplays() {}
       function reposicionarFlutuantes() {} function atualizarCartaoObjetivosQuinta() {}
       function localeAtual() { return 'pt-PT'; }

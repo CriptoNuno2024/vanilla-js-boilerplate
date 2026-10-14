@@ -1647,6 +1647,14 @@ function textoNaLingua(texto) {
   return texto[currentLang] || texto.pt || '';
 }
 
+// Texto de conteúdo (nome de nível, título e objetivo de capítulo, texto de objetivo...) para meter
+// em HTML montado por concatenação (innerHTML): troca & < > " ' pelas entidades, para que um texto
+// vindo de dados/ nunca parte o cartão. Só se usa na hora de montar o HTML, e uma só vez por texto:
+// o que vai para textContent (balões de fala, mostrarFalas) já é seguro e NÃO se escapa.
+function escaparHtml(texto) {
+  return String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(function (el) {
     el.textContent = t(el.getAttribute('data-i18n'));

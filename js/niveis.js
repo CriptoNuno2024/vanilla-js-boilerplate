@@ -67,7 +67,7 @@ function atualizarCartaoNivelQuinta() {
     const pct = Math.round((valor / proximo.min) * 100);
     progressoHtml =
       '<div class="nivel-barra"><div class="nivel-barra-cheio" style="width:' + pct + '%"></div></div>' +
-      '<p class="mini-sub">' + valor + ' / ' + proximo.min + ' · ' + t('nivel.proximoLabel') + ' ' + nivelNome(proximo) + '</p>';
+      '<p class="mini-sub">' + valor + ' / ' + proximo.min + ' · ' + t('nivel.proximoLabel') + ' ' + escaparHtml(nivelNome(proximo)) + '</p>';
   } else {
     progressoHtml =
       '<div class="nivel-barra"><div class="nivel-barra-cheio" style="width:100%"></div></div>' +
@@ -76,7 +76,7 @@ function atualizarCartaoNivelQuinta() {
 
   container.innerHTML =
     '<div class="mini-bloco">' +
-      '<p class="mini-bloco-titulo">' + t('nivel.label') + ' ' + nivelAtual + ' · ' + nivelNome(infoAtual) + '</p>' +
+      '<p class="mini-bloco-titulo">' + t('nivel.label') + ' ' + nivelAtual + ' · ' + escaparHtml(nivelNome(infoAtual)) + '</p>' +
       progressoHtml +
     '</div>';
 }

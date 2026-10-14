@@ -345,9 +345,9 @@ function atualizarCapituloQuinta() {
     const r = capitulosLerCriterio(atual);
     const pct = (isFinite(r.total) && r.total > 0) ? Math.round((r.atual / r.total) * 100) : 0;
     conteudo =
-      '<p class="mini-bloco-titulo">' + ui.rotulo + ' ' + atual.nivel + ' · ' + s.titulo + '</p>' +
+      '<p class="mini-bloco-titulo">' + ui.rotulo + ' ' + atual.nivel + ' · ' + escaparHtml(s.titulo) + '</p>' +
       '<div class="nivel-barra"><div class="nivel-barra-cheio" style="width:' + pct + '%"></div></div>' +
-      '<p class="objetivo-linha">· ' + s.objetivo + '</p>' +
+      '<p class="objetivo-linha">· ' + escaparHtml(s.objetivo) + '</p>' +
       '<p class="mini-sub">' + r.atual + ' / ' + (isFinite(r.total) ? r.total : '?') + '</p>';
   } else if (porCumprir.length > 0) {
     conteudo = '<p class="mini-bloco-titulo">' + ui.proximo.replace('{n}', porCumprir[0].nivel) + '</p>';
