@@ -104,7 +104,10 @@ const saveNivel10 = function (extra) {
   H.forEach(function (f) { ok(fs.existsSync(path.join(RAIZ, f.foto)), 'a imagem existe: ' + f.foto); });
   ['pt', 'en', 'es'].forEach(function (l) { H.forEach(function (f) { const v = g.ev('TRANSLATIONS.' + l + '["' + f.chave + '"]'); ok(typeof v === 'string' && v.trim() !== '', 'falta ' + f.chave + ' em ' + l); }); });
   ok(/Câmara de Provadores/.test(g.ev('TRANSLATIONS.pt["historia.nivel10.1"]')) && /Moscatel Roxo/.test(g.ev('TRANSLATIONS.pt["historia.nivel10.2"]')) && /Setúbal/.test(g.ev('TRANSLATIONS.pt["historia.nivel10.2"]')), 'a história fala da Câmara de Provadores e do Moscatel Roxo, a casta rara de Setúbal');
-  ok(/Obrigado/.test(g.ev('TRANSLATIONS.pt["historia.nivel10.3"]')) && /Thank you/.test(g.ev('TRANSLATIONS.en["historia.nivel10.3"]')) && /Gracias/.test(g.ev('TRANSLATIONS.es["historia.nivel10.3"]')), 'a história fecha com um agradecimento (tom de conclusão) nas 3 línguas');
+  // O jogo "nunca acaba": a última fala brinda ao que a Quinta já é, mas NÃO se despede e aponta para a frente.
+  ok(/brinda-se/.test(g.ev('TRANSLATIONS.pt["historia.nivel10.3"]')) && /raise a glass/.test(g.ev('TRANSLATIONS.en["historia.nivel10.3"]')) && /se brinda/.test(g.ev('TRANSLATIONS.es["historia.nivel10.3"]')), 'a história fecha com um brinde nas 3 línguas');
+  ok(/estrada continua/.test(g.ev('TRANSLATIONS.pt["historia.nivel10.3"]')) && /road goes on/.test(g.ev('TRANSLATIONS.en["historia.nivel10.3"]')) && /camino continúa/.test(g.ev('TRANSLATIONS.es["historia.nivel10.3"]')), 'a última fala diz que a estrada continua, nas 3 línguas');
+  ['pt', 'en', 'es'].forEach(function (l) { ok(!/obrigado|thank|gracias|adeus|goodbye|adiós|até à próxima/i.test(g.ev('TRANSLATIONS.' + l + '["historia.nivel10.3"]')), 'a última fala do nível 10 não devia soar a despedida (' + l + ')'); });
   const h = abrir(saveNivel10());
   h.ev('mostrarHistoriaSubidaNivel(9, 10)');
   ok(h.ev('FALAS.length') === 1 && h.json('FALAS[0].f').length === 3 && h.json('FALAS[0].f')[2].foto === 'assets/ecras/perfil_yoshi_cat_e_chizo.jpg', 'subir do 9 ao 10 mostra só as 3 falas do nível 10');

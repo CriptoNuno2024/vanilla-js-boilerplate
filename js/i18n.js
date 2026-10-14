@@ -255,7 +255,7 @@ const TRANSLATIONS = {
     'historia.nivel9.3': 'Abriu: a Câmara.',
     'historia.nivel10.1': 'A Quinta cresceu: tem a casa aberta, a Câmara de Provadores e muitos amigos à porta.',
     'historia.nivel10.2': 'Falta uma coisa: o Moscatel Roxo, a casta rara de Setúbal, que só se bebe em dia de festa.',
-    'historia.nivel10.3': 'Hoje brinda-se por tudo o que a Quinta já é. Obrigado por tudo, amigo!',
+    'historia.nivel10.3': 'Hoje brinda-se por tudo o que a Quinta já é. E amanhã a estrada continua: há muito mais terra para descobrir.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Quatro tarefas e a Vinha já não parece abandonada.',
@@ -799,7 +799,7 @@ const TRANSLATIONS = {
     'historia.nivel9.3': 'Unlocked: the Chamber.',
     'historia.nivel10.1': 'The Quinta has grown: it has an open house, the Tasting Chamber and many friends at the door.',
     'historia.nivel10.2': 'One thing is missing: Moscatel Roxo, the rare grape of Setúbal, kept for feast days.',
-    'historia.nivel10.3': 'Today we toast everything the Quinta has become. Thank you for everything, friend!',
+    'historia.nivel10.3': 'Today we raise a glass to everything the Quinta already is. And tomorrow the road goes on: there is much more land to discover.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Four tasks done and the Vineyard no longer looks abandoned.',
@@ -1332,7 +1332,7 @@ const TRANSLATIONS = {
     'historia.nivel9.3': 'Se abrió: la Cámara.',
     'historia.nivel10.1': 'La Quinta ha crecido: tiene la casa abierta, la Cámara de Catadores y muchos amigos a la puerta.',
     'historia.nivel10.2': 'Falta una cosa: el Moscatel Roxo, la uva rara de Setúbal, que solo se bebe en días de fiesta.',
-    'historia.nivel10.3': 'Hoy se brinda por todo lo que la Quinta ya es. ¡Gracias por todo, amigo!',
+    'historia.nivel10.3': 'Hoy se brinda por todo lo que la Quinta ya es. Y mañana el camino continúa: hay mucha más tierra por descubrir.',
 
     // Balões de conclusão dos Capítulos
     'capitulo.cap1.conclusao': 'Cuatro tareas y el Viñedo ya no parece abandonado.',
