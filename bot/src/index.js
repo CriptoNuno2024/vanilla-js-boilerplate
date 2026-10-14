@@ -1,6 +1,7 @@
 // Worker do bot do Telegram do YoshiCat.
 // Só fica registado quem escrever /ligar (chat_id + avisos_ligados na D1).
-// /parar e /apagar apagam o registo. O despertador (Cron) envia um aviso diário às 10h de Lisboa.
+// /parar e /apagar apagam o registo. O despertador (Cron) envia um aviso diário às 10h de Lisboa,
+// em lotes de até 25 pessoas por execução, e nunca duas vezes no mesmo dia (ultimo_aviso_dia).
 
 const MSG_ERRO = "Tive um problema, tenta daqui a pouco.";
 const MSG_AJUDA =
@@ -19,18 +20,26 @@ const TEXTOS_AVISO = [
 
 const DIAS_SEMANA = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
 
-// Hora (0-23) e dia da semana (segunda = 1 ... domingo = 7) em Lisboa.
+// Quantas pessoas recebem o aviso em cada execução do despertador (ver "Limite do plano grátis" no README).
+const TAMANHO_LOTE = 25;
+
+// Hora (0-23), dia da semana (segunda = 1 ... domingo = 7) e data (AAAA-MM-DD) em Lisboa.
 // Usa o fuso "Europe/Lisbon", por isso a mudança de hora é tratada sozinha.
 function horaELisboa(data) {
   const partes = new Intl.DateTimeFormat("en-US", {
     timeZone: "Europe/Lisbon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     hour: "2-digit",
     hourCycle: "h23",
     weekday: "short",
   }).formatToParts(data);
-  const hora = Number(partes.find((p) => p.type === "hour").value);
-  const diaSemana = DIAS_SEMANA[partes.find((p) => p.type === "weekday").value];
-  return { hora, diaSemana };
+  const valor = (tipo) => partes.find((p) => p.type === tipo).value;
+  const hora = Number(valor("hour"));
+  const diaSemana = DIAS_SEMANA[valor("weekday")];
+  const hoje = `${valor("year")}-${valor("month")}-${valor("day")}`;
+  return { hora, diaSemana, hoje };
 }
 
 function textoDoDia(diaSemana) {
@@ -48,8 +57,9 @@ async function segredoValido(recebido, esperado) {
   return crypto.subtle.timingSafeEqual(a, b);
 }
 
-// Envia um aviso e verifica a resposta do Telegram.
-// Se responder 403 (a pessoa bloqueou o bot), apaga o registo dessa pessoa.
+// Envia um aviso e verifica a resposta do Telegram. Faz 1 pedido externo.
+// Devolve "enviado" (o Telegram aceitou), "bloqueado" (403: a pessoa bloqueou o bot, o registo
+// vai ser apagado) ou "falhou" (qualquer outro erro: a pessoa volta a ser tentada na execução seguinte).
 async function enviarAviso(env, chatId, texto) {
   try {
     const resposta = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
@@ -57,17 +67,15 @@ async function enviarAviso(env, chatId, texto) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text: texto }),
     });
-    if (resposta.status === 403) {
-      await env.DB.prepare(
-        "DELETE FROM utilizadores WHERE chat_id = ?"
-      )
-        .bind(chatId)
-        .run();
-    } else if (!resposta.ok) {
+    if (resposta.status === 403) return "bloqueado";
+    if (!resposta.ok) {
       console.error("O Telegram recusou um aviso");
+      return "falhou";
     }
+    return "enviado";
   } catch {
     console.error("Falha ao enviar um aviso");
+    return "falhou";
   }
 }
 
@@ -139,27 +147,51 @@ async function tratarMensagem(env, mensagem) {
 }
 
 export default {
-  // Despertador: corre de hora a hora (ver "triggers" no wrangler.jsonc).
+  // Despertador: corre de 5 em 5 minutos (ver "triggers" no wrangler.jsonc).
+  // Só envia quando são 10h em Lisboa; em cada execução avisa até TAMANHO_LOTE pessoas que ainda não
+  // foram avisadas hoje. Pedidos externos por execução: 1 (procurar) + até 25 (Telegram) + 1 (batch, +1 se for repetido) = no máximo 28.
   async scheduled(event, env, ctx) {
-    const { hora, diaSemana } = horaELisboa(new Date());
+    const { hora, diaSemana, hoje } = horaELisboa(new Date());
     if (hora !== 10) return;
 
     let destinatarios;
     try {
-      // O plano grátis permite 50 pedidos externos por execução, por isso limitamos a 40.
-      // O envio em lotes (marcar quem já foi avisado hoje) fica para antes de abrir a outras pessoas.
       const resultado = await env.DB.prepare(
-        "SELECT chat_id FROM utilizadores WHERE avisos_ligados = 1 LIMIT 40"
-      ).all();
+        "SELECT chat_id FROM utilizadores WHERE avisos_ligados = 1 AND (ultimo_aviso_dia IS NULL OR ultimo_aviso_dia <> ?) LIMIT ?"
+      )
+        .bind(hoje, TAMANHO_LOTE)
+        .all();
       destinatarios = resultado.results;
     } catch {
       console.error("Erro na base de dados ao procurar destinatários");
       return;
     }
+    if (!destinatarios || destinatarios.length === 0) return;
 
     const texto = textoDoDia(diaSemana);
+    const alteracoes = [];
     for (const { chat_id } of destinatarios) {
-      await enviarAviso(env, chat_id, texto);
+      const estado = await enviarAviso(env, chat_id, texto);
+      if (estado === "enviado") {
+        alteracoes.push(
+          env.DB.prepare("UPDATE utilizadores SET ultimo_aviso_dia = ? WHERE chat_id = ?").bind(hoje, chat_id)
+        );
+      } else if (estado === "bloqueado") {
+        alteracoes.push(env.DB.prepare("DELETE FROM utilizadores WHERE chat_id = ?").bind(chat_id));
+      }
+      // "falhou": não se marca nada, por isso a pessoa volta a ser tentada na execução seguinte.
+    }
+    if (alteracoes.length === 0) return;
+
+    // Uma só operação em lote (1 pedido à D1) para marcar quem recebeu e apagar quem bloqueou o bot.
+    // Se falhar, tenta mais uma vez; senão estas pessoas voltariam a receber o aviso na execução seguinte.
+    for (let tentativa = 1; tentativa <= 2; tentativa++) {
+      try {
+        await env.DB.batch(alteracoes);
+        return;
+      } catch {
+        console.error("Erro na base de dados ao marcar os avisos enviados");
+      }
     }
   },
 
