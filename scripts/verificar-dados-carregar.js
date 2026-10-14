@@ -5,7 +5,8 @@
 //    "objetivos" ainda não suportado) são IGNORADAS com um console.warn, sem lançar erro e sem mudar nada;
 // 3) uma entrada que já existe nunca é substituída;
 // 4) o index.html carrega o dados.js e os 5 ficheiros de dados/ depois das listas e antes do main.js, e
-//    os ficheiros de dados/ não trazem entradas (só comentários): o jogo fica igual.
+//    os ficheiros de dados/ não trazem entradas (só comentários), com UMA exceção: dados/visitas.js traz a visita
+//    marisa_5 (a primeira visita vinda de dados/) e as 12 visitas de origem ficam iguais.
 // As entradas de teste vivem só no ambiente simulado (módulo vm); nada fica no jogo.
 //
 // Uso: node scripts/verificar-dados-carregar.js
@@ -23,7 +24,9 @@ let falhas = 0;
 function ok(cond, msg) { if (!cond) { falhas++; console.log('FALHA: ' + msg); } }
 
 const avisos = [];
-const jogo = abrirJogo({ jsDir: JS_DIR, aoAvisar: function (m) { avisos.push(m); } });
+// As secções 0 a 5 correm sobre o jogo de origem (dadosDir: null = sem a pasta dados/), para provarem a caixa de correio
+// sem se misturarem com a visita real de dados/visitas.js; a secção 0b e a 6 tratam da pasta dados/.
+const jogo = abrirJogo({ jsDir: JS_DIR, dadosDir: null, aoAvisar: function (m) { avisos.push(m); } });
 const ev = jogo.ev;
 function js(obj) { return JSON.stringify(obj); }
 function acrescentar(tipo, entrada) { return ev('dadosAcrescentar(' + js(tipo) + ', ' + js(entrada) + ')'); }
@@ -44,12 +47,24 @@ function ignorada(tipo, entrada, porque) {
 
 const TEXTO = function (pt) { return { pt: pt, en: pt + ' (en)', es: pt + ' (es)' }; };
 
-// ----- 0. Ponto de partida: os ficheiros de dados/ vazios não acrescentam nada -----
+// ----- 0. Ponto de partida: o jogo de origem (sem a pasta dados/) não acrescenta nada -----
 {
-  ok(avisos.length === 0, 'carregar o jogo com dados/ vazios não devia avisar nada: ' + avisos);
+  ok(avisos.length === 0, 'carregar o jogo de origem não devia avisar nada: ' + avisos);
   ok(ev('DADOS_ACRESCENTADOS.visitas.length + DADOS_ACRESCENTADOS.niveis.length + DADOS_ACRESCENTADOS.historias.length + DADOS_ACRESCENTADOS.capitulos.length + DADOS_ACRESCENTADOS.objetivos.length') === 0, 'dados/ devia estar vazio');
   ok(ev('VISITAS.length') === 12 && ev('NIVEIS_CONFIG.length') === 10 && ev('CAPITULOS_CONFIG.length') === 10 && ev('OBJETIVOS_GRUPO_C.length') === 5, 'o jogo devia ter as listas de sempre (12 visitas, 10 níveis, 10 capítulos, 5 do Grupo C)');
   ok(Object.keys(ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10', 'o jogo devia ter as histórias dos níveis 2 a 10');
+}
+
+// ----- 0b. Com a pasta dados/ real: só a visita marisa_5 vem de lá; as 12 de origem ficam iguais -----
+{
+  const avisos2 = [];
+  const real = abrirJogo({ jsDir: JS_DIR, aoAvisar: function (m) { avisos2.push(m); } });
+  ok(avisos2.length === 0, 'carregar o jogo com a pasta dados/ não devia avisar nada: ' + avisos2);
+  ok(real.ev('DADOS_ACRESCENTADOS.visitas.map(function (v) { return v.id; }).join()') === 'marisa_5', 'de dados/ só devia vir a visita marisa_5');
+  ok(real.ev('DADOS_ACRESCENTADOS.niveis.length + DADOS_ACRESCENTADOS.historias.length + DADOS_ACRESCENTADOS.capitulos.length + DADOS_ACRESCENTADOS.objetivos.length') === 0, 'dados/ não devia trazer níveis, histórias, capítulos nem objetivos');
+  ok(real.ev('VISITAS.length') === 13 && real.ev('NIVEIS_CONFIG.length') === 10 && real.ev('CAPITULOS_CONFIG.length') === 10 && real.ev('OBJETIVOS_GRUPO_C.length') === 5, 'com dados/ devia haver 13 visitas (12 + marisa_5) e as outras listas de sempre');
+  ok(real.ev('JSON.stringify(VISITAS.slice(0, 12))') === ev('JSON.stringify(VISITAS)'), 'as 12 visitas de origem (e a sua ordem) deviam ficar iguais com dados/');
+  ok(real.ev('VISITAS[12].id') === 'marisa_5', 'marisa_5 devia ficar no fim da lista');
 }
 
 // ----- 1. Visitas -----
@@ -175,7 +190,12 @@ const TEXTO = function (pt) { return { pt: pt, en: pt + ' (en)', es: pt + ' (es)
   ok(naPasta === FICHEIROS_DE_DADOS.slice().sort().join(), 'a pasta dados/ devia ter só os 5 ficheiros de dados (.js): ' + naPasta);
   FICHEIROS_DE_DADOS.forEach(function (f) {
     const codigo = fs.readFileSync(path.join(RAIZ, 'dados', f), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
-    ok(codigo === '', 'dados/' + f + ' devia ter só comentários (sem entradas), tem: ' + codigo.slice(0, 60));
+    if (f === 'visitas.js') {
+      // Única exceção: uma chamada, a da visita marisa_5.
+      ok((codigo.match(/dadosAcrescentar\(/g) || []).length === 1 && /^dadosAcrescentar\('visitas', \{\s*id: 'marisa_5'/.test(codigo), 'dados/visitas.js devia ter só a entrada marisa_5');
+    } else {
+      ok(codigo === '', 'dados/' + f + ' devia ter só comentários (sem entradas), tem: ' + codigo.slice(0, 60));
+    }
   });
   // O dados.js não toca em mais nada do jogo: só as 4 listas, pelo dadosAcrescentar.
   const src = fs.readFileSync(path.join(JS_DIR, 'dados.js'), 'utf8');
