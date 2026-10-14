@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ENSAIO GERAL: um pacote completo vindo de dadosAcrescentar (nível 11 + história do nível 11 + capítulo do
 // nível 11) passa por todo o jogo sem partir nada. SÓ EM TESTE: o pacote vive no ambiente simulado (módulo vm,
-// scripts/_jogo-vm.js); nada fica no jogo nem em dados/ (o teste confirma que dados/ só tem comentários).
+// scripts/_jogo-vm.js); nada fica no jogo nem em dados/ (o teste confirma que dados/ só tem comentários, salvo visitas.js).
 // Os textos do pacote trazem <b>, &, aspas e plicas, para testar o escape (js/i18n.js: escaparHtml).
 //
 // Prova, nas 3 línguas: (a) subir ao nível 11 mostra a história nova; (b) a história do nível 11 não aparece para o
@@ -99,7 +99,9 @@ function semTagsDoPacote(h, onde) {
   const g = abrirJogo({ jsDir: JS_DIR });
   ok(g.ev('NIVEIS_CONFIG.length') === 10 && g.ev('CAPITULOS_CONFIG.length') === 10 && Object.keys(g.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10', 'o jogo (com a pasta dados/) devia ter 10 níveis, 10 capítulos e as histórias dos níveis 2 a 10');
   ok(g.ev('DADOS_ACRESCENTADOS.niveis.length + DADOS_ACRESCENTADOS.historias.length + DADOS_ACRESCENTADOS.capitulos.length') === 0, 'dados/ devia estar sem entradas');
-  FICHEIROS_DE_DADOS.forEach(function (f) {
+  // dados/visitas.js tem a visita marisa_5 (a primeira vinda de dados/); não tem nada a ver com o pacote de nível,
+  // por isso só os outros 4 ficheiros (níveis, histórias, capítulos, objetivos) têm de estar vazios.
+  FICHEIROS_DE_DADOS.filter(function (f) { return f !== 'visitas.js'; }).forEach(function (f) {
     const codigo = fs.readFileSync(path.join(RAIZ, 'dados', f), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
     ok(codigo === '', 'dados/' + f + ' devia ter só comentários (sem entradas), tem: ' + codigo.slice(0, 60));
   });
