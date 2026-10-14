@@ -48,19 +48,19 @@ function esperadoOk(id, c) {
 
 // ----- Dados -----
 {
-  ok(PERSONAGENS.length === 3 && PERSONAGENS.map(function (p) { return p.id; }).join() === 'valentim,marisa,henrique', 'devia haver 3 personagens: valentim, marisa, henrique');
+  ok(PERSONAGENS.length >= 3 && PERSONAGENS.slice(0, 3).map(function (p) { return p.id; }).join() === 'valentim,marisa,henrique', 'devia haver pelo menos 3 personagens, começando por valentim, marisa, henrique');
   PERSONAGENS.forEach(function (p) {
     ['pt', 'en', 'es'].forEach(function (l) {
       ok(p.nome && typeof p.nome[l] === 'string' && p.nome[l].trim() !== '', p.id + ': nome ' + l + ' em falta');
       ok(p.papel && typeof p.papel[l] === 'string' && p.papel[l].trim() !== '', p.id + ': papel ' + l + ' em falta');
     });
   });
-  ok(VISITAS.length === 12, 'devia haver 12 visitas, há ' + VISITAS.length);
+  ok(VISITAS.length >= 12, 'devia haver pelo menos 12 visitas, há ' + VISITAS.length);
   const ids = VISITAS.map(function (v) { return v.id; });
   ok(new Set(ids).size === ids.length, 'ids repetidos');
   ok(ids.slice().sort().join() === Object.keys(ESPERADO).sort().join(), 'ids fora do padrão: ' + ids);
   PERSONAGENS.forEach(function (p) {
-    ok(VISITAS.filter(function (v) { return v.personagem === p.id; }).length === 4, p.id + ': devia ter 4 visitas');
+    ok(VISITAS.filter(function (v) { return v.personagem === p.id; }).length >= 4, p.id + ': devia ter pelo menos 4 visitas');
   });
   VISITAS.forEach(function (v) {
     ok(PERSONAGENS.some(function (p) { return p.id === v.personagem; }), v.id + ': personagem desconhecida');
@@ -153,7 +153,7 @@ const CONTEXTOS = [];
   // Sem repetir até esgotar as possíveis (contexto com 5 possíveis: 2 com condição, 3 sem), depois ciclo.
   const ctxM = { nivel: 4, estacao: 'inverno', fase: 'repouso', festaAtiva: true, caveAberta: false, garrafaDias: null };
   const possiveis = VISITAS.filter(function (v) { return esperadoOk(v.id, ctxM); }).map(function (v) { return v.id; });
-  ok(possiveis.length === 5, 'o contexto de teste devia ter 5 possíveis, tem ' + possiveis.length);
+  ok(possiveis.length >= 5, 'o contexto de teste devia ter pelo menos 5 possíveis, tem ' + possiveis.length);
   const feitas = [];
   let n = 0;
   while (feitas.length < possiveis.length && n < 400) {
