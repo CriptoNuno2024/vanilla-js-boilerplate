@@ -3,6 +3,7 @@
 Corre antes de cada PR, na pasta do projeto: `node scripts/verificar-niveis.js`
 Imprime `OK` (código 0) ou a lista do que falta, por nível e chave (código 1).
 Só lê os ficheiros de `js/`; não altera nada e não precisa de instalar nada.
+Cada nível (`nome`), capítulo (`titulo`, `objetivo`, `conclusao`) e fala da história (`texto`) pode trazer o texto na própria entrada, como `{ pt, en, es }`, em vez de uma chave de `js/i18n.js`; o validador aceita um dos dois (nas 3 línguas).
 
 # Cartão "Nova entrada!"
 

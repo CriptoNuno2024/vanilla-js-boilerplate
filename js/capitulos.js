@@ -206,7 +206,22 @@ const CAPITULOS_STRINGS = {
 // idioma atual, com o português como reserva.
 function cStr(id) {
   const dict = CAPITULOS_STRINGS[currentLang] || CAPITULOS_STRINGS.pt;
-  return dict[id] || CAPITULOS_STRINGS.pt[id] || {};
+  const base = dict[id] || CAPITULOS_STRINGS.pt[id] || {};
+  // Uma entrada de CAPITULOS_CONFIG pode trazer titulo e/ou objetivo { pt, en, es }:
+  // têm prioridade sobre CAPITULOS_STRINGS.
+  const c = CAPITULOS_CONFIG.filter(function (x) { return x.id === id; })[0];
+  if (!c || (!c.titulo && !c.objetivo)) return base;
+  const r = Object.assign({}, base);
+  if (c.titulo) r.titulo = textoNaLingua(c.titulo);
+  if (c.objetivo) r.objetivo = textoNaLingua(c.objetivo);
+  return r;
+}
+
+// Conclusão do capítulo "id": conclusao { pt, en, es } da entrada, se existir;
+// senão a chave capitulo.<id>.conclusao de js/i18n.js.
+function capituloConclusao(id) {
+  const c = CAPITULOS_CONFIG.filter(function (x) { return x.id === id; })[0];
+  return (c && c.conclusao) ? textoNaLingua(c.conclusao) : t('capitulo.' + id + '.conclusao');
 }
 
 // CELEBRAÇÃO — chamada em goTo() ao entrar na Quinta (js/main.js), depois
@@ -255,7 +270,7 @@ function capitulosAvaliarCelebracao() {
   })[0];
   if (!c) return false;
 
-  const texto = t('capitulo.' + c.id + '.conclusao');
+  const texto = capituloConclusao(c.id);
   mostrarFalas([texto], c.falante || 'YoshiCat');
   vibrar('sucesso');
   tocarSom('objetivoCumprido');
@@ -298,7 +313,7 @@ function capitulosCelebracaoDeTeste() {
   const teste = capitulosParametrosTeste();
   if (!teste) return false;
   _capitulosTesteMostrado = true;
-  mostrarFalas([t('capitulo.' + teste.id + '.conclusao')], teste.falante);
+  mostrarFalas([capituloConclusao(teste.id)], teste.falante);
   vibrar('sucesso');
   tocarSom('objetivoCumprido');
   return true;

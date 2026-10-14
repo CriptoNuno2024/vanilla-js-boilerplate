@@ -1639,6 +1639,14 @@ function t(key) {
   return dict[key] !== undefined ? dict[key] : (TRANSLATIONS.pt[key] !== undefined ? TRANSLATIONS.pt[key] : key);
 }
 
+// Texto que vem DENTRO de uma entrada de dados ({ pt, en, es }, como as visitas):
+// no idioma atual, com o português como reserva. Usado por níveis, capítulos e
+// histórias quando a entrada traz o texto em vez de uma chave deste ficheiro.
+function textoNaLingua(texto) {
+  if (!texto || typeof texto !== 'object') return '';
+  return texto[currentLang] || texto.pt || '';
+}
+
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(function (el) {
     el.textContent = t(el.getAttribute('data-i18n'));
