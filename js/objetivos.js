@@ -54,6 +54,59 @@ const OBJETIVOS_POOL_B = [
 ];
 
 // --- GRUPO C — "Do dia": festa > tempo real > bónus de estação --------
+// Os ids do Grupo C que não estão em nenhuma pool (a regra de cada um está em
+// candidatosGrupoC() abaixo). Existem aqui só para terem uma entrada onde pôr
+// o texto, se um dia vier na própria entrada.
+const OBJETIVOS_GRUPO_C = [
+  { id: 'festa_tarefa' },
+  { id: 'tempo_chuva' },
+  { id: 'tempo_vento' },
+  { id: 'tempo_frio' },
+  { id: 'tempo_vigiar' }
+];
+
+// --- TEXTO DOS OBJETIVOS ------------------------------------------------
+// Cada entrada (das pools A e B e do Grupo C) pode trazer texto: { pt, en, es }.
+// Sem ele, o texto continua a vir da chave 'objetivo.<id>' de js/i18n.js.
+
+// A entrada deste id em qualquer das listas, ou null.
+function objetivoEntrada(id) {
+  const listas = [OBJETIVOS_POOL_A, OBJETIVOS_POOL_B, OBJETIVOS_GRUPO_C];
+  for (let i = 0; i < listas.length; i++) {
+    for (let j = 0; j < listas[i].length; j++) {
+      if (listas[i][j].id === id) return listas[i][j];
+    }
+  }
+  return null;
+}
+
+// O texto do objetivo: o da entrada, se existir, senão t('objetivo.' + id).
+function objetivoTexto(id) {
+  const e = objetivoEntrada(id);
+  if (e && e.texto) {
+    const texto = textoNaLingua(e.texto);
+    if (texto) return texto;
+  }
+  return t('objetivo.' + id);
+}
+
+// Verdadeiro se o id tem dados: texto PT na entrada ou chave PT no i18n.js. Um id
+// gravado por outro aparelho com versão diferente pode não ter. Sem dicionário
+// (testes que simulam t()) não há como decidir, por isso conta como tendo dados.
+function objetivoTemDados(id) {
+  const e = objetivoEntrada(id);
+  if (e && e.texto && typeof e.texto.pt === 'string' && e.texto.pt.trim() !== '') return true;
+  if (typeof TRANSLATIONS === 'undefined') return true;
+  const valor = TRANSLATIONS.pt && TRANSLATIONS.pt['objetivo.' + id];
+  return typeof valor === 'string' && valor.trim() !== '';
+}
+
+// Os objetivos de state.objetivos.lista que se mostram e contam (os sem dados são
+// ignorados ao ler; nada se apaga do estado nem da nuvem).
+function objetivosComDados() {
+  return state.objetivos.lista.filter(function (o) { return o && objetivoTemDados(o.id); });
+}
+
 // Devolve uma lista de ids candidatos, já por ordem de prioridade (o
 // bónus de estação reaproveita os ids do Grupo A, em vez de ter texto
 // próprio — se essa ação já tiver sido escolhida para outro objetivo do
@@ -182,7 +235,8 @@ function marcarObjetivoCumprido(id, opcoes) {
   }
   if (!mudouAlgo) return false;
 
-  const todosCumpridos = lista.every(function (o) { return o.cumprido; });
+  const visiveis = objetivosComDados();
+  const todosCumpridos = visiveis.length > 0 && visiveis.every(function (o) { return o.cumprido; });
   if (todosCumpridos && !state.objetivos.bonusDiaDado) {
     state.objetivos.bonusDiaDado = true;
     state.reputacao += OBJETIVO_BONUS_TRIO_PONTOS;
@@ -207,9 +261,9 @@ function atualizarCartaoObjetivosQuinta() {
   const container = document.getElementById('objetivos-container');
   if (!container) return;
 
-  const linhasHtml = state.objetivos.lista.map(function (o) {
+  const linhasHtml = objetivosComDados().map(function (o) {
     return '<p class="objetivo-linha' + (o.cumprido ? ' feito' : '') + '">' +
-      (o.cumprido ? '✓ ' : '· ') + t('objetivo.' + o.id) +
+      (o.cumprido ? '✓ ' : '· ') + objetivoTexto(o.id) +
       ' <span class="objetivo-premio">(+' + OBJETIVO_RECOMPENSA_PONTOS + ')</span>' +
     '</p>';
   }).join('');
@@ -233,9 +287,10 @@ function atualizarResumoQuinta() {
   if (!el) return;
   garantirObjetivosDoDia();
   const nivelAtual = nivelPelaReputacao(state.reputacao);
-  const feitos = state.objetivos.lista.filter(function (o) { return o.cumprido; }).length;
+  const visiveis = objetivosComDados();
+  const feitos = visiveis.filter(function (o) { return o.cumprido; }).length;
   el.textContent = t('nivel.label') + ' ' + nivelAtual + ' · ' +
-    t('objetivos.resumoLabel') + ' ' + feitos + '/' + state.objetivos.lista.length;
+    t('objetivos.resumoLabel') + ' ' + feitos + '/' + visiveis.length;
 }
 
 // >>> mapa-botoes (scripts/verificar-fila-objetivo.js carrega só este bloco)
