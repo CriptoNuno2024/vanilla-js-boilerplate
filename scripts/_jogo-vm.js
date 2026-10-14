@@ -6,7 +6,10 @@
 //   jsDir     pasta dos js/ (por omissão a do projeto)
 //   dadosDir  pasta dos dados/ (por omissão a do projeto); null = não carrega os ficheiros de dados
 //   aoAvisar  função chamada com cada console.warn do jogo
-// Devolve { cx, ev(expressão), el(id) } (el: o elemento simulado com esse id, ex.: o innerHTML de um cartão).
+//   estadoGuardado  texto JSON de um estado já guardado (como o localStorage do jogador), para o jogo o carregar ao abrir
+//   ecraReal  true = mantém o ecraDesbloqueado() verdadeiro de js/niveis.js (por omissão é substituído por um falso)
+// Devolve { cx, ev(expressão), el(id), guardado } (el: o elemento simulado com esse id, ex.: o innerHTML de um cartão;
+// guardado: o localStorage simulado, { chave: texto }).
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -19,6 +22,7 @@ function abrirJogo(opcoes) {
   const jsDir = o.jsDir || path.join(RAIZ, 'js');
   const dadosDir = o.dadosDir === undefined ? path.join(RAIZ, 'dados') : o.dadosDir;
   const guardado = {};
+  if (o.estadoGuardado) guardado.yoshicat_quinta_state_v2 = o.estadoGuardado;
   const elementos = {};
   function el(id) { return elementos[id] || (elementos[id] = { hidden: true, textContent: '', innerHTML: '', id: id }); }
   const sb = {
@@ -47,12 +51,11 @@ function abrirJogo(opcoes) {
   function carregar(ficheiro, nome) { vm.runInContext(fs.readFileSync(ficheiro, 'utf8'), cx, { filename: nome }); }
   ['state.js', 'i18n.js', 'niveis.js', 'personagens.js'].forEach(function (f) { carregar(path.join(jsDir, f), 'js/' + f); });
   // Funções e constantes que o objetivos.js usa ao carregar (aqui só interessam os dados).
-  vm.runInContext(`
+  vm.runInContext((o.ecraReal ? '' : 'function ecraDesbloqueado() { return false; }\n') + `
     function diaLisboaDeHoje() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
     function randInt(a, b) { return a; }
     function mostrarFalas() {} function reposicionarFlutuantes() {}
     function vibrar() {} function tocarSom() {} function updateStatsDisplays() {}
-    function ecraDesbloqueado() { return false; }
     function festaAtual() { return null; } function festaTemTarefaPorFazerHoje() { return false; }
     function tempoAtual() { return { disponivel: false }; } function jaFezTarefaTempoHoje() { return true; }
     function vigiarSinalAgora() { return null; } function vigiarJaFezHoje() { return true; }
@@ -75,7 +78,7 @@ function abrirJogo(opcoes) {
       });
     }
   }
-  return { cx: cx, ev: function (c) { return vm.runInContext(c, cx); }, el: el };
+  return { cx: cx, ev: function (c) { return vm.runInContext(c, cx); }, el: el, guardado: guardado };
 }
 
 module.exports = { abrirJogo, FICHEIROS_DE_DADOS };
