@@ -4,7 +4,8 @@
 // nenhum sítio do jogo, só somada — por isso o nível nunca desce.
 //
 // Para mudar os limiares ou os nomes: muda só NIVEIS_CONFIG abaixo. Os
-// nomes ficam em js/i18n.js (chaves nivel.nome.1 a nivel.nome.10).
+// nomes ficam em js/i18n.js (chaves nivel.nome.1 a nivel.nome.10), ou dentro da
+// própria entrada, com nome: { pt, en, es } (que tem prioridade sobre nomeKey).
 // ---------------------------------------------------------------------
 
 const NIVEIS_CONFIG = [
@@ -19,6 +20,12 @@ const NIVEIS_CONFIG = [
   { min: 2100, nomeKey: 'nivel.nome.9' },
   { min: 2800, nomeKey: 'nivel.nome.10' }
 ];
+
+// Nome de um nível: o texto da própria entrada (nome: { pt, en, es }), se existir;
+// senão a chave nomeKey de js/i18n.js.
+function nivelNome(info) {
+  return info.nome ? textoNaLingua(info.nome) : t(info.nomeKey);
+}
 
 // Índice 1-based (nível 1 a 10) — o último cujo limiar já foi atingido.
 function nivelPelaReputacao(reputacao) {
@@ -60,7 +67,7 @@ function atualizarCartaoNivelQuinta() {
     const pct = Math.round((valor / proximo.min) * 100);
     progressoHtml =
       '<div class="nivel-barra"><div class="nivel-barra-cheio" style="width:' + pct + '%"></div></div>' +
-      '<p class="mini-sub">' + valor + ' / ' + proximo.min + ' · ' + t('nivel.proximoLabel') + ' ' + t(proximo.nomeKey) + '</p>';
+      '<p class="mini-sub">' + valor + ' / ' + proximo.min + ' · ' + t('nivel.proximoLabel') + ' ' + nivelNome(proximo) + '</p>';
   } else {
     progressoHtml =
       '<div class="nivel-barra"><div class="nivel-barra-cheio" style="width:100%"></div></div>' +
@@ -69,7 +76,7 @@ function atualizarCartaoNivelQuinta() {
 
   container.innerHTML =
     '<div class="mini-bloco">' +
-      '<p class="mini-bloco-titulo">' + t('nivel.label') + ' ' + nivelAtual + ' · ' + t(infoAtual.nomeKey) + '</p>' +
+      '<p class="mini-bloco-titulo">' + t('nivel.label') + ' ' + nivelAtual + ' · ' + nivelNome(infoAtual) + '</p>' +
       progressoHtml +
     '</div>';
 }
@@ -114,7 +121,7 @@ function verificarSubidaNivel() {
     mostrarHistoriaSubidaNivel(nivelAntigo, nivelAtual);
   } else {
     const info = NIVEIS_CONFIG[nivelAtual - 1];
-    mostrarFalas(t('nivel.subiuMsg').replace('{n}', nivelAtual).replace('{nome}', t(info.nomeKey)), 'YoshiCat');
+    mostrarFalas(t('nivel.subiuMsg').replace('{n}', nivelAtual).replace('{nome}', nivelNome(info)), 'YoshiCat');
   }
   vibrar('sucesso');
   tocarSom('subiuNivel');
@@ -168,7 +175,7 @@ function mostrarMensagemTrancada(screen) {
   mostrarFalas(
     t('acesso.trancado')
       .replace('{n}', nivelPreciso)
-      .replace('{nome}', t(info.nomeKey))
+      .replace('{nome}', nivelNome(info))
       .replace('{faltam}', faltam),
     'YoshiCat'
   );

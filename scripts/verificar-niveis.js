@@ -55,6 +55,13 @@ function main() {
   const J = carregarJogo();
   const tr = J.TRANSLATIONS;
 
+  // Texto na própria entrada ({ pt, en, es }): tem de ter as 3 línguas escritas.
+  function textoEntrada(onde, texto, o) {
+    LINGUAS.forEach(function (l) {
+      if (!texto || !temTexto(texto[l])) falta(onde, o + ' em ' + l);
+    });
+  }
+
   function chave(onde, k, linguas) {
     (linguas || LINGUAS).forEach(function (l) {
       if (!tr[l] || !temTexto(tr[l][k])) falta(onde, 'a chave "' + k + '" em ' + l);
@@ -65,8 +72,9 @@ function main() {
     const n = i + 1;
     const onde = 'Nível ' + n;
 
-    // a) nome do nível
-    chave(onde, nivel.nomeKey);
+    // a) nome do nível: nome { pt, en, es } na entrada OU a chave nomeKey no i18n.js
+    if (nivel.nome) textoEntrada(onde, nivel.nome, 'o nome (nome na entrada)');
+    else chave(onde, nivel.nomeKey);
 
     // b) história (do nível 2 em diante)
     if (n >= 2) {
@@ -74,7 +82,11 @@ function main() {
       if (!Array.isArray(historia) || historia.length === 0) {
         falta(onde, 'a história (entrada em HISTORIA_NIVEIS)');
       } else {
-        historia.forEach(function (fala) { chave(onde + ' (história)', fala.chave); });
+        historia.forEach(function (fala) {
+          // cada fala: texto { pt, en, es } na entrada OU chave no i18n.js
+          if (fala.texto) textoEntrada(onde + ' (história)', fala.texto, 'a fala (texto na entrada)');
+          else chave(onde + ' (história)', fala.chave);
+        });
       }
     }
 
@@ -87,17 +99,22 @@ function main() {
         falta(onde + ' (capítulo ' + c.id + ')', 'a personagem "' + c.falante + '" em PERSONAGENS_CARAS (falante do capítulo)');
       }
       LINGUAS.forEach(function (l) {
+        // título e objetivo: na entrada ({ pt, en, es }) OU em CAPITULOS_STRINGS
         const s = (J.CAPITULOS_STRINGS[l] || {})[c.id] || {};
-        if (!temTexto(s.titulo)) falta(onde + ' (capítulo ' + c.id + ')', 'o título em ' + l);
-        if (!temTexto(s.objetivo)) falta(onde + ' (capítulo ' + c.id + ')', 'o objetivo em ' + l);
+        const titulo = c.titulo ? c.titulo[l] : s.titulo;
+        const objetivo = c.objetivo ? c.objetivo[l] : s.objetivo;
+        if (!temTexto(titulo)) falta(onde + ' (capítulo ' + c.id + ')', 'o título em ' + l);
+        if (!temTexto(objetivo)) falta(onde + ' (capítulo ' + c.id + ')', 'o objetivo em ' + l);
       });
-      chave(onde + ' (capítulo ' + c.id + ')', 'capitulo.' + c.id + '.conclusao');
+      // conclusão: conclusao { pt, en, es } na entrada OU a chave no i18n.js (como hoje, nas 3 línguas)
+      if (c.conclusao) textoEntrada(onde + ' (capítulo ' + c.id + ')', c.conclusao, 'a conclusão (conclusao na entrada)');
+      else chave(onde + ' (capítulo ' + c.id + ')', 'capitulo.' + c.id + '.conclusao');
       // AVISO (não falha): o balão de fala mostra ~2 linhas de texto (ver
       // .dialogue-msg em index.html); acima de 90 caracteres estica para cima
       // e tapa mais da cena.
       LINGUAS.forEach(function (l) {
         const k = 'capitulo.' + c.id + '.conclusao';
-        const texto = tr[l] && tr[l][k];
+        const texto = c.conclusao ? c.conclusao[l] : (tr[l] && tr[l][k]);
         if (temTexto(texto) && texto.length > LIMITE_CONCLUSAO) {
           avisos.push(onde + ' (capítulo ' + c.id + '): a conclusão "' + k + '" em ' + l + ' tem ' + texto.length + ' caracteres (limite ' + LIMITE_CONCLUSAO + ')');
         }

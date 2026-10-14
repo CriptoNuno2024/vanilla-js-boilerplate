@@ -71,11 +71,11 @@ const HISTORIA_NIVEIS = {
   ]
 };
 
-// Traduz uma lista de { chave, foto, pos } em { texto, foto, pos },
+// Traduz uma lista de { chave | texto: { pt, en, es }, foto, pos } em { texto, foto, pos },
 // pronta para mostrarFalas() (ver js/main.js).
 function traduzirFalasHistoria(lista) {
   return lista.map(function (f) {
-    return { texto: t(f.chave), foto: f.foto, pos: f.pos, som: f.som };
+    return { texto: f.texto ? textoNaLingua(f.texto) : t(f.chave), foto: f.foto, pos: f.pos, som: f.som };
   });
 }
 
