@@ -2,15 +2,15 @@
 
 Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
 
-**Por agora os 5 ficheiros estão vazios (só têm comentários) e o jogo não ganha nada.** O jogo já os carrega, pela ordem do `index.html`, a seguir às listas que alimentam e antes do `main.js`:
+**O jogo lê esta pasta.** Carrega os 5 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje só `dados/visitas.js` tem uma entrada real (a visita `marisa_5`); os outros 4 ficheiros só têm comentários.**
 
 | Ficheiro | O que lá vai | Estado |
 |---|---|---|
-| `dados/visitas.js` | visitas novas | suportado |
-| `dados/niveis.js` | níveis novos | suportado |
-| `dados/historias.js` | histórias de nível novas | suportado |
-| `dados/capitulos.js` | capítulos novos | suportado |
-| `dados/objetivos.js` | objetivos diários | **ainda não suportado** (cada objetivo precisa de uma regra no código) |
+| `dados/visitas.js` | visitas novas | suportado (já tem `marisa_5`) |
+| `dados/niveis.js` | níveis novos | suportado (ainda sem entradas) |
+| `dados/historias.js` | histórias de nível novas | suportado (ainda sem entradas) |
+| `dados/capitulos.js` | capítulos novos | suportado (ainda sem entradas) |
+| `dados/objetivos.js` | objetivos diários | **ainda NÃO suportado** (cada objetivo precisa de uma regra no código); o ficheiro só tem comentários |
 
 Cada entrada acrescenta-se com `dadosAcrescentar('visitas', { ... })` (`js/dados.js`). Uma entrada **mal escrita é ignorada** e o jogo avisa na consola (`[dados] ... ignorada: motivo`); nunca parte o arranque e nunca substitui uma entrada que já existe.
 
@@ -20,6 +20,40 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - nível: `{ id, min, nome }` (o `min` tem de ser maior que o do último nível)
 - história: `{ id, nivel (a partir do 2), falas: [ { texto, foto, som } ] }`
 - capítulo: `{ id, nivel, criterio: [ ... ], titulo, objetivo, conclusao, falante }`
+
+## Como se acrescenta uma entrada
+
+1. **Escrever** a entrada no ficheiro certo de `dados/` com `dadosAcrescentar`, a seguir ao que já lá está. Exemplo (a visita `marisa_5`, em `dados/visitas.js`):
+
+   ```js
+   dadosAcrescentar('visitas', {
+     id: 'marisa_5',
+     personagem: 'marisa',
+     reputacao: 1,
+     condicao: { tipo: 'fase', valores: ['quedaFolha'] },
+     texto: { pt: '...', en: '...', es: '...' }
+   });
+   ```
+
+2. **Conferir**: `node scripts/verificar-dados.js --estrito` tem de dar `OK`.
+3. **Subir o `?v=`** desse ficheiro no `index.html` (ex.: `dados/visitas.js?v=2` passa a `?v=3`), para os aparelhos não ficarem com a versão antiga em cache.
+4. **Abrir a PR.**
+
+## O que já está testado
+
+- Um ensaio geral (`scripts/verificar-piloto-nivel.js`) mete um pacote de teste completo (nível 11 + história + capítulo) por `dadosAcrescentar`, só no ambiente simulado, e vê o jogo inteiro a funcionar com ele nas 3 línguas.
+- Os textos com `<b>`, `&`, aspas e plicas saem escapados nos cartões (nível e capítulo).
+- O estado guardado só tem ids, e carrega bem se o pacote deixar de existir.
+- `scripts/verificar-dados-carregar.js` prova que entradas mal escritas são ignoradas, que uma entrada existente nunca é substituída e que as 12 visitas de origem ficam iguais.
+
+### A ter em conta quando houver um nível 11 a sério
+
+Observações do ensaio (não falham; o jogo não foi alterado por causa delas):
+
+- **Nível sem história não mostra mensagem de subida.** Só o cartão muda. Por isso um nível novo traz sempre a sua história (o validador já o exige).
+- **`?capitulo=N` só aceita 1 a 10.** Não dá para ver a celebração de um capítulo 11 com o modo de teste.
+- **A celebração de um capítulo não olha ao nível.** Se o critério já estiver cumprido, celebra-o mesmo num nível mais baixo (só o cartão respeita o nível).
+- **`nivelMostrado` pode ficar a 11 sem o pacote.** Se o pacote deixar de existir, o estado guardado fica com um nível que o jogo já não tem; se mais tarde entrar OUTRO nível 11, a sua história não aparece a quem já o «viu».
 
 ## Como se confere
 
