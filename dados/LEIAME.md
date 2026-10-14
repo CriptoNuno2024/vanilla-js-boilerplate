@@ -2,7 +2,24 @@
 
 Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
 
-**Por agora a pasta está vazia e o jogo não lê nada daqui.** Os ficheiros de dados e a forma de os carregar vêm em PRs seguintes. O que já existe é o validador e estas regras.
+**Por agora os 5 ficheiros estão vazios (só têm comentários) e o jogo não ganha nada.** O jogo já os carrega, pela ordem do `index.html`, a seguir às listas que alimentam e antes do `main.js`:
+
+| Ficheiro | O que lá vai | Estado |
+|---|---|---|
+| `dados/visitas.js` | visitas novas | suportado |
+| `dados/niveis.js` | níveis novos | suportado |
+| `dados/historias.js` | histórias de nível novas | suportado |
+| `dados/capitulos.js` | capítulos novos | suportado |
+| `dados/objetivos.js` | objetivos diários | **ainda não suportado** (cada objetivo precisa de uma regra no código) |
+
+Cada entrada acrescenta-se com `dadosAcrescentar('visitas', { ... })` (`js/dados.js`). Uma entrada **mal escrita é ignorada** e o jogo avisa na consola (`[dados] ... ignorada: motivo`); nunca parte o arranque e nunca substitui uma entrada que já existe.
+
+Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
+
+- visita: `{ id, personagem, reputacao (1 a 3), condicao (ou null), texto }`
+- nível: `{ id, min, nome }` (o `min` tem de ser maior que o do último nível)
+- história: `{ id, nivel (a partir do 2), falas: [ { texto, foto, som } ] }`
+- capítulo: `{ id, nivel, criterio: [ ... ], titulo, objetivo, conclusao, falante }`
 
 ## Como se confere
 
@@ -10,10 +27,16 @@ Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, 
 node scripts/verificar-dados.js
 ```
 
-Dá `OK` ou lista o que está mal. Com `--estrito` o que é só aviso passa a falhar (é assim que valem as entradas novas):
+Dá `OK` ou lista o que está mal. Nas entradas que vêm desta pasta, `< > &`, dados pessoais e afins são **falhas**; no conteúdo que já existia são só avisos (e com `--estrito` também falham):
 
 ```
 node scripts/verificar-dados.js --estrito
+```
+
+E para provar que o jogo carrega e ignora bem as entradas:
+
+```
+node scripts/verificar-dados-carregar.js
 ```
 
 ## Regras de uma entrada
