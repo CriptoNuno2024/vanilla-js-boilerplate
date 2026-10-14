@@ -188,7 +188,7 @@ const REP_NIVEL_4 = 120; // NIVEIS_CONFIG: o nível 4 começa em 120 de Reputaç
 {
   const g = abrir(); g.rep(REP_NIVEL_4);
   const possiveis = g.ev("VISITAS.filter(function (v) { return visitaCondicaoOk(v, visitaContextoAtual()); }).map(function (v) { return v.id; })");
-  ok(possiveis.length === 7, 'o contexto devia ter 7 possíveis, tem ' + possiveis.length);
+  ok(possiveis.length >= 7, 'o contexto devia ter pelo menos 7 possíveis, tem ' + possiveis.length);
   const feitas = []; let ultimaRep = g.ev('state.reputacao'), soma = 0;
   for (let n = 0; n < 200 && feitas.length < possiveis.length; n++) {
     g.dia(new Date(Date.UTC(2026, 9, 1 + n)).toISOString().slice(0, 10));

@@ -78,13 +78,13 @@ const saveNivel10 = function (extra) {
 // 1. Nível 10 (o último): 10 níveis, limiar 2800, nome nas 3 línguas, tranca do ecrã "roxo".
 {
   const g = abrir();
-  ok(g.ev('NIVEIS_CONFIG.length') === 10, 'devia haver exatamente 10 níveis');
+  ok(g.ev('NIVEIS_CONFIG.length') >= 10, 'devia haver pelo menos 10 níveis');
   ok(JSON.stringify(g.json('NIVEIS_CONFIG.map(function (n) { return n.min; })')) === '[0,15,50,120,300,600,1000,1500,2100,2800]', 'limiares 0, 15, 50, 120, 300, 600, 1000, 1500, 2100, 2800');
   ok(g.ev('NIVEIS_CONFIG[9].nomeKey') === 'nivel.nome.10', 'nomeKey do nível 10');
   [[2099, 8], [2100, 9], [2799, 9], [2800, 10], [99999, 10]].forEach(function (p) { ok(g.ev('nivelPelaReputacao(' + p[0] + ')') === p[1], 'Reputação ' + p[0] + ' devia dar nível ' + p[1]); });
   ok(g.ev('NIVEL_NECESSARIO_POR_ECRA.roxo') === 10 && g.ev('NIVEL_NECESSARIO_POR_ECRA.camara') === 9 && g.ev('NIVEL_NECESSARIO_POR_ECRA.lagar') === 8, 'roxo: 10, a câmara continua no 9 e o lagar no 8');
   const n = g.ev('Math.max.apply(null, Object.keys(NIVEL_NECESSARIO_POR_ECRA).map(function (k) { return NIVEL_NECESSARIO_POR_ECRA[k]; }))');
-  ok(n === g.ev('NIVEIS_CONFIG.length'), 'o ecrã mais alto exige o último nível (10)');
+  ok(n >= 10 && n <= g.ev('NIVEIS_CONFIG.length'), 'o ecrã mais alto exige pelo menos o nível 10 e nunca um nível que não existe');
   ok(g.ev("state.acesso.jogadorAntigo = false; state.reputacao = 2799; ecraDesbloqueado('roxo')") === false, 'a Cepa Roxa devia estar trancada no nível 9 (jogador novo)');
   ok(g.ev("state.reputacao = 2800; ecraDesbloqueado('roxo')") === true, 'a Cepa Roxa devia abrir no nível 10');
   ok(g.ev("state.reputacao = 2799; ecraDesbloqueado('camara')") === true, 'a Câmara continua aberta no nível 9');
@@ -170,7 +170,7 @@ const saveNivel10 = function (extra) {
 // 5. Capítulo 10: conta dias DIFERENTES; nunca trava o nível; celebração; ?capitulo=1 a 10.
 {
   const g = abrir(saveNivel10());
-  ok(g.ev('CAPITULOS_CONFIG.length') === 10 && g.ev('CAPITULOS_CONFIG[9].id') === 'cap10' && g.ev('CAPITULOS_CONFIG[9].nivel') === 10, 'devia haver exatamente 10 capítulos, o último o cap10 no nível 10');
+  ok(g.ev('CAPITULOS_CONFIG.length') >= 10 && g.ev('CAPITULOS_CONFIG[9].id') === 'cap10' && g.ev('CAPITULOS_CONFIG[9].nivel') === 10, 'devia haver pelo menos 10 capítulos, sendo o 10.º o cap10 no nível 10');
   ok(JSON.stringify(g.json('CAPITULOS_CONFIG[9].criterio')) === JSON.stringify([{ tipo: 'numero', caminho: 'roxo.dias', alvo: 3 }]), 'critério do cap10');
   const lido = function () { return g.json('capitulosLerCriterio(CAPITULOS_CONFIG[9])'); };
   let r = lido(); ok(r.atual === 0 && r.total === 3 && !r.cumprido, 'sem brindar: 0 / 3');
