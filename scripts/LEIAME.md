@@ -165,3 +165,7 @@ Sem estado novo, sem custos, sem nuvem, sem textos novos. (1) O fundo do Lagar *
 # Conquistas ganhas ficam guardadas
 
 `node scripts/verificar-conquistas-ganhas.js` — js/state.js, js/conquistas.js, js/explorar.js e js/nuvem.js em vm, com uma nuvem falsa em memória: `defaultState()` tem `conquistasGanhas` e um save antigo sem o campo funciona; uma conquista cumprida fica registada e continua feita depois de o progresso baixar («Sábio», «Guardião», garrafas); uma não cumprida não é registada; o registo é idempotente e só grava quando há algo novo; a união na nuvem (local ganha, nuvem ganha e releitura) deixa cada aparelho com tudo e só grava se mudou; entradas estragadas (null, números, listas, `__proto__`, chaves compridas) não rebentam nem entram; desbloquear uma entrada da Enciclopédia, arrancar (com a nuvem já sincronizada) e desenhar o Perfil/Conquistas chamam o registo. 36 mutações.
+
+# Objetivos diários (texto e ids sem dados)
+
+`node scripts/verificar-objetivos.js` — os 18 objetivos de «Hoje na Quinta» têm texto nas 3 línguas (na própria entrada `texto: { pt, en, es }` OU na chave `objetivo.<id>` do `js/i18n.js`), `objetivoTexto()` dá o mesmo texto de sempre, e um id guardado em `state.objetivos.lista` sem dados (ex.: de outro aparelho com versão diferente) não aparece no cartão nem bloqueia o bónus dos 3, sem apagar nada do estado. `OBJETIVOS_JS=` e `I18N_JS=` correm sobre outra versão dos ficheiros.
