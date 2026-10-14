@@ -68,6 +68,7 @@ function suite(fontes) {
     vm.runInContext(`
       var SAVES = 0, SONS = [], FICH = [];
       function t(k) { return k; }
+      function escaparHtml(s) { return String(s); } // o texto do i18n.js simulado não tem nada a escapar
       function randInt(a) { return a; }
       function mostrarFalas() {} function vibrar() {} function updateStatsDisplays() {}
       function reposicionarFlutuantes() {} function atualizarCartaoObjetivosQuinta() {}

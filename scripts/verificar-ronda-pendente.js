@@ -65,6 +65,7 @@ function abrir(inicioMs, estadoGuardado) {
   vm.runInContext(`
     var FALAS = [], SOM = 0;
     function t(k) { return k; }
+    function escaparHtml(s) { return String(s); } // o texto do i18n.js simulado não tem nada a escapar
     function diaLisboaDeHoje() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
     function randInt(a, b) { return a; }
     function mostrarFalas(f) { FALAS.push(f); }
