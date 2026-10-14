@@ -169,3 +169,7 @@ Sem estado novo, sem custos, sem nuvem, sem textos novos. (1) O fundo do Lagar *
 # Objetivos diários (texto e ids sem dados)
 
 `node scripts/verificar-objetivos.js` — os 18 objetivos de «Hoje na Quinta» têm texto nas 3 línguas (na própria entrada `texto: { pt, en, es }` OU na chave `objetivo.<id>` do `js/i18n.js`), `objetivoTexto()` dá o mesmo texto de sempre, e um id guardado em `state.objetivos.lista` sem dados (ex.: de outro aparelho com versão diferente) não aparece no cartão nem bloqueia o bónus dos 3, sem apagar nada do estado. `OBJETIVOS_JS=` e `I18N_JS=` correm sobre outra versão dos ficheiros.
+
+# Conteúdo em dados (pasta dados/)
+
+`node scripts/verificar-dados.js [--estrito]` — valida o conteúdo (visitas, níveis, histórias, capítulos e objetivos) com o jogo real em vm: ids únicos e com formato certo, texto nas 3 línguas, personagens, condições e critérios válidos, imagens e sons que existem, limiares dos níveis por ordem; os caracteres `< > &`, dados pessoais e `[por escrever]` são avisos (com `--estrito`, falhas). `JS_DIR=` lê os `js/` de outra pasta (uma cópia). Regras em `dados/LEIAME.md`.
