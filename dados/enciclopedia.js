@@ -104,3 +104,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'Los vinos tintos de la DOC Palmela, reconocida en 2009, llevan al menos un 67% de uva Castelão.'
   }
 });
+
+// Nível 14, «Moscatel de Azeitão»: as 3 histórias que o capítulo 14 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'azeitao_queijo',
+  nivelMinimo: 14,
+  titulo: { pt: 'O Queijo de Azeitão', en: 'Azeitão Cheese', es: 'El Queso de Azeitão' },
+  texto: {
+    pt: 'O Queijo de Azeitão é feito com leite de ovelha em Palmela, Sesimbra e Setúbal. Tem pasta mole e amanteigada e é DOP, ou seja, tem nome protegido.',
+    en: "Azeitão Cheese is made with sheep's milk in Palmela, Sesimbra and Setúbal. It has a soft, buttery paste and is a PDO, which means its name is protected.",
+    es: 'El Queso de Azeitão se hace con leche de oveja en Palmela, Sesimbra y Setúbal. Tiene pasta blanda y mantecosa y es DOP, es decir, su nombre está protegido.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'azeitao_adega',
+  nivelMinimo: 14,
+  titulo: { pt: 'Uma Adega de 1834', en: 'A Cellar from 1834', es: 'Una Bodega de 1834' },
+  texto: {
+    pt: 'Em Vila Nogueira de Azeitão, a casa José Maria da Fonseca foi fundada em 1834. Nas suas adegas ainda descansam moscatéis com mais de cem anos.',
+    en: 'In Vila Nogueira de Azeitão, the house of José Maria da Fonseca was founded in 1834. In its cellars, Moscatel wines over a hundred years old still rest.',
+    es: 'En Vila Nogueira de Azeitão, la casa José Maria da Fonseca se fundó en 1834. En sus bodegas todavía reposan moscateles de más de cien años.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'azeitao_palacio',
+  nivelMinimo: 14,
+  titulo: { pt: 'O Palácio dos Duques de Aveiro', en: 'The Palace of the Dukes of Aveiro', es: 'El Palacio de los Duques de Aveiro' },
+  texto: {
+    pt: 'Em Vila Nogueira de Azeitão fica o Palácio dos Duques de Aveiro. É um palácio renascentista, no chamado estilo chão português.',
+    en: 'In Vila Nogueira de Azeitão stands the Palace of the Dukes of Aveiro. It is a Renaissance palace, in the so-called "plain Portuguese" style.',
+    es: 'En Vila Nogueira de Azeitão se encuentra el Palacio de los Duques de Aveiro. Es un palacio renacentista, en el llamado estilo "chão" portugués.'
+  }
+});

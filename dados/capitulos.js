@@ -52,3 +52,20 @@ dadosAcrescentar('capitulos', {
     es: 'Castillo, exploradores y viñedos: Palmela ya forma parte de nuestra historia.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap14',
+  nivel: 14,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['azeitao_queijo', 'azeitao_adega', 'azeitao_palacio'] }],
+  titulo: { pt: 'Queijo, Vinho e Palácios', en: 'Cheese, Wine and Palaces', es: 'Queso, Vino y Palacios' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias de Azeitão na Enciclopédia.',
+    en: 'Discover the 3 stories about Azeitão in the Encyclopedia.',
+    es: 'Descubre las 3 historias de Azeitão en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Queijo, vinho e palácios: Azeitão tem sabor a história. E agora também faz parte da nossa.',
+    en: 'Cheese, wine and palaces: Azeitão tastes of history. And now it is part of ours too.',
+    es: 'Queso, vino y palacios: Azeitão sabe a historia. Y ahora también forma parte de la nuestra.'
+  }
+});

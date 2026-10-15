@@ -113,3 +113,40 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 14 («Moscatel de Azeitão»): a foto da fala 1 está em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_14',
+  nivel: 14,
+  falas: [
+    {
+      foto: 'assets/ecras/azeitao_vila.jpg',
+      texto: {
+        pt: 'Ao pé da Serra da Arrábida fica Azeitão, terra de queijo, vinho e palácios. O YoshiCat vem ver como se vive e se trabalha por aqui.',
+        en: 'At the foot of the Serra da Arrábida lies Azeitão, a land of cheese, wine and palaces. YoshiCat comes to see how people live and work here.',
+        es: 'Al pie de la Sierra de la Arrábida está Azeitão, tierra de queso, vino y palacios. YoshiCat viene a ver cómo se vive y se trabaja por aquí.'
+      }
+    },
+    {
+      texto: {
+        pt: 'O Queijo de Azeitão é feito com leite de ovelha, na Península de Setúbal. Tem pasta mole e amanteigada, e o nome está protegido: é DOP.',
+        en: "Azeitão Cheese is made with sheep's milk on the Setúbal Peninsula. It has a soft, buttery paste, and its name is protected: it is a PDO.",
+        es: 'El Queso de Azeitão se hace con leche de oveja, en la Península de Setúbal. Tiene pasta blanda y mantecosa, y su nombre está protegido: es DOP.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Em Azeitão há uma casa de vinhos fundada em 1834. Nas suas adegas ainda descansam moscatéis com mais de cem anos.',
+        en: 'In Azeitão there is a wine house founded in 1834. In its cellars, Moscatel wines over a hundred years old still rest.',
+        es: 'En Azeitão hay una casa de vinos fundada en 1834. En sus bodegas todavía reposan moscateles de más de cien años.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Abriu: novas histórias de Azeitão na Enciclopédia.',
+        en: 'Unlocked: new stories about Azeitão in the Encyclopedia.',
+        es: 'Se abrió: nuevas historias de Azeitão en la Enciclopedia.'
+      }
+    }
+  ]
+});
