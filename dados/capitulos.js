@@ -35,3 +35,20 @@ dadosAcrescentar('capitulos', {
     es: 'El río, el pescado y los delfines cuentan la misma historia. El Sado ya forma parte de la nuestra.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap13',
+  nivel: 13,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['palmela_castelo', 'palmela_capelo', 'palmela_castelao'] }],
+  titulo: { pt: 'Do Castelo ao Mundo', en: 'From the Castle to the World', es: 'Del Castillo al Mundo' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias de Palmela na Enciclopédia.',
+    en: 'Discover the 3 stories about Palmela in the Encyclopedia.',
+    es: 'Descubre las 3 historias de Palmela en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Castelo, exploradores e vinha: Palmela já faz parte da nossa história.',
+    en: 'Castle, explorers and vineyards: Palmela is now part of our story.',
+    es: 'Castillo, exploradores y viñedos: Palmela ya forma parte de nuestra historia.'
+  }
+});

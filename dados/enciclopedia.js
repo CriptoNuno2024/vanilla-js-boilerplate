@@ -70,3 +70,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'En Tróia, justo frente a Setúbal, los romanos preparaban pescado salado y garum, una salsa de pescado. El lugar estuvo ocupado hasta el siglo VI.'
   }
 });
+
+// Nível 13, «Moscatel de Palmela»: as 3 histórias que o capítulo 13 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'palmela_castelo',
+  nivelMinimo: 13,
+  titulo: { pt: 'O Castelo de Palmela', en: 'Palmela Castle', es: 'El Castillo de Palmela' },
+  texto: {
+    pt: 'O castelo de Palmela foi tomado aos mouros no século XII e entregue depois à Ordem de Santiago. O antigo convento é hoje uma pousada.',
+    en: 'Palmela castle was taken from the Moors in the 12th century and later given to the Order of Santiago. The old convent is now an inn.',
+    es: 'El castillo de Palmela fue tomado a los moros en el siglo XII y entregado después a la Orden de Santiago. El antiguo convento es hoy una posada.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'palmela_capelo',
+  nivelMinimo: 13,
+  titulo: { pt: 'Hermenegildo Capelo', en: 'Hermenegildo Capelo', es: 'Hermenegildo Capelo' },
+  texto: {
+    pt: 'Hermenegildo Capelo nasceu em Palmela, em 1841. Foi explorador e, com Roberto Ivens, atravessou África de Angola a Moçambique.',
+    en: 'Hermenegildo Capelo was born in Palmela in 1841. He was an explorer and, with Roberto Ivens, crossed Africa from Angola to Mozambique.',
+    es: 'Hermenegildo Capelo nació en Palmela en 1841. Fue explorador y, con Roberto Ivens, atravesó África de Angola a Mozambique.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'palmela_castelao',
+  nivelMinimo: 13,
+  titulo: { pt: 'O Castelão de Palmela', en: 'The Castelão of Palmela', es: 'El Castelão de Palmela' },
+  texto: {
+    pt: 'Os vinhos tintos da DOC Palmela, reconhecida em 2009, levam pelo menos 67% de uva Castelão.',
+    en: 'Red wines of the Palmela DOC, recognised in 2009, contain at least 67% Castelão grapes.',
+    es: 'Los vinos tintos de la DOC Palmela, reconocida en 2009, llevan al menos un 67% de uva Castelão.'
+  }
+});

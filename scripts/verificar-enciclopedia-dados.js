@@ -10,7 +10,7 @@
 //      os campos conhecidos; entra nas 3 línguas;
 //  (d) título e texto com <b>, &, aspas e <script> saem escapados (uma só vez) na Enciclopédia e no Explorar;
 //  (e) o estado guardado só tem ids e carrega bem se a entrada deixar de existir (o id solto não conta);
-//  (f) as entradas de hoje ficam idênticas às da master (impressão digital) e dados/ só traz as histórias da Arrábida (nível 11) e do Sado (nível 12).
+//  (f) as entradas de hoje ficam idênticas às da master (impressão digital) e dados/ só traz as histórias da Arrábida (nível 11), do Sado (12) e de Palmela (13).
 //
 // Uso: node scripts/verificar-enciclopedia-dados.js
 // JS_DIR=pasta  corre sobre outra versão dos js/ (para provar que o teste apanha o que se estraga).
@@ -80,16 +80,17 @@ function estadoDasListas(g) { return g.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES)'
     lingua(g, l);
     ok(g.ev('encyclopediaEntries() === ENCYCLOPEDIA_ENTRIES.' + l) === true, '(f) sem nivelMinimo, a lista do jogo é exatamente a de hoje (' + l + ')');
   });
-  // Com a pasta dados/ real: as 32 de hoje (nas 3 línguas) ficam idênticas e só entram as 3 da Arrábida (nível mínimo 11) e as 3 do
-  // Sado (nível mínimo 12), por esta ordem, sem imagem (cada nível novo acrescenta aqui o seu grupo).
+  // Com a pasta dados/ real: as 32 de hoje (nas 3 línguas) ficam idênticas e só entram as 3 da Arrábida (nível mínimo 11), as 3 do
+  // Sado (12) e as 3 de Palmela (13), por esta ordem, sem imagem (cada nível novo acrescenta aqui o seu grupo).
   const real = abrir({ dadosDir: path.join(RAIZ, 'dados'), nivel11: false });
   const GRUPOS = [
     { nome: 'Arrábida', nivel: 11, ids: ['arrabida_biosfera', 'arrabida_plantas', 'arrabida_mar'] },
-    { nome: 'Sado', nivel: 12, ids: ['sado_reserva', 'sado_golfinhos', 'sado_troia'] }
+    { nome: 'Sado', nivel: 12, ids: ['sado_reserva', 'sado_golfinhos', 'sado_troia'] },
+    { nome: 'Palmela', nivel: 13, ids: ['palmela_castelo', 'palmela_capelo', 'palmela_castelao'] }
   ];
   const TODOS = GRUPOS.reduce(function (t, g) { return t.concat(g.ids); }, []);
   ok(real.avisos.length === 0, '(f) carregar o jogo com dados/ não devia avisar nada: ' + real.avisos);
-  ok(real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()') === TODOS.join(), '(f) de dados/ só deviam vir as histórias da Arrábida e do Sado, por ordem: ' + real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()'));
+  ok(real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()') === TODOS.join(), '(f) de dados/ só deviam vir as histórias da Arrábida, do Sado e de Palmela, por ordem: ' + real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()'));
   const dasTresLinguas = real.ev('JSON.stringify({ pt: ENCYCLOPEDIA_ENTRIES.pt.slice(0, 32), en: ENCYCLOPEDIA_ENTRIES.en.slice(0, 32), es: ENCYCLOPEDIA_ENTRIES.es.slice(0, 32) })');
   ok(crypto.createHash('sha256').update(dasTresLinguas).digest('hex') === IMPRESSAO_DIGITAL_DE_HOJE, '(f) com dados/ as 32 entradas de hoje ficam idênticas às da master, nas 3 línguas');
   LINGUAS.forEach(function (l) {
