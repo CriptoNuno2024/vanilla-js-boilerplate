@@ -8,7 +8,8 @@
 //   nivel          N, o número do nível (>= 12)
 //   limiares       limiares dos níveis 1 a N: [0, 15, ..., minimo]
 //   nome, nomeAnt  { pt, en, es } do nível N e do nível N - 1
-//   foto           'assets/ecras/xxx.jpg' (só na fala 1); fotoRaiz: nome do ficheiro que NÃO pode existir na raiz do repositório
+//   foto           'assets/ecras/xxx.jpg' (na fala 1); fotoRaiz: nome do ficheiro que NÃO pode existir na raiz do repositório
+//   fotosExtra     (opcional) { numeroDaFala: 'assets/ecras/yyy.jpg' } fotos noutras falas (a raiz também não pode ter cópia); sem isto só a fala 1 leva foto
 //   falas          4 textos { pt, en, es }
 //   ids, enc, cap  os 3 ids das entradas, os textos { titulo, texto } de cada uma e o capítulo { titulo, objetivo, conclusao }
 //   grupos         os ids das entradas dos pacotes anteriores (nivelMinimo 11, 12, ..., N - 1): [[...], [...], ...]
@@ -16,7 +17,7 @@
 //
 // Prova (como em verificar-nivel-11/12/13.js):
 //  (a) o limiar dá o nível N e limiar - 1 ainda o N - 1; o nome do nível;
-//  (b) a subida ao N mostra as 4 falas (textos exatos), com a foto da fala 1 que existe, e nenhuma com som;
+//  (b) a subida ao N mostra as 4 falas (textos exatos), com a foto da fala 1 (e as de fotosExtra) que existe, as outras falas sem foto, e nenhuma com som;
 //  (c) a história do N não aparece ao subir ao N - 1 nem ficando nele;
 //  (d) as 3 entradas não existem para o nível N - 1 (nem se desbloqueiam, nem aparecem) e existem no N (textos exatos, nivelMinimo N,
 //      sem imagem); no N o Explorar entrega os grupos todos com nivelMinimo ainda por abrir antes de qualquer outra e, com os
@@ -45,6 +46,8 @@ function correr(spec) {
   const MINIMO = LIMIARES[N - 1];
   const REP_M = MINIMO - 1, REP_N = MINIMO;
   const IDS = spec.ids, ENC = spec.enc, CAP = spec.cap, FALAS = spec.falas, NOME = spec.nome, NOME_ANT = spec.nomeAnt, FOTO = spec.foto;
+  const FOTOS_EXTRA = spec.fotosExtra || {}; // fala (1 a 4) -> foto, além da fala 1
+  const FOTOS_TODAS = [FOTO].concat(Object.keys(FOTOS_EXTRA).map(function (k) { return FOTOS_EXTRA[k]; }));
   const GRUPOS = spec.grupos; // grupos anteriores de nivelMinimo
   const TODOS_ANT = GRUPOS.reduce(function (t, g) { return t.concat(g); }, []);
   const ATE_M = ENTRADAS_ORIGEM + 3 * GRUPOS.length; // entradas visíveis no nível M
@@ -142,6 +145,10 @@ function correr(spec) {
     ok(g.ev('JSON.stringify(CAPITULOS_CONFIG[' + M + '].criterio)') === js([{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: IDS }]), '(i) o critério do cap' + N + ' é temIds nos 3 ids: ' + g.ev('JSON.stringify(CAPITULOS_CONFIG[' + M + '].criterio)'));
     ok(fs.existsSync(path.join(RAIZ, FOTO)), '(i) a foto da fala 1 existe em ' + FOTO);
     ok(!fs.existsSync(path.join(RAIZ, spec.fotoRaiz)), '(i) não devia haver cópia da foto na raiz do repositório');
+    FOTOS_TODAS.forEach(function (f) {
+      ok(fs.existsSync(path.join(RAIZ, f)), '(i) a foto existe em ' + f);
+      ok(!fs.existsSync(path.join(RAIZ, path.basename(f))), '(i) não devia haver cópia de ' + path.basename(f) + ' na raiz do repositório');
+    });
     ok(g.ev('HISTORIA_NIVEIS[' + N + '].length') === 4, '(i) a história do ' + N + ' tem 4 falas');
   }
 
@@ -165,7 +172,7 @@ function correr(spec) {
       preparar(g, LIMIARES[M - 1], M - 1);
       ok(g.ev('verificarSubidaNivel()') === true && g.ev('FALAS.length') === 1 && g.ev('FALAS[0].m.length') === 4, '(c) subir ao ' + M + ' mostra as 4 falas do nível ' + M + L);
       const fM = g.ev('JSON.stringify(FALAS)');
-      ok(FALAS.every(function (f) { return fM.indexOf(f[l]) === -1; }) && fM.indexOf(path.basename(FOTO, '.jpg')) === -1, '(c) a história do ' + N + ' não aparece ao subir ao ' + M + L);
+      ok(FALAS.every(function (f) { return fM.indexOf(f[l]) === -1; }) && FOTOS_TODAS.every(function (f) { return fM.indexOf(path.basename(f, '.jpg')) === -1; }), '(c) a história do ' + N + ' não aparece ao subir ao ' + M + L);
       preparar(g, REP_M, M);
       ok(g.ev('verificarSubidaNivel()') === false && g.ev('FALAS.length') === 0, '(c) com ' + REP_M + ' (nível ' + M + ') não se mostra a história do ' + N + L);
       preparar(g, REP_N, M);
@@ -175,7 +182,11 @@ function correr(spec) {
       const falas = g.ev('JSON.parse(JSON.stringify(FALAS[0].m))');
       falas.forEach(function (f, i) { ok(f.texto === FALAS[i][l], '(b) fala ' + (i + 1) + ' com o texto exato em ' + l + ': ' + f.texto); });
       ok(falas[0].foto === FOTO && fs.existsSync(path.join(RAIZ, falas[0].foto)), '(b) a fala 1 leva a foto ' + FOTO + ' e ela existe' + L);
-      ok(falas.slice(1).every(function (f) { return f.foto === undefined; }), '(b) as falas 2 a 4 não levam foto' + L);
+      falas.forEach(function (f, i) {
+        if (i === 0) return;
+        const esperada = FOTOS_EXTRA[i + 1];
+        ok(f.foto === esperada && (esperada === undefined || fs.existsSync(path.join(RAIZ, f.foto))), '(b) a fala ' + (i + 1) + (esperada ? ' leva a foto ' + esperada + ' e ela existe' : ' não leva foto') + L);
+      });
       ok(falas.every(function (f) { return f.som === undefined; }), '(b) nenhuma fala leva som (as falas não têm volume)' + L);
       limpo(js(falas), '(b) falas' + L);
       g.ev('FALAS.length = 0; mostrarHistoriaSubidaNivel(1, ' + N + ');');
@@ -361,7 +372,7 @@ function correr(spec) {
     IDS.forEach(function (id) { LINGUAS.forEach(function (l) { textos.push(ENC[id].titulo[l], ENC[id].texto[l]); }); });
     LINGUAS.forEach(function (l) { textos.push(CAP.titulo[l], CAP.objetivo[l], CAP.conclusao[l]); });
     ok(textos.every(function (t) { return salvo.indexOf(t) === -1; }), '(h) o estado guardado não leva nenhum texto do pacote (só ids)');
-    ok(salvo.indexOf(path.basename(FOTO)) === -1 && salvo.indexOf('nivelMinimo') === -1, '(h) nem a foto nem o nível mínimo');
+    ok(FOTOS_TODAS.every(function (f) { return salvo.indexOf(path.basename(f)) === -1; }) && salvo.indexOf('nivelMinimo') === -1, '(h) nem a foto nem o nível mínimo');
 
     // Jogo B: o pacote do nível N deixou de existir (os anteriores ficam).
     const b = abrir({ dadosDir: dadosSem(N), estadoGuardado: salvo });

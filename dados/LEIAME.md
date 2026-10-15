@@ -108,7 +108,7 @@ Mesmo molde dos níveis 11, 12 e 13:
 Mesmo molde dos níveis 11 a 14:
 
 - `dados/niveis.js`: `nivel_15`, a partir de **7550** de Reputação.
-- `dados/historias.js`: `historia_15`, 4 falas. A 1.ª leva a foto `assets/ecras/sesimbra_vila.jpg`; nenhuma leva som.
+- `dados/historias.js`: `historia_15`, 4 falas. A 1.ª leva a foto `assets/ecras/sesimbra_vila.jpg` e a 3.ª a foto `assets/ecras/sesimbra_porto.jpg` (as falas 2 e 4 não levam foto: o jogo mantém a anterior); nenhuma leva som.
 - `dados/enciclopedia.js`: `sesimbra_castelo`, `sesimbra_vila` e `sesimbra_espichel` (nível mínimo 15, sem imagem).
 - `dados/capitulos.js`: `cap15` «Entre o Castelo e o Mar», critério `temIds` nessas 3 entradas. A conclusão deixa a porta aberta (não é uma despedida).
 - **Cinco grupos de `nivelMinimo` (11 a 15).** Continua a ser um só grupo de prioridade: no nível 15, os grupos anteriores ainda por abrir e o de Sesimbra saem **todos** antes de qualquer entrada de hoje; quem já tem os anteriores abertos recebe só os que faltam. Abaixo do nível 15 o jogador não vê as de Sesimbra.

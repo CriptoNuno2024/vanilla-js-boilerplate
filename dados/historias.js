@@ -151,7 +151,7 @@ dadosAcrescentar('historias', {
   ]
 });
 
-// Nível 15 («Moscatel de Sesimbra»): a foto da fala 1 está em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+// Nível 15 («Moscatel de Sesimbra»): as fotos das falas 1 e 3 estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
 dadosAcrescentar('historias', {
   id: 'historia_15',
   nivel: 15,
@@ -172,6 +172,7 @@ dadosAcrescentar('historias', {
       }
     },
     {
+      foto: 'assets/ecras/sesimbra_porto.jpg',
       texto: {
         pt: 'Mas o mar chamava. A partir do século XV, as pessoas desceram até à baía para pescar e construir barcos.',
         en: 'But the sea was calling. From the 15th century on, people came down to the bay to fish and build boats.',
