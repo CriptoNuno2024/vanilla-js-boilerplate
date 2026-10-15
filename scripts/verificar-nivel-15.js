@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // O NÍVEL 15 REAL, «Moscatel de Sesimbra» (Parte 2, A Terra), que vive só como dados (dados/niveis.js, historias.js, enciclopedia.js e
-// capitulos.js): o nível (7550 de Reputação), a história de 4 falas (a 1.ª com a foto assets/ecras/sesimbra_vila.jpg, SEM som), as 3
+// capitulos.js): o nível (7550 de Reputação), a história de 4 falas (a 1.ª com a foto assets/ecras/sesimbra_vila.jpg e a 3.ª com assets/ecras/sesimbra_porto.jpg, SEM som), as 3
 // histórias de Sesimbra na Enciclopédia (nível mínimo 15, sem imagem) e o capítulo 15 «Entre o Castelo e o Mar» (critério temIds nessas 3).
 // Só traz os textos e números do nível: a prova em si está no auxiliar scripts/_pacote-nivel.js. Textos escritos aqui, à parte (não lidos de dados/).
 //
@@ -16,6 +16,7 @@ correr({
   nomeAnt: { pt: 'Moscatel de Azeitão', en: 'Azeitão Moscatel', es: 'Moscatel de Azeitão' },
   foto: 'assets/ecras/sesimbra_vila.jpg',
   fotoRaiz: 'sesimbra_vila.jpg',
+  fotosExtra: { 3: 'assets/ecras/sesimbra_porto.jpg' }, // a fala 3 também leva foto (as falas 2 e 4 não)
   falas: [
     {
       pt: 'Chegámos a Sesimbra. Lá em cima, o castelo olha o mar desde que os mouros o ergueram.',
