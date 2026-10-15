@@ -115,7 +115,7 @@ function preparar(g, rep, nivelMostrado, abertas, comCapitulosFeitos) {
     state.acesso.jogadorAntigo = false; state.reputacao = ${rep}; state.niveis.nivelMostrado = ${nivelMostrado};
     state.encyclopedia.unlocked = ${js(abertas || [])}; state.conhecimento = 0;
     state.capitulos.iniciado = true; state.capitulos.celebradosMigrado = true;
-    CAPITULOS_CONFIG.forEach(function (c) { if (c.id !== 'cap11') { state.capitulos.concluidos[c.id] = ${comCapitulosFeitos === false ? 'false' : 'true'}; state.capitulos.celebrados[c.id] = ${comCapitulosFeitos === false ? 'false' : 'true'}; } });
+    CAPITULOS_CONFIG.forEach(function (c) { if (c.nivel <= 10) { state.capitulos.concluidos[c.id] = ${comCapitulosFeitos === false ? 'false' : 'true'}; state.capitulos.celebrados[c.id] = ${comCapitulosFeitos === false ? 'false' : 'true'}; } });
     delete state.capitulos.concluidos.cap11; delete state.capitulos.celebrados.cap11;
     FALAS.length = 0; TIMEOUTS.length = 0;
   `);
@@ -138,14 +138,15 @@ function idsAbertos(g) { return g.ev('state.encyclopedia.unlocked.slice()'); }
   const base = abrir({ dadosDir: null });
   const g = abrir();
   ok(g.avisos.length === 0, '(i) carregar o jogo com dados/ não devia avisar nada: ' + g.avisos);
-  ok(g.ev('NIVEIS_CONFIG.length') === 11 && g.ev('CAPITULOS_CONFIG.length') === 11 && Object.keys(g.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10,11', '(i) 11 níveis, 11 capítulos e histórias dos níveis 2 a 11');
+  // Os níveis seguintes (12, ...) também vivem em dados/ e têm os seus testes: aqui só se exige que os 11 primeiros sejam estes.
+  ok(g.ev('NIVEIS_CONFIG.length') >= 11 && g.ev('CAPITULOS_CONFIG.length') >= 11 && Object.keys(g.ev('HISTORIA_NIVEIS')).join().indexOf('2,3,4,5,6,7,8,9,10,11') === 0, '(i) pelo menos 11 níveis, 11 capítulos e histórias dos níveis 2 a 11');
   ok(g.ev('JSON.stringify(NIVEIS_CONFIG.slice(0, 10))') === base.ev('JSON.stringify(NIVEIS_CONFIG)'), '(i) os níveis 1 a 10 ficam iguais');
   ok(g.ev('JSON.stringify(CAPITULOS_CONFIG.slice(0, 10))') === base.ev('JSON.stringify(CAPITULOS_CONFIG)'), '(i) os capítulos 1 a 10 ficam iguais');
   ok(g.ev('JSON.stringify([2,3,4,5,6,7,8,9,10].map(function (n) { return HISTORIA_NIVEIS[n]; }))') === base.ev('JSON.stringify([2,3,4,5,6,7,8,9,10].map(function (n) { return HISTORIA_NIVEIS[n]; }))'), '(i) as histórias dos níveis 2 a 10 ficam iguais');
-  ok(g.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES.pt.slice(0, 32))') === base.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES.pt)') && g.ev('ENCYCLOPEDIA_ENTRIES.pt.length') === 35, '(i) as 32 entradas de hoje ficam iguais e há 35 no total');
+  ok(g.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES.pt.slice(0, 32))') === base.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES.pt)') && g.ev('ENCYCLOPEDIA_ENTRIES.pt.length') >= 35, '(i) as 32 entradas de hoje ficam iguais e as 3 da Arrábida vêm a seguir');
   ok(g.ev('NIVEL_NECESSARIO_POR_ECRA.roxo') === 10 && g.ev('Math.max.apply(null, Object.keys(NIVEL_NECESSARIO_POR_ECRA).map(function (k) { return NIVEL_NECESSARIO_POR_ECRA[k]; }))') === 10, '(i) nenhum ecrã novo: o mais alto continua a abrir no nível 10');
   ok(g.ev('NIVEIS_CONFIG[10].id') === 'nivel_11' && g.ev('NIVEIS_CONFIG[10].min') === 3650 && g.ev('CAPITULOS_CONFIG[10].id') === 'cap11' && g.ev('CAPITULOS_CONFIG[10].nivel') === 11, '(i) nivel_11 (3650) e cap11 (nível 11)');
-  ok(JSON.stringify(g.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; })')) === JSON.stringify(IDS), '(i) as 3 entradas, por esta ordem: ' + IDS);
+  ok(JSON.stringify(g.ev('DADOS_ACRESCENTADOS.enciclopedia.slice(0, 3).map(function (e) { return e.id; })')) === JSON.stringify(IDS) && JSON.stringify(g.ev('ENCYCLOPEDIA_ENTRIES.pt.slice(32, 35).map(function (e) { return e.id; })')) === JSON.stringify(IDS), '(i) as 3 entradas, por esta ordem, logo a seguir às 32 de hoje: ' + IDS);
   ok(g.ev('JSON.stringify(CAPITULOS_CONFIG[10].criterio)') === js([{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: IDS }]), '(i) o critério do cap11 é temIds nos 3 ids: ' + g.ev('JSON.stringify(CAPITULOS_CONFIG[10].criterio)'));
   ok(fs.existsSync(path.join(RAIZ, FOTO)), '(i) a foto da fala 1 existe em ' + FOTO);
   ok(!fs.existsSync(path.join(RAIZ, 'arrabida_colina.jpg')), '(i) não devia haver cópia da foto na raiz do repositório');
@@ -275,7 +276,10 @@ LINGUAS.forEach(function (l) {
     ok(g.ev('state.capitulos.concluidos.cap11') === true && g.ev('state.capitulos.celebrados.cap11') === true, '(e) depois da confirmação fica concluído e celebrado' + L);
     ok(g.ev('capitulosAvaliarCelebracao()') === false && g.ev('FALAS.length') === 1, '(e) só celebra uma vez' + L);
     g.ev('atualizarCapituloQuinta();');
-    ok(html(g, 'capitulo-container').indexOf(ui.todos) !== -1, '(e) cumpridos todos, o cartão diz que estão todos cumpridos' + L);
+    // Cumprido o cap11: «todos cumpridos» se não há mais capítulos; senão aponta para o seguinte (o cap12 em dados/ é do nível 12).
+    const seguinte = g.ev("CAPITULOS_CONFIG.filter(function (c) { return state.capitulos.concluidos[c.id] !== true; }).map(function (c) { return c.nivel; })[0]");
+    const cartaoFim = html(g, 'capitulo-container');
+    ok(seguinte === undefined ? cartaoFim.indexOf(ui.todos) !== -1 : cartaoFim.indexOf(ui.proximo.replace('{n}', seguinte)) !== -1, '(e) cumprido o cap11, o cartão diz ' + (seguinte === undefined ? 'que estão todos cumpridos' : 'o próximo capítulo no nível ' + seguinte) + L + ': ' + cartaoFim);
     // Pelo Explorar de ponta a ponta: as 3 saem e o capítulo cumpre-se
     const g2 = abrir(); lingua(g2, l);
     preparar(g2, REP_11, 11); semente(g2, 99);
@@ -289,7 +293,7 @@ LINGUAS.forEach(function (l) {
   {
     const g = abrir(); lingua(g, l);
     const ecras = Object.keys(g.ev('NIVEL_NECESSARIO_POR_ECRA'));
-    [0, 1, 14, 15, 49, 50, 119, 120, 2799, 2800, 2900, 3649, 3650, 3651, 99999].forEach(function (rep) {
+    [0, 1, 14, 15, 49, 50, 119, 120, 2799, 2800, 2900, 3649, 3650, 3651, 4000].forEach(function (rep) {
       const n = nivelEsperado(rep);
       const onde = 'reputação ' + rep + L;
       preparar(g, rep, n);
@@ -306,7 +310,11 @@ LINGUAS.forEach(function (l) {
         ok(h.indexOf('width:' + pct + '%') !== -1 && h.indexOf(Math.min(rep, prox) + ' / ' + prox) !== -1, '(g) a barra está a ' + pct + '% (' + Math.min(rep, prox) + ' / ' + prox + ') com ' + onde + ': ' + h);
         if (n === 10) ok(h.indexOf(esc(NOME[l])) !== -1, '(g) no nível 10 o cartão mostra o próximo nível «' + NOME[l] + '»' + L);
       } else {
-        ok(h.indexOf('width:100%') !== -1 && h.indexOf(g.ev("t('nivel.maximo')")) !== -1 && h.indexOf(esc(NOME[l])) !== -1, '(g) no nível 11 a barra está cheia, diz máximo e mostra «' + NOME[l] + '» com ' + onde + ': ' + h);
+        ok(h.indexOf(esc(NOME[l])) !== -1, '(g) no nível 11 o cartão mostra «' + NOME[l] + '» com ' + onde + ': ' + h);
+        // Com um nível 12 em dados/ a barra vai até ao seu limiar; sem ele o 11 é o máximo e a barra está cheia.
+        const prox11 = g.ev('NIVEIS_CONFIG.length > 11 ? NIVEIS_CONFIG[11].min : null');
+        if (prox11 === null) ok(h.indexOf('width:100%') !== -1 && h.indexOf(g.ev("t('nivel.maximo')")) !== -1, '(g) sem nível 12, o 11 é o máximo e a barra está cheia com ' + onde + ': ' + h);
+        else ok(h.indexOf('width:' + Math.round(Math.min(rep, prox11) / prox11 * 100) + '%') !== -1 && h.indexOf(rep + ' / ' + prox11) !== -1, '(g) no nível 11 a barra vai até ao nível seguinte (' + prox11 + ') com ' + onde + ': ' + h);
       }
       ecras.forEach(function (e) {
         const preciso = g.ev('NIVEL_NECESSARIO_POR_ECRA.' + e);
@@ -332,7 +340,7 @@ LINGUAS.forEach(function (l) {
     t11.ev("location.search = '?capitulo=cap11';");
     ok((t11.ev('capitulosParametrosTeste()') || {}).id === 'cap11', '(g) ?capitulo=cap11 é válido' + L);
     [1, 5, 10].forEach(function (n) { t11.ev("location.search = '?capitulo=" + n + "';"); ok((t11.ev('capitulosParametrosTeste()') || {}).id === 'cap' + n, '(g) ?capitulo=' + n + ' continua válido' + L); });
-    ['12', '0', '011', '1a', '100', 'cap_11', ''].forEach(function (v) { t11.ev("location.search = '?capitulo=" + v + "';"); ok(t11.ev('capitulosParametrosTeste()') === null, '(g) ?capitulo=' + v + ' não é válido' + L); });
+    ['99', '0', '011', '1a', '100', 'cap_11', ''].forEach(function (v) { t11.ev("location.search = '?capitulo=" + v + "';"); ok(t11.ev('capitulosParametrosTeste()') === null, '(g) ?capitulo=' + v + ' não é válido' + L); });
     t11.ev("location.search = '?capitulo=11';");
     preparar(t11, 100, 1);
     ok(t11.ev('capitulosCelebracaoDeTeste()') === true && t11.ev('FALAS[FALAS.length - 1].m[0]') === CAP.conclusao[l], '(g) o modo de teste ?capitulo=11 mostra a conclusão do cap11' + L);
@@ -377,7 +385,7 @@ LINGUAS.forEach(function (l) {
 
   // Jogo C: o pacote volta com o mesmo estado. Nada se repete.
   const c = abrir({ estadoGuardado: salvo }); lingua(c, 'pt');
-  ok(c.ev('NIVEIS_CONFIG.length') === 11 && c.ev('nivelPelaReputacao(state.reputacao)') === 11, '(h) com o pacote de volta, o jogador é outra vez do nível 11');
+  ok(c.ev('NIVEIS_CONFIG.length') >= 11 && c.ev('nivelPelaReputacao(state.reputacao)') === 11, '(h) com o pacote de volta, o jogador é outra vez do nível 11');
   ok(c.ev('verificarSubidaNivel()') === false && c.ev('FALAS.length') === 0, '(h) a história do 11 não se repete');
   ok(c.ev('capitulosAvaliarCelebracao()') === false, '(h) o capítulo 11 não celebra outra vez');
   ok(IDS.every(function (id) { return c.ev('desbloquearEntradaEnciclopedia(' + js(id) + ')') === null; }), '(h) as 3 já abertas não se abrem outra vez');

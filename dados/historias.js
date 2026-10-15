@@ -39,3 +39,40 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 12 («Moscatel do Sado»): a foto da fala 1 está em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_12',
+  nivel: 12,
+  falas: [
+    {
+      foto: 'assets/ecras/sado_estuario.jpg',
+      texto: {
+        pt: 'Do alto da colina, vê-se o rio Sado a abrir-se para o mar. A Quinta já é conhecida, mas o YoshiCat quer ir mais longe: descer até à água.',
+        en: 'From the top of the hill, you can see the Sado river opening out to the sea. The Quinta is already well known, but YoshiCat wants to go further: down to the water.',
+        es: 'Desde lo alto de la colina se ve el río Sado abriéndose al mar. La Quinta ya es conocida, pero YoshiCat quiere ir más lejos: bajar hasta el agua.'
+      }
+    },
+    {
+      texto: {
+        pt: 'O estuário do Sado é Reserva Natural desde 1980. Em 1996 passou a Zona Húmida de Importância Internacional (Convenção de Ramsar), e recebe flamingos.',
+        en: 'The Sado estuary has been a Nature Reserve since 1980. In 1996 it became a Wetland of International Importance (Ramsar Convention), and it is visited by flamingos.',
+        es: 'El estuario del Sado es Reserva Natural desde 1980. En 1996 pasó a ser Humedal de Importancia Internacional (Convenio de Ramsar), y recibe flamencos.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Aqui vive uma pequena comunidade de golfinhos que fica no estuário todo o ano. Os cientistas acompanham-nos há mais de 40 anos.',
+        en: 'A small community of dolphins lives here, staying in the estuary all year round. Scientists have followed them for over 40 years.',
+        es: 'Aquí vive una pequeña comunidad de delfines que permanece en el estuario todo el año. Los científicos los siguen desde hace más de 40 años.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Abriu: novas histórias do Sado na Enciclopédia.',
+        en: 'Unlocked: new stories about the Sado in the Encyclopedia.',
+        es: 'Se abrió: nuevas historias del Sado en la Enciclopedia.'
+      }
+    }
+  ]
+});
