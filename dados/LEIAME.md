@@ -46,6 +46,7 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - Um ensaio geral (`scripts/verificar-piloto-nivel.js`) mete um pacote de teste completo (nível 11 + história + capítulo) por `dadosAcrescentar`, só no ambiente simulado, e vê o jogo inteiro a funcionar com ele nas 3 línguas.
 - Os textos com `<b>`, `&`, aspas e plicas saem escapados nos cartões (nível e capítulo).
 - O estado guardado só tem ids, e carrega bem se o pacote deixar de existir.
+- `scripts/verificar-capitulo-enciclopedia.js` prova o critério `temIds` (só cumpre com todos os ids, progresso «x / n», defensivo, celebra uma só vez), a prioridade das histórias com `nivelMinimo` no Explorar (e que sem elas o sorteio é igual ao de sempre) e a validação do `temIds` no jogo e em `verificar-dados.js`.
 - `scripts/verificar-enciclopedia-dados.js` prova as histórias novas da Enciclopédia com nível mínimo (uma de nível 11 não aparece nem se desbloqueia no nível 4, os totais não a contam, o texto sai escapado, o estado só guarda ids e as entradas de hoje ficam idênticas).
 - `scripts/verificar-dados-carregar.js` prova que entradas mal escritas são ignoradas, que uma entrada existente nunca é substituída e que as 12 visitas de origem ficam iguais.
 
@@ -74,6 +75,8 @@ dadosAcrescentar('enciclopedia', {
 - **Ids.** `a-z`, `0-9` e `_`. O id novo não pode repetir nenhum id da Enciclopédia, em nenhuma língua. As entradas de hoje (`vindimasMaisCedo`, `boloRei`, ...) têm maiúsculas e continuam como estão.
 - **Imagem.** Um caminho `assets/...` (jpg, jpeg, png, webp ou gif) que exista; o ficheiro é enviado ao repositório à parte.
 - **Texto.** Título e texto são sempre escapados no ecrã (um `<b>` aparece como texto), mas o validador continua a recusar `< > &` nas entradas novas.
+- **Prioridade no Explorar.** As entradas com `nivelMinimo` que já estão disponíveis, por abrir e da época (estação) saem **primeiro**: o Explorar sorteia só entre elas até estarem todas abertas, e só depois entre as restantes. As entradas de hoje não têm `nivelMinimo`, por isso sem entradas novas o sorteio é exatamente o de sempre.
+- **Ligar um capítulo às histórias.** O critério `temIds` de um capítulo (`{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['...', '...', '...'] }`) cumpre-se quando **todos** os ids estão na lista e mostra o progresso «x / n» no cartão. Num caminho da Enciclopédia, cada id tem de ser uma entrada que exista (o validador confere). Um capítulo com `ids` em falta, vazios ou mal escritos é ignorado pelo jogo. Cuidado: se houver mais entradas com `nivelMinimo` do que as do capítulo, o Explorar entrega-as por ordem aleatória, por isso o capítulo pode demorar mais cliques.
 - **Os outros campos** (`meses`, `estacao`, `manual`) fazem o mesmo que nas entradas de hoje: `estacao` limita o Explorar a essa estação, `manual` tira a entrada do sorteio (só se desbloqueia por uma ação), `meses` só serve à Ronda do Chizo.
 - **Estado do jogador.** Só guarda o id. Se uma entrada deixar de existir o jogo carrega na mesma e o id solto não conta nos totais. **Nunca apagar um id publicado** (regra de ouro abaixo).
 
@@ -104,7 +107,7 @@ node scripts/verificar-dados-carregar.js
 5. **Imagens e sons**: os ficheiros têm de existir em `assets/` (e ser enviados ao repositório à parte). O caminho tem de estar certo.
 6. **Visitas**: a personagem tem de existir, `reputacao` é um número de 1 a 3, e a condição é de um tipo que o jogo conhece (`estacao`, `fase`, `festa`, `garrafa`, `cave`) com um valor válido (as 4 estações; as fases da videira).
 7. **Níveis**: o limiar (`min`) tem de ser maior que o do nível anterior. Um nível novo traz sempre o pacote completo: **nome, história e capítulo**.
-8. **Capítulos**: o critério é de um tipo conhecido (`numero`, `booleano`, `contarChaves`, `temChaves`, `contarLista`, `coresColecao`, `algumaEntrada`) e lê um caminho que **já existe** no estado do jogo.
+8. **Capítulos**: o critério é de um tipo conhecido (`numero`, `booleano`, `contarChaves`, `temChaves`, `temIds`, `contarLista`, `coresColecao`, `algumaEntrada`) e lê um caminho que **já existe** no estado do jogo.
 
 ## Duas regras de ouro
 

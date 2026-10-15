@@ -36,7 +36,9 @@ const DADOS_CONDICOES_VISITA = ['estacao', 'fase', 'festa', 'garrafa', 'cave'];
 const DADOS_ESTACOES = ['inverno', 'primavera', 'verao', 'outono'];
 // A imagem de uma entrada da enciclopédia: um ficheiro de assets/ (sem "..", sem aspas, sem http:// nem javascript:).
 const DADOS_FORMATO_IMAGEM = /^assets\/[A-Za-z0-9_\-\/.]+\.(jpg|jpeg|png|webp|gif)$/;
-const DADOS_CRITERIOS = ['numero', 'booleano', 'contarChaves', 'temChaves', 'contarLista', 'coresColecao', 'algumaEntrada'];
+const DADOS_CRITERIOS = ['numero', 'booleano', 'contarChaves', 'temChaves', 'temIds', 'contarLista', 'coresColecao', 'algumaEntrada'];
+// Um id de uma lista de ids de um critério (temIds): letras, números e _ (os ids da Enciclopédia de hoje têm maiúsculas).
+const DADOS_FORMATO_ID_CRITERIO = /^[A-Za-z0-9_]+$/;
 
 // O que já entrou por aqui: { id } por tipo (e { id, nivel } nas histórias). Serve para os
 // testes e para o validador (scripts/verificar-dados.js) saberem o que veio de dados/.
@@ -133,6 +135,9 @@ function dadosMotivoCriterio(a) {
   if (a.tipo !== 'coresColecao' && !dadosTemTexto(a.caminho)) return 'um critério precisa do "caminho" no estado';
   if (a.tipo === 'temChaves') {
     if (!Array.isArray(a.chaves) || a.chaves.length === 0 || !a.chaves.every(dadosTemTexto)) return 'temChaves precisa de uma lista "chaves" de textos';
+  } else if (a.tipo === 'temIds') {
+    if (!Array.isArray(a.ids) || a.ids.length === 0 || !a.ids.every(function (id) { return typeof id === 'string' && DADOS_FORMATO_ID_CRITERIO.test(id); })) return 'temIds precisa de uma lista "ids" de textos (letras, números e _)';
+    if (a.ids.some(function (id, i) { return a.ids.indexOf(id) !== i; })) return 'temIds tem ids repetidos';
   } else if (a.tipo !== 'booleano' && !(typeof a.alvo === 'number' && a.alvo > 0) && a.alvo !== 'totalEnciclopedia') {
     return 'um critério precisa do "alvo" (número maior que 0)';
   }
