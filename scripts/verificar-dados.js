@@ -28,7 +28,7 @@ const DADOS_DIR = process.env.DADOS_DIR || path.join(RAIZ, 'dados');
 const ESTRITO = process.argv.indexOf('--estrito') !== -1;
 const LINGUAS = ['pt', 'en', 'es'];
 const FORMATO_ID = /^[a-z0-9_]+$/;
-const TIPOS_CRITERIO = ['numero', 'booleano', 'contarChaves', 'temChaves', 'contarLista', 'coresColecao', 'algumaEntrada'];
+const TIPOS_CRITERIO = ['numero', 'booleano', 'contarChaves', 'temChaves', 'temIds', 'contarLista', 'coresColecao', 'algumaEntrada'];
 // Tipos de condição de uma visita (ver visitaCondicaoOk em js/visitas.js).
 const TIPOS_CONDICAO_VISITA = ['estacao', 'fase', 'festa', 'garrafa', 'cave'];
 const POR_ESCREVER = '[por escrever]';
@@ -294,6 +294,16 @@ function main() {
         }
         if (a.tipo === 'temChaves') {
           if (!Array.isArray(a.chaves) || a.chaves.length === 0 || !a.chaves.every(temTexto)) falta(o, 'temChaves precisa de uma lista "chaves" de textos');
+        } else if (a.tipo === 'temIds') {
+          if (!Array.isArray(a.ids) || a.ids.length === 0 || !a.ids.every(function (id) { return typeof id === 'string' && /^[A-Za-z0-9_]+$/.test(id); })) falta(o, 'temIds precisa de uma lista "ids" de textos (letras, números e _)');
+          else {
+            a.ids.forEach(function (id, k) { if (a.ids.indexOf(id) !== k) falta(o, 'temIds tem o id "' + id + '" repetido'); });
+            // Num caminho da Enciclopédia, cada id tem de ser mesmo uma entrada (de hoje ou vinda de dados/).
+            if (a.caminho === 'encyclopedia.unlocked') {
+              const existentes = ((J.ENCICLOPEDIA || {}).pt || []).map(function (e) { return e.id; });
+              a.ids.forEach(function (id) { if (existentes.indexOf(id) === -1) falta(o, 'temIds: o id "' + id + '" não é de nenhuma entrada da Enciclopédia'); });
+            }
+          }
         } else if (a.tipo !== 'booleano') {
           if (!(typeof a.alvo === 'number' && a.alvo > 0) && a.alvo !== 'totalEnciclopedia') falta(o, 'falta o alvo (número maior que 0)');
         }

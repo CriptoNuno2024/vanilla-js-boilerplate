@@ -18,6 +18,8 @@
 //   contarChaves   — o objeto em "caminho" tem pelo menos "alvo" chaves
 //   temChaves      — o objeto em "caminho" tem TODAS as chaves da lista "chaves"
 //                    (cada uma com valor numérico maior que 0); total = nº de chaves
+//   temIds         — a lista (array) em "caminho" tem TODOS os ids da lista "ids" (ex.: caminho
+//                    'encyclopedia.unlocked' e os ids de 3 entradas da Enciclopédia); total = nº de ids
 //   contarLista    — a lista em "caminho" tem pelo menos "alvo" elementos
 //   algumaEntrada  — alguma entrada da lista em "caminho" tem campo >= alvo
 //   coresColecao   — número de cores (jovem, dourado, ambar, cobre) já feitas
@@ -77,12 +79,22 @@ function capitulosValorNoEstado(caminho) {
   return v;
 }
 
+// temIds: a lista de ids do critério sem repetições. Se "ids" não for uma lista de textos não vazios devolve [] (e o
+// critério nunca se cumpre, como um temChaves sem chaves).
+function capitulosIdsDoCriterio(c) {
+  if (c.tipo !== 'temIds' || !Array.isArray(c.ids)) return [];
+  if (!c.ids.every(function (id) { return typeof id === 'string' && id !== ''; })) return [];
+  return c.ids.filter(function (id, i) { return c.ids.indexOf(id) === i; });
+}
+
 // Lê UMA alternativa. Devolve { atual, total, cumprido }.
 function capitulosLerAlternativa(c) {
   const valor = c.caminho ? capitulosValorNoEstado(c.caminho) : undefined;
-  // temChaves: o total é o tamanho da lista (lista vazia ou inválida nunca se cumpre).
+  // temChaves e temIds: o total é o tamanho da lista (lista vazia ou inválida nunca se cumpre).
+  const idsDoCriterio = capitulosIdsDoCriterio(c);
   const total = c.tipo === 'booleano' ? 1
     : c.tipo === 'temChaves' ? (Array.isArray(c.chaves) && c.chaves.length > 0 ? c.chaves.length : Infinity)
+    : c.tipo === 'temIds' ? (idsDoCriterio.length > 0 ? idsDoCriterio.length : Infinity)
     : capitulosResolverAlvo(c.alvo);
   let atual = 0;
 
@@ -98,6 +110,10 @@ function capitulosLerAlternativa(c) {
         return Object.prototype.hasOwnProperty.call(valor, k) && typeof valor[k] === 'number' && valor[k] > 0;
       }).length;
     }
+  } else if (c.tipo === 'temIds') {
+    // Cumprido só com TODOS os ids na lista que está no caminho (ex.: encyclopedia.unlocked). Caminho em falta ou que
+    // não é uma lista = 0, sem erro.
+    if (Array.isArray(valor)) atual = idsDoCriterio.filter(function (id) { return valor.indexOf(id) !== -1; }).length;
   } else if (c.tipo === 'contarLista') {
     atual = Array.isArray(valor) ? valor.length : 0;
   } else if (c.tipo === 'coresColecao') {

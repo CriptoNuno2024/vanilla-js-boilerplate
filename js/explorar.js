@@ -125,6 +125,8 @@ const ENCYCLOPEDIA_ENTRIES = {
 // aparece na Enciclopédia (nem como cartão bloqueado), não conta nos totais, nem sai na curiosidade
 // da Ronda do Chizo. O nível é o da Reputação (nivelPelaReputacao): um jogador antigo
 // (state.acesso.jogadorAntigo) NÃO ultrapassa isto, porque o nível mínimo é conteúdo, não um ecrã trancado.
+// PRIORIDADE NO SORTEIO: as entradas com nivelMinimo que já estão disponíveis e por abrir (e da época) saem primeiro no
+// Explorar: sorteia-se só entre elas até estarem todas abertas; só depois entre as restantes (ver enterExplorar).
 // As entradas de hoje não têm este campo e ficam exatamente como sempre.
 function encyclopediaNivelDoJogador() {
   try { return nivelPelaReputacao(state.reputacao); } catch (e) { return 1; }
@@ -303,7 +305,12 @@ function enterExplorar() {
     // estação — voltam a aparecer quando a estação certa chegar.
     mensagem = t('explorar.nadaNestaEstacao');
   } else {
-    nova = bloqueadas[randInt(0, bloqueadas.length - 1)];
+    // As entradas com nivelMinimo (vindas de dados/enciclopedia.js, já disponíveis para o nível do jogador, por abrir e
+    // da época) têm prioridade: sorteia-se só entre elas até estarem todas abertas; só depois entre as restantes.
+    // Sem nenhuma, a lista é a de sempre e o sorteio é o mesmo de sempre (um só randInt sobre "bloqueadas").
+    const prioritarias = bloqueadas.filter(function (e) { return typeof e.nivelMinimo === 'number'; });
+    const candidatas = prioritarias.length > 0 ? prioritarias : bloqueadas;
+    nova = candidatas[randInt(0, candidatas.length - 1)];
     state.encyclopedia.unlocked.push(nova.id);
     state.conhecimento += 1;
     if (typeof marcarObjetivoCumprido === 'function') marcarObjetivoCumprido('explorar_descobrir');
