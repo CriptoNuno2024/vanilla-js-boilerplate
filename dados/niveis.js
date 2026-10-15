@@ -19,3 +19,9 @@ dadosAcrescentar('niveis', {
   min: 5500,
   nome: { pt: 'Moscatel de Palmela', en: 'Palmela Moscatel', es: 'Moscatel de Palmela' }
 });
+
+dadosAcrescentar('niveis', {
+  id: 'nivel_14',
+  min: 6500,
+  nome: { pt: 'Moscatel de Azeitão', en: 'Azeitão Moscatel', es: 'Moscatel de Azeitão' }
+});
