@@ -36,3 +36,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'La reserva une sierra y mar: unas 200 especies de vertebrados y más de 2000 especies marinas. La pesca artesanal, el olivo y el Moscatel de Setúbal forman parte de este paisaje.'
   }
 });
+
+// Nível 12, «Moscatel do Sado»: as 3 histórias que o capítulo 12 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'sado_reserva',
+  nivelMinimo: 12,
+  titulo: { pt: 'Uma Reserva Entre o Rio e o Mar', en: 'A Reserve Between River and Sea', es: 'Una Reserva Entre el Río y el Mar' },
+  texto: {
+    pt: 'A Reserva Natural do Estuário do Sado foi criada em 1980. A 8 de maio de 1996, foi reconhecida como zona húmida de importância internacional (Ramsar).',
+    en: 'The Sado Estuary Nature Reserve was created in 1980. On 8 May 1996, it was recognised as a wetland of international importance (Ramsar).',
+    es: 'La Reserva Natural del Estuario del Sado se creó en 1980. El 8 de mayo de 1996 fue reconocida como humedal de importancia internacional (Ramsar).'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sado_golfinhos',
+  nivelMinimo: 12,
+  titulo: { pt: 'Os Golfinhos do Sado', en: 'The Dolphins of the Sado', es: 'Los Delfines del Sado' },
+  texto: {
+    pt: 'No estuário vive uma comunidade residente de golfinhos-roazes, que ali fica todo o ano. É acompanhada por cientistas desde pelo menos 1981.',
+    en: 'A resident community of bottlenose dolphins lives in the estuary all year round. Scientists have followed it since at least 1981.',
+    es: 'En el estuario vive una comunidad residente de delfines mulares, que permanece allí todo el año. Los científicos la siguen desde al menos 1981.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sado_troia',
+  nivelMinimo: 12,
+  titulo: { pt: 'O Peixe Salgado de Tróia', en: 'The Salted Fish of Tróia', es: 'El Pescado Salado de Tróia' },
+  texto: {
+    pt: 'Em Tróia, mesmo em frente a Setúbal, os romanos preparavam peixe salgado e garum, um molho de peixe. O local foi ocupado até ao século VI.',
+    en: 'At Tróia, right across from Setúbal, the Romans prepared salted fish and garum, a fish sauce. The site was occupied until the 6th century.',
+    es: 'En Tróia, justo frente a Setúbal, los romanos preparaban pescado salado y garum, una salsa de pescado. El lugar estuvo ocupado hasta el siglo VI.'
+  }
+});

@@ -2,15 +2,15 @@
 
 Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos, histórias da Enciclopédia e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
 
-**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e o pacote do nível 11, «Moscatel da Arrábida» (nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
+**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e os pacotes dos níveis 11, «Moscatel da Arrábida», e 12, «Moscatel do Sado» (cada um com nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
 
 | Ficheiro | O que lá vai | Estado |
 |---|---|---|
 | `dados/visitas.js` | visitas novas | suportado (já tem `marisa_5`) |
-| `dados/niveis.js` | níveis novos | suportado (já tem `nivel_11`, 3650) |
-| `dados/historias.js` | histórias de nível novas | suportado (já tem `historia_11`) |
-| `dados/capitulos.js` | capítulos novos | suportado (já tem `cap11`) |
-| `dados/enciclopedia.js` | histórias novas da Enciclopédia, com nível mínimo | suportado (já tem `arrabida_biosfera`, `arrabida_plantas` e `arrabida_mar`) |
+| `dados/niveis.js` | níveis novos | suportado (já tem `nivel_11`, 3650, e `nivel_12`, 4550) |
+| `dados/historias.js` | histórias de nível novas | suportado (já tem `historia_11` e `historia_12`) |
+| `dados/capitulos.js` | capítulos novos | suportado (já tem `cap11` e `cap12`) |
+| `dados/enciclopedia.js` | histórias novas da Enciclopédia, com nível mínimo | suportado (já tem `arrabida_biosfera`, `arrabida_plantas`, `arrabida_mar`, `sado_reserva`, `sado_golfinhos` e `sado_troia`) |
 | `dados/objetivos.js` | objetivos diários | **ainda NÃO suportado** (cada objetivo precisa de uma regra no código); o ficheiro só tem comentários |
 
 Cada entrada acrescenta-se com `dadosAcrescentar('visitas', { ... })` (`js/dados.js`). Uma entrada **mal escrita é ignorada** e o jogo avisa na consola (`[dados] ... ignorada: motivo`); nunca parte o arranque e nunca substitui uma entrada que já existe.
@@ -46,6 +46,7 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - Um ensaio geral (`scripts/verificar-piloto-nivel.js`) mete um pacote de teste completo (nível 11 + história + capítulo) por `dadosAcrescentar`, só no ambiente simulado, e vê o jogo inteiro a funcionar com ele nas 3 línguas.
 - Os textos com `<b>`, `&`, aspas e plicas saem escapados nos cartões (nível e capítulo).
 - O estado guardado só tem ids, e carrega bem se o pacote deixar de existir.
+- `scripts/verificar-nivel-12.js` prova o nível 12 real da mesma maneira (4550 dá o nível 12, a história de 4 falas com a foto que existe e sem som, as 3 entradas só no nível 12, os dois grupos de `nivelMinimo` no Explorar, o capítulo 12, estado só com ids e o jogo a carregar se o pacote do 12 deixasse de existir) e que o jogo até ao nível 11 fica igual.
 - `scripts/verificar-nivel-11.js` prova o nível 11 real de ponta a ponta, em pt, en e es (3650 dá o nível 11, a história de 4 falas com a foto que existe, as 3 entradas só no nível 11 e primeiro no Explorar, o capítulo 11, ecrãs trancados, estado só com ids e jogo a carregar se o pacote deixasse de existir) e que o jogo de origem fica igual.
 - `scripts/verificar-capitulo-enciclopedia.js` prova o critério `temIds` (só cumpre com todos os ids, progresso «x / n», defensivo, celebra uma só vez), a prioridade das histórias com `nivelMinimo` no Explorar (e que sem elas o sorteio é igual ao de sempre) e a validação do `temIds` no jogo e em `verificar-dados.js`.
 - `scripts/verificar-enciclopedia-dados.js` prova as histórias novas da Enciclopédia com nível mínimo (uma de nível 11 não aparece nem se desbloqueia no nível 4, os totais não a contam, o texto sai escapado, o estado só guarda ids e as entradas de hoje ficam idênticas).
@@ -67,6 +68,16 @@ Observações do ensaio (não falham; o jogo não foi alterado por causa delas):
 - `dados/enciclopedia.js`: `arrabida_biosfera`, `arrabida_plantas` e `arrabida_mar` (nível mínimo 11, sem imagem).
 - `dados/capitulos.js`: `cap11` «A Serra e o Mar», critério `temIds` nessas 3 entradas (cumpre-se ao abri-las pelo Explorar, que as entrega primeiro).
 - Quem está abaixo do nível 11 não vê nada disto (nem as entradas, nem o capítulo); o modo de teste `?capitulo=11` mostra a celebração do capítulo.
+
+## O nível 12, «Moscatel do Sado» (Parte 2, A Terra)
+
+Mesmo molde do nível 11:
+
+- `dados/niveis.js`: `nivel_12`, a partir de **4550** de Reputação.
+- `dados/historias.js`: `historia_12`, 4 falas. A 1.ª leva a foto `assets/ecras/sado_estuario.jpg`; nenhuma leva som.
+- `dados/enciclopedia.js`: `sado_reserva`, `sado_golfinhos` e `sado_troia` (nível mínimo 12, sem imagem).
+- `dados/capitulos.js`: `cap12` «O Rio e os Golfinhos», critério `temIds` nessas 3 entradas.
+- **Dois grupos de `nivelMinimo` (11 e 12).** A prioridade do Explorar junta num só grupo todas as entradas com `nivelMinimo` que já estão disponíveis e por abrir: no nível 12, as da Arrábida ainda por abrir e as do Sado saem **todas** (as 6, por ordem aleatória) antes de qualquer entrada de hoje. Uma entrada de um nível mais baixo não passa à frente de uma de um nível mais alto. Abaixo do nível 12 o jogador não vê as do Sado.
 
 ## Histórias da Enciclopédia (`dados/enciclopedia.js`)
 
