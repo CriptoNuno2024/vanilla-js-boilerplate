@@ -2,15 +2,15 @@
 
 Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos, histórias da Enciclopédia e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
 
-**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e os pacotes dos níveis 11, «Moscatel da Arrábida», 12, «Moscatel do Sado», 13, «Moscatel de Palmela», e 14, «Moscatel de Azeitão» (cada um com nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
+**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e os pacotes dos níveis 11, «Moscatel da Arrábida», 12, «Moscatel do Sado», 13, «Moscatel de Palmela», 14, «Moscatel de Azeitão», e 15, «Moscatel de Sesimbra» (cada um com nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
 
 | Ficheiro | O que lá vai | Estado |
 |---|---|---|
 | `dados/visitas.js` | visitas novas | suportado (já tem `marisa_5`) |
-| `dados/niveis.js` | níveis novos | suportado (já tem `nivel_11`, 3650, `nivel_12`, 4550, `nivel_13`, 5500, e `nivel_14`, 6500) |
-| `dados/historias.js` | histórias de nível novas | suportado (já tem `historia_11`, `historia_12`, `historia_13` e `historia_14`) |
-| `dados/capitulos.js` | capítulos novos | suportado (já tem `cap11`, `cap12`, `cap13` e `cap14`) |
-| `dados/enciclopedia.js` | histórias novas da Enciclopédia, com nível mínimo | suportado (já tem `arrabida_biosfera`, `arrabida_plantas`, `arrabida_mar`, `sado_reserva`, `sado_golfinhos`, `sado_troia`, `palmela_castelo`, `palmela_capelo`, `palmela_castelao`, `azeitao_queijo`, `azeitao_adega` e `azeitao_palacio`) |
+| `dados/niveis.js` | níveis novos | suportado (já tem `nivel_11`, 3650, `nivel_12`, 4550, `nivel_13`, 5500, `nivel_14`, 6500, e `nivel_15`, 7550) |
+| `dados/historias.js` | histórias de nível novas | suportado (já tem `historia_11`, `historia_12`, `historia_13`, `historia_14` e `historia_15`) |
+| `dados/capitulos.js` | capítulos novos | suportado (já tem `cap11`, `cap12`, `cap13`, `cap14` e `cap15`) |
+| `dados/enciclopedia.js` | histórias novas da Enciclopédia, com nível mínimo | suportado (já tem `arrabida_biosfera`, `arrabida_plantas`, `arrabida_mar`, `sado_reserva`, `sado_golfinhos`, `sado_troia`, `palmela_castelo`, `palmela_capelo`, `palmela_castelao`, `azeitao_queijo`, `azeitao_adega`, `azeitao_palacio`, `sesimbra_castelo`, `sesimbra_vila` e `sesimbra_espichel`) |
 | `dados/objetivos.js` | objetivos diários | **ainda NÃO suportado** (cada objetivo precisa de uma regra no código); o ficheiro só tem comentários |
 
 Cada entrada acrescenta-se com `dadosAcrescentar('visitas', { ... })` (`js/dados.js`). Uma entrada **mal escrita é ignorada** e o jogo avisa na consola (`[dados] ... ignorada: motivo`); nunca parte o arranque e nunca substitui uma entrada que já existe.
@@ -46,6 +46,7 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - Um ensaio geral (`scripts/verificar-piloto-nivel.js`) mete um pacote de teste completo (nível 11 + história + capítulo) por `dadosAcrescentar`, só no ambiente simulado, e vê o jogo inteiro a funcionar com ele nas 3 línguas.
 - Os textos com `<b>`, `&`, aspas e plicas saem escapados nos cartões (nível e capítulo).
 - O estado guardado só tem ids, e carrega bem se o pacote deixar de existir.
+- `scripts/verificar-nivel-15.js` prova o nível 15 real da mesma maneira (pelo auxiliar `scripts/_pacote-nivel.js`), com os cinco grupos de `nivelMinimo` no Explorar, e que o jogo até ao nível 14 fica igual.
 - `scripts/verificar-nivel-14.js` prova o nível 14 real da mesma maneira (pelo auxiliar `scripts/_pacote-nivel.js`), com os quatro grupos de `nivelMinimo` no Explorar, e que o jogo até ao nível 13 fica igual.
 - `scripts/verificar-nivel-13.js` prova o nível 13 real da mesma maneira, com os três grupos de `nivelMinimo` no Explorar (11, 12 e 13), e que o jogo até ao nível 12 fica igual.
 - `scripts/verificar-nivel-12.js` prova o nível 12 real da mesma maneira (4550 dá o nível 12, a história de 4 falas com a foto que existe e sem som, as 3 entradas só no nível 12, os dois grupos de `nivelMinimo` no Explorar, o capítulo 12, estado só com ids e o jogo a carregar se o pacote do 12 deixasse de existir) e que o jogo até ao nível 11 fica igual.
@@ -101,6 +102,17 @@ Mesmo molde dos níveis 11, 12 e 13:
 - `dados/capitulos.js`: `cap14` «Queijo, Vinho e Palácios», critério `temIds` nessas 3 entradas.
 - **Quatro grupos de `nivelMinimo` (11, 12, 13 e 14).** Continua a ser um só grupo de prioridade: no nível 14, os 3 grupos anteriores ainda por abrir e o de Azeitão saem **todos** (até 12 entradas, por ordem aleatória) antes de qualquer entrada de hoje; quem já tem os grupos anteriores abertos recebe só os que faltam. Abaixo do nível 14 o jogador não vê as de Azeitão.
 - O teste deste nível (`scripts/verificar-nivel-14.js`) é só os textos e números do nível: a prova em si está em `scripts/_pacote-nivel.js`, que serve também aos níveis seguintes.
+
+## O nível 15, «Moscatel de Sesimbra» (Parte 2, A Terra)
+
+Mesmo molde dos níveis 11 a 14:
+
+- `dados/niveis.js`: `nivel_15`, a partir de **7550** de Reputação.
+- `dados/historias.js`: `historia_15`, 4 falas. A 1.ª leva a foto `assets/ecras/sesimbra_vila.jpg`; nenhuma leva som.
+- `dados/enciclopedia.js`: `sesimbra_castelo`, `sesimbra_vila` e `sesimbra_espichel` (nível mínimo 15, sem imagem).
+- `dados/capitulos.js`: `cap15` «Entre o Castelo e o Mar», critério `temIds` nessas 3 entradas. A conclusão deixa a porta aberta (não é uma despedida).
+- **Cinco grupos de `nivelMinimo` (11 a 15).** Continua a ser um só grupo de prioridade: no nível 15, os grupos anteriores ainda por abrir e o de Sesimbra saem **todos** antes de qualquer entrada de hoje; quem já tem os anteriores abertos recebe só os que faltam. Abaixo do nível 15 o jogador não vê as de Sesimbra.
+- O teste deste nível é `scripts/verificar-nivel-15.js` (só os textos e números; a prova está em `scripts/_pacote-nivel.js`).
 
 ## Histórias da Enciclopédia (`dados/enciclopedia.js`)
 

@@ -138,3 +138,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'En Vila Nogueira de Azeitão se encuentra el Palacio de los Duques de Aveiro. Es un palacio renacentista, en el llamado estilo "chão" portugués.'
   }
 });
+
+// Nível 15, «Moscatel de Sesimbra»: as 3 histórias que o capítulo 15 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'sesimbra_castelo',
+  nivelMinimo: 15,
+  titulo: { pt: 'Castelo de Sesimbra', en: 'Sesimbra Castle', es: 'Castillo de Sesimbra' },
+  texto: {
+    pt: 'Fortificação de origem islâmica, conquistada em 1165 por D. Afonso Henriques e entregue mais tarde à Ordem de Santiago.',
+    en: 'A fortress of Islamic origin, taken in 1165 by Afonso Henriques and later handed over to the Order of Santiago.',
+    es: 'Fortaleza de origen islámico, conquistada en 1165 por Afonso Henriques y entregada más tarde a la Orden de Santiago.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sesimbra_vila',
+  nivelMinimo: 15,
+  titulo: { pt: 'A vila desce ao mar', en: 'The town comes down to the sea', es: 'La villa baja al mar' },
+  texto: {
+    pt: 'A partir do século XV, a pesca e a construção naval levaram os habitantes do castelo para a baía, onde nasceu a vila de hoje.',
+    en: "From the 15th century on, fishing and shipbuilding drew the people of the castle down to the bay, where today's town was born.",
+    es: 'A partir del siglo XV, la pesca y la construcción naval llevaron a los habitantes del castillo hasta la bahía, donde nació la villa de hoy.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sesimbra_espichel',
+  nivelMinimo: 15,
+  titulo: { pt: 'Cabo Espichel', en: 'Cape Espichel', es: 'Cabo Espichel' },
+  texto: {
+    pt: 'O culto à Senhora do Cabo remonta a 1410. A igreja atual foi construída entre 1701 e 1707.',
+    en: 'Worship of Our Lady of the Cape dates back to 1410. The present church was built between 1701 and 1707.',
+    es: 'El culto a Nuestra Señora del Cabo se remonta a 1410. La iglesia actual se construyó entre 1701 y 1707.'
+  }
+});

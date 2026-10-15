@@ -150,3 +150,40 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 15 («Moscatel de Sesimbra»): a foto da fala 1 está em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_15',
+  nivel: 15,
+  falas: [
+    {
+      foto: 'assets/ecras/sesimbra_vila.jpg',
+      texto: {
+        pt: 'Chegámos a Sesimbra. Lá em cima, o castelo olha o mar desde que os mouros o ergueram.',
+        en: "We've arrived in Sesimbra. Up there, the castle has watched over the sea since the Moors built it.",
+        es: 'Hemos llegado a Sesimbra. Allá arriba, el castillo mira al mar desde que lo levantaron los moros.'
+      }
+    },
+    {
+      texto: {
+        pt: 'D. Afonso Henriques tomou-o em 1165. Durante séculos, a vila viveu toda lá dentro, entre muralhas.',
+        en: 'Afonso Henriques took it in 1165. For centuries, the whole town lived up there, inside the walls.',
+        es: 'Afonso Henriques lo tomó en 1165. Durante siglos, la villa vivió toda allí dentro, entre murallas.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Mas o mar chamava. A partir do século XV, as pessoas desceram até à baía para pescar e construir barcos.',
+        en: 'But the sea was calling. From the 15th century on, people came down to the bay to fish and build boats.',
+        es: 'Pero el mar llamaba. A partir del siglo XV, la gente bajó hasta la bahía para pescar y construir barcos.'
+      }
+    },
+    {
+      texto: {
+        pt: 'E ainda hoje há quem parta de madrugada. A vila mudou de sítio, mas nunca deixou o mar.',
+        en: 'And still today some set out before dawn. The town changed place, but it never left the sea.',
+        es: 'Y aún hoy hay quien sale de madrugada. La villa cambió de sitio, pero nunca dejó el mar.'
+      }
+    }
+  ]
+});
