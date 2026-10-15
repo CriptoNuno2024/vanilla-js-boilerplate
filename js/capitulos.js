@@ -312,7 +312,8 @@ let _capitulosTesteMostrado = false;
 function capitulosParametrosTeste() {
   let params;
   try { params = new URLSearchParams(location.search); } catch (e) { return null; }
-  const m = /^(?:cap)?([1-9]|10)$/i.exec(params.get('capitulo') || '');
+  // 1, 2, ... ou cap1, cap2, ... (sem zeros à esquerda); só vale se esse capítulo existir em CAPITULOS_CONFIG (abaixo).
+  const m = /^(?:cap)?([1-9]\d*)$/i.exec(params.get('capitulo') || '');
   if (!m) return null;
   const id = 'cap' + m[1];
   if (!CAPITULOS_CONFIG.some(function (x) { return x.id === id; })) return null;

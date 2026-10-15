@@ -10,7 +10,7 @@
 //      os campos conhecidos; entra nas 3 línguas;
 //  (d) título e texto com <b>, &, aspas e <script> saem escapados (uma só vez) na Enciclopédia e no Explorar;
 //  (e) o estado guardado só tem ids e carrega bem se a entrada deixar de existir (o id solto não conta);
-//  (f) as entradas de hoje ficam idênticas às da master (impressão digital) e dados/ não traz nenhuma de enciclopédia.
+//  (f) as entradas de hoje ficam idênticas às da master (impressão digital) e dados/ só traz as 3 histórias da Arrábida.
 //
 // Uso: node scripts/verificar-enciclopedia-dados.js
 // JS_DIR=pasta  corre sobre outra versão dos js/ (para provar que o teste apanha o que se estraga).
@@ -80,12 +80,20 @@ function estadoDasListas(g) { return g.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES)'
     lingua(g, l);
     ok(g.ev('encyclopediaEntries() === ENCYCLOPEDIA_ENTRIES.' + l) === true, '(f) sem nivelMinimo, a lista do jogo é exatamente a de hoje (' + l + ')');
   });
+  // Com a pasta dados/ real: as 32 de hoje (nas 3 línguas) ficam idênticas e só entram as 3 da Arrábida (nível 11, sem imagem).
   const real = abrir({ dadosDir: path.join(RAIZ, 'dados'), nivel11: false });
+  const IDS_ARRABIDA = ['arrabida_biosfera', 'arrabida_plantas', 'arrabida_mar'];
   ok(real.avisos.length === 0, '(f) carregar o jogo com dados/ não devia avisar nada: ' + real.avisos);
-  ok(real.ev('DADOS_ACRESCENTADOS.enciclopedia.length') === 0, '(f) dados/ não devia trazer nenhuma entrada de enciclopédia');
-  ok(estadoDasListas(real) === lista, '(f) com a pasta dados/ as listas da enciclopédia ficam iguais');
+  ok(real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()') === IDS_ARRABIDA.join(), '(f) de dados/ só deviam vir as 3 histórias da Arrábida');
+  const dasTresLinguas = real.ev('JSON.stringify({ pt: ENCYCLOPEDIA_ENTRIES.pt.slice(0, 32), en: ENCYCLOPEDIA_ENTRIES.en.slice(0, 32), es: ENCYCLOPEDIA_ENTRIES.es.slice(0, 32) })');
+  ok(crypto.createHash('sha256').update(dasTresLinguas).digest('hex') === IMPRESSAO_DIGITAL_DE_HOJE, '(f) com dados/ as 32 entradas de hoje ficam idênticas às da master, nas 3 línguas');
+  LINGUAS.forEach(function (l) {
+    const fim = real.ev('ENCYCLOPEDIA_ENTRIES.' + l + '.slice(32)');
+    ok(fim.length === 3 && fim.map(function (e) { return e.id; }).join() === IDS_ARRABIDA.join(), '(f) ' + l + ': depois das 32 de hoje vêm só as 3 da Arrábida, por ordem');
+    ok(fim.every(function (e) { return e.nivelMinimo === 11 && e.imagem === undefined && !e.manual && e.estacao === undefined && e.meses === undefined && typeof e.titulo === 'string' && typeof e.texto === 'string'; }), '(f) ' + l + ': as 3 da Arrábida são de nível 11, sem imagem, manual, estação nem meses');
+  });
   const codigo = fs.readFileSync(path.join(RAIZ, 'dados', 'enciclopedia.js'), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
-  ok(codigo === '', '(f) dados/enciclopedia.js devia ter só comentários, tem: ' + codigo.slice(0, 60));
+  ok((codigo.match(/dadosAcrescentar\(/g) || []).length === 3 && IDS_ARRABIDA.every(function (id) { return codigo.indexOf("id: '" + id + "'") !== -1; }), '(f) dados/enciclopedia.js devia ter só as 3 chamadas da Arrábida'); 
 }
 
 // =====================================================================
