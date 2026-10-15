@@ -30,8 +30,10 @@ function conquistasDesbloqueadas() {
   return Array.isArray(u) ? u.length : 0;
 }
 
+// O total conta só as entradas que o jogador já pode ter (as com nível mínimo ainda por alcançar ficam de fora).
 function conquistasTotalEnciclopedia() {
-  return (typeof ENCYCLOPEDIA_ENTRIES !== 'undefined' && ENCYCLOPEDIA_ENTRIES.pt) ? ENCYCLOPEDIA_ENTRIES.pt.length : 0;
+  if (typeof ENCYCLOPEDIA_ENTRIES === 'undefined' || !ENCYCLOPEDIA_ENTRIES.pt) return 0;
+  return typeof encyclopediaEntriesDe === 'function' ? encyclopediaEntriesDe('pt').length : ENCYCLOPEDIA_ENTRIES.pt.length;
 }
 
 function conquistasSelos() {

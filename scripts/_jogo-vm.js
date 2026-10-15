@@ -7,6 +7,7 @@
 //   dadosDir  pasta dos dados/ (por omissão a do projeto); null = não carrega os ficheiros de dados
 //   aoAvisar  função chamada com cada console.warn do jogo
 //   estadoGuardado  texto JSON de um estado já guardado (como o localStorage do jogador), para o jogo o carregar ao abrir
+//   explorar  true = carrega também o js/explorar.js real (a Enciclopédia: ENCYCLOPEDIA_ENTRIES, entradasBloqueadas, ...)
 //   ecraReal  true = mantém o ecraDesbloqueado() verdadeiro de js/niveis.js (por omissão é substituído por um falso)
 // Devolve { cx, ev(expressão), el(id), guardado } (el: o elemento simulado com esse id, ex.: o innerHTML de um cartão;
 // guardado: o localStorage simulado, { chave: texto }).
@@ -15,7 +16,7 @@ const path = require('path');
 const vm = require('vm');
 
 const RAIZ = path.join(__dirname, '..');
-const FICHEIROS_DE_DADOS = ['visitas.js', 'niveis.js', 'historias.js', 'capitulos.js', 'objetivos.js'];
+const FICHEIROS_DE_DADOS = ['visitas.js', 'niveis.js', 'historias.js', 'capitulos.js', 'objetivos.js', 'enciclopedia.js'];
 
 function abrirJogo(opcoes) {
   const o = opcoes || {};
@@ -67,6 +68,9 @@ function abrirJogo(opcoes) {
     var REGRAS_DESCANSO_CAVE = { diasMinimos: 99 };
   `, cx);
   ['historia.js', 'capitulos.js', 'objetivos.js', 'visitas.js'].forEach(function (f) { carregar(path.join(jsDir, f), 'js/' + f); });
+  // js/explorar.js (a Enciclopédia: ENCYCLOPEDIA_ENTRIES) só com explorar: true, porque redefine entradasBloqueadas()
+  // (que aqui é um falso) e os outros testes contam com o falso. Vem antes do dados.js, como no index.html.
+  if (o.explorar) carregar(path.join(jsDir, 'explorar.js'), 'js/explorar.js');
   // js/dados.js e os ficheiros de dados/ vêm depois das listas (como no index.html); uma pasta de js/
   // antiga (cópia) pode não ter o dados.js.
   if (fs.existsSync(path.join(jsDir, 'dados.js'))) {

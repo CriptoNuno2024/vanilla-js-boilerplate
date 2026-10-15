@@ -118,8 +118,39 @@ const ENCYCLOPEDIA_ENTRIES = {
 
 // As entradas são guardadas por id (independente da língua), para que
 // o progresso desbloqueado se mantenha ao trocar de idioma.
+//
+// NÍVEL MÍNIMO (campo opcional "nivelMinimo", só nas entradas que vêm de dados/enciclopedia.js
+// pelo dadosAcrescentar('enciclopedia', ...) em js/dados.js): até o jogador chegar a esse nível a entrada
+// NÃO existe para o jogo — não entra no sorteio do Explorar, não se desbloqueia (nem por uma ação), não
+// aparece na Enciclopédia (nem como cartão bloqueado), não conta nos totais, nem sai na curiosidade
+// da Ronda do Chizo. O nível é o da Reputação (nivelPelaReputacao): um jogador antigo
+// (state.acesso.jogadorAntigo) NÃO ultrapassa isto, porque o nível mínimo é conteúdo, não um ecrã trancado.
+// As entradas de hoje não têm este campo e ficam exatamente como sempre.
+function encyclopediaNivelDoJogador() {
+  try { return nivelPelaReputacao(state.reputacao); } catch (e) { return 1; }
+}
+
+function encyclopediaDisponivelNoNivel(e, nivel) {
+  return typeof e.nivelMinimo !== 'number' || e.nivelMinimo <= nivel;
+}
+
+// Todas as entradas da língua pedida que o jogador já pode ter (as do nível dele ou abaixo).
+function encyclopediaEntriesDe(lingua) {
+  const todas = ENCYCLOPEDIA_ENTRIES[lingua] || ENCYCLOPEDIA_ENTRIES.pt;
+  if (!todas.some(function (e) { return typeof e.nivelMinimo === 'number'; })) return todas; // só o conteúdo de hoje: a mesma lista
+  const nivel = encyclopediaNivelDoJogador();
+  return todas.filter(function (e) { return encyclopediaDisponivelNoNivel(e, nivel); });
+}
+
 function encyclopediaEntries() {
-  return ENCYCLOPEDIA_ENTRIES[currentLang] || ENCYCLOPEDIA_ENTRIES.pt;
+  return encyclopediaEntriesDe(currentLang);
+}
+
+// Quantas das entradas disponíveis já estão desbloqueadas (um id guardado de uma entrada que já não
+// existe, ou que ainda não é do nível do jogador, não conta).
+function encyclopediaContarDesbloqueadas() {
+  const abertas = state.encyclopedia.unlocked;
+  return encyclopediaEntries().filter(function (e) { return abertas.indexOf(e.id) !== -1; }).length;
 }
 
 // Entradas ainda por desbloquear E disponíveis AGORA pelo Explorar (uma
@@ -156,7 +187,7 @@ function entradasBloqueadas() {
 // (state.conquistasGanhas.guardiao, ver conquistasRegistarGanhas() em js/conquistas.js):
 // acrescentar entradas novas não a tira a quem já a tinha.
 function tituloEspecialCumprido() {
-  return state.encyclopedia.unlocked.length >= encyclopediaEntries().length;
+  return encyclopediaContarDesbloqueadas() >= encyclopediaEntries().length;
 }
 
 function tituloEspecialDesbloqueado() {
@@ -171,12 +202,15 @@ function tituloEspecialDesbloqueado() {
 // NOTA: quem chamar isto ainda tem de fazer saveState(state) a seguir.
 function desbloquearEntradaEnciclopedia(id) {
   if (state.encyclopedia.unlocked.indexOf(id) !== -1) return null;
+  // Uma entrada com nível mínimo que o jogador ainda não tem não se desbloqueia (um id que o jogo
+  // nem conhece segue como sempre).
+  const existente = (ENCYCLOPEDIA_ENTRIES[currentLang] || ENCYCLOPEDIA_ENTRIES.pt).filter(function (e) { return e.id === id; })[0];
+  if (existente && !encyclopediaDisponivelNoNivel(existente, encyclopediaNivelDoJogador())) return null;
   state.encyclopedia.unlocked.push(id);
   state.conhecimento += 1;
   // É aqui que o «Sábio» e o «Guardião» passam a valer: fica registado já (ver js/conquistas.js).
   if (typeof conquistasRegistarGanhas === 'function') conquistasRegistarGanhas();
-  const entrada = encyclopediaEntries().filter(function (e) { return e.id === id; })[0];
-  return entrada || null;
+  return existente || null;
 }
 
 function explorarTopcardHtml() {
@@ -228,7 +262,7 @@ function explorarCartaoSitioHtml(x) {
 // O cartão do topo. Com entrada nova: "Nova entrada!", o título e o botão Ler; senão, quantas já descobriu, a mensagem
 // (se houver) e o botão para abrir a Enciclopédia. nova = entrada acabada de desbloquear ou null.
 function explorarCartaoEnciclopediaHtml(nova, mensagem) {
-  const total = state.encyclopedia.unlocked.length + ' / ' + encyclopediaEntries().length;
+  const total = encyclopediaContarDesbloqueadas() + ' / ' + encyclopediaEntries().length;
   const corpo = nova
     ? '<p class="explorar-etiqueta">' + explorarEscapar(t('explorar.novaEntradaCurta')) + '</p>' +
       '<p class="explorar-frase explorar-novo">' + explorarEscapar(nova.titulo) + '</p>'
@@ -260,7 +294,7 @@ function enterExplorar() {
   let nova = null;
   let mensagem = '';
 
-  if (state.encyclopedia.unlocked.length >= encyclopediaEntries().length) {
+  if (encyclopediaContarDesbloqueadas() >= encyclopediaEntries().length) {
     // Já sabe tudo o que existe, para sempre (mesmo contando as entradas
     // de estação que só aparecem 3 meses por ano).
     mensagem = t('explorar.tudoDesbloqueado');
@@ -301,8 +335,9 @@ function renderEnciclopedia() {
   const cardsHtml = entradasOrdenadas.map(function (e) {
     const desbloqueada = state.encyclopedia.unlocked.indexOf(e.id) !== -1;
     if (desbloqueada) {
-      const imagemHtml = e.imagem ? '<img src="' + e.imagem + '" alt="">' : '';
-      return '<div class="encyclopedia-card">' + imagemHtml + '<h3>' + e.titulo + '</h3><p>' + e.texto + '</p></div>';
+      // Título, texto e imagem podem vir de dados/: sempre escapados (escaparHtml, js/i18n.js), uma só vez.
+      const imagemHtml = e.imagem ? '<img src="' + escaparHtml(e.imagem) + '" alt="">' : '';
+      return '<div class="encyclopedia-card">' + imagemHtml + '<h3>' + escaparHtml(e.titulo) + '</h3><p>' + escaparHtml(e.texto) + '</p></div>';
     }
     // Uma entrada de estação mostra qual é, em vez de "???", para o
     // jogador saber que tem de voltar ao Explorar nessa altura do ano.
@@ -313,7 +348,7 @@ function renderEnciclopedia() {
   container.innerHTML =
     '<div class="topcard">' +
       '<p class="mini-title" data-i18n="enciclopedia.title"></p>' +
-      '<p class="mini-sub">' + state.encyclopedia.unlocked.length + ' / ' + entradas.length + '</p>' +
+      '<p class="mini-sub">' + encyclopediaContarDesbloqueadas() + ' / ' + entradas.length + '</p>' +
     '</div>' +
     '<div class="scroll-panel encyclopedia-grid">' + cardsHtml + '</div>';
 

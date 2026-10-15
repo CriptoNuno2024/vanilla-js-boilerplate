@@ -1,8 +1,8 @@
 # Pasta de dados
 
-Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
+Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos, histórias da Enciclopédia e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
 
-**O jogo lê esta pasta.** Carrega os 5 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje só `dados/visitas.js` tem uma entrada real (a visita `marisa_5`); os outros 4 ficheiros só têm comentários.**
+**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje só `dados/visitas.js` tem uma entrada real (a visita `marisa_5`); os outros 5 ficheiros (incluindo o novo `dados/enciclopedia.js`) só têm comentários.**
 
 | Ficheiro | O que lá vai | Estado |
 |---|---|---|
@@ -10,6 +10,7 @@ Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, 
 | `dados/niveis.js` | níveis novos | suportado (ainda sem entradas) |
 | `dados/historias.js` | histórias de nível novas | suportado (ainda sem entradas) |
 | `dados/capitulos.js` | capítulos novos | suportado (ainda sem entradas) |
+| `dados/enciclopedia.js` | histórias novas da Enciclopédia, com nível mínimo | suportado (ainda sem entradas) |
 | `dados/objetivos.js` | objetivos diários | **ainda NÃO suportado** (cada objetivo precisa de uma regra no código); o ficheiro só tem comentários |
 
 Cada entrada acrescenta-se com `dadosAcrescentar('visitas', { ... })` (`js/dados.js`). Uma entrada **mal escrita é ignorada** e o jogo avisa na consola (`[dados] ... ignorada: motivo`); nunca parte o arranque e nunca substitui uma entrada que já existe.
@@ -20,6 +21,7 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - nível: `{ id, min, nome }` (o `min` tem de ser maior que o do último nível)
 - história: `{ id, nivel (a partir do 2), falas: [ { texto, foto, som } ] }`
 - capítulo: `{ id, nivel, criterio: [ ... ], titulo, objetivo, conclusao, falante }`
+- enciclopédia: `{ id, titulo, texto, nivelMinimo (inteiro a partir do 1), imagem (opcional), meses (opcional), estacao (opcional), manual (opcional, true) }`: entra nas 3 línguas de `ENCYCLOPEDIA_ENTRIES` (`js/explorar.js`)
 
 ## Como se acrescenta uma entrada
 
@@ -44,6 +46,7 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - Um ensaio geral (`scripts/verificar-piloto-nivel.js`) mete um pacote de teste completo (nível 11 + história + capítulo) por `dadosAcrescentar`, só no ambiente simulado, e vê o jogo inteiro a funcionar com ele nas 3 línguas.
 - Os textos com `<b>`, `&`, aspas e plicas saem escapados nos cartões (nível e capítulo).
 - O estado guardado só tem ids, e carrega bem se o pacote deixar de existir.
+- `scripts/verificar-enciclopedia-dados.js` prova as histórias novas da Enciclopédia com nível mínimo (uma de nível 11 não aparece nem se desbloqueia no nível 4, os totais não a contam, o texto sai escapado, o estado só guarda ids e as entradas de hoje ficam idênticas).
 - `scripts/verificar-dados-carregar.js` prova que entradas mal escritas são ignoradas, que uma entrada existente nunca é substituída e que as 12 visitas de origem ficam iguais.
 
 ### A ter em conta quando houver um nível 11 a sério
@@ -54,6 +57,25 @@ Observações do ensaio (não falham; o jogo não foi alterado por causa delas):
 - **`?capitulo=N` só aceita 1 a 10.** Não dá para ver a celebração de um capítulo 11 com o modo de teste.
 - **A celebração de um capítulo não olha ao nível.** Se o critério já estiver cumprido, celebra-o mesmo num nível mais baixo (só o cartão respeita o nível).
 - **`nivelMostrado` pode ficar a 11 sem o pacote.** Se o pacote deixar de existir, o estado guardado fica com um nível que o jogo já não tem; se mais tarde entrar OUTRO nível 11, a sua história não aparece a quem já o «viu».
+
+## Histórias da Enciclopédia (`dados/enciclopedia.js`)
+
+```js
+dadosAcrescentar('enciclopedia', {
+  id: 'cultura_exemplo',
+  titulo: { pt: '...', en: '...', es: '...' },
+  texto: { pt: '...', en: '...', es: '...' },
+  nivelMinimo: 11,
+  imagem: 'assets/ecras/enciclopedia_exemplo.jpg'   // opcional, tem de existir
+});
+```
+
+- **Nível mínimo.** Até o jogador chegar a esse nível (o da Reputação) a entrada **não existe** para ele: não sai no sorteio do Explorar, não se desbloqueia (nem por uma ação do jogo), não aparece na Enciclopédia (nem como cartão «???»), não conta nos totais («3 / 32»), nos capítulos, na medalha Guardião nem na conquista Sábio, e não sai na curiosidade da Ronda do Chizo. A mensagem «já desbloqueaste todo o conhecimento» só conta as entradas disponíveis para o nível dele. Um jogador antigo **não** ultrapassa o nível mínimo (é conteúdo, não um ecrã trancado).
+- **Ids.** `a-z`, `0-9` e `_`. O id novo não pode repetir nenhum id da Enciclopédia, em nenhuma língua. As entradas de hoje (`vindimasMaisCedo`, `boloRei`, ...) têm maiúsculas e continuam como estão.
+- **Imagem.** Um caminho `assets/...` (jpg, jpeg, png, webp ou gif) que exista; o ficheiro é enviado ao repositório à parte.
+- **Texto.** Título e texto são sempre escapados no ecrã (um `<b>` aparece como texto), mas o validador continua a recusar `< > &` nas entradas novas.
+- **Os outros campos** (`meses`, `estacao`, `manual`) fazem o mesmo que nas entradas de hoje: `estacao` limita o Explorar a essa estação, `manual` tira a entrada do sorteio (só se desbloqueia por uma ação), `meses` só serve à Ronda do Chizo.
+- **Estado do jogador.** Só guarda o id. Se uma entrada deixar de existir o jogo carrega na mesma e o id solto não conta nos totais. **Nunca apagar um id publicado** (regra de ouro abaixo).
 
 ## Como se confere
 

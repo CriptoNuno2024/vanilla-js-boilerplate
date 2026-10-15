@@ -61,7 +61,8 @@ const CAPITULOS_CONFIG = [
 function capitulosResolverAlvo(alvo) {
   if (typeof alvo === 'number') return alvo;
   if (alvo === 'totalEnciclopedia') {
-    return (typeof ENCYCLOPEDIA_ENTRIES !== 'undefined' && ENCYCLOPEDIA_ENTRIES.pt) ? ENCYCLOPEDIA_ENTRIES.pt.length : Infinity;
+    if (typeof ENCYCLOPEDIA_ENTRIES === 'undefined' || !ENCYCLOPEDIA_ENTRIES.pt) return Infinity;
+    return typeof encyclopediaEntriesDe === 'function' ? encyclopediaEntriesDe('pt').length : ENCYCLOPEDIA_ENTRIES.pt.length;
   }
   return Infinity;
 }

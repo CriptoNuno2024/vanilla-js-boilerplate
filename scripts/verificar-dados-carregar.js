@@ -4,7 +4,7 @@
 // 2) entradas más (id repetido, id mal formado, tipo desconhecido, não-objeto, campos em falta, tipo
 //    "objetivos" ainda não suportado) são IGNORADAS com um console.warn, sem lançar erro e sem mudar nada;
 // 3) uma entrada que já existe nunca é substituída;
-// 4) o index.html carrega o dados.js e os 5 ficheiros de dados/ depois das listas e antes do main.js, e
+// 4) o index.html carrega o dados.js e os 6 ficheiros de dados/ depois das listas e antes do main.js, e
 //    os ficheiros de dados/ não trazem entradas (só comentários), com UMA exceção: dados/visitas.js traz a visita
 //    marisa_5 (a primeira visita vinda de dados/) e as 12 visitas de origem ficam iguais.
 // As entradas de teste vivem só no ambiente simulado (módulo vm); nada fica no jogo.
@@ -187,7 +187,7 @@ const TEXTO = function (pt) { return { pt: pt, en: pt + ' (en)', es: pt + ' (es)
     anterior = p;
   });
   const naPasta = fs.readdirSync(path.join(RAIZ, 'dados')).filter(function (f) { return /\.js$/.test(f); }).sort().join();
-  ok(naPasta === FICHEIROS_DE_DADOS.slice().sort().join(), 'a pasta dados/ devia ter só os 5 ficheiros de dados (.js): ' + naPasta);
+  ok(naPasta === FICHEIROS_DE_DADOS.slice().sort().join(), 'a pasta dados/ devia ter só os 6 ficheiros de dados (.js): ' + naPasta);
   FICHEIROS_DE_DADOS.forEach(function (f) {
     const codigo = fs.readFileSync(path.join(RAIZ, 'dados', f), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
     if (f === 'visitas.js') {
