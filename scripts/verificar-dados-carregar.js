@@ -5,8 +5,8 @@
 //    "objetivos" ainda não suportado) são IGNORADAS com um console.warn, sem lançar erro e sem mudar nada;
 // 3) uma entrada que já existe nunca é substituída;
 // 4) o index.html carrega o dados.js e os 6 ficheiros de dados/ depois das listas e antes do main.js, e
-//    os ficheiros de dados/ não trazem entradas (só comentários), com UMA exceção: dados/visitas.js traz a visita
-//    marisa_5 (a primeira visita vinda de dados/) e as 12 visitas de origem ficam iguais.
+//    os ficheiros de dados/ só trazem o que está combinado: a visita marisa_5 e o pacote do nível 11 (nível, história,
+//    3 histórias da Enciclopédia e capítulo); objetivos.js só tem comentários; as listas de origem ficam iguais.
 // As entradas de teste vivem só no ambiente simulado (módulo vm); nada fica no jogo.
 //
 // Uso: node scripts/verificar-dados-carregar.js
@@ -55,16 +55,31 @@ const TEXTO = function (pt) { return { pt: pt, en: pt + ' (en)', es: pt + ' (es)
   ok(Object.keys(ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10', 'o jogo devia ter as histórias dos níveis 2 a 10');
 }
 
-// ----- 0b. Com a pasta dados/ real: só a visita marisa_5 vem de lá; as 12 de origem ficam iguais -----
+// O que dados/ traz de verdade, ficheiro a ficheiro (os ids pela ordem em que aparecem): a visita marisa_5 e o pacote do
+// nível 11 («Moscatel da Arrábida»: nível, história, 3 histórias da Enciclopédia e capítulo). Os outros testes de dados
+// (verificar-nivel-11.js, verificar-enciclopedia-dados.js) provam o conteúdo; aqui prova-se que nada mais entra por dados/.
+const ESPERADO_EM_DADOS = {
+  'visitas.js': ['marisa_5'], 'niveis.js': ['nivel_11'], 'historias.js': ['historia_11'], 'capitulos.js': ['cap11'],
+  'objetivos.js': [], 'enciclopedia.js': ['arrabida_biosfera', 'arrabida_plantas', 'arrabida_mar']
+};
+
+// ----- 0b. Com a pasta dados/ real: só a visita marisa_5 e o pacote do nível 11 vêm de lá; o jogo de origem fica igual -----
 {
   const avisos2 = [];
-  const real = abrirJogo({ jsDir: JS_DIR, aoAvisar: function (m) { avisos2.push(m); } });
+  const real = abrirJogo({ jsDir: JS_DIR, explorar: true, aoAvisar: function (m) { avisos2.push(m); } });
   ok(avisos2.length === 0, 'carregar o jogo com a pasta dados/ não devia avisar nada: ' + avisos2);
-  ok(real.ev('DADOS_ACRESCENTADOS.visitas.map(function (v) { return v.id; }).join()') === 'marisa_5', 'de dados/ só devia vir a visita marisa_5');
-  ok(real.ev('DADOS_ACRESCENTADOS.niveis.length + DADOS_ACRESCENTADOS.historias.length + DADOS_ACRESCENTADOS.capitulos.length + DADOS_ACRESCENTADOS.objetivos.length') === 0, 'dados/ não devia trazer níveis, histórias, capítulos nem objetivos');
-  ok(real.ev('VISITAS.length') === 13 && real.ev('NIVEIS_CONFIG.length') === 10 && real.ev('CAPITULOS_CONFIG.length') === 10 && real.ev('OBJETIVOS_GRUPO_C.length') === 5, 'com dados/ devia haver 13 visitas (12 + marisa_5) e as outras listas de sempre');
+  const idsDe = function (tipo) { return real.ev('DADOS_ACRESCENTADOS.' + tipo + '.map(function (v) { return v.id; }).join()'); };
+  ok(idsDe('visitas') === 'marisa_5', 'de dados/ só devia vir a visita marisa_5: ' + idsDe('visitas'));
+  ok(idsDe('niveis') === 'nivel_11' && idsDe('historias') === 'historia_11' && idsDe('capitulos') === 'cap11', 'de dados/ só devia vir o pacote do nível 11 (nivel_11, historia_11, cap11)');
+  ok(idsDe('enciclopedia') === 'arrabida_biosfera,arrabida_plantas,arrabida_mar', 'de dados/ só deviam vir as 3 histórias da Arrábida: ' + idsDe('enciclopedia'));
+  ok(idsDe('objetivos') === '', 'dados/ não devia trazer objetivos');
+  ok(real.ev('VISITAS.length') === 13 && real.ev('NIVEIS_CONFIG.length') === 11 && real.ev('CAPITULOS_CONFIG.length') === 11 && real.ev('OBJETIVOS_GRUPO_C.length') === 5, 'com dados/ devia haver 13 visitas, 11 níveis, 11 capítulos e os 5 do Grupo C');
+  ok(Object.keys(real.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10,11' && real.ev('ENCYCLOPEDIA_ENTRIES.pt.length') === 35, 'com dados/ devia haver histórias dos níveis 2 a 11 e 35 entradas da Enciclopédia');
   ok(real.ev('JSON.stringify(VISITAS.slice(0, 12))') === ev('JSON.stringify(VISITAS)'), 'as 12 visitas de origem (e a sua ordem) deviam ficar iguais com dados/');
-  ok(real.ev('VISITAS[12].id') === 'marisa_5', 'marisa_5 devia ficar no fim da lista');
+  ok(real.ev('JSON.stringify(NIVEIS_CONFIG.slice(0, 10))') === ev('JSON.stringify(NIVEIS_CONFIG)'), 'os 10 níveis de origem deviam ficar iguais com dados/');
+  ok(real.ev('JSON.stringify(CAPITULOS_CONFIG.slice(0, 10))') === ev('JSON.stringify(CAPITULOS_CONFIG)'), 'os 10 capítulos de origem deviam ficar iguais com dados/');
+  ok(real.ev('JSON.stringify([2,3,4,5,6,7,8,9,10].map(function (n) { return HISTORIA_NIVEIS[n]; }))') === ev('JSON.stringify([2,3,4,5,6,7,8,9,10].map(function (n) { return HISTORIA_NIVEIS[n]; }))'), 'as histórias dos níveis 2 a 10 deviam ficar iguais com dados/');
+  ok(real.ev('VISITAS[12].id') === 'marisa_5' && real.ev('NIVEIS_CONFIG[10].id') === 'nivel_11' && real.ev('CAPITULOS_CONFIG[10].id') === 'cap11', 'as entradas de dados/ ficam no fim das listas');
 }
 
 // ----- 1. Visitas -----
@@ -190,12 +205,13 @@ const TEXTO = function (pt) { return { pt: pt, en: pt + ' (en)', es: pt + ' (es)
   ok(naPasta === FICHEIROS_DE_DADOS.slice().sort().join(), 'a pasta dados/ devia ter só os 6 ficheiros de dados (.js): ' + naPasta);
   FICHEIROS_DE_DADOS.forEach(function (f) {
     const codigo = fs.readFileSync(path.join(RAIZ, 'dados', f), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
-    if (f === 'visitas.js') {
-      // Única exceção: uma chamada, a da visita marisa_5.
-      ok((codigo.match(/dadosAcrescentar\(/g) || []).length === 1 && /^dadosAcrescentar\('visitas', \{\s*id: 'marisa_5'/.test(codigo), 'dados/visitas.js devia ter só a entrada marisa_5');
-    } else {
-      ok(codigo === '', 'dados/' + f + ' devia ter só comentários (sem entradas), tem: ' + codigo.slice(0, 60));
-    }
+    const esperados = ESPERADO_EM_DADOS[f];
+    ok(Array.isArray(esperados), 'dados/' + f + ': falta dizer o que devia ter neste teste');
+    // Cada ficheiro tem só as chamadas esperadas, pela ordem, e mais nada fora delas.
+    const pedacos = codigo.split('dadosAcrescentar(').slice(1);
+    const ids = pedacos.map(function (p) { const m = /\bid: '([a-z0-9_]+)'/.exec(p); return m ? m[1] : '?'; });
+    ok(ids.join() === (esperados || []).join(), 'dados/' + f + ' devia ter só as entradas ' + JSON.stringify(esperados) + ', tem ' + JSON.stringify(ids));
+    ok(codigo === '' || /^dadosAcrescentar\(/.test(codigo), 'dados/' + f + ' devia começar numa chamada dadosAcrescentar: ' + codigo.slice(0, 60));
   });
   // O dados.js não toca em mais nada do jogo: só as 4 listas, pelo dadosAcrescentar.
   const src = fs.readFileSync(path.join(JS_DIR, 'dados.js'), 'utf8');

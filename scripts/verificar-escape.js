@@ -22,7 +22,8 @@ const MAU = '<b>negrito</b> & "aspas" \'simples\' <script>alert(1)</script> <img
 const MAU_ESCAPADO = '&lt;b&gt;negrito&lt;/b&gt; &amp; &quot;aspas&quot; &#39;simples&#39; &lt;script&gt;alert(1)&lt;/script&gt; &lt;img src=x onerror=alert(2)&gt;';
 const TEXTO_MAU = { pt: MAU, en: MAU, es: MAU };
 
-const jogo = abrirJogo({ jsDir: JS_DIR });
+// Sem a pasta dados/: o teste acrescenta o seu nível 11 de teste (3600); o nível 11 real vem de dados/ (3650) e tem o seu teste.
+const jogo = abrirJogo({ jsDir: JS_DIR, dadosDir: null });
 const ev = jogo.ev;
 function js(o) { return JSON.stringify(o); }
 // O HTML não pode ter tags a sério vindas do texto de teste.

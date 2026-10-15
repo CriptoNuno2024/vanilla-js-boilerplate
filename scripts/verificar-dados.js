@@ -323,7 +323,12 @@ function main() {
   }
 
   const deDados = Object.keys(J.NOVAS || {}).reduce(function (t, k) { return t + J.NOVAS[k].length; }, 0);
-  resumo.push(deDados + ' entradas vindas de dados/');
+  const NOMES_TIPO = { visitas: ['visita', 'visitas'], niveis: ['nível', 'níveis'], historias: ['história', 'histórias'], capitulos: ['capítulo', 'capítulos'], enciclopedia: ['entrada de enciclopédia', 'entradas de enciclopédia'], objetivos: ['objetivo', 'objetivos'] };
+  const porTipo = Object.keys(J.NOVAS || {}).filter(function (k) { return J.NOVAS[k].length > 0; }).map(function (k) {
+    const n = J.NOVAS[k].length;
+    return n + ' ' + (NOMES_TIPO[k] ? NOMES_TIPO[k][n === 1 ? 0 : 1] : k);
+  });
+  resumo.push(deDados + ' entradas vindas de dados/' + (deDados > 0 ? ' (' + porTipo.join(', ') + ')' : ''));
   console.log('Verificado' + (ESTRITO ? ' (estrito)' : '') + ': ' + resumo.join(', '));
   if (avisos.length > 0) {
     console.log('Avisos (não falham' + ') ' + avisos.length + ':');

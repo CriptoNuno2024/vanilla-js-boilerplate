@@ -348,6 +348,12 @@ function semente(g, s) {
   function pacote(nome, criterio, entradas) {
     const dir = path.join(tmp, 'dados-' + nome);
     copiar(DADOS_VAZIOS, dir);
+    // A pasta dados/ real já tem o pacote do nível 11 (Moscatel da Arrábida): a cópia de teste fica só com os comentários dos
+    // ficheiros do pacote, para o pacote de TESTE (nível, história, capítulo e 3 entradas) ser o único nível 11.
+    ['niveis.js', 'historias.js', 'capitulos.js', 'enciclopedia.js'].forEach(function (f) {
+      const linhas = fs.readFileSync(path.join(dir, f), 'utf8').split('\n').filter(function (l) { return /^\s*\/\//.test(l); });
+      fs.writeFileSync(path.join(dir, f), linhas.join('\n') + '\n');
+    });
     fs.appendFileSync(path.join(dir, 'niveis.js'), "\ndadosAcrescentar('niveis', { id: 'nivel_t11', min: 3600, nome: { pt: 'a', en: 'b', es: 'c' } });\n");
     fs.appendFileSync(path.join(dir, 'historias.js'), "\ndadosAcrescentar('historias', { id: 'historia_t11', nivel: 11, falas: [{ texto: { pt: 'a', en: 'b', es: 'c' } }] });\n");
     fs.appendFileSync(path.join(dir, 'capitulos.js'), "\ndadosAcrescentar('capitulos', { id: 'cap_t11', nivel: 11, criterio: [" + criterio + "], titulo: { pt: 'a', en: 'b', es: 'c' }, objetivo: { pt: 'a', en: 'b', es: 'c' }, conclusao: { pt: 'a', en: 'b', es: 'c' } });\n");

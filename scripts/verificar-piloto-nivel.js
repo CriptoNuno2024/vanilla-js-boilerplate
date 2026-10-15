@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ENSAIO GERAL: um pacote completo vindo de dadosAcrescentar (nível 11 + história do nível 11 + capítulo do
 // nível 11) passa por todo o jogo sem partir nada. SÓ EM TESTE: o pacote vive no ambiente simulado (módulo vm,
-// scripts/_jogo-vm.js); nada fica no jogo nem em dados/ (o teste confirma que dados/ só tem comentários, salvo visitas.js).
+// scripts/_jogo-vm.js); nada fica no jogo nem em dados/ (o teste confirma que nada do pacote de teste vive em dados/).
 // Os textos do pacote trazem <b>, &, aspas e plicas, para testar o escape (js/i18n.js: escaparHtml).
 //
 // Prova, nas 3 línguas: (a) subir ao nível 11 mostra a história nova; (b) a história do nível 11 não aparece para o
@@ -93,17 +93,19 @@ function semTagsDoPacote(h, onde) {
 }
 
 // =====================================================================
-// 0. Ponto de partida: dados/ vazio e o jogo sem pacote tem 10 níveis
+// 0. Ponto de partida: o jogo de origem (sem a pasta dados/) tem 10 níveis; o pacote de teste não vive em dados/
 // =====================================================================
 {
-  const g = abrirJogo({ jsDir: JS_DIR });
-  ok(g.ev('NIVEIS_CONFIG.length') === 10 && g.ev('CAPITULOS_CONFIG.length') === 10 && Object.keys(g.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10', 'o jogo (com a pasta dados/) devia ter 10 níveis, 10 capítulos e as histórias dos níveis 2 a 10');
-  ok(g.ev('DADOS_ACRESCENTADOS.niveis.length + DADOS_ACRESCENTADOS.historias.length + DADOS_ACRESCENTADOS.capitulos.length') === 0, 'dados/ devia estar sem entradas');
-  // dados/visitas.js tem a visita marisa_5 (a primeira vinda de dados/); não tem nada a ver com o pacote de nível,
-  // por isso só os outros 4 ficheiros (níveis, histórias, capítulos, objetivos) têm de estar vazios.
-  FICHEIROS_DE_DADOS.filter(function (f) { return f !== 'visitas.js'; }).forEach(function (f) {
+  // O ensaio é sobre o jogo de origem de 10 níveis: o nível 11 REAL («Moscatel da Arrábida», 3650) vem de dados/ e tem o seu
+  // próprio teste (scripts/verificar-nivel-11.js). Por isso o ponto de partida abre-se sem a pasta dados/.
+  const g = abrirJogo({ jsDir: JS_DIR, dadosDir: null });
+  ok(g.ev('NIVEIS_CONFIG.length') === 10 && g.ev('CAPITULOS_CONFIG.length') === 10 && Object.keys(g.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10', 'o jogo de origem devia ter 10 níveis, 10 capítulos e as histórias dos níveis 2 a 10');
+  ok(g.ev('DADOS_ACRESCENTADOS.niveis.length + DADOS_ACRESCENTADOS.historias.length + DADOS_ACRESCENTADOS.capitulos.length') === 0, 'sem a pasta dados/ não devia haver entradas');
+  // Nada do pacote de TESTE (ids piloto) pode viver em dados/ (e objetivos.js, ainda não suportado, só tem comentários).
+  FICHEIROS_DE_DADOS.forEach(function (f) {
     const codigo = fs.readFileSync(path.join(RAIZ, 'dados', f), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
-    ok(codigo === '', 'dados/' + f + ' devia ter só comentários (sem entradas), tem: ' + codigo.slice(0, 60));
+    ok(!/piloto/i.test(codigo), 'dados/' + f + ' não devia ter nada do pacote de teste (piloto): ' + codigo.slice(0, 60));
+    if (f === 'objetivos.js') ok(codigo === '', 'dados/' + f + ' devia ter só comentários (sem entradas), tem: ' + codigo.slice(0, 60));
   });
   ['assets/mapa/mapa_quinta.jpg', 'assets/sons/chizo_ladrar.mp3'].forEach(function (f) { ok(fs.existsSync(path.join(RAIZ, f)), 'o ficheiro do pacote ' + f + ' devia existir'); });
 }
@@ -323,10 +325,10 @@ LINGUAS.forEach(function (l) {
   observar(g.ev('FALAS.length') > 0,
     'Subir a um nível que não tem história (HISTORIA_NIVEIS) não mostra nenhuma mensagem: js/niveis.js verificarSubidaNivel só usa a mensagem "nivel.subiuMsg" quando NÃO existe a função mostrarHistoriaSubidaNivel, e js/historia.js sai sem mostrar nada quando o nível não tem falas. O nível novo aparece só no cartão. Por isso um nível novo deve trazer sempre a sua história (o validador já o exige).');
 
-  // Modo de teste dos capítulos: só cap1 a cap10.
+  // Modo de teste dos capítulos: aceita ?capitulo=N / capN de qualquer capítulo que exista (cap1 a cap10 e, com dados/, cap11).
   g.ev("location.search = '?capitulo=11';");
   observar(g.ev('capitulosParametrosTeste()') !== null,
-    'O modo de teste ?capitulo=N (js/capitulos.js capitulosParametrosTeste) só aceita 1 a 10 (a expressão regular tem o 10 escrito), por isso não dá para ver a celebração do capítulo 11. Ids como cap_piloto_11 também não casam.');
+    'O modo de teste ?capitulo=N (js/capitulos.js capitulosParametrosTeste) só aceita números (N ou capN) de capítulos que existam em CAPITULOS_CONFIG: o capítulo do pacote de teste tem o id cap_piloto_11 e por isso não casa com ?capitulo=11 (o cap11 real vem de dados/ e tem o seu teste).');
 
   // A celebração não olha ao nível.
   const h = abrir(); lingua(h, 'pt');
