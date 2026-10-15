@@ -135,12 +135,20 @@ function semente(g, s) {
   `);
 }
 function idsAbertos(g) { return g.ev('state.encyclopedia.unlocked.slice()'); }
-// Uma cópia da pasta dados/ sem as chamadas cujo id está em "ids" (para simular um pacote que deixou de existir).
-function dadosSem(ids) {
+// Uma cópia da pasta dados/ SEM os pacotes do nível "desde" para cima (simula um pacote que deixou de existir, e os seguintes
+// também): corta as chamadas nivel_N, historia_N e capN com N >= desde e as entradas de enciclopédia com nivelMinimo >= desde.
+function dadosSem(desde) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nivel12-'));
   fs.readdirSync(DADOS_DIR).filter(function (f) { return /\.js$/.test(f); }).forEach(function (f) {
     const partes = fs.readFileSync(path.join(DADOS_DIR, f), 'utf8').split(/\n(?=dadosAcrescentar\()/);
-    const ficam = partes.filter(function (p) { const m = /\bid: '([a-z0-9_]+)'/.exec(p); return !(p.indexOf('dadosAcrescentar(') === 0 && m && ids.indexOf(m[1]) !== -1); });
+    const ficam = partes.filter(function (p) {
+      if (p.indexOf('dadosAcrescentar(') !== 0) return true;
+      const id = /\bid: '([a-z0-9_]+)'/.exec(p);
+      const porId = id && /^(?:nivel_|historia_|cap)(\d+)$/.exec(id[1]);
+      if (porId && Number(porId[1]) >= desde) return false;
+      const nm = /\bnivelMinimo: (\d+)/.exec(p);
+      return !(nm && Number(nm[1]) >= desde);
+    });
     fs.writeFileSync(path.join(dir, f), ficam.join('\n'));
   });
   return dir;
@@ -151,7 +159,7 @@ function dadosSem(ids) {
 // =====================================================================
 {
   const base = abrir({ dadosDir: null });
-  const sem12 = abrir({ dadosDir: dadosSem(['nivel_12', 'historia_12', 'cap12'].concat(IDS)) });
+  const sem12 = abrir({ dadosDir: dadosSem(12) });
   const g = abrir();
   ok(g.avisos.length === 0, '(i) carregar o jogo com dados/ não devia avisar nada: ' + g.avisos);
   ok(g.ev('NIVEIS_CONFIG.length') >= 12 && g.ev('CAPITULOS_CONFIG.length') >= 12 && Object.keys(g.ev('HISTORIA_NIVEIS')).join().indexOf('2,3,4,5,6,7,8,9,10,11,12') === 0, '(i) pelo menos 12 níveis, 12 capítulos e histórias dos níveis 2 a 12');
@@ -393,7 +401,7 @@ LINGUAS.forEach(function (l) {
   ok(salvo.indexOf('sado_estuario') === -1 && salvo.indexOf('nivelMinimo') === -1, '(h) nem a foto nem o nível mínimo');
 
   // Jogo B: o pacote do nível 12 deixou de existir (o nível 11 e a Arrábida ficam).
-  const b = abrir({ dadosDir: dadosSem(['nivel_12', 'historia_12', 'cap12'].concat(IDS)), estadoGuardado: salvo });
+  const b = abrir({ dadosDir: dadosSem(12), estadoGuardado: salvo });
   lingua(b, 'pt');
   b.ev('state.reputacao = ' + (REP_12 + 50) + ';');
   let erro = null;

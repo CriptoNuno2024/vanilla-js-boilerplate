@@ -76,3 +76,40 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 13 («Moscatel de Palmela»): a foto da fala 1 está em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_13',
+  nivel: 13,
+  falas: [
+    {
+      foto: 'assets/ecras/palmela_castelo.jpg',
+      texto: {
+        pt: 'Do alto do castelo de Palmela vê-se a terra toda: vinhas e mar. O YoshiCat sobe a colina para ver até onde chega a sua Quinta.',
+        en: 'From the top of Palmela castle you can see the whole land: vineyards and sea. YoshiCat climbs the hill to see how far his Quinta reaches.',
+        es: 'Desde lo alto del castillo de Palmela se ve toda la tierra: viñedos y mar. YoshiCat sube la colina para ver hasta dónde llega su Quinta.'
+      }
+    },
+    {
+      texto: {
+        pt: 'O castelo foi tomado aos mouros no século XII. Mais tarde foi entregue à Ordem de Santiago, no tempo de D. Sancho I. Hoje, o antigo convento é uma pousada.',
+        en: 'The castle was taken from the Moors in the 12th century. Later it was given to the Order of Santiago, in the time of King Sancho I. Today, the old convent is an inn.',
+        es: 'El castillo fue tomado a los moros en el siglo XII. Más tarde fue entregado a la Orden de Santiago, en tiempos de Sancho I. Hoy, el antiguo convento es una posada.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Palmela é também terra de gente que foi longe. Hermenegildo Capelo nasceu aqui em 1841 e atravessou África, de Angola a Moçambique, com Roberto Ivens.',
+        en: 'Palmela is also a land of people who went far. Hermenegildo Capelo was born here in 1841 and crossed Africa, from Angola to Mozambique, with Roberto Ivens.',
+        es: 'Palmela es también tierra de gente que llegó lejos. Hermenegildo Capelo nació aquí en 1841 y atravesó África, de Angola a Mozambique, con Roberto Ivens.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Abriu: novas histórias de Palmela na Enciclopédia.',
+        en: 'Unlocked: new stories about Palmela in the Encyclopedia.',
+        es: 'Se abrió: nuevas historias de Palmela en la Enciclopedia.'
+      }
+    }
+  ]
+});
