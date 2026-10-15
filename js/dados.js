@@ -3,16 +3,16 @@
 // como dados (ver dados/LEIAME.md). Os ficheiros de dados/ chamam
 // dadosAcrescentar(tipo, entrada); a entrada é conferida e, se estiver
 // bem, entra no fim da lista certa (VISITAS, NIVEIS_CONFIG,
-// HISTORIA_NIVEIS, CAPITULOS_CONFIG).
+// HISTORIA_NIVEIS, CAPITULOS_CONFIG, ENCYCLOPEDIA_ENTRIES).
 //
 // Regras:
 //   - Nunca lança erro nem parte o arranque: uma entrada má é IGNORADA e
 //     avisa na consola (console.warn) com o motivo.
 //   - Nunca substitui nem muda uma entrada que já existe: só acrescenta.
 //   - Carrega DEPOIS dos ficheiros que definem as listas (niveis.js,
-//     historia.js, capitulos.js, visitas.js) e ANTES de js/main.js.
+//     historia.js, capitulos.js, visitas.js, explorar.js) e ANTES de js/main.js.
 //
-// Tipos: 'visitas', 'niveis', 'historias' e 'capitulos'. 'objetivos' ainda
+// Tipos: 'visitas', 'niveis', 'historias', 'capitulos' e 'enciclopedia'. 'objetivos' ainda
 // NÃO é suportado: cada objetivo precisa de uma regra no código
 // (elegivel() em js/objetivos.js) e o objetivos.js gera os do dia ao
 // carregar, antes de este ficheiro correr.
@@ -23,17 +23,24 @@
 //   historias: { id, nivel (a partir do 2, ainda sem história),
 //                falas: [ { texto  OU  chave, foto, som, pos } ] }
 //   capitulos: { id, nivel, criterio: [ ... ], titulo, objetivo, conclusao, falante }
+//   enciclopedia: { id, titulo, texto, nivelMinimo (inteiro >= 1), imagem (caminho em assets/, opcional),
+//                   meses (lista de 1 a 12, opcional), estacao (opcional), manual (true, opcional) }
+//                 entra nas 3 línguas de ENCYCLOPEDIA_ENTRIES (js/explorar.js); só existe para o jogador
+//                 a partir do nível "nivelMinimo" (ver encyclopediaEntries em js/explorar.js).
 // ---------------------------------------------------------------------
 
-const DADOS_TIPOS = ['visitas', 'niveis', 'historias', 'capitulos', 'objetivos'];
+const DADOS_TIPOS = ['visitas', 'niveis', 'historias', 'capitulos', 'enciclopedia', 'objetivos'];
 const DADOS_LINGUAS = ['pt', 'en', 'es'];
 const DADOS_FORMATO_ID = /^[a-z0-9_]+$/;
 const DADOS_CONDICOES_VISITA = ['estacao', 'fase', 'festa', 'garrafa', 'cave'];
+const DADOS_ESTACOES = ['inverno', 'primavera', 'verao', 'outono'];
+// A imagem de uma entrada da enciclopédia: um ficheiro de assets/ (sem "..", sem aspas, sem http:// nem javascript:).
+const DADOS_FORMATO_IMAGEM = /^assets\/[A-Za-z0-9_\-\/.]+\.(jpg|jpeg|png|webp|gif)$/;
 const DADOS_CRITERIOS = ['numero', 'booleano', 'contarChaves', 'temChaves', 'contarLista', 'coresColecao', 'algumaEntrada'];
 
 // O que já entrou por aqui: { id } por tipo (e { id, nivel } nas histórias). Serve para os
 // testes e para o validador (scripts/verificar-dados.js) saberem o que veio de dados/.
-const DADOS_ACRESCENTADOS = { visitas: [], niveis: [], historias: [], capitulos: [], objetivos: [] };
+const DADOS_ACRESCENTADOS = { visitas: [], niveis: [], historias: [], capitulos: [], enciclopedia: [], objetivos: [] };
 
 function dadosAvisar(tipo, entrada, motivo) {
   let nome = '?';
@@ -151,6 +158,22 @@ function dadosMotivoCapitulo(e) {
   return null;
 }
 
+function dadosMotivoEnciclopedia(e) {
+  if (typeof ENCYCLOPEDIA_ENTRIES === 'undefined' || !DADOS_LINGUAS.every(function (l) { return Array.isArray(ENCYCLOPEDIA_ENTRIES[l]); })) return 'o jogo ainda não tem a lista ENCYCLOPEDIA_ENTRIES (ordem dos scripts)';
+  // O id novo não pode repetir nenhum id que exista, em NENHUMA das línguas.
+  if (DADOS_LINGUAS.some(function (l) { return dadosJaTemId(ENCYCLOPEDIA_ENTRIES[l], e.id); })) return 'já existe uma entrada da enciclopédia com este id';
+  let m = dadosMotivoTexto3(e.titulo, 'o título');
+  if (m) return m;
+  m = dadosMotivoTexto3(e.texto, 'o texto');
+  if (m) return m;
+  if (!Number.isInteger(e.nivelMinimo) || e.nivelMinimo < 1) return 'o nivelMinimo devia ser um inteiro a partir do 1';
+  if (e.imagem !== undefined && !(typeof e.imagem === 'string' && DADOS_FORMATO_IMAGEM.test(e.imagem) && e.imagem.indexOf('..') === -1)) return 'a imagem devia ser um caminho de assets/ (ex.: assets/ecras/ficheiro.jpg)';
+  if (e.meses !== undefined && (!Array.isArray(e.meses) || e.meses.length === 0 || !e.meses.every(function (n) { return Number.isInteger(n) && n >= 1 && n <= 12; }))) return 'os meses deviam ser uma lista de números de 1 a 12';
+  if (e.estacao !== undefined && DADOS_ESTACOES.indexOf(e.estacao) === -1) return 'a estacao devia ser uma de ' + DADOS_ESTACOES.join(', ');
+  if (e.manual !== undefined && e.manual !== true) return 'manual, se existir, devia ser true';
+  return null;
+}
+
 // --- Cada tipo copia só os campos que conhece (o resto da entrada fica de fora). ---
 
 function dadosInserirVisita(e) {
@@ -180,8 +203,23 @@ function dadosInserirCapitulo(e) {
   CAPITULOS_CONFIG.push(c);
 }
 
-const DADOS_CONFERIDORES = { visitas: dadosMotivoVisita, niveis: dadosMotivoNivel, historias: dadosMotivoHistoria, capitulos: dadosMotivoCapitulo };
-const DADOS_INSERTORES = { visitas: dadosInserirVisita, niveis: dadosInserirNivel, historias: dadosInserirHistoria, capitulos: dadosInserirCapitulo };
+// A entrada entra nas 3 línguas, com o mesmo id e os mesmos campos opcionais (cada língua com o seu título e texto).
+function dadosInserirEnciclopedia(e) {
+  DADOS_LINGUAS.forEach(function (l) {
+    const nova = { id: e.id };
+    if (e.meses !== undefined) nova.meses = e.meses.slice();
+    if (e.estacao !== undefined) nova.estacao = e.estacao;
+    if (e.manual !== undefined) nova.manual = true;
+    if (e.imagem !== undefined) nova.imagem = e.imagem;
+    nova.titulo = e.titulo[l];
+    nova.texto = e.texto[l];
+    nova.nivelMinimo = e.nivelMinimo;
+    ENCYCLOPEDIA_ENTRIES[l].push(nova);
+  });
+}
+
+const DADOS_CONFERIDORES = { visitas: dadosMotivoVisita, niveis: dadosMotivoNivel, historias: dadosMotivoHistoria, capitulos: dadosMotivoCapitulo, enciclopedia: dadosMotivoEnciclopedia };
+const DADOS_INSERTORES = { visitas: dadosInserirVisita, niveis: dadosInserirNivel, historias: dadosInserirHistoria, capitulos: dadosInserirCapitulo, enciclopedia: dadosInserirEnciclopedia };
 
 // Acrescenta UMA entrada. Devolve true se entrou, false se foi ignorada (com um console.warn
 // a dizer porquê). Nunca lança erro.

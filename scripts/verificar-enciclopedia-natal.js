@@ -205,7 +205,7 @@ LINGUAS.forEach(function (l) {
 });
 mutacoes.push(['o Explorar passa a oferecer entradas manuais', trocar(EXPLORAR_JS, 'if (e.manual) return false;', ''), FESTAS_JS]);
 mutacoes.push(['o desbloqueio conta duas vezes', trocar(EXPLORAR_JS, 'state.conhecimento += 1;', 'state.conhecimento += 2;'), FESTAS_JS]);
-mutacoes.push(['a medalha deixa de contar as novas', trocar(EXPLORAR_JS, 'return state.encyclopedia.unlocked.length >= encyclopediaEntries().length;', 'return state.encyclopedia.unlocked.length >= encyclopediaEntries().length - 2;'), FESTAS_JS]);
+mutacoes.push(['a medalha deixa de contar as novas', trocar(EXPLORAR_JS, 'return encyclopediaContarDesbloqueadas() >= encyclopediaEntries().length;', 'return encyclopediaContarDesbloqueadas() >= encyclopediaEntries().length - 2;'), FESTAS_JS]);
 mutacoes.push(['o Natal deixa de abrir a consoada (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    entradaEnciclopedia: 'consoada',\n", '')]);
 mutacoes.push(['o bolo-rei deixa de abrir o boloRei (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, " entradaEnciclopedia: 'boloRei',", '')]);
 mutacoes.push(['o Carnaval deixa de abrir o entrudo (festas.js)', EXPLORAR_JS, trocar(FESTAS_JS, "    entradaEnciclopedia: 'entrudo',\n", '')]);

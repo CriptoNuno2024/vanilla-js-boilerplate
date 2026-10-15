@@ -40,13 +40,14 @@ function aviso(onde, o) { avisos.push(onde + ': ' + o); }
 function temTexto(v) { return typeof v === 'string' && v.trim() !== ''; }
 
 function carregarJogo() {
-  const jogo = abrirJogo({ jsDir: JS_DIR, dadosDir: DADOS_DIR });
+  const jogo = abrirJogo({ jsDir: JS_DIR, dadosDir: DADOS_DIR, explorar: true });
   // const de topo não ficam como propriedades do contexto: lêem-se por expressão (e copiam-se em JSON,
   // o que também tira as funções das entradas dos objetivos).
   return JSON.parse(jogo.ev(
     'JSON.stringify({ TRANSLATIONS: TRANSLATIONS, VISITAS: VISITAS, VISITAS_PERSONAGENS: VISITAS_PERSONAGENS,' +
     ' NIVEIS_CONFIG: NIVEIS_CONFIG, NIVEL_NECESSARIO_POR_ECRA: NIVEL_NECESSARIO_POR_ECRA,' +
     ' HISTORIA_INTRO: HISTORIA_INTRO, HISTORIA_NIVEIS: HISTORIA_NIVEIS,' +
+    ' ENCICLOPEDIA: ENCYCLOPEDIA_ENTRIES,' +
     ' CAPITULOS_CONFIG: CAPITULOS_CONFIG, CAPITULOS_STRINGS: CAPITULOS_STRINGS, PERSONAGENS_CARAS: PERSONAGENS_CARAS,' +
     ' OBJETIVOS: { A: OBJETIVOS_POOL_A.map(function (o) { return { id: o.id, texto: o.texto }; }),' +
     ' B: OBJETIVOS_POOL_B.map(function (o) { return { id: o.id, texto: o.texto }; }),' +
@@ -200,6 +201,56 @@ function main() {
       total += Array.isArray(J.HISTORIA_NIVEIS[n]) ? J.HISTORIA_NIVEIS[n].length : 0;
     });
     resumo.push(total + ' falas de história');
+  }
+
+  // ----- Enciclopédia (as histórias de js/explorar.js e as que vierem de dados/enciclopedia.js) -----
+  {
+    const E = J.ENCICLOPEDIA;
+    LINGUAS.forEach(function (l) { if (!Array.isArray(E[l])) falta('Enciclopédia', 'falta a lista em ' + l); });
+    if (LINGUAS.every(function (l) { return Array.isArray(E[l]); })) {
+      // Os ids de hoje têm maiúsculas (ex.: vindimasMaisCedo) e continuam válidos; só os que vêm de dados/ têm de ser a-z, 0-9 e _.
+      LINGUAS.forEach(function (l) {
+        const vistos = {};
+        E[l].forEach(function (e) {
+          if (!temTexto(e.id)) falta('Enciclopédia (' + l + ')', 'uma entrada sem id');
+          else if (vistos[e.id]) falta('Enciclopédia (' + l + ')', 'o id "' + e.id + '" está repetido');
+          else if (ehNova('enciclopedia', e.id) && !FORMATO_ID.test(e.id)) falta('Enciclopédia (' + l + ')', 'o id "' + e.id + '" devia ter só a-z, 0-9 e _');
+          vistos[e.id] = true;
+        });
+      });
+      const idsPt = E.pt.map(function (e) { return e.id; });
+      LINGUAS.slice(1).forEach(function (l) {
+        if (E[l].map(function (e) { return e.id; }).join() !== idsPt.join()) falta('Enciclopédia', 'os ids de ' + l + ' (e a sua ordem) não são os mesmos de pt');
+      });
+      LINGUAS.forEach(function (l) {
+        E[l].forEach(function (e) {
+          const onde = 'Enciclopédia ' + e.id + ' (' + l + ')';
+          entradaNova = ehNova('enciclopedia', e.id);
+          if (!temTexto(e.titulo)) falta(onde, 'falta o título'); else verTexto(onde, 'título', e.titulo);
+          if (!temTexto(e.texto)) falta(onde, 'falta o texto'); else verTexto(onde, 'texto', e.texto);
+          if (e.nivelMinimo !== undefined && (!Number.isInteger(e.nivelMinimo) || e.nivelMinimo < 1)) falta(onde, 'o nivelMinimo devia ser um inteiro a partir do 1, é ' + e.nivelMinimo);
+          if (entradaNova && !Number.isInteger(e.nivelMinimo)) falta(onde, 'uma entrada vinda de dados/ precisa de nivelMinimo');
+          if (e.imagem !== undefined) {
+            if (entradaNova && !/^assets\/[A-Za-z0-9_\-\/.]+$/.test(e.imagem)) falta(onde, 'a imagem "' + e.imagem + '" devia ser um caminho de assets/');
+            existeEmDisco(onde, 'ficheiro da imagem', e.imagem);
+          }
+          if (e.meses !== undefined && (!Array.isArray(e.meses) || e.meses.length === 0 || !e.meses.every(function (n) { return Number.isInteger(n) && n >= 1 && n <= 12; }))) falta(onde, 'os meses deviam ser uma lista de números de 1 a 12');
+          if (e.estacao !== undefined && ESTACOES.indexOf(e.estacao) === -1) falta(onde, 'a estação "' + e.estacao + '" não existe (' + ESTACOES.join(', ') + ')');
+        });
+      });
+      // As opcionais têm de ser iguais nas 3 línguas (menos o título e o texto).
+      E.pt.forEach(function (e, i) {
+        LINGUAS.slice(1).forEach(function (l) {
+          const o = E[l][i];
+          if (!o) return;
+          ['nivelMinimo', 'imagem', 'estacao', 'manual', 'meses'].forEach(function (k) {
+            if (JSON.stringify(e[k]) !== JSON.stringify(o[k])) falta('Enciclopédia ' + e.id, 'o campo "' + k + '" devia ser igual em pt e ' + l);
+          });
+        });
+      });
+      entradaNova = false;
+      resumo.push(E.pt.length + ' histórias da enciclopédia');
+    }
   }
 
   // ----- Capítulos -----
