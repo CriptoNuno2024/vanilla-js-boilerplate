@@ -69,3 +69,20 @@ dadosAcrescentar('capitulos', {
     es: 'Queso, vino y palacios: Azeitão sabe a historia. Y ahora también forma parte de la nuestra.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap15',
+  nivel: 15,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['sesimbra_castelo', 'sesimbra_vila', 'sesimbra_espichel'] }],
+  titulo: { pt: 'Entre o Castelo e o Mar', en: 'Between the Castle and the Sea', es: 'Entre el Castillo y el Mar' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias de Sesimbra na Enciclopédia.',
+    en: 'Discover the 3 stories about Sesimbra in the Encyclopedia.',
+    es: 'Descubre las 3 historias de Sesimbra en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Do castelo à baía e do cabo ao horizonte: Sesimbra já é nossa, e o caminho continua.',
+    en: 'From the castle to the bay and from the cape to the horizon: Sesimbra is ours now, and the road goes on.',
+    es: 'Del castillo a la bahía y del cabo al horizonte: Sesimbra ya es nuestra, y el camino continúa.'
+  }
+});
