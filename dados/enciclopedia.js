@@ -274,3 +274,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'Portugal es el país europeo que más arroz come por persona, muy por encima de cualquier otro.'
   }
 });
+
+// Nível 19, «Moscatel do Montado» (o sobreiro e a cortiça): as 3 histórias que o capítulo 19 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'sobreiro_cortica',
+  nivelMinimo: 19,
+  titulo: { pt: 'O sobreiro e a cortiça', en: 'The Cork Oak and Cork', es: 'El alcornoque y el corcho' },
+  texto: {
+    pt: 'O sobreiro é a Árvore Nacional de Portugal desde 2011 e é protegido por lei. A cortiça só se tira pela primeira vez aos 25 anos e depois de nove em nove anos, sem matar a árvore.',
+    en: "The cork oak has been Portugal's National Tree since 2011 and is protected by law. Cork can only be taken for the first time at 25 years old and then every nine years, without killing the tree.",
+    es: 'El alcornoque es el Árbol Nacional de Portugal desde 2011 y está protegido por ley. El corcho solo se extrae por primera vez a los 25 años y después cada nueve años, sin matar al árbol.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sobreiro_assobiador',
+  nivelMinimo: 19,
+  titulo: { pt: 'O Assobiador', en: 'The Assobiador', es: 'El Assobiador' },
+  texto: {
+    pt: 'Em Águas de Moura, em Palmela, vive o Assobiador, o sobreiro mais produtivo do mundo. Numa só colheita deu cortiça para 100 mil rolhas.',
+    en: "In Águas de Moura, in Palmela, lives the Assobiador, the world's most productive cork oak. In a single harvest it gave enough cork for 100,000 stoppers.",
+    es: 'En Águas de Moura, en Palmela, vive el Assobiador, el alcornoque más productivo del mundo. En una sola cosecha dio corcho para 100 000 tapones.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sobreiro_rolha',
+  nivelMinimo: 19,
+  titulo: { pt: 'A rolha', en: 'The Stopper', es: 'El tapón' },
+  texto: {
+    pt: 'A cortiça fecha a maioria das garrafas de vinho do mundo, e as rolhas são mais de 70% do que Portugal exporta em cortiça.',
+    en: "Cork seals most of the world's wine bottles, and stoppers make up over 70% of what Portugal exports in cork.",
+    es: 'El corcho cierra la mayoría de las botellas de vino del mundo, y los tapones son más del 70 % de lo que Portugal exporta en corcho.'
+  }
+});
