@@ -8,7 +8,7 @@
 //   nivel          N, o número do nível (>= 12)
 //   limiares       limiares dos níveis 1 a N: [0, 15, ..., minimo]
 //   nome, nomeAnt  { pt, en, es } do nível N e do nível N - 1
-//   foto           'assets/ecras/xxx.jpg' (na fala 1); fotoRaiz: nome do ficheiro que NÃO pode existir na raiz do repositório
+//   foto           'assets/ecras/xxx.jpg' (ou .png; na fala 1); fotoRaiz: nome do ficheiro que NÃO pode existir na raiz do repositório
 //   fotosExtra     (opcional) { numeroDaFala: 'assets/ecras/yyy.jpg' } fotos noutras falas (a raiz também não pode ter cópia); sem isto só a fala 1 leva foto
 //   falas          4 textos { pt, en, es }
 //   ids, enc, cap  os 3 ids das entradas, os textos { titulo, texto } de cada uma e o capítulo { titulo, objetivo, conclusao }
@@ -172,7 +172,7 @@ function correr(spec) {
       preparar(g, LIMIARES[M - 1], M - 1);
       ok(g.ev('verificarSubidaNivel()') === true && g.ev('FALAS.length') === 1 && g.ev('FALAS[0].m.length') === 4, '(c) subir ao ' + M + ' mostra as 4 falas do nível ' + M + L);
       const fM = g.ev('JSON.stringify(FALAS)');
-      ok(FALAS.every(function (f) { return fM.indexOf(f[l]) === -1; }) && FOTOS_TODAS.every(function (f) { return fM.indexOf(path.basename(f, '.jpg')) === -1; }), '(c) a história do ' + N + ' não aparece ao subir ao ' + M + L);
+      ok(FALAS.every(function (f) { return fM.indexOf(f[l]) === -1; }) && FOTOS_TODAS.every(function (f) { return fM.indexOf(path.basename(f, path.extname(f))) === -1; }), '(c) a história do ' + N + ' não aparece ao subir ao ' + M + L);
       preparar(g, REP_M, M);
       ok(g.ev('verificarSubidaNivel()') === false && g.ev('FALAS.length') === 0, '(c) com ' + REP_M + ' (nível ' + M + ') não se mostra a história do ' + N + L);
       preparar(g, REP_N, M);

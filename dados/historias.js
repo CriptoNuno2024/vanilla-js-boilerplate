@@ -188,3 +188,41 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 16 («Moscatel de Setúbal»): as fotos das falas 1 e 3 estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_16',
+  nivel: 16,
+  falas: [
+    {
+      foto: 'assets/ecras/yoshicat_sado_mirar.png',
+      texto: {
+        pt: 'Chegámos a Setúbal. Do alto do forte vê-se o rio Sado e, ao fundo, a península de Tróia.',
+        en: "We've arrived in Setúbal. From the top of the fort you can see the Sado river and, far off, the Tróia peninsula.",
+        es: 'Hemos llegado a Setúbal. Desde lo alto del fuerte se ven el río Sado y, al fondo, la península de Tróia.'
+      }
+    },
+    {
+      texto: {
+        pt: 'O Forte de São Filipe foi construído no século XVI, no tempo de Filipe II de Espanha, para defender a cidade dos piratas.',
+        en: 'São Filipe Fort was built in the 16th century, in the time of Philip II of Spain, to defend the city from pirates.',
+        es: 'El Fuerte de São Filipe se construyó en el siglo XVI, en tiempos de Felipe II de España, para defender la ciudad de los piratas.'
+      }
+    },
+    {
+      foto: 'assets/ecras/yoshicat_binoculos_sado.png',
+      texto: {
+        pt: 'Cá em baixo, os produtores da península ajudaram a salvar uma uva rara que esteve quase a desaparecer: o Moscatel Roxo.',
+        en: 'Down below, the growers of the peninsula helped save a rare grape that was almost lost: the Moscatel Roxo.',
+        es: 'Allá abajo, los productores de la península ayudaron a salvar una uva rara que casi desapareció: la Moscatel Roxo.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Hoje volta a dar vinhos premiados. Há coisas que quase se perdem, mas a terra guarda.',
+        en: 'Today it makes award-winning wines again. Some things almost get lost, but the land keeps them.',
+        es: 'Hoy vuelve a dar vinos premiados. Hay cosas que casi se pierden, pero la tierra las guarda.'
+      }
+    }
+  ]
+});
