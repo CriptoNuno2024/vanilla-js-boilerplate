@@ -103,3 +103,20 @@ dadosAcrescentar('capitulos', {
     es: 'Del fuerte a la uva que volvió: Setúbal ya es nuestra, y queda más camino por delante.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap17',
+  nivel: 17,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['sal_alcacer', 'sal_setubal', 'sal_redura'] }],
+  titulo: { pt: 'O Sal que Navegou', en: 'The Salt That Sailed', es: 'La Sal que Navegó' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias do sal do Sado na Enciclopédia.',
+    en: "Discover the 3 stories about the Sado's salt in the Encyclopedia.",
+    es: 'Descubre las 3 historias de la sal del Sado en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Do sal ao navio e do navio à mesa: o Sado já é nosso, e a viagem continua.',
+    en: 'From salt to ship and from ship to table: the Sado is ours now, and the voyage goes on.',
+    es: 'De la sal al barco y del barco a la mesa: el Sado ya es nuestro, y el viaje continúa.'
+  }
+});

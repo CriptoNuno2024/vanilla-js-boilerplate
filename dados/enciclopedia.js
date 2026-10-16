@@ -206,3 +206,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'En la Península de Setúbal hay productores familiares que elaboran moscatel desde hace más de cien años. Venâncio da Costa Lima, por ejemplo, lo produce desde 1914.'
   }
 });
+
+// Nível 17, «Moscatel de Alcácer» (o sal do Sado): as 3 histórias que o capítulo 17 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'sal_alcacer',
+  nivelMinimo: 17,
+  titulo: { pt: 'Alcácer do Sal', en: 'Alcácer do Sal', es: 'Alcácer do Sal' },
+  texto: {
+    pt: 'Os romanos chamavam-lhe Salacia. Com os árabes passou a Alcácer e, mais tarde, a Alcácer do Sal, por ter sido um grande centro de produção de sal.',
+    en: 'The Romans called it Salacia. Under the Arabs it became Alcácer and, later, Alcácer do Sal, because it was a great salt-producing centre.',
+    es: 'Los romanos la llamaban Salacia. Con los árabes pasó a Alcácer y, más tarde, a Alcácer do Sal, por haber sido un gran centro de producción de sal.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sal_setubal',
+  nivelMinimo: 17,
+  titulo: { pt: 'O sal de Setúbal', en: "Setúbal's Salt", es: 'La sal de Setúbal' },
+  texto: {
+    pt: 'Nos séculos XVI e XVII, Setúbal foi o principal centro de produção e exportação de sal do país, sobretudo para o Norte da Europa. No fim do século XVII havia navios holandeses a carregar sal no seu porto.',
+    en: 'In the 16th and 17th centuries, Setúbal was the country\'s main salt-producing and exporting centre, mainly to Northern Europe. At the end of the 17th century, Dutch ships were loading salt in its port.',
+    es: 'En los siglos XVI y XVII, Setúbal fue el principal centro de producción y exportación de sal del país, sobre todo hacia el norte de Europa. A finales del siglo XVII había barcos holandeses cargando sal en su puerto.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'sal_redura',
+  nivelMinimo: 17,
+  titulo: { pt: 'A redura', en: 'The Redura', es: 'La redura' },
+  texto: {
+    pt: 'A colheita do sal chama-se redura. No século XIX, as salinas do Sado foram perdendo para as do Tejo, mas ainda hoje se faz sal tradicional no estuário do Sado.',
+    en: 'The salt harvest is called the redura. In the 19th century, the Sado salt pans lost ground to those of the Tagus, but traditional salt is still made in the Sado estuary today.',
+    es: 'La cosecha de la sal se llama redura. En el siglo XIX, las salinas del Sado fueron perdiendo frente a las del Tajo, pero todavía hoy se hace sal tradicional en el estuario del Sado.'
+  }
+});
