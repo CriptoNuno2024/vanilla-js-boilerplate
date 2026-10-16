@@ -5,7 +5,7 @@
 //    "objetivos" ainda não suportado) são IGNORADAS com um console.warn, sem lançar erro e sem mudar nada;
 // 3) uma entrada que já existe nunca é substituída;
 // 4) o index.html carrega o dados.js e os 6 ficheiros de dados/ depois das listas e antes do main.js, e
-//    os ficheiros de dados/ só trazem o que está combinado: a visita marisa_5 e os pacotes dos níveis 11 a 19 (nível,
+//    os ficheiros de dados/ só trazem o que está combinado: a visita marisa_5 e os pacotes dos níveis 11 a 20 (nível,
 //    história, 3 histórias da Enciclopédia e capítulo cada); objetivos.js só tem comentários; as listas de origem ficam iguais.
 // As entradas de teste vivem só no ambiente simulado (módulo vm); nada fica no jogo.
 //
@@ -56,8 +56,8 @@ const TEXTO = function (pt) { return { pt: pt, en: pt + ' (en)', es: pt + ' (es)
 }
 
 // O que dados/ traz de verdade, ficheiro a ficheiro (os ids pela ordem em que aparecem): a visita marisa_5 e os pacotes dos
-// níveis 11 («Moscatel da Arrábida»), 12 («Moscatel do Sado»), 13 («Moscatel de Palmela»), 14 («Moscatel de Azeitão»), 15 («Moscatel de Sesimbra»), 16 («Moscatel de Setúbal»), 17 («Moscatel de Alcácer»), 18 («Moscatel da Comporta») e 19 («Moscatel do Montado»), cada um
-// com nível, história, 3 histórias da Enciclopédia e capítulo. Os outros testes de dados (verificar-nivel-11/12/13/14/15/16/17/18/19.js, verificar-enciclopedia-dados.js)
+// níveis 11 («Moscatel da Arrábida»), 12 («Moscatel do Sado»), 13 («Moscatel de Palmela»), 14 («Moscatel de Azeitão»), 15 («Moscatel de Sesimbra»), 16 («Moscatel de Setúbal»), 17 («Moscatel de Alcácer»), 18 («Moscatel da Comporta»), 19 («Moscatel do Montado») e 20 («Moscatel do Poeta»), cada um
+// com nível, história, 3 histórias da Enciclopédia e capítulo. Os outros testes de dados (verificar-nivel-11/12/13/14/15/16/17/18/19/20.js, verificar-enciclopedia-dados.js)
 // provam o conteúdo; aqui prova-se que nada mais entra por dados/ (cada nível novo acrescenta aqui os seus ids).
 const IDS_ARRABIDA = ['arrabida_biosfera', 'arrabida_plantas', 'arrabida_mar'];
 const IDS_SADO = ['sado_reserva', 'sado_golfinhos', 'sado_troia'];
@@ -68,10 +68,11 @@ const IDS_SETUBAL = ['setubal_forte', 'setubal_roxo', 'setubal_familias'];
 const IDS_ALCACER = ['sal_alcacer', 'sal_setubal', 'sal_redura'];
 const IDS_COMPORTA = ['arroz_arrozais', 'arroz_carolino', 'arroz_consumo'];
 const IDS_MONTADO = ['sobreiro_cortica', 'sobreiro_assobiador', 'sobreiro_rolha'];
+const IDS_BOCAGE = ['bocage_poeta', 'bocage_casa', 'bocage_dia'];
 const ESPERADO_EM_DADOS = {
-  'visitas.js': ['marisa_5'], 'niveis.js': ['nivel_11', 'nivel_12', 'nivel_13', 'nivel_14', 'nivel_15', 'nivel_16', 'nivel_17', 'nivel_18', 'nivel_19'],
-  'historias.js': ['historia_11', 'historia_12', 'historia_13', 'historia_14', 'historia_15', 'historia_16', 'historia_17', 'historia_18', 'historia_19'], 'capitulos.js': ['cap11', 'cap12', 'cap13', 'cap14', 'cap15', 'cap16', 'cap17', 'cap18', 'cap19'],
-  'objetivos.js': [], 'enciclopedia.js': IDS_ARRABIDA.concat(IDS_SADO, IDS_PALMELA, IDS_AZEITAO, IDS_SESIMBRA, IDS_SETUBAL, IDS_ALCACER, IDS_COMPORTA, IDS_MONTADO)
+  'visitas.js': ['marisa_5'], 'niveis.js': ['nivel_11', 'nivel_12', 'nivel_13', 'nivel_14', 'nivel_15', 'nivel_16', 'nivel_17', 'nivel_18', 'nivel_19', 'nivel_20'],
+  'historias.js': ['historia_11', 'historia_12', 'historia_13', 'historia_14', 'historia_15', 'historia_16', 'historia_17', 'historia_18', 'historia_19', 'historia_20'], 'capitulos.js': ['cap11', 'cap12', 'cap13', 'cap14', 'cap15', 'cap16', 'cap17', 'cap18', 'cap19', 'cap20'],
+  'objetivos.js': [], 'enciclopedia.js': IDS_ARRABIDA.concat(IDS_SADO, IDS_PALMELA, IDS_AZEITAO, IDS_SESIMBRA, IDS_SETUBAL, IDS_ALCACER, IDS_COMPORTA, IDS_MONTADO, IDS_BOCAGE)
 };
 
 // ----- 0b. Com a pasta dados/ real: só a visita marisa_5 e o pacote do nível 11 vêm de lá; o jogo de origem fica igual -----
@@ -81,16 +82,16 @@ const ESPERADO_EM_DADOS = {
   ok(avisos2.length === 0, 'carregar o jogo com a pasta dados/ não devia avisar nada: ' + avisos2);
   const idsDe = function (tipo) { return real.ev('DADOS_ACRESCENTADOS.' + tipo + '.map(function (v) { return v.id; }).join()'); };
   ok(idsDe('visitas') === 'marisa_5', 'de dados/ só devia vir a visita marisa_5: ' + idsDe('visitas'));
-  ok(idsDe('niveis') === 'nivel_11,nivel_12,nivel_13,nivel_14,nivel_15,nivel_16,nivel_17,nivel_18,nivel_19' && idsDe('historias') === 'historia_11,historia_12,historia_13,historia_14,historia_15,historia_16,historia_17,historia_18,historia_19' && idsDe('capitulos') === 'cap11,cap12,cap13,cap14,cap15,cap16,cap17,cap18,cap19', 'de dados/ só deviam vir os pacotes dos níveis 11 a 19 (nivel_N, historia_N, capN)');
-  ok(idsDe('enciclopedia') === IDS_ARRABIDA.concat(IDS_SADO, IDS_PALMELA, IDS_AZEITAO, IDS_SESIMBRA, IDS_SETUBAL, IDS_ALCACER, IDS_COMPORTA, IDS_MONTADO).join(), 'de dados/ só deviam vir as 3 histórias da Arrábida, as 3 do Sado, as 3 de Palmela, as 3 de Azeitão, as 3 de Sesimbra, as 3 de Setúbal, as 3 de Alcácer (o sal do Sado), as 3 da Comporta (o arroz do Sado) e as 3 do Montado (o sobreiro e a cortiça), por esta ordem: ' + idsDe('enciclopedia'));
+  ok(idsDe('niveis') === 'nivel_11,nivel_12,nivel_13,nivel_14,nivel_15,nivel_16,nivel_17,nivel_18,nivel_19,nivel_20' && idsDe('historias') === 'historia_11,historia_12,historia_13,historia_14,historia_15,historia_16,historia_17,historia_18,historia_19,historia_20' && idsDe('capitulos') === 'cap11,cap12,cap13,cap14,cap15,cap16,cap17,cap18,cap19,cap20', 'de dados/ só deviam vir os pacotes dos níveis 11 a 20 (nivel_N, historia_N, capN)');
+  ok(idsDe('enciclopedia') === IDS_ARRABIDA.concat(IDS_SADO, IDS_PALMELA, IDS_AZEITAO, IDS_SESIMBRA, IDS_SETUBAL, IDS_ALCACER, IDS_COMPORTA, IDS_MONTADO, IDS_BOCAGE).join(), 'de dados/ só deviam vir as 3 histórias da Arrábida, as 3 do Sado, as 3 de Palmela, as 3 de Azeitão, as 3 de Sesimbra, as 3 de Setúbal, as 3 de Alcácer (o sal do Sado), as 3 da Comporta (o arroz do Sado), as 3 do Montado (o sobreiro e a cortiça) e as 3 de Bocage (o poeta de Setúbal), por esta ordem: ' + idsDe('enciclopedia'));
   ok(idsDe('objetivos') === '', 'dados/ não devia trazer objetivos');
-  ok(real.ev('VISITAS.length') === 13 && real.ev('NIVEIS_CONFIG.length') === 19 && real.ev('CAPITULOS_CONFIG.length') === 19 && real.ev('OBJETIVOS_GRUPO_C.length') === 5, 'com dados/ devia haver 13 visitas, 19 níveis, 19 capítulos e os 5 do Grupo C');
-  ok(Object.keys(real.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19' && real.ev('ENCYCLOPEDIA_ENTRIES.pt.length') === 59, 'com dados/ devia haver histórias dos níveis 2 a 19 e 59 entradas da Enciclopédia');
+  ok(real.ev('VISITAS.length') === 13 && real.ev('NIVEIS_CONFIG.length') === 20 && real.ev('CAPITULOS_CONFIG.length') === 20 && real.ev('OBJETIVOS_GRUPO_C.length') === 5, 'com dados/ devia haver 13 visitas, 20 níveis, 20 capítulos e os 5 do Grupo C');
+  ok(Object.keys(real.ev('HISTORIA_NIVEIS')).join() === '2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20' && real.ev('ENCYCLOPEDIA_ENTRIES.pt.length') === 62, 'com dados/ devia haver histórias dos níveis 2 a 20 e 62 entradas da Enciclopédia');
   ok(real.ev('JSON.stringify(VISITAS.slice(0, 12))') === ev('JSON.stringify(VISITAS)'), 'as 12 visitas de origem (e a sua ordem) deviam ficar iguais com dados/');
   ok(real.ev('JSON.stringify(NIVEIS_CONFIG.slice(0, 10))') === ev('JSON.stringify(NIVEIS_CONFIG)'), 'os 10 níveis de origem deviam ficar iguais com dados/');
   ok(real.ev('JSON.stringify(CAPITULOS_CONFIG.slice(0, 10))') === ev('JSON.stringify(CAPITULOS_CONFIG)'), 'os 10 capítulos de origem deviam ficar iguais com dados/');
   ok(real.ev('JSON.stringify([2,3,4,5,6,7,8,9,10].map(function (n) { return HISTORIA_NIVEIS[n]; }))') === ev('JSON.stringify([2,3,4,5,6,7,8,9,10].map(function (n) { return HISTORIA_NIVEIS[n]; }))'), 'as histórias dos níveis 2 a 10 deviam ficar iguais com dados/');
-  ok(real.ev('VISITAS[12].id') === 'marisa_5' && real.ev('NIVEIS_CONFIG[10].id') === 'nivel_11' && real.ev('NIVEIS_CONFIG[11].id') === 'nivel_12' && real.ev('NIVEIS_CONFIG[12].id') === 'nivel_13' && real.ev('NIVEIS_CONFIG[13].id') === 'nivel_14' && real.ev('CAPITULOS_CONFIG[10].id') === 'cap11' && real.ev('CAPITULOS_CONFIG[11].id') === 'cap12' && real.ev('CAPITULOS_CONFIG[12].id') === 'cap13' && real.ev('NIVEIS_CONFIG[14].id') === 'nivel_15' && real.ev('CAPITULOS_CONFIG[13].id') === 'cap14' && real.ev('NIVEIS_CONFIG[15].id') === 'nivel_16' && real.ev('CAPITULOS_CONFIG[14].id') === 'cap15' && real.ev('NIVEIS_CONFIG[16].id') === 'nivel_17' && real.ev('CAPITULOS_CONFIG[15].id') === 'cap16' && real.ev('CAPITULOS_CONFIG[16].id') === 'cap17' && real.ev('NIVEIS_CONFIG[17].id') === 'nivel_18' && real.ev('CAPITULOS_CONFIG[17].id') === 'cap18' && real.ev('NIVEIS_CONFIG[18].id') === 'nivel_19' && real.ev('CAPITULOS_CONFIG[18].id') === 'cap19', 'as entradas de dados/ ficam no fim das listas, por ordem');
+  ok(real.ev('VISITAS[12].id') === 'marisa_5' && real.ev('NIVEIS_CONFIG[10].id') === 'nivel_11' && real.ev('NIVEIS_CONFIG[11].id') === 'nivel_12' && real.ev('NIVEIS_CONFIG[12].id') === 'nivel_13' && real.ev('NIVEIS_CONFIG[13].id') === 'nivel_14' && real.ev('CAPITULOS_CONFIG[10].id') === 'cap11' && real.ev('CAPITULOS_CONFIG[11].id') === 'cap12' && real.ev('CAPITULOS_CONFIG[12].id') === 'cap13' && real.ev('NIVEIS_CONFIG[14].id') === 'nivel_15' && real.ev('CAPITULOS_CONFIG[13].id') === 'cap14' && real.ev('NIVEIS_CONFIG[15].id') === 'nivel_16' && real.ev('CAPITULOS_CONFIG[14].id') === 'cap15' && real.ev('NIVEIS_CONFIG[16].id') === 'nivel_17' && real.ev('CAPITULOS_CONFIG[15].id') === 'cap16' && real.ev('CAPITULOS_CONFIG[16].id') === 'cap17' && real.ev('NIVEIS_CONFIG[17].id') === 'nivel_18' && real.ev('CAPITULOS_CONFIG[17].id') === 'cap18' && real.ev('NIVEIS_CONFIG[18].id') === 'nivel_19' && real.ev('CAPITULOS_CONFIG[18].id') === 'cap19' && real.ev('NIVEIS_CONFIG[19].id') === 'nivel_20' && real.ev('CAPITULOS_CONFIG[19].id') === 'cap20', 'as entradas de dados/ ficam no fim das listas, por ordem');
 }
 
 // ----- 1. Visitas -----

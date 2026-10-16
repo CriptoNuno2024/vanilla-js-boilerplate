@@ -340,3 +340,41 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 20 («Moscatel do Poeta», Bocage): as fotos das falas 1 e 3 estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_20',
+  nivel: 20,
+  falas: [
+    {
+      foto: 'assets/ecras/casa_bocage.jpg',
+      texto: {
+        pt: 'Hoje o Chizo trouxe-me ao centro de Setúbal, à Casa Bocage. Tem uma biblioteca só sobre um poeta.',
+        en: 'Today Chizo brought me to the centre of Setúbal, to Casa Bocage. It has a library about just one poet.',
+        es: 'Hoy Chizo me ha traído al centro de Setúbal, a la Casa Bocage. Tiene una biblioteca solo sobre un poeta.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Chamava-se Manuel Maria Barbosa du Bocage e nasceu em Setúbal a 15 de setembro de 1765. Ainda hoje é feriado na cidade.',
+        en: 'His name was Manuel Maria Barbosa du Bocage and he was born in Setúbal on 15 September 1765. It is still a holiday in the city.',
+        es: 'Se llamaba Manuel Maria Barbosa du Bocage y nació en Setúbal el 15 de septiembre de 1765. Todavía hoy es fiesta en la ciudad.'
+      }
+    },
+    {
+      foto: 'assets/ecras/yoshicat_chizo_no_cais_de_setubal.jpg',
+      texto: {
+        pt: 'Aos 16 anos saiu daqui para estudar em Lisboa, e a vida levou-o até Macau.',
+        en: 'At 16 he left here to study in Lisbon, and life took him as far as Macau.',
+        es: 'A los 16 años salió de aquí para estudiar en Lisboa, y la vida lo llevó hasta Macao.'
+      }
+    },
+    {
+      texto: {
+        pt: 'A Quinta fica cá, Chizo, mas o caminho sai de Setúbal. Vamos ver até onde vai?',
+        en: 'The Quinta stays here, Chizo, but the road leaves Setúbal. Shall we see how far it goes?',
+        es: 'La Quinta se queda aquí, Chizo, pero el camino sale de Setúbal. ¿Vemos hasta dónde llega?'
+      }
+    }
+  ]
+});
