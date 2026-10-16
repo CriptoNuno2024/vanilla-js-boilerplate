@@ -10,7 +10,7 @@
 //      os campos conhecidos; entra nas 3 línguas;
 //  (d) título e texto com <b>, &, aspas e <script> saem escapados (uma só vez) na Enciclopédia e no Explorar;
 //  (e) o estado guardado só tem ids e carrega bem se a entrada deixar de existir (o id solto não conta);
-//  (f) as entradas de hoje ficam idênticas às da master (impressão digital) e dados/ só traz as histórias da Arrábida (nível 11), do Sado (12), de Palmela (13), de Azeitão (14) e de Sesimbra (15).
+//  (f) as entradas de hoje ficam idênticas às da master (impressão digital) e dados/ só traz as histórias da Arrábida (nível 11), do Sado (12), de Palmela (13), de Azeitão (14), de Sesimbra (15) e de Setúbal (16).
 //
 // Uso: node scripts/verificar-enciclopedia-dados.js
 // JS_DIR=pasta  corre sobre outra versão dos js/ (para provar que o teste apanha o que se estraga).
@@ -81,18 +81,19 @@ function estadoDasListas(g) { return g.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES)'
     ok(g.ev('encyclopediaEntries() === ENCYCLOPEDIA_ENTRIES.' + l) === true, '(f) sem nivelMinimo, a lista do jogo é exatamente a de hoje (' + l + ')');
   });
   // Com a pasta dados/ real: as 32 de hoje (nas 3 línguas) ficam idênticas e só entram as 3 da Arrábida (nível mínimo 11), as 3 do
-  // Sado (12), as 3 de Palmela (13), as 3 de Azeitão (14) e as 3 de Sesimbra (15), por esta ordem, sem imagem (cada nível novo acrescenta aqui o seu grupo).
+  // Sado (12), as 3 de Palmela (13), as 3 de Azeitão (14), as 3 de Sesimbra (15) e as 3 de Setúbal (16), por esta ordem, sem imagem (cada nível novo acrescenta aqui o seu grupo).
   const real = abrir({ dadosDir: path.join(RAIZ, 'dados'), nivel11: false });
   const GRUPOS = [
     { nome: 'Arrábida', nivel: 11, ids: ['arrabida_biosfera', 'arrabida_plantas', 'arrabida_mar'] },
     { nome: 'Sado', nivel: 12, ids: ['sado_reserva', 'sado_golfinhos', 'sado_troia'] },
     { nome: 'Palmela', nivel: 13, ids: ['palmela_castelo', 'palmela_capelo', 'palmela_castelao'] },
     { nome: 'Azeitão', nivel: 14, ids: ['azeitao_queijo', 'azeitao_adega', 'azeitao_palacio'] },
-    { nome: 'Sesimbra', nivel: 15, ids: ['sesimbra_castelo', 'sesimbra_vila', 'sesimbra_espichel'] }
+    { nome: 'Sesimbra', nivel: 15, ids: ['sesimbra_castelo', 'sesimbra_vila', 'sesimbra_espichel'] },
+    { nome: 'Setúbal', nivel: 16, ids: ['setubal_forte', 'setubal_roxo', 'setubal_familias'] }
   ];
   const TODOS = GRUPOS.reduce(function (t, g) { return t.concat(g.ids); }, []);
   ok(real.avisos.length === 0, '(f) carregar o jogo com dados/ não devia avisar nada: ' + real.avisos);
-  ok(real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()') === TODOS.join(), '(f) de dados/ só deviam vir as histórias da Arrábida, do Sado, de Palmela, de Azeitão e de Sesimbra, por ordem: ' + real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()'));
+  ok(real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()') === TODOS.join(), '(f) de dados/ só deviam vir as histórias da Arrábida, do Sado, de Palmela, de Azeitão, de Sesimbra e de Setúbal, por ordem: ' + real.ev('DADOS_ACRESCENTADOS.enciclopedia.map(function (e) { return e.id; }).join()'));
   const dasTresLinguas = real.ev('JSON.stringify({ pt: ENCYCLOPEDIA_ENTRIES.pt.slice(0, 32), en: ENCYCLOPEDIA_ENTRIES.en.slice(0, 32), es: ENCYCLOPEDIA_ENTRIES.es.slice(0, 32) })');
   ok(crypto.createHash('sha256').update(dasTresLinguas).digest('hex') === IMPRESSAO_DIGITAL_DE_HOJE, '(f) com dados/ as 32 entradas de hoje ficam idênticas às da master, nas 3 línguas');
   LINGUAS.forEach(function (l) {

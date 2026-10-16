@@ -2,14 +2,14 @@
 
 Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos, histórias da Enciclopédia e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
 
-**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e os pacotes dos níveis 11, «Moscatel da Arrábida», 12, «Moscatel do Sado», 13, «Moscatel de Palmela», 14, «Moscatel de Azeitão», e 15, «Moscatel de Sesimbra» (cada um com nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
+**O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e os pacotes dos níveis 11, «Moscatel da Arrábida», 12, «Moscatel do Sado», 13, «Moscatel de Palmela», 14, «Moscatel de Azeitão», 15, «Moscatel de Sesimbra», e 16, «Moscatel de Setúbal» (cada um com nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
 
 | Ficheiro | O que lá vai | Estado |
 |---|---|---|
 | `dados/visitas.js` | visitas novas | suportado (já tem `marisa_5`) |
-| `dados/niveis.js` | níveis novos | suportado (já tem `nivel_11`, 3650, `nivel_12`, 4550, `nivel_13`, 5500, `nivel_14`, 6500, e `nivel_15`, 7550) |
-| `dados/historias.js` | histórias de nível novas | suportado (já tem `historia_11`, `historia_12`, `historia_13`, `historia_14` e `historia_15`) |
-| `dados/capitulos.js` | capítulos novos | suportado (já tem `cap11`, `cap12`, `cap13`, `cap14` e `cap15`) |
+| `dados/niveis.js` | níveis novos | suportado (já tem `nivel_11`, 3650, `nivel_12`, 4550, `nivel_13`, 5500, `nivel_14`, 6500, `nivel_15`, 7550, e `nivel_16`, 8650) |
+| `dados/historias.js` | histórias de nível novas | suportado (já tem `historia_11`, `historia_12`, `historia_13`, `historia_14`, `historia_15` e `historia_16`) |
+| `dados/capitulos.js` | capítulos novos | suportado (já tem `cap11`, `cap12`, `cap13`, `cap14`, `cap15` e `cap16`) |
 | `dados/enciclopedia.js` | histórias novas da Enciclopédia, com nível mínimo | suportado (já tem `arrabida_biosfera`, `arrabida_plantas`, `arrabida_mar`, `sado_reserva`, `sado_golfinhos`, `sado_troia`, `palmela_castelo`, `palmela_capelo`, `palmela_castelao`, `azeitao_queijo`, `azeitao_adega`, `azeitao_palacio`, `sesimbra_castelo`, `sesimbra_vila` e `sesimbra_espichel`) |
 | `dados/objetivos.js` | objetivos diários | **ainda NÃO suportado** (cada objetivo precisa de uma regra no código); o ficheiro só tem comentários |
 
@@ -46,6 +46,7 @@ Forma de cada tipo (os textos são sempre `{ pt, en, es }`):
 - Um ensaio geral (`scripts/verificar-piloto-nivel.js`) mete um pacote de teste completo (nível 11 + história + capítulo) por `dadosAcrescentar`, só no ambiente simulado, e vê o jogo inteiro a funcionar com ele nas 3 línguas.
 - Os textos com `<b>`, `&`, aspas e plicas saem escapados nos cartões (nível e capítulo).
 - O estado guardado só tem ids, e carrega bem se o pacote deixar de existir.
+- `scripts/verificar-nivel-16.js` prova o nível 16 real da mesma maneira (pelo auxiliar `scripts/_pacote-nivel.js`), com os seis grupos de `nivelMinimo` no Explorar, e que o jogo até ao nível 15 fica igual.
 - `scripts/verificar-nivel-15.js` prova o nível 15 real da mesma maneira (pelo auxiliar `scripts/_pacote-nivel.js`), com os cinco grupos de `nivelMinimo` no Explorar, e que o jogo até ao nível 14 fica igual.
 - `scripts/verificar-nivel-14.js` prova o nível 14 real da mesma maneira (pelo auxiliar `scripts/_pacote-nivel.js`), com os quatro grupos de `nivelMinimo` no Explorar, e que o jogo até ao nível 13 fica igual.
 - `scripts/verificar-nivel-13.js` prova o nível 13 real da mesma maneira, com os três grupos de `nivelMinimo` no Explorar (11, 12 e 13), e que o jogo até ao nível 12 fica igual.
@@ -179,3 +180,14 @@ Continua a precisar de código (e de uma PR com testes):
 - um **ecrã novo**;
 - uma **festa nova** (têm cenas e regras);
 - um **campo novo no estado** do jogo (contadores, registos do dia, etc.).
+
+## O nível 16, «Moscatel de Setúbal» (Parte 2, A Terra)
+
+Mesmo molde dos níveis 11 a 15:
+
+- `dados/niveis.js`: `nivel_16`, a partir de **8650** de Reputação.
+- `dados/historias.js`: `historia_16`, 4 falas. A 1.ª leva a foto `assets/ecras/yoshicat_sado_mirar.png` e a 3.ª a foto `assets/ecras/yoshicat_binoculos_sado.png` (as falas 2 e 4 não levam foto: o jogo mantém a anterior); nenhuma leva som.
+- `dados/enciclopedia.js`: `setubal_forte`, `setubal_roxo` e `setubal_familias` (nível mínimo 16, sem imagem).
+- `dados/capitulos.js`: `cap16` «A Uva que Voltou», critério `temIds` nessas 3 entradas. A conclusão deixa a porta aberta (não é uma despedida).
+- **Seis grupos de `nivelMinimo` (11 a 16).** Continua a ser um só grupo de prioridade: no nível 16, os grupos anteriores ainda por abrir e o de Setúbal saem **todos** antes de qualquer entrada de hoje; quem já tem os anteriores abertos recebe só os que faltam. Abaixo do nível 16 o jogador não vê as de Setúbal.
+- O teste deste nível é `scripts/verificar-nivel-16.js` (só os textos e números; a prova está em `scripts/_pacote-nivel.js`).

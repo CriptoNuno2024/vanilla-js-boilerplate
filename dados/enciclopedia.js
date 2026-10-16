@@ -172,3 +172,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'El culto a Nuestra Señora del Cabo se remonta a 1410. La iglesia actual se construyó entre 1701 y 1707.'
   }
 });
+
+// Nível 16, «Moscatel de Setúbal»: as 3 histórias que o capítulo 16 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'setubal_forte',
+  nivelMinimo: 16,
+  titulo: { pt: 'Forte de São Filipe', en: 'São Filipe Fort', es: 'Fuerte de São Filipe' },
+  texto: {
+    pt: 'Fortaleza do século XVI, construída no tempo de Filipe II de Espanha, que também foi rei de Portugal, para defender Setúbal dos piratas. Domina o estuário do Sado.',
+    en: 'A 16th-century fortress, built in the time of Philip II of Spain, who was also king of Portugal, to defend Setúbal from pirates. It overlooks the Sado estuary.',
+    es: 'Fortaleza del siglo XVI, construida en tiempos de Felipe II de España, que también fue rey de Portugal, para defender Setúbal de los piratas. Domina el estuario del Sado.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'setubal_roxo',
+  nivelMinimo: 16,
+  titulo: { pt: 'A uva que quase se perdeu', en: 'The Grape That Was Almost Lost', es: 'La uva que casi se perdió' },
+  texto: {
+    pt: 'O Moscatel Roxo é uma casta rara, de uvas rosadas, usada há muito nos vinhos de Setúbal. Chegou a estar perto da extinção, mas foi replantada e volta a dar moscatéis premiados.',
+    en: "Moscatel Roxo is a rare grape with pink berries, used for a long time in Setúbal's wines. It came close to extinction, but it was replanted and is again making award-winning moscatels.",
+    es: 'La Moscatel Roxo es una variedad rara, de uvas rosadas, usada desde hace mucho en los vinos de Setúbal. Estuvo cerca de la extinción, pero se replantó y vuelve a dar moscateles premiados.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'setubal_familias',
+  nivelMinimo: 16,
+  titulo: { pt: 'Famílias do Moscatel', en: 'Moscatel Families', es: 'Familias del Moscatel' },
+  texto: {
+    pt: 'Na Península de Setúbal há produtores familiares que fazem moscatéis há mais de cem anos. A Venâncio da Costa Lima, por exemplo, produz-os desde 1914.',
+    en: 'On the Setúbal Peninsula there are family producers who have been making moscatel for over a hundred years. Venâncio da Costa Lima, for example, has produced it since 1914.',
+    es: 'En la Península de Setúbal hay productores familiares que elaboran moscatel desde hace más de cien años. Venâncio da Costa Lima, por ejemplo, lo produce desde 1914.'
+  }
+});

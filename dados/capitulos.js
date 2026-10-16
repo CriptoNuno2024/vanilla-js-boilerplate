@@ -86,3 +86,20 @@ dadosAcrescentar('capitulos', {
     es: 'Del castillo a la bahía y del cabo al horizonte: Sesimbra ya es nuestra, y el camino continúa.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap16',
+  nivel: 16,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['setubal_forte', 'setubal_roxo', 'setubal_familias'] }],
+  titulo: { pt: 'A Uva que Voltou', en: 'The Grape That Came Back', es: 'La Uva que Volvió' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias de Setúbal na Enciclopédia.',
+    en: 'Discover the 3 stories about Setúbal in the Encyclopedia.',
+    es: 'Descubre las 3 historias de Setúbal en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Do forte à uva que voltou: Setúbal já é nossa, e há mais caminho pela frente.',
+    en: 'From the fort to the grape that came back: Setúbal is ours now, and there is more road ahead.',
+    es: 'Del fuerte a la uva que volvió: Setúbal ya es nuestra, y queda más camino por delante.'
+  }
+});
