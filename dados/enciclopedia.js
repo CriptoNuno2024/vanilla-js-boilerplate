@@ -308,3 +308,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'El corcho cierra la mayoría de las botellas de vino del mundo, y los tapones son más del 70 % de lo que Portugal exporta en corcho.'
   }
 });
+
+// Nível 20, «Moscatel do Poeta» (Bocage): as 3 histórias que o capítulo 20 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'bocage_poeta',
+  nivelMinimo: 20,
+  titulo: { pt: 'Bocage, o poeta de Setúbal', en: 'Bocage, the Poet of Setúbal', es: 'Bocage, el poeta de Setúbal' },
+  texto: {
+    pt: 'Manuel Maria Barbosa du Bocage nasceu em Setúbal em 1765. Saiu de casa aos 16 anos para estudar em Lisboa e tornou-se um dos grandes sonetistas da língua portuguesa. Morreu em Lisboa em 1805.',
+    en: 'Manuel Maria Barbosa du Bocage was born in Setúbal in 1765. He left home at 16 to study in Lisbon and became one of the great sonnet writers of the Portuguese language. He died in Lisbon in 1805.',
+    es: 'Manuel Maria Barbosa du Bocage nació en Setúbal en 1765. Salió de casa a los 16 años para estudiar en Lisboa y se convirtió en uno de los grandes sonetistas de la lengua portuguesa. Murió en Lisboa en 1805.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'bocage_casa',
+  nivelMinimo: 20,
+  titulo: { pt: 'A Casa Bocage', en: 'Casa Bocage', es: 'La Casa Bocage' },
+  texto: {
+    pt: 'Em Setúbal, a Casa Bocage é uma casa-museu com uma biblioteca sobre a vida e a obra do poeta e com o arquivo fotográfico da cidade.',
+    en: "In Setúbal, Casa Bocage is a house-museum with a library on the poet's life and work and the city's photographic archive.",
+    es: 'En Setúbal, la Casa Bocage es una casa-museo con una biblioteca sobre la vida y la obra del poeta y el archivo fotográfico de la ciudad.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'bocage_dia',
+  nivelMinimo: 20,
+  titulo: { pt: '15 de setembro', en: '15 September', es: '15 de septiembre' },
+  texto: {
+    pt: '15 de setembro é o dia do nascimento de Bocage e feriado municipal em Setúbal.',
+    en: '15 September is the day Bocage was born and a municipal holiday in Setúbal.',
+    es: 'El 15 de septiembre es el día del nacimiento de Bocage y fiesta municipal en Setúbal.'
+  }
+});

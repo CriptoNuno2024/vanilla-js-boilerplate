@@ -154,3 +154,20 @@ dadosAcrescentar('capitulos', {
     es: 'Del montado al tapón: el alcornoque ya es nuestro, y el camino continúa.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap20',
+  nivel: 20,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['bocage_poeta', 'bocage_casa', 'bocage_dia'] }],
+  titulo: { pt: 'O Poeta que Partiu', en: 'The Poet Who Set Out', es: 'El Poeta que Partió' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias de Bocage na Enciclopédia.',
+    en: 'Discover the 3 stories about Bocage in the Encyclopedia.',
+    es: 'Descubre las 3 historias de Bocage en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'De Setúbal para o mundo: o poeta partiu, e o nosso caminho também continua.',
+    en: 'From Setúbal to the world: the poet set out, and our road goes on too.',
+    es: 'De Setúbal al mundo: el poeta partió, y nuestro camino también continúa.'
+  }
+});
