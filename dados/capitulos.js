@@ -120,3 +120,20 @@ dadosAcrescentar('capitulos', {
     es: 'De la sal al barco y del barco a la mesa: el Sado ya es nuestro, y el viaje continúa.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap18',
+  nivel: 18,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['arroz_arrozais', 'arroz_carolino', 'arroz_consumo'] }],
+  titulo: { pt: 'O Arroz da Nossa Mesa', en: 'The Rice on Our Table', es: 'El Arroz de Nuestra Mesa' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias do arroz do Sado na Enciclopédia.',
+    en: "Discover the 3 stories about the Sado's rice in the Encyclopedia.",
+    es: 'Descubre las 3 historias del arroz del Sado en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Dos arrozais à nossa mesa: a Comporta já é nossa, e o caminho continua.',
+    en: 'From the paddies to our table: Comporta is ours now, and the road goes on.',
+    es: 'De los arrozales a nuestra mesa: la Comporta ya es nuestra, y el camino continúa.'
+  }
+});

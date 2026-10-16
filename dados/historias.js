@@ -264,3 +264,41 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 18 («Moscatel da Comporta», o arroz do Sado): as fotos das falas 1 e 3 estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_18',
+  nivel: 18,
+  falas: [
+    {
+      foto: 'assets/ecras/yoshi_nos_arrozais.jpg',
+      texto: {
+        pt: 'Chegámos à Comporta, entre o mar e o Sado. Aqui a água desenha os campos de arroz.',
+        en: "We've arrived in Comporta, between the sea and the Sado. Here the water draws the rice fields.",
+        es: 'Hemos llegado a la Comporta, entre el mar y el Sado. Aquí el agua dibuja los campos de arroz.'
+      }
+    },
+    {
+      texto: {
+        pt: 'O arroz cultiva-se em terrenos planos, regados por alagamento. Em Portugal, sobretudo no Sado, no Tejo e no Mondego.',
+        en: 'Rice grows on flat land, watered by flooding. In Portugal, mostly along the Sado, the Tagus and the Mondego.',
+        es: 'El arroz se cultiva en terrenos llanos, regados por inundación. En Portugal, sobre todo en el Sado, el Tajo y el Mondego.'
+      }
+    },
+    {
+      foto: 'assets/ecras/yoshi_a_mesa.jpg',
+      texto: {
+        pt: 'Cuidados pelos produtores do vale do Sado, estes campos dão o arroz da nossa mesa. E nós comemos mais arroz do que qualquer outro país europeu.',
+        en: 'Looked after by the growers of the Sado valley, these fields give us the rice on our table. And we eat more rice than any other European country.',
+        es: 'Cuidados por los productores del valle del Sado, estos campos dan el arroz de nuestra mesa. Y comemos más arroz que cualquier otro país europeo.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Arroz de marisco, de tamboril ou malandro: cada prato pode guardar um bocadinho do Sado.',
+        en: 'Seafood rice, monkfish rice or arroz malandro: every dish can hold a little bit of the Sado.',
+        es: 'Arroz de marisco, de rape o malandro: cada plato puede guardar un poquito del Sado.'
+      }
+    }
+  ]
+});
