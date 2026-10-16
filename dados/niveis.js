@@ -49,3 +49,9 @@ dadosAcrescentar('niveis', {
   min: 11050,
   nome: { pt: 'Moscatel da Comporta', en: 'Comporta Moscatel', es: 'Moscatel de Comporta' }
 });
+
+dadosAcrescentar('niveis', {
+  id: 'nivel_19',
+  min: 12350,
+  nome: { pt: 'Moscatel do Montado', en: 'Montado Moscatel', es: 'Moscatel del Montado' }
+});

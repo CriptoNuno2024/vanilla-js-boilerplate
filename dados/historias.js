@@ -302,3 +302,41 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 19 («Moscatel do Montado», o sobreiro e a cortiça): as fotos das falas 1 e 3 estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_19',
+  nivel: 19,
+  falas: [
+    {
+      foto: 'assets/ecras/yoshi_no_montado.jpg',
+      texto: {
+        pt: 'Entrámos no montado, a floresta de sobreiros do sul. Portugal é o maior produtor de cortiça do mundo.',
+        en: "We've entered the montado, the cork oak forest of the south. Portugal is the world's biggest cork producer.",
+        es: 'Hemos entrado en el montado, el bosque de alcornoques del sur. Portugal es el mayor productor de corcho del mundo.'
+      }
+    },
+    {
+      texto: {
+        pt: 'O sobreiro é a árvore nacional. Tira-se-lhe a casca de nove em nove anos, e ele continua a crescer.',
+        en: 'The cork oak is the national tree. Its bark is taken every nine years, and it keeps on growing.',
+        es: 'El alcornoque es el árbol nacional. Se le quita la corteza cada nueve años, y sigue creciendo.'
+      }
+    },
+    {
+      foto: 'assets/ecras/yoshi_sobreiro.jpg',
+      texto: {
+        pt: 'Em Águas de Moura vive o Assobiador, o sobreiro mais produtivo do mundo: numa colheita deu cortiça para 100 mil rolhas.',
+        en: 'In Águas de Moura lives the Assobiador, the world\'s most productive cork oak: in one harvest it gave enough cork for 100,000 stoppers.',
+        es: 'En Águas de Moura vive el Assobiador, el alcornoque más productivo del mundo: en una cosecha dio corcho para 100 000 tapones.'
+      }
+    },
+    {
+      texto: {
+        pt: 'É dessas rolhas que vivem tantas garrafas de vinho. Até a rolha de um Moscatel pode ter nascido aqui.',
+        en: "So many wine bottles depend on those stoppers. Even a Moscatel's stopper may have been born here.",
+        es: 'De esos tapones dependen tantas botellas de vino. Hasta el tapón de un Moscatel puede haber nacido aquí.'
+      }
+    }
+  ]
+});

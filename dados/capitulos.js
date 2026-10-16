@@ -137,3 +137,20 @@ dadosAcrescentar('capitulos', {
     es: 'De los arrozales a nuestra mesa: la Comporta ya es nuestra, y el camino continúa.'
   }
 });
+
+dadosAcrescentar('capitulos', {
+  id: 'cap19',
+  nivel: 19,
+  criterio: [{ tipo: 'temIds', caminho: 'encyclopedia.unlocked', ids: ['sobreiro_cortica', 'sobreiro_assobiador', 'sobreiro_rolha'] }],
+  titulo: { pt: 'A Casca que Volta', en: 'The Bark That Grows Back', es: 'La Corteza que Vuelve' },
+  objetivo: {
+    pt: 'Descobre as 3 histórias do sobreiro e da cortiça na Enciclopédia.',
+    en: 'Discover the 3 stories about the cork oak and cork in the Encyclopedia.',
+    es: 'Descubre las 3 historias del alcornoque y el corcho en la Enciclopedia.'
+  },
+  conclusao: {
+    pt: 'Do montado à rolha: o sobreiro já é nosso, e o caminho continua.',
+    en: 'From the montado to the stopper: the cork oak is ours now, and the road goes on.',
+    es: 'Del montado al tapón: el alcornoque ya es nuestro, y el camino continúa.'
+  }
+});
