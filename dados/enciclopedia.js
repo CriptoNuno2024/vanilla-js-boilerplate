@@ -240,3 +240,37 @@ dadosAcrescentar('enciclopedia', {
     es: 'La cosecha de la sal se llama redura. En el siglo XIX, las salinas del Sado fueron perdiendo frente a las del Tajo, pero todavía hoy se hace sal tradicional en el estuario del Sado.'
   }
 });
+
+// Nível 18, «Moscatel da Comporta» (o arroz do Sado): as 3 histórias que o capítulo 18 (dados/capitulos.js) pede. Sem imagem.
+dadosAcrescentar('enciclopedia', {
+  id: 'arroz_arrozais',
+  nivelMinimo: 18,
+  titulo: { pt: 'Os arrozais do Sado', en: "The Sado's Rice Paddies", es: 'Los arrozales del Sado' },
+  texto: {
+    pt: 'O arroz cultiva-se em campos planos, regados por alagamento. Em Portugal há três grandes zonas: os estuários do Sado, do Tejo e do Mondego.',
+    en: 'Rice grows on flat fields, watered by flooding. In Portugal there are three main areas: the Sado, Tagus and Mondego estuaries.',
+    es: 'El arroz se cultiva en campos llanos, regados por inundación. En Portugal hay tres grandes zonas: los estuarios del Sado, del Tajo y del Mondego.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'arroz_carolino',
+  nivelMinimo: 18,
+  titulo: { pt: 'O arroz carolino', en: 'Carolino Rice', es: 'El arroz carolino' },
+  texto: {
+    pt: 'O carolino é um arroz português de grão redondo, muito usado na cozinha tradicional porque absorve bem os sabores. Faz o arroz de marisco, o de tamboril e o malandro.',
+    en: 'Carolino is a Portuguese round-grain rice, widely used in traditional cooking because it absorbs flavours well. It makes seafood rice, monkfish rice and arroz malandro.',
+    es: 'El carolino es un arroz portugués de grano redondo, muy usado en la cocina tradicional porque absorbe bien los sabores. Con él se hacen el arroz de marisco, el de rape y el malandro.'
+  }
+});
+
+dadosAcrescentar('enciclopedia', {
+  id: 'arroz_consumo',
+  nivelMinimo: 18,
+  titulo: { pt: 'Maiores comedores de arroz', en: "Europe's Biggest Rice Eaters", es: 'Los mayores comedores de arroz de Europa' },
+  texto: {
+    pt: 'Portugal é o país europeu que mais arroz come por pessoa, muito acima de qualquer outro.',
+    en: 'Portugal is the European country that eats the most rice per person, far more than any other.',
+    es: 'Portugal es el país europeo que más arroz come por persona, muy por encima de cualquier otro.'
+  }
+});
