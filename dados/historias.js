@@ -226,3 +226,41 @@ dadosAcrescentar('historias', {
     }
   ]
 });
+
+// Nível 17 («Moscatel de Alcácer», o sal do Sado): as fotos das falas 1 (PNG) e 3 (JPG) estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+dadosAcrescentar('historias', {
+  id: 'historia_17',
+  nivel: 17,
+  falas: [
+    {
+      foto: 'assets/ecras/sado_por_do_sol.png',
+      texto: {
+        pt: 'Voltámos ao Sado, agora às salinas. Aqui o sol, o vento e a água fazem o sal.',
+        en: "We're back on the Sado, now at the salt pans. Here the sun, the wind and the water make the salt.",
+        es: 'Volvimos al Sado, ahora a las salinas. Aquí el sol, el viento y el agua hacen la sal.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Foi com sal que Setúbal ganhou fama. Nos séculos XVI e XVII, era o maior centro de sal do país.',
+        en: "Salt made Setúbal famous. In the 16th and 17th centuries, it was the country's biggest salt centre.",
+        es: 'Con la sal Setúbal ganó fama. En los siglos XVI y XVII, era el mayor centro de sal del país.'
+      }
+    },
+    {
+      foto: 'assets/ecras/sado_navio.jpg',
+      texto: {
+        pt: 'Navios do Norte da Europa vinham buscá-lo, e os salineiros colhiam-no na redura.',
+        en: 'Ships from Northern Europe came to fetch it, and the salt workers gathered it at the redura.',
+        es: 'Barcos del norte de Europa venían a buscarla, y los salineros la recogían en la redura.'
+      }
+    },
+    {
+      texto: {
+        pt: 'Hoje há menos salinas, mas ainda se faz sal no estuário do Sado.',
+        en: 'Today there are fewer salt pans, but salt is still made in the Sado estuary.',
+        es: 'Hoy hay menos salinas, pero todavía se hace sal en el estuario del Sado.'
+      }
+    }
+  ]
+});
