@@ -4,8 +4,8 @@
 // Dados lidos por js/estrada.js (o ecrã A Estrada, onde se trocam os bens) e por js/despensa.js (regras
 // das trocas e das ofertas), como js/visitas.js é lido pela Quinta.
 //
-// Sete vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, a Dona Natália, de nível 14, o Sr. Albano, de
-// nível 17, e a Dona Fernanda, de nível 18), cada um com 3 falas e 1 fala de troca; e sete bens, um por vizinho. Os textos são pt/en/es.
+// Oito vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, a Dona Natália, de nível 14, o Sr. Albano, de
+// nível 17, a Dona Fernanda, de nível 18, e o Sr. Anselmo, de nível 19), cada um com 3 falas e 1 fala de troca; e oito bens, um por vizinho. Os textos são pt/en/es.
 //
 // "nivelMinimo": o nível do jogador (js/niveis.js) a partir do qual o vizinho existe: abaixo dele não aparece na Estrada,
 // não pede, não troca e não conta para nenhum cálculo (ver despensaVizinhoDisponivel em js/despensa.js). Sem o campo vale
@@ -124,6 +124,30 @@ const ESTRADA_FONTES = {
   observador_arroz: {
     titulo: 'Observador — Portugueses comem 16 kg de arroz branco por ano, acima da média da UE',
     url: 'https://observador.pt/2023/03/13/portugueses-comem-16-kg-de-arroz-branco-por-ano-acima-da-media-da-uniao-europeia/'
+  },
+  amorim_tiradia: {
+    titulo: 'Amorim — Art and heritage: the tradition of cork harvesting and its craft',
+    url: 'https://www.amorim.com/en/media/videos/art-and-heritage-the-tradition-of-cork-harvesting-and-its-craft/5484/'
+  },
+  dn_tirar_cortica: {
+    titulo: 'Diário de Notícias — A arte de tirar cortiça do tio Zé',
+    url: 'https://www.dn.pt/arquivo/diario-de-noticias/a-arte-de-tirar-cortica-do-tio-ze-11709500.html'
+  },
+  fsc_cortica: {
+    titulo: 'FSC Portugal — Cortiça certificada',
+    url: 'https://pt.fsc.org/sites/default/files/2025-10/Brochura%20Corti%C3%A7a.pdf'
+  },
+  agroportal_sobreiro: {
+    titulo: 'Agroportal — O sobreiro',
+    url: 'https://bo.agroportal.pt/?p=742049'
+  },
+  sapo24_cortica: {
+    titulo: 'SAPO24 — Roubos de cortiça no Alentejo, Ribatejo e Centro',
+    url: 'https://24noticias.sapo.pt/atualidade/artigos/roubos-de-cortica-no-alentejo-ribatejo-e-centro-ja-sao-mais-de-260-so-em-2024-o-que-podem-fazer-os-proprietarios'
+  },
+  amorim_manual_rolhas: {
+    titulo: 'Amorim — Manual de rolhas',
+    url: 'https://www.amorim.com/xms/files/Documentacao/Manual_Rolhas_PT.pdf'
   }
 };
 
@@ -450,6 +474,52 @@ const ESTRADA_VIZINHOS = [
       },
       semFacto: true
     }
+  },
+  {
+    id: 'sr_anselmo',
+    nivelMinimo: 19,
+    nome: { pt: 'Sr. Anselmo', en: 'Mr. Anselmo', es: 'Sr. Anselmo' },
+    papel: { pt: 'tirador de cortiça do montado', en: 'cork stripper of the montado', es: 'sacador de corcho del montado' },
+    cara: 'assets/personagens/vizinho_anselmo.jpg',
+    caraPendente: false,
+    bem: 'cortica_montado',
+    falas: [
+      {
+        id: 'sr_anselmo_1',
+        texto: {
+          pt: 'A cortiça não se apanha, tira-se: com um machado, de nove em nove anos.',
+          en: "Cork isn't picked, it's stripped: with an axe, every nine years.",
+          es: 'El corcho no se coge, se saca: con un hacha, cada nueve años.'
+        },
+        fonte: ['dn_tirar_cortica', 'amorim_tiradia']
+      },
+      {
+        id: 'sr_anselmo_2',
+        texto: {
+          pt: 'Quando acabamos, marcamos o tronco com o último algarismo do ano, para saber quando volta a vez.',
+          en: "When we finish, we mark the trunk with the last digit of the year, so we know when it's time again.",
+          es: 'Cuando terminamos, marcamos el tronco con la última cifra del año, para saber cuándo vuelve a tocar.'
+        },
+        fonte: ['agroportal_sobreiro', 'dn_tirar_cortica']
+      },
+      {
+        id: 'sr_anselmo_3',
+        texto: {
+          pt: 'Só a partir da terceira tirada é que a cortiça serve para rolhas.',
+          en: 'Only from the third stripping on is the cork good enough for stoppers.',
+          es: 'Solo a partir de la tercera saca sirve el corcho para tapones.'
+        },
+        fonte: ['sapo24_cortica', 'amorim_manual_rolhas']
+      }
+    ],
+    troca: {
+      texto: {
+        pt: 'Leva lá um bocado de cortiça, vizinho! Ainda cheira a mato.',
+        en: 'Take a piece of cork, neighbour! It still smells of the woods.',
+        es: '¡Llévate un trozo de corcho, vecino! Todavía huele a monte.'
+      },
+      semFacto: true
+    }
   }
 ];
 
@@ -523,6 +593,16 @@ const ESTRADA_BENS = [
       es: 'Arroz carolino, cultivado en arrozales inundados junto al estuario del Sado.'
     },
     fonte: ['uevora_arroz', 'agroportal_arroz_alcacer']
+  },
+  {
+    id: 'cortica_montado',
+    nome: { pt: 'Cortiça do Montado', en: 'Montado cork', es: 'Corcho del Montado' },
+    descricao: {
+      pt: 'A casca do sobreiro, que se tira de nove em nove anos sem matar a árvore.',
+      en: 'The bark of the cork oak, taken every nine years without killing the tree.',
+      es: 'La corteza del alcornoque, que se saca cada nueve años sin matar al árbol.'
+    },
+    fonte: ['amorim_tiradia', 'fsc_cortica']
   }
 ];
 
@@ -558,8 +638,8 @@ const ESTRADA_TROCA = {
 //   'uvas'     paga as uvas do costume (custoUvas)
 //   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
 //   'bagaceira' paga com 1 Bagaceira (state.adega.bagaceira, ver js/alambique.js); se o jogador não tiver nenhuma, paga as uvas
-// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás, a Dona Natália, o Sr. Albano e a Dona
-// Fernanda pedem sempre uvas (sem entrada aqui, um vizinho pede uvas).
+// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás, a Dona Natália, o Sr. Albano, a Dona
+// Fernanda e o Sr. Anselmo pedem sempre uvas (sem entrada aqui, um vizinho pede uvas).
 // (O pedido do dia sai do mesmo hash de sempre, por isso mudar o nº de pedidos do Sr. Armindo muda os dias em que pede cada um.)
 const ESTRADA_PEDIDOS = {
   dona_amelia: ['uvas', 'sal_sado'],
@@ -585,7 +665,7 @@ const ESTRADA_PEDIDO_FALAS = {
 //   reputacao   +1 de Reputação por oferta
 //   porDia      no máximo 1 oferta por dia (dia de Lisboa; a marca é state.despensa.ofertaDia)
 //   ordemEmpate o bem oferecido é o de que há mais; em caso de empate, por esta ordem (um bem fora da lista, como a torta de
-//               Azeitão, o pinhão de Alcácer e o arroz do Sado, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
+//               Azeitão, o pinhão de Alcácer, o arroz do Sado e a cortiça do Montado, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
 const ESTRADA_OFERTA_REPUTACAO = 1;
 const ESTRADA_OFERTA_POR_DIA = 1;
 const ESTRADA_OFERTA = {
