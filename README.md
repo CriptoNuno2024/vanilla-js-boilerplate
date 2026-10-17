@@ -6,7 +6,7 @@ Um jogo para o Telegram (Mini App) feito só com JavaScript, HTML e CSS, sem bib
 
 Trabalha a **Vinha**, faz vinho na **Adega**, protege a quinta no **Proteger** e descobre coisas no **Explorar**. Tudo isso dá Reputação, e a Reputação faz subir de nível e abre ecrãs novos. Há objetivos diários ("Hoje na Quinta"), festas ligadas à data real (São Martinho), visitas à Quinta, e o tempo real de Setúbal (Open-Meteo) e a estação do ano mudam algumas coisas.
 
-## Os 10 níveis
+## Os 20 níveis
 
 | Nível | Nome | Reputação |
 |---|---|---|
@@ -20,8 +20,18 @@ Trabalha a **Vinha**, faz vinho na **Adega**, protege a quinta no **Proteger** e
 | 8 | Quinta de Portas Abertas | 1500 |
 | 9 | Câmara de Provadores | 2100 |
 | 10 | Moscatel Roxo | 2800 |
+| 11 | Moscatel da Arrábida | 3650 |
+| 12 | Moscatel do Sado | 4550 |
+| 13 | Moscatel de Palmela | 5500 |
+| 14 | Moscatel de Azeitão | 6500 |
+| 15 | Moscatel de Sesimbra | 7550 |
+| 16 | Moscatel de Setúbal | 8650 |
+| 17 | Moscatel de Alcácer | 9850 |
+| 18 | Moscatel da Comporta | 11050 |
+| 19 | Moscatel do Montado | 12350 |
+| 20 | Moscatel do Poeta | 13750 |
 
-Cada nível tem a sua história, um capítulo e (do 7 em diante) um ecrã próprio: A Estrada (7), O Lagar (8), A Câmara (9) e A Cepa Roxa (10). Os limiares e os nomes estão em `js/niveis.js` e em `js/i18n.js`.
+Cada nível tem a sua história, um capítulo e (do 7 em diante) um ecrã próprio: A Estrada (7), O Lagar (8), A Câmara (9) e A Cepa Roxa (10). Os limiares e os nomes dos níveis 1 a 10 estão em `js/niveis.js` e em `js/i18n.js`; os dos níveis 11 a 20 (cada um com a sua história, os seus capítulos e as suas entradas da Enciclopédia) estão em `dados/` (ver `dados/LEIAME.md`). O jogo continua a crescer.
 
 ## Correr o jogo
 
@@ -63,6 +73,10 @@ As imagens, sons e letras estão em `assets/` (ver `CREDITOS.md`). A pasta `bot/
 ## Atenção ao `?v=` no `index.html`
 
 Cada `<script src="js/...?v=N">` do `index.html` tem um número de versão que serve para o browser não usar uma cópia antiga em cache. **Sempre que editares um ficheiro de `js/`, sobe o `?v=` desse ficheiro no `index.html`.** Se não o fizeres, quem já abriu o jogo pode continuar a ver a versão antiga.
+
+## Como foi feito
+
+Este jogo foi criado por Nuno Fernandes com a ajuda de ferramentas de inteligência artificial: Claude.ai (planeamento, pesquisa de factos com fontes e revisão do trabalho), Claude Code (escrita do código) e, para as imagens, Gemini, Grok e ChatGPT. As decisões, a história, a aprovação de cada alteração e a escolha das imagens são do Nuno. (Mais pormenores em `CREDITOS.md`.)
 
 ## Origem
 
