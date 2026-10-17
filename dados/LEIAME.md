@@ -1,6 +1,6 @@
 # Pasta de dados
 
-Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos, histórias da Enciclopédia e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai, e um dia o «Mestre da Quinta».
+Esta pasta é para juntar conteúdo novo ao jogo (visitas, níveis, histórias, capítulos, histórias da Enciclopédia e objetivos) escrito **só como dados**, sem mexer no código. Quem escreve é o Nuno, com o Claude.ai.
 
 **O jogo lê esta pasta.** Carrega os 6 ficheiros pela ordem do `index.html`, a seguir às listas que alimentam (incluindo o `js/explorar.js`, da Enciclopédia) e antes do `main.js`, e cada entrada entra na lista certa através de `dadosAcrescentar` (`js/dados.js`). **Hoje `dados/` traz a visita `marisa_5` e os pacotes dos níveis 11, «Moscatel da Arrábida», 12, «Moscatel do Sado», 13, «Moscatel de Palmela», 14, «Moscatel de Azeitão», 15, «Moscatel de Sesimbra», 16, «Moscatel de Setúbal», 17, «Moscatel de Alcácer», 18, «Moscatel da Comporta», 19, «Moscatel do Montado», e 20, «Moscatel do Poeta» (cada um com nível, história, 3 histórias da Enciclopédia e capítulo); só `dados/objetivos.js` tem apenas comentários.**
 

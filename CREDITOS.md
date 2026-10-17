@@ -19,6 +19,9 @@ Fraunces e Nunito, com a licença SIL Open Font License 1.1. As licenças estão
 ## Imagens
 As imagens do jogo foram geradas com ferramentas de IA (Gemini, Grok e ChatGPT), usadas pelo Nuno. Segundo os termos dessas ferramentas, o utilizador fica com os direitos sobre o que gera, mas as imagens podem ser parecidas com as de outros utilizadores e, sendo geradas por IA, podem não ter proteção de direitos de autor. Os termos deverão ser revistos se o jogo vier a ter fins comerciais.
 
+## Como o jogo foi feito
+Este jogo foi criado por Nuno Fernandes com a ajuda de ferramentas de inteligência artificial: Claude.ai (planeamento, pesquisa de factos com fontes e revisão do trabalho), Claude Code (escrita do código) e, para as imagens, Gemini, Grok e ChatGPT. As decisões, a história, a aprovação de cada alteração e a escolha das imagens são do Nuno.
+
 ## Base do projeto
 O projeto nasceu do modelo vanilla-js-boilerplate (Telegram Mini Apps), com licença MIT. O resto do projeto está sob «todos os direitos reservados» (ver `LICENSE`), e a licença MIT do modelo está em `LICENSE-MIT-TON`.
 
