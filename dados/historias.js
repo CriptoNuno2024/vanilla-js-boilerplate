@@ -195,7 +195,7 @@ dadosAcrescentar('historias', {
   nivel: 16,
   falas: [
     {
-      foto: 'assets/ecras/yoshicat_sado_mirar.png',
+      foto: 'assets/ecras/yoshicat_sado_mirar.jpg',
       texto: {
         pt: 'Chegámos a Setúbal. Do alto do forte vê-se o rio Sado e, ao fundo, a península de Tróia.',
         en: "We've arrived in Setúbal. From the top of the fort you can see the Sado river and, far off, the Tróia peninsula.",
@@ -210,7 +210,7 @@ dadosAcrescentar('historias', {
       }
     },
     {
-      foto: 'assets/ecras/yoshicat_binoculos_sado.png',
+      foto: 'assets/ecras/yoshicat_binoculos_sado.jpg',
       texto: {
         pt: 'Cá em baixo, os produtores da península ajudaram a salvar uma uva rara que esteve quase a desaparecer: o Moscatel Roxo.',
         en: 'Down below, the growers of the peninsula helped save a rare grape that was almost lost: the Moscatel Roxo.',
@@ -227,13 +227,13 @@ dadosAcrescentar('historias', {
   ]
 });
 
-// Nível 17 («Moscatel de Alcácer», o sal do Sado): as fotos das falas 1 (PNG) e 3 (JPG) estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
+// Nível 17 («Moscatel de Alcácer», o sal do Sado): as fotos das falas 1 e 3 (ambas JPG) estão em assets/ecras/; nenhuma fala leva som (as falas não têm volume).
 dadosAcrescentar('historias', {
   id: 'historia_17',
   nivel: 17,
   falas: [
     {
-      foto: 'assets/ecras/sado_por_do_sol.png',
+      foto: 'assets/ecras/sado_por_do_sol.jpg',
       texto: {
         pt: 'Voltámos ao Sado, agora às salinas. Aqui o sol, o vento e a água fazem o sal.',
         en: "We're back on the Sado, now at the salt pans. Here the sun, the wind and the water make the salt.",

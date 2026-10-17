@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // O NÍVEL 17 REAL, «Moscatel de Alcácer» (Parte 2, A Terra, o sal do Sado), que vive só como dados (dados/niveis.js, historias.js, enciclopedia.js e
-// capitulos.js): o nível (9850 de Reputação), a história de 4 falas (a 1.ª com a foto assets/ecras/sado_por_do_sol.png e a 3.ª com assets/ecras/sado_navio.jpg, SEM som), as 3
+// capitulos.js): o nível (9850 de Reputação), a história de 4 falas (a 1.ª com a foto assets/ecras/sado_por_do_sol.jpg e a 3.ª com assets/ecras/sado_navio.jpg, SEM som), as 3
 // histórias do sal do Sado na Enciclopédia (nível mínimo 17, sem imagem) e o capítulo 17 «O Sal que Navegou» (critério temIds nessas 3).
 // Só traz os textos e números do nível: a prova em si está no auxiliar scripts/_pacote-nivel.js. Textos escritos aqui, à parte (não lidos de dados/).
 //
@@ -14,9 +14,9 @@ correr({
   limiares: [0, 15, 50, 120, 300, 600, 1000, 1500, 2100, 2800, 3650, 4550, 5500, 6500, 7550, 8650, 9850],
   nome: { pt: 'Moscatel de Alcácer', en: 'Alcácer Moscatel', es: 'Moscatel de Alcácer' },
   nomeAnt: { pt: 'Moscatel de Setúbal', en: 'Setúbal Moscatel', es: 'Moscatel de Setúbal' },
-  foto: 'assets/ecras/sado_por_do_sol.png',
-  fotoRaiz: 'sado_por_do_sol.png',
-  fotosExtra: { 3: 'assets/ecras/sado_navio.jpg' }, // a fala 3 também leva foto (as falas 2 e 4 não); uma é PNG e a outra JPG
+  foto: 'assets/ecras/sado_por_do_sol.jpg',
+  fotoRaiz: 'sado_por_do_sol.jpg',
+  fotosExtra: { 3: 'assets/ecras/sado_navio.jpg' }, // a fala 3 também leva foto (as falas 2 e 4 não)
   falas: [
     {
       pt: 'Voltámos ao Sado, agora às salinas. Aqui o sol, o vento e a água fazem o sal.',
