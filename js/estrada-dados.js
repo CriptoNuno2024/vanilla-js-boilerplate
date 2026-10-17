@@ -4,8 +4,8 @@
 // Dados lidos por js/estrada.js (o ecrã A Estrada, onde se trocam os bens) e por js/despensa.js (regras
 // das trocas e das ofertas), como js/visitas.js é lido pela Quinta.
 //
-// Quatro vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo), cada um com 3 falas
-// e 1 fala de troca; e quatro bens, um por vizinho. Os textos são pt/en/es.
+// Cinco vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, e a Dona Natália, de nível 14), cada um
+// com 3 falas e 1 fala de troca; e cinco bens, um por vizinho. Os textos são pt/en/es.
 //
 // "nivelMinimo": o nível do jogador (js/niveis.js) a partir do qual o vizinho existe: abaixo dele não aparece na Estrada,
 // não pede, não troca e não conta para nenhum cálculo (ver despensaVizinhoDisponivel em js/despensa.js). Sem o campo vale
@@ -68,6 +68,18 @@ const ESTRADA_FONTES = {
   ancient_history_troia: {
     titulo: 'Ancient History Sites — Roman Ruins of Troia (Tróia, em frente a Setúbal; séculos I a VI; salga de peixe)',
     url: 'https://www.ancient-history-sites.com/sites/roman-ruins-of-troia/'
+  },
+  e_konomista_torta: {
+    titulo: 'e-konomista — Torta de Azeitão',
+    url: 'https://www.e-konomista.pt/torta-de-azeitao/'
+  },
+  destination_eat_drink_torta: {
+    titulo: 'Destination Eat Drink — Torta de Azeitão',
+    url: 'https://destinationeatdrink.com/torta-de-azeitao/'
+  },
+  fodors_azeitao: {
+    titulo: 'Fodor\'s — Vila Nogueira de Azeitão (restaurants)',
+    url: 'https://cdn.fodors.com/world/europe/portugal/side-trips-from-lisbon/places/the-setubal-peninsula/vila-nogueira-de-azeitao/restaurants'
   }
 };
 
@@ -256,6 +268,52 @@ const ESTRADA_VIZINHOS = [
       },
       semFacto: true
     }
+  },
+  {
+    id: 'dona_natalia',
+    nivelMinimo: 14,
+    nome: { pt: 'Dona Natália', en: 'Dona Natália', es: 'Dona Natália' },
+    papel: { pt: 'pasteleira de Azeitão', en: 'Azeitão pastry cook', es: 'pastelera de Azeitão' },
+    cara: 'assets/personagens/vizinha_natalia.jpg',
+    caraPendente: false,
+    bem: 'torta_azeitao',
+    falas: [
+      {
+        id: 'dona_natalia_1',
+        texto: {
+          pt: 'A torta de Azeitão é um bolo fino, enrolado com doce de ovos e polvilhado com canela.',
+          en: 'Torta de Azeitão is a thin sponge, rolled up with egg custard and dusted with cinnamon.',
+          es: 'La torta de Azeitão es un bizcocho fino, enrollado con dulce de huevo y espolvoreado con canela.'
+        },
+        fonte: ['e_konomista_torta', 'fodors_azeitao']
+      },
+      {
+        id: 'dona_natalia_2',
+        texto: {
+          pt: 'Diz-se que nasceu aqui, em Azeitão, numa família de pasteleiros, no fim do século XIX.',
+          en: 'They say it was born right here in Azeitão, in a family of pastry makers, at the end of the 19th century.',
+          es: 'Dicen que nació aquí, en Azeitão, en una familia de pasteleros, a finales del siglo XIX.'
+        },
+        fonte: ['e_konomista_torta', 'destination_eat_drink_torta']
+      },
+      {
+        id: 'dona_natalia_3',
+        texto: {
+          pt: 'Com um cálice de Moscatel ao lado, nem se fala!',
+          en: "With a glass of Moscatel beside it, you can't beat it!",
+          es: '¡Con una copita de Moscatel al lado, no hay nada igual!'
+        },
+        semFacto: true
+      }
+    ],
+    troca: {
+      texto: {
+        pt: 'Leva lá uma torta, vizinho! Fresquinha, ainda a cheirar a canela.',
+        en: 'Take a torta, neighbour! Fresh, still smelling of cinnamon.',
+        es: '¡Llévate una torta, vecino! Fresquita, todavía huele a canela.'
+      },
+      semFacto: true
+    }
   }
 ];
 
@@ -299,6 +357,16 @@ const ESTRADA_BENS = [
       es: 'Choco pescado en el estuario del Sado, ligado al plato más famoso de Setúbal: el choco frito.'
     },
     fonte: ['turismo_lisboa_choco']
+  },
+  {
+    id: 'torta_azeitao',
+    nome: { pt: 'Torta de Azeitão', en: 'Azeitão roll cake', es: 'Torta de Azeitão' },
+    descricao: {
+      pt: 'Bolo fino enrolado, com doce de ovos e canela.',
+      en: 'A thin sponge roll with egg custard and cinnamon.',
+      es: 'Bizcocho fino enrollado con dulce de huevo y canela.'
+    },
+    fonte: ['e_konomista_torta', 'fodors_azeitao']
   }
 ];
 
@@ -334,7 +402,8 @@ const ESTRADA_TROCA = {
 //   'uvas'     paga as uvas do costume (custoUvas)
 //   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
 //   'bagaceira' paga com 1 Bagaceira (state.adega.bagaceira, ver js/alambique.js); se o jogador não tiver nenhuma, paga as uvas
-// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim e o Tomás pedem sempre uvas.
+// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás e a Dona Natália pedem sempre uvas
+// (sem entrada aqui, um vizinho pede uvas).
 // (O pedido do dia sai do mesmo hash de sempre, por isso mudar o nº de pedidos do Sr. Armindo muda os dias em que pede cada um.)
 const ESTRADA_PEDIDOS = {
   dona_amelia: ['uvas', 'sal_sado'],
@@ -359,7 +428,8 @@ const ESTRADA_PEDIDO_FALAS = {
 // OFERTAS A UMA VISITA (PR 5C): oferecer 1 bem da Despensa a uma visita da Quinta (js/visitas.js).
 //   reputacao   +1 de Reputação por oferta
 //   porDia      no máximo 1 oferta por dia (dia de Lisboa; a marca é state.despensa.ofertaDia)
-//   ordemEmpate o bem oferecido é o de que há mais; em caso de empate, por esta ordem
+//   ordemEmpate o bem oferecido é o de que há mais; em caso de empate, por esta ordem (um bem fora da lista, como a torta de
+//               Azeitão, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
 const ESTRADA_OFERTA_REPUTACAO = 1;
 const ESTRADA_OFERTA_POR_DIA = 1;
 const ESTRADA_OFERTA = {
