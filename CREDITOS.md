@@ -125,6 +125,22 @@ Esta lista foi feita a partir do que se vê nos ficheiros (nome e sítio do cód
 | `assets/ecras/yoshi_cat_festejar_vitoria.jpg` | O Lagar, Proteger | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 13/10/2026 |
 | `assets/ecras/yoshi_cat_geada.jpg` | tempo real de Setúbal | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 13/10/2026 |
 | `assets/ecras/yoshi_cat_varanda.jpg` | fundo de um ecrã | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 13/10/2026 |
+| `assets/ecras/arrabida_colina.jpg` | história do nível 11 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/sado_estuario.jpg` | história do nível 12 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/palmela_castelo.jpg` | história do nível 13 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/azeitao_vila.jpg` | história do nível 14 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/sesimbra_vila.jpg` | história do nível 15 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/sesimbra_porto.jpg` | história do nível 15 (fala 3) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshicat_sado_mirar.jpg` | história do nível 16 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshicat_binoculos_sado.jpg` | história do nível 16 (fala 3) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/sado_por_do_sol.jpg` | história do nível 17 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/sado_navio.jpg` | história do nível 17 (fala 3) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshi_nos_arrozais.jpg` | história do nível 18 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshi_a_mesa.jpg` | história do nível 18 (fala 3) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshi_no_montado.jpg` | história do nível 19 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshi_sobreiro.jpg` | história do nível 19 (fala 3) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/casa_bocage.jpg` | história do nível 20 (fala 1) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
+| `assets/ecras/yoshicat_chizo_no_cais_de_setubal.jpg` | história do nível 20 (fala 3) | gerada com IA (Gemini, Grok ou ChatGPT), confirmado pelo Nuno a 17/10/2026 |
 
 ### Cartões do Explorar (`assets/explorar/`)
 Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do Explorar (`js/explorar.js`). São recortes dos originais, que não se apagaram; a origem é a dos originais.
@@ -224,6 +240,7 @@ Versões pequenas (JPEG 640x340, até 60 KB cada) feitas só para os cartões do
 Podem ser sobras ou podem ter outro uso; confirmar antes de apagar. Origem: as imagens foram geradas com IA (Gemini, Grok ou ChatGPT) e o som vem do BigSoundBank (CC0), confirmado pelo Nuno a 13/10/2026.
 
 - Imagens: `assets/ecras/barril_simples.jpg`, `assets/ecras/moscatel_roxo_com_uvas.jpg`, `assets/ecras/camera_.jpg`, `assets/ecras/cepa_roxa.jpg`, `assets/ecras/arranjar_estacas_sol.jpg`, `assets/ecras/arranjar_estacas_sol_2.jpg`, `assets/ecras/derrota_2.jpg`, `assets/ecras/enciclopedia.jpg`, `assets/ecras/enciclopedia_yoshi_cat.jpg`, `assets/ecras/explorar.jpg`, `assets/ecras/inverno_poda_2.jpg`, `assets/ecras/livro_de_conquistas.jpg`, `assets/ecras/livro_de_conquistas_perfil.jpg`, `assets/ecras/nevoeiro_2.jpg`, `assets/ecras/perfil.jpg`, `assets/ecras/poda_vinha.jpg`, `assets/ecras/proteger.jpg`, `assets/ecras/proteger_2.jpg`, `assets/ecras/proteger_3.jpg`, `assets/ecras/sao_martinho_pensar_festa.jpg`, `assets/ecras/sol_calor.jpg`, `assets/ecras/trovoada_porcos_mini.jpg`, `assets/ecras/yoshi_cat_em_festa_vindima.jpg`, `assets/ecras/yoshi_cat_encarar.jpg`, `assets/ecras/yoshi_cat_festa_bracoscrusados.jpg`, `assets/ecras/yoshi_cat_meio_tempestade.jpg`, `assets/ecras/yoshi_cat_meio_tempestade_2.jpg`, `assets/ecras/yoshi_cat_pronto_accao.jpg`, `assets/ecras/yoshi_cat_trabalhar_quinta.jpg`, `assets/vinha/adubar_1.jpg`, `assets/vinha/cavar_1.jpg`, `assets/vinha/compostagem_2.jpg`, `assets/vinha/eliminarervasdaninhas_1.jpg`
+- Imagens originais de `imagens_JOGO_TELEGRAM/` (o código não lê esta pasta; o jogo usa as cópias de `assets/ecras/` e `assets/explorar/` quando existem, ver as tabelas acima; geradas com IA, confirmado pelo Nuno a 17/10/2026): `imagens_JOGO_TELEGRAM/arrozal_2.jpg`, `imagens_JOGO_TELEGRAM/arrozal_personagens.jpg`, `imagens_JOGO_TELEGRAM/caminho_lojas_casa_trabalhadores_3.jpg`, `imagens_JOGO_TELEGRAM/carnaval_patio_vindima_1.jpg`, `imagens_JOGO_TELEGRAM/carnaval_patio_vindimas_2_personagens.jpg`, `imagens_JOGO_TELEGRAM/casa_loja_meio_da_vinha_4.jpg`, `imagens_JOGO_TELEGRAM/cortica.jpg`, `imagens_JOGO_TELEGRAM/doencas_e_pragas.jpg`, `imagens_JOGO_TELEGRAM/doencas_e_pragas_2.jpg`, `imagens_JOGO_TELEGRAM/festa_vindima_pessoas.jpg`, `imagens_JOGO_TELEGRAM/granizo.jpg`, `imagens_JOGO_TELEGRAM/granizo_2.jpg`, `imagens_JOGO_TELEGRAM/granizo_3.jpg`, `imagens_JOGO_TELEGRAM/lojas_casas.jpg`, `imagens_JOGO_TELEGRAM/lojas_casas_janelas_abertas_2.jpg`, `imagens_JOGO_TELEGRAM/natal_patio_de_vindima.jpg`, `imagens_JOGO_TELEGRAM/natal_patio_vindimas_2.jpg`, `imagens_JOGO_TELEGRAM/pascoa_dia_grande.jpg`, `imagens_JOGO_TELEGRAM/pascoa_festa.jpg`, `imagens_JOGO_TELEGRAM/pragas_sol.jpg`, `imagens_JOGO_TELEGRAM/pragas_sol_2.jpg`, `imagens_JOGO_TELEGRAM/varios_talhoes_da_vinha.jpg`
 - Sons: `assets/sons/vento_feito_a_mao.mp3`
 
 ### Sons sem ficheiro
