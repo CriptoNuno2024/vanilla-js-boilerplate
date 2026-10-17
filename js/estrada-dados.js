@@ -4,8 +4,8 @@
 // Dados lidos por js/estrada.js (o ecrã A Estrada, onde se trocam os bens) e por js/despensa.js (regras
 // das trocas e das ofertas), como js/visitas.js é lido pela Quinta.
 //
-// Seis vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, a Dona Natália, de nível 14, e o Sr. Albano,
-// de nível 17), cada um com 3 falas e 1 fala de troca; e seis bens, um por vizinho. Os textos são pt/en/es.
+// Sete vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, a Dona Natália, de nível 14, o Sr. Albano, de
+// nível 17, e a Dona Fernanda, de nível 18), cada um com 3 falas e 1 fala de troca; e sete bens, um por vizinho. Os textos são pt/en/es.
 //
 // "nivelMinimo": o nível do jogador (js/niveis.js) a partir do qual o vizinho existe: abaixo dele não aparece na Estrada,
 // não pede, não troca e não conta para nenhum cálculo (ver despensaVizinhoDisponivel em js/despensa.js). Sem o campo vale
@@ -100,6 +100,30 @@ const ESTRADA_FONTES = {
   oppla_pinha: {
     titulo: 'OPPLA — Manual cone harvesting of Pinus pinea in Portugal',
     url: 'https://oppla.eu/casestudy/20602'
+  },
+  agroportal_arroz_alcacer: {
+    titulo: 'Agroportal — Alcácer do Sal: concelho que mais arroz produz tem feira dedicada ao sector',
+    url: 'https://www.agroportal.pt/?p=763922'
+  },
+  uevora_arroz: {
+    titulo: 'Universidade de Évora — A cultura do arroz em Portugal',
+    url: 'https://rdpc.uevora.pt/bitstream/10174/15309/1/A%20cultura%20do%20arroz%20em%20Portugal.pdf'
+  },
+  visitportugal_museu_arroz: {
+    titulo: 'Visit Portugal — Espaço Museológico Museu do Arroz',
+    url: 'https://www.visitportugal.com/pt-pt/content/espaco-museologico-museu-do-arroz'
+  },
+  catavino_arroz: {
+    titulo: 'Catavino — Portugal\'s Arroz Carolino: The Native Rice of Portuguese Gastronomy',
+    url: 'https://catavino.net/portuguese-rice-arroz-carolino/'
+  },
+  iniav_arroz: {
+    titulo: 'INIAV — Melhoramento do arroz carolino',
+    url: 'https://projects.iniav.pt/redagrotec/images/Projetos/melhoramento_plantas/PA18653.pdf'
+  },
+  observador_arroz: {
+    titulo: 'Observador — Portugueses comem 16 kg de arroz branco por ano, acima da média da UE',
+    url: 'https://observador.pt/2023/03/13/portugueses-comem-16-kg-de-arroz-branco-por-ano-acima-da-media-da-uniao-europeia/'
   }
 };
 
@@ -380,6 +404,52 @@ const ESTRADA_VIZINHOS = [
       },
       semFacto: true
     }
+  },
+  {
+    id: 'dona_fernanda',
+    nivelMinimo: 18,
+    nome: { pt: 'Dona Fernanda', en: 'Dona Fernanda', es: 'Dona Fernanda' },
+    papel: { pt: 'arrozeira da Comporta', en: 'Comporta rice farmer', es: 'arrocera de la Comporta' },
+    cara: 'assets/personagens/vizinha_fernanda.jpg',
+    caraPendente: false,
+    bem: 'arroz_sado',
+    falas: [
+      {
+        id: 'dona_fernanda_1',
+        texto: {
+          pt: 'O arroz cresce com os pés na água: os arrozais ficam alagados, junto ao estuário do Sado.',
+          en: 'Rice grows with its feet in the water: the paddies are flooded, right by the Sado estuary.',
+          es: 'El arroz crece con los pies en el agua: los arrozales están inundados, junto al estuario del Sado.'
+        },
+        fonte: ['agroportal_arroz_alcacer', 'uevora_arroz']
+      },
+      {
+        id: 'dona_fernanda_2',
+        texto: {
+          pt: 'Aqui na Comporta, a antiga fábrica de descasque é hoje o Museu do Arroz.',
+          en: 'Here in Comporta, the old rice-hulling factory is now the Rice Museum.',
+          es: 'Aquí en la Comporta, la antigua fábrica de descascarillado es hoy el Museo del Arroz.'
+        },
+        fonte: ['visitportugal_museu_arroz', 'catavino_arroz']
+      },
+      {
+        id: 'dona_fernanda_3',
+        texto: {
+          pt: 'Os portugueses são os maiores comedores de arroz da Europa!',
+          en: 'The Portuguese eat more rice per person than anyone else in Europe!',
+          es: '¡Los portugueses son los que más arroz comen de toda Europa!'
+        },
+        fonte: ['iniav_arroz', 'observador_arroz']
+      }
+    ],
+    troca: {
+      texto: {
+        pt: 'Leva lá um pacote de arroz, vizinho! Do bom carolino do Sado.',
+        en: 'Take a bag of rice, neighbour! Good Sado carolino.',
+        es: '¡Llévate un paquete de arroz, vecino! Del buen carolino del Sado.'
+      },
+      semFacto: true
+    }
   }
 ];
 
@@ -443,6 +513,16 @@ const ESTRADA_BENS = [
       es: 'La semilla del pino piñonero, sacada de la piña.'
     },
     fonte: ['agroportal_pinhao', 'ipb_pinhao']
+  },
+  {
+    id: 'arroz_sado',
+    nome: { pt: 'Arroz Carolino do Sado', en: 'Sado carolino rice', es: 'Arroz carolino del Sado' },
+    descricao: {
+      pt: 'Arroz carolino, cultivado em arrozais alagados junto ao estuário do Sado.',
+      en: 'Carolino rice, grown in flooded paddies beside the Sado estuary.',
+      es: 'Arroz carolino, cultivado en arrozales inundados junto al estuario del Sado.'
+    },
+    fonte: ['uevora_arroz', 'agroportal_arroz_alcacer']
   }
 ];
 
@@ -478,8 +558,8 @@ const ESTRADA_TROCA = {
 //   'uvas'     paga as uvas do costume (custoUvas)
 //   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
 //   'bagaceira' paga com 1 Bagaceira (state.adega.bagaceira, ver js/alambique.js); se o jogador não tiver nenhuma, paga as uvas
-// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás, a Dona Natália e o Sr. Albano pedem
-// sempre uvas (sem entrada aqui, um vizinho pede uvas).
+// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás, a Dona Natália, o Sr. Albano e a Dona
+// Fernanda pedem sempre uvas (sem entrada aqui, um vizinho pede uvas).
 // (O pedido do dia sai do mesmo hash de sempre, por isso mudar o nº de pedidos do Sr. Armindo muda os dias em que pede cada um.)
 const ESTRADA_PEDIDOS = {
   dona_amelia: ['uvas', 'sal_sado'],
@@ -505,7 +585,7 @@ const ESTRADA_PEDIDO_FALAS = {
 //   reputacao   +1 de Reputação por oferta
 //   porDia      no máximo 1 oferta por dia (dia de Lisboa; a marca é state.despensa.ofertaDia)
 //   ordemEmpate o bem oferecido é o de que há mais; em caso de empate, por esta ordem (um bem fora da lista, como a torta de
-//               Azeitão e o pinhão de Alcácer, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
+//               Azeitão, o pinhão de Alcácer e o arroz do Sado, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
 const ESTRADA_OFERTA_REPUTACAO = 1;
 const ESTRADA_OFERTA_POR_DIA = 1;
 const ESTRADA_OFERTA = {

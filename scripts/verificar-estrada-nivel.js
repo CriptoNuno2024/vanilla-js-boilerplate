@@ -3,19 +3,20 @@
 // dele chega a esse mínimo; sem o campo vale 7 (o nível em que a Estrada abre). Os 4 primeiros vizinhos têm 7 e a Dona Natália (pasteleira
 // de Azeitão, a torta de Azeitão) tem 14.
 //
-// Parte 1, com um vizinho de TESTE de nivelMinimo 18 que vive só dentro do ambiente simulado (nunca no jogo), a um jogador de nível 17 e
-// a outro de nível 18:
+// Parte 1, com um vizinho de TESTE de nivelMinimo 19 que vive só dentro do ambiente simulado (nunca no jogo), a um jogador de nível 18 e
+// a outro de nível 19:
 //   (a) abaixo do nível do vizinho: não aparece no ecrã, não pede (nunca sal nem bagaceira), não troca (recusa «nivel_insuficiente»,
 //       mesmo chamando a função diretamente, sem alterar NADA) e não conta (teto de trocas por dia, bens, prateleira, oferta às visitas,
 //       receitas, e o estado que os critérios dos capítulos leem fica igual);
 //   (b) ao nível dele aparece, pede, troca e conta;
 //   (c) o jogo fica exatamente igual abaixo do nível de cada vizinho real: o ecrã (pt, en e es) e uma sequência de trocas e ofertas, comparados
-//       com o jogo SEM os vizinhos de nível mais alto (4 vizinhos abaixo do nível 14, 5 do 14 ao 16, 6 a partir do 17), e a partir do 17 os
+//       com o jogo SEM os vizinhos de nível mais alto (4 vizinhos abaixo do nível 14, 5 do 14 ao 16, 6 no 17, 7 a partir do 18), e a partir do 18 os
 //       cartões dos que já existiam não mudam;
 //   (d) o campo: ausente ou null = 7; um valor que não seja um inteiro >= 1 deixa o vizinho fechado;
 //   (e) o pedido do dia de cada vizinho só depende do dia e do id dele (acrescentar vizinhos não muda os dos que já existem).
-// Partes 2 e 3, a Dona Natália (nível 14, a torta de Azeitão) e o Sr. Albano (nível 17, o pinhão de Alcácer), os dois reais, em pt, en e es:
-//   (a) a um jogador do nível anterior (13 e 16) não aparece, não pede, não troca e o bem dele não conta;
+// Partes 2, 3 e 4, a Dona Natália (nível 14, a torta de Azeitão), o Sr. Albano (nível 17, o pinhão de Alcácer) e a Dona Fernanda (nível 18, o arroz
+// do Sado), todos reais, em pt, en e es:
+//   (a) a um jogador do nível anterior (13, 16 e 17) não aparece, não pede, não troca e o bem dele não conta;
 //   (b) ao nível dele aparece (nome, papel, cara, cena por defeito, bem), troca (1.ª troca +2 de Reputação, paga como as outras) e o bem
 //       conta para a oferta às visitas;
 //   (c) a cena (estrada_<id>.jpg, 640 de largura) e a cara (128x128) existem como JPG, sem nenhum PNG, cópias na raiz, nem nomes com acento ou vírgula;
@@ -85,7 +86,7 @@ function jogador(g, opcoes) {
   g.gravacoes.length = 0;
 }
 
-// O vizinho de TESTE (nivelMinimo 14, dá um bem de teste) e o seu bem: só dentro do ambiente simulado.
+// O vizinho de TESTE (com o nivelMinimo que se pedir, dá um bem de teste) e o seu bem: só dentro do ambiente simulado.
 function injetarVizinhoTeste(g, nivelMinimo) {
   const campo = nivelMinimo === undefined ? '' : 'nivelMinimo: ' + JSON.stringify(nivelMinimo) + ', ';
   g.ev(
@@ -100,116 +101,117 @@ const NOME_TESTE = { pt: 'Vizinho de Teste', en: 'Test Neighbour', es: 'Vecino d
 const REAIS = ['dona_amelia', 'sr_joaquim', 'tomas', 'sr_armindo']; // os 4 vizinhos de nível 7
 const NATALIA = 'dona_natalia'; // a Dona Natália, nível 14
 const ALBANO = 'sr_albano'; // o Sr. Albano, nível 17
+const FERNANDA = 'dona_fernanda'; // a Dona Fernanda, nível 18
 
 // ---------------------------------------------------------------------
-// (0) O jogo de hoje: 4 vizinhos de nível 7, a Dona Natália (nível 14), o Sr. Albano (nível 17), e o vizinho de teste não está no jogo.
+// (0) O jogo de hoje: 4 vizinhos de nível 7, a Dona Natália (nível 14), o Sr. Albano (nível 17), a Dona Fernanda (nível 18), e o vizinho de teste não está no jogo.
 // ---------------------------------------------------------------------
 {
   const g = abrir();
-  ok(JSON.stringify(g.json('ESTRADA_VIZINHOS.map(function (v) { return [v.id, v.nivelMinimo]; })')) === JSON.stringify(REAIS.map(function (id) { return [id, 7]; }).concat([[NATALIA, 14], [ALBANO, 17]])), 'os 4 primeiros vizinhos devem ter nivelMinimo 7, a Dona Natália 14 e o Sr. Albano 17');
+  ok(JSON.stringify(g.json('ESTRADA_VIZINHOS.map(function (v) { return [v.id, v.nivelMinimo]; })')) === JSON.stringify(REAIS.map(function (id) { return [id, 7]; }).concat([[NATALIA, 14], [ALBANO, 17], [FERNANDA, 18]])), 'os 4 primeiros vizinhos devem ter nivelMinimo 7, a Dona Natália 14, o Sr. Albano 17 e a Dona Fernanda 18');
   ok(g.ev('ESTRADA_NIVEL_MINIMO_PADRAO') === 7, 'o nível mínimo por defeito devia ser 7');
   ok(g.ev("ESTRADA_VIZINHOS.some(function (v) { return v.id === 'vizinho_teste'; })") === false && g.ev("ESTRADA_BENS.some(function (b) { return b.id === 'bem_teste'; })") === false, 'o vizinho de teste não devia estar no jogo');
   ok(g.ev('NIVEIS_CONFIG.length') >= 14, 'o teste precisa dos níveis 11 a 14 (dados/niveis.js)');
 }
 
 // ---------------------------------------------------------------------
-// (a) Um jogador de nível 17 não vê, não pede, não troca e não conta o vizinho de teste de nível 18.
+// (a) Um jogador de nível 18 não vê, não pede, não troca e não conta o vizinho de teste de nível 19.
 // ---------------------------------------------------------------------
 {
   const g = abrir();
-  injetarVizinhoTeste(g, 18);
-  ok(g.ev('despensaVizinhoNivelMinimo(despensaVizinhoPorId("vizinho_teste"))') === 18, 'o vizinho de teste devia ter nivelMinimo 18');
+  injetarVizinhoTeste(g, 19);
+  ok(g.ev('despensaVizinhoNivelMinimo(despensaVizinhoPorId("vizinho_teste"))') === 19, 'o vizinho de teste devia ter nivelMinimo 18');
 
-  jogador(g, { nivel: 17 });
-  ok(g.ev('nivelPelaReputacao(state.reputacao)') === 17, 'o jogador devia ser do nível 17');
-  ok(g.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("vizinho_teste"))') === false, 'nível 17: o vizinho de teste de nível 18 não devia estar disponível');
-  REAIS.forEach(function (id) { ok(g.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("' + id + '"))') === true, 'nível 17: ' + id + ' devia estar disponível'); });
+  jogador(g, { nivel: 18 });
+  ok(g.ev('nivelPelaReputacao(state.reputacao)') === 18, 'o jogador devia ser do nível 18');
+  ok(g.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("vizinho_teste"))') === false, 'nível 18: o vizinho de teste de nível 19 não devia estar disponível');
+  REAIS.forEach(function (id) { ok(g.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("' + id + '"))') === true, 'nível 18: ' + id + ' devia estar disponível'); });
 
   // Não aparece.
   LINGUAS.forEach(function (l) {
     const h = g.desenhar(l, D1);
-    ok((h.match(/estrada-botao"/g) || []).length === 6, 'nível 17 (' + l + '): o ecrã devia ter só os 6 botões de trocar (os 4 de nível 7, a Dona Natália e o Sr. Albano)');
-    ok(h.indexOf(esc(NOME_TESTE[l])) === -1 && h.indexOf('vizinho_armindo.jpg') !== -1 && h.indexOf('data-vizinho="vizinho_teste"') === -1, 'nível 17 (' + l + '): o vizinho de teste de nível 18 não devia aparecer no ecrã');
-    ok(h.indexOf('Bem de Teste') === -1 && h.indexOf('Test Good') === -1 && h.indexOf('Bien de Prueba') === -1, 'nível 17 (' + l + '): o bem do vizinho de teste de nível 18 não devia aparecer no ecrã');
+    ok((h.match(/estrada-botao"/g) || []).length === 7, 'nível 18 (' + l + '): o ecrã devia ter só os 7 botões de trocar (os 4 de nível 7, a Dona Natália, o Sr. Albano e a Dona Fernanda)');
+    ok(h.indexOf(esc(NOME_TESTE[l])) === -1 && h.indexOf('vizinho_armindo.jpg') !== -1 && h.indexOf('data-vizinho="vizinho_teste"') === -1, 'nível 18 (' + l + '): o vizinho de teste de nível 19 não devia aparecer no ecrã');
+    ok(h.indexOf('Bem de Teste') === -1 && h.indexOf('Test Good') === -1 && h.indexOf('Bien de Prueba') === -1, 'nível 18 (' + l + '): o bem do vizinho de teste de nível 19 não devia aparecer no ecrã');
   });
 
   // Não pede: nunca sal nem bagaceira, em nenhum dia (sem o estado, o pedido seguiria ESTRADA_PEDIDOS e algum dia seria sal ou bagaceira).
   ok(DIAS.some(function (d) { return g.ev('despensaPedidoDoDia("vizinho_teste", "' + d + '")') !== 'uvas'; }), 'premissa: sem o estado, o vizinho de teste pede sal ou bagaceira em algum dia');
-  ok(DIAS.every(function (d) { return g.ev('despensaPedidoDoDia("vizinho_teste", "' + d + '", state)') === 'uvas'; }), 'nível 17: o vizinho de teste de nível 18 não devia pedir sal nem bagaceira em nenhum dia');
+  ok(DIAS.every(function (d) { return g.ev('despensaPedidoDoDia("vizinho_teste", "' + d + '", state)') === 'uvas'; }), 'nível 18: o vizinho de teste de nível 19 não devia pedir sal nem bagaceira em nenhum dia');
 
   // Não troca, mesmo chamando as funções diretamente, e nada muda.
   const antes = g.ev('JSON.stringify(state)');
   DIAS.slice(0, 5).forEach(function (d) {
     const r = g.json('despensaTrocar(state, "vizinho_teste", "' + d + '")');
-    ok(r.ok === false && r.motivo === 'nivel_insuficiente' && r.pagou === null && r.uvasGastas === 0 && r.reputacaoGanha === 0 && r.primeiraVez === false, 'nível 17: despensaTrocar devia recusar com «nivel_insuficiente» sem cobrar nada: ' + JSON.stringify(r));
+    ok(r.ok === false && r.motivo === 'nivel_insuficiente' && r.pagou === null && r.uvasGastas === 0 && r.reputacaoGanha === 0 && r.primeiraVez === false, 'nível 18: despensaTrocar devia recusar com «nivel_insuficiente» sem cobrar nada: ' + JSON.stringify(r));
   });
   // A ordem das recusas: «nivel_insuficiente» vem logo a seguir a «id_invalido», antes de qualquer outra (dia, teto, prateleira).
   const diaMau = g.json('despensaTrocar(state, "vizinho_teste", "xx")');
-  ok(diaMau.ok === false && diaMau.motivo === 'nivel_insuficiente', 'nível 17: com um dia inválido a recusa devia ser «nivel_insuficiente» (vem antes de «dia_invalido»): ' + JSON.stringify(diaMau));
-  jogador(g, { nivel: 17, despensa: { recebidos: { bem_teste: 3 }, entregues: {}, primeiraTroca: { bem_teste: D1 }, hoje: { dia: D1, feitas: { vizinho_teste: true, dona_amelia: true, sr_joaquim: true, tomas: true } } } });
+  ok(diaMau.ok === false && diaMau.motivo === 'nivel_insuficiente', 'nível 18: com um dia inválido a recusa devia ser «nivel_insuficiente» (vem antes de «dia_invalido»): ' + JSON.stringify(diaMau));
+  jogador(g, { nivel: 18, despensa: { recebidos: { bem_teste: 3 }, entregues: {}, primeiraTroca: { bem_teste: D1 }, hoje: { dia: D1, feitas: { vizinho_teste: true, dona_amelia: true, sr_joaquim: true, tomas: true } } } });
   const ordem = g.json('despensaTrocar(state, "vizinho_teste", "' + D1 + '")');
-  ok(ordem.ok === false && ordem.motivo === 'nivel_insuficiente', 'nível 17: com «ja_hoje», teto e prateleira cheia a recusa devia ser «nivel_insuficiente»: ' + JSON.stringify(ordem));
-  jogador(g, { nivel: 17 });
+  ok(ordem.ok === false && ordem.motivo === 'nivel_insuficiente', 'nível 18: com «ja_hoje», teto e prateleira cheia a recusa devia ser «nivel_insuficiente»: ' + JSON.stringify(ordem));
+  jogador(g, { nivel: 18 });
   const reg = g.json('despensaRegistarTroca(state, "vizinho_teste", "bem_teste", "' + D1 + '")');
-  ok(reg.ok === false && reg.motivo === 'nivel_insuficiente', 'nível 17: despensaRegistarTroca chamada diretamente devia recusar com «nivel_insuficiente»: ' + JSON.stringify(reg));
-  ok(g.ev('JSON.stringify(state)') === antes, 'nível 17: as recusas não deviam alterar nada (nem reparar o estado)');
+  ok(reg.ok === false && reg.motivo === 'nivel_insuficiente', 'nível 18: despensaRegistarTroca chamada diretamente devia recusar com «nivel_insuficiente»: ' + JSON.stringify(reg));
+  ok(g.ev('JSON.stringify(state)') === antes, 'nível 18: as recusas não deviam alterar nada (nem reparar o estado)');
   // O clique também recusa, sem gravar.
   g.ev('estradaTrocarClique("vizinho_teste")');
-  ok(g.ev('JSON.stringify(state)') === antes && g.gravacoes.length === 0, 'nível 17: o clique no vizinho de teste de nível 18 não devia gravar nem alterar nada');
+  ok(g.ev('JSON.stringify(state)') === antes && g.gravacoes.length === 0, 'nível 18: o clique no vizinho de teste de nível 19 não devia gravar nem alterar nada');
 
   // Não conta: o teto de 3 trocas por dia (marcas de um vizinho que ainda não existe para o jogador não somam).
-  jogador(g, { nivel: 17, despensa: { recebidos: {}, entregues: {}, primeiraTroca: {}, hoje: { dia: D1, feitas: { vizinho_teste: true, dona_amelia: true, sr_joaquim: true } } } });
+  jogador(g, { nivel: 18, despensa: { recebidos: {}, entregues: {}, primeiraTroca: {}, hoje: { dia: D1, feitas: { vizinho_teste: true, dona_amelia: true, sr_joaquim: true } } } });
   const cartao = g.json('estradaEstadoCartao(state, despensaVizinhoPorId("tomas"), "' + D1 + '")');
   const troca = g.json('despensaTrocar(state, "tomas", "' + D1 + '")');
-  ok(cartao.motivo === null && troca.ok === true, 'nível 17: a marca do vizinho de teste de nível 18 não devia contar para o teto de 3 por dia (cartão: ' + JSON.stringify(cartao) + '; troca: ' + JSON.stringify(troca) + ')');
+  ok(cartao.motivo === null && troca.ok === true, 'nível 18: a marca do vizinho de teste de nível 19 não devia contar para o teto de 3 por dia (cartão: ' + JSON.stringify(cartao) + '; troca: ' + JSON.stringify(troca) + ')');
   // ... e as dos vizinhos que existem continuam a contar (2 + esta = 3: a 4.ª recusa).
   const quarta = g.json('despensaTrocar(state, "sr_armindo", "' + D1 + '")');
-  ok(quarta.ok === false && quarta.motivo === 'teto_dia', 'nível 17: com 3 trocas de vizinhos que existem o teto devia recusar a 4.ª: ' + JSON.stringify(quarta));
+  ok(quarta.ok === false && quarta.motivo === 'teto_dia', 'nível 18: com 3 trocas de vizinhos que existem o teto devia recusar a 4.ª: ' + JSON.stringify(quarta));
 
   // Não conta: bens, prateleira, oferta às visitas e receitas.
-  jogador(g, { nivel: 17, despensa: { recebidos: { bem_teste: 3, queijo_azeitao: 1 }, entregues: {}, primeiraTroca: { bem_teste: D1 }, hoje: { dia: null, feitas: {} } } });
-  ok(g.ev('despensaQuantos(state, "bem_teste")') === 0 && g.ev('despensaQuantos(state, "queijo_azeitao")') === 1, 'nível 17: o bem do vizinho de teste de nível 18 devia contar 0 (e o queijo 1)');
-  ok(g.ev('despensaBemParaOferecer(state)') === 'queijo_azeitao', 'nível 17: a oferta às visitas não devia escolher o bem do vizinho de teste de nível 18');
-  jogador(g, { nivel: 17, despensa: { recebidos: { bem_teste: 3 }, entregues: {}, primeiraTroca: { bem_teste: D1 }, hoje: { dia: null, feitas: {} } } });
-  ok(g.ev('despensaBemParaOferecer(state)') === null, 'nível 17: só com o bem do vizinho de teste de nível 18, não há nada para oferecer');
+  jogador(g, { nivel: 18, despensa: { recebidos: { bem_teste: 3, queijo_azeitao: 1 }, entregues: {}, primeiraTroca: { bem_teste: D1 }, hoje: { dia: null, feitas: {} } } });
+  ok(g.ev('despensaQuantos(state, "bem_teste")') === 0 && g.ev('despensaQuantos(state, "queijo_azeitao")') === 1, 'nível 18: o bem do vizinho de teste de nível 19 devia contar 0 (e o queijo 1)');
+  ok(g.ev('despensaBemParaOferecer(state)') === 'queijo_azeitao', 'nível 18: a oferta às visitas não devia escolher o bem do vizinho de teste de nível 19');
+  jogador(g, { nivel: 18, despensa: { recebidos: { bem_teste: 3 }, entregues: {}, primeiraTroca: { bem_teste: D1 }, hoje: { dia: null, feitas: {} } } });
+  ok(g.ev('despensaBemParaOferecer(state)') === null, 'nível 18: só com o bem do vizinho de teste de nível 19, não há nada para oferecer');
   const antesOferta = g.ev('JSON.stringify(state)');
   const of = g.json('despensaOferecer(state, "' + D1 + '")');
-  ok(of.ok === false && of.motivo === 'sem_bens' && g.ev('JSON.stringify(state)') === antesOferta, 'nível 17: oferecer só com esse bem devia recusar («sem_bens») sem alterar nada: ' + JSON.stringify(of));
+  ok(of.ok === false && of.motivo === 'sem_bens' && g.ev('JSON.stringify(state)') === antesOferta, 'nível 18: oferecer só com esse bem devia recusar («sem_bens») sem alterar nada: ' + JSON.stringify(of));
   const mesa = g.json('despensaMesaVindima(state, "' + D1 + '", { bens: [{ bem: "bem_teste", n: 1 }], reputacao: 5 })');
-  ok(mesa.ok === false && mesa.motivo === 'faltam_bens' && g.ev('JSON.stringify(state)') === antesOferta, 'nível 17: uma receita com esse bem devia recusar («faltam_bens») sem alterar nada: ' + JSON.stringify(mesa));
+  ok(mesa.ok === false && mesa.motivo === 'faltam_bens' && g.ev('JSON.stringify(state)') === antesOferta, 'nível 18: uma receita com esse bem devia recusar («faltam_bens») sem alterar nada: ' + JSON.stringify(mesa));
   const entrega = g.json('despensaRegistarEntrega(state, "bem_teste", 1)');
-  ok(entrega.ok === false && entrega.motivo === 'sem_stock' && g.ev('JSON.stringify(state)') === antesOferta, 'nível 17: entregar esse bem devia recusar («sem_stock») sem alterar nada: ' + JSON.stringify(entrega));
+  ok(entrega.ok === false && entrega.motivo === 'sem_stock' && g.ev('JSON.stringify(state)') === antesOferta, 'nível 18: entregar esse bem devia recusar («sem_stock») sem alterar nada: ' + JSON.stringify(entrega));
 }
 
 // ---------------------------------------------------------------------
-// (b) Ao nível 18 o vizinho de teste aparece, pede, troca e conta.
+// (b) Ao nível 19 o vizinho de teste aparece, pede, troca e conta.
 // ---------------------------------------------------------------------
 {
   const g = abrir();
-  injetarVizinhoTeste(g, 18);
-  jogador(g, { nivel: 18 });
-  ok(g.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("vizinho_teste"))') === true, 'nível 18: o vizinho de nível 18 devia estar disponível');
+  injetarVizinhoTeste(g, 19);
+  jogador(g, { nivel: 19 });
+  ok(g.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("vizinho_teste"))') === true, 'nível 19: o vizinho de nível 19 devia estar disponível');
   LINGUAS.forEach(function (l) {
     const h = g.desenhar(l, D1);
-    ok((h.match(/estrada-botao"/g) || []).length === 7, 'nível 18 (' + l + '): o ecrã devia ter 7 botões de trocar');
-    ok(h.indexOf(esc(NOME_TESTE[l])) !== -1 && h.indexOf('data-vizinho="vizinho_teste"') !== -1, 'nível 18 (' + l + '): o vizinho de nível 18 devia aparecer no ecrã');
+    ok((h.match(/estrada-botao"/g) || []).length === 8, 'nível 19 (' + l + '): o ecrã devia ter 8 botões de trocar');
+    ok(h.indexOf(esc(NOME_TESTE[l])) !== -1 && h.indexOf('data-vizinho="vizinho_teste"') !== -1, 'nível 19 (' + l + '): o vizinho de nível 19 devia aparecer no ecrã');
   });
   const pedidos = DIAS.map(function (d) { return g.ev('despensaPedidoDoDia("vizinho_teste", "' + d + '", state)'); });
-  ok(pedidos.indexOf('sal_sado') !== -1 && pedidos.indexOf('bagaceira') !== -1, 'nível 18: o vizinho de nível 18 devia pedir sal e bagaceira em alguns dias');
+  ok(pedidos.indexOf('sal_sado') !== -1 && pedidos.indexOf('bagaceira') !== -1, 'nível 19: o vizinho de nível 19 devia pedir sal e bagaceira em alguns dias');
 
   // Troca (pelo clique: grava uma vez) e conta.
   g.ev('estradaTrocarClique("vizinho_teste")');
-  ok(g.ev('despensaQuantos(state, "bem_teste")') === 1 && g.ev('state.despensa.recebidos.bem_teste') === 1, 'nível 18: a troca devia dar o bem de teste');
-  ok(g.ev('state.despensa.hoje.feitas.vizinho_teste') === true && g.gravacoes.length >= 1, 'nível 18: a troca devia ficar registada e gravada');
-  ok(g.ev('despensaBemParaOferecer(state)') === 'bem_teste', 'nível 18: o bem do vizinho de nível 18 conta para a oferta às visitas');
+  ok(g.ev('despensaQuantos(state, "bem_teste")') === 1 && g.ev('state.despensa.recebidos.bem_teste') === 1, 'nível 19: a troca devia dar o bem de teste');
+  ok(g.ev('state.despensa.hoje.feitas.vizinho_teste') === true && g.gravacoes.length >= 1, 'nível 19: a troca devia ficar registada e gravada');
+  ok(g.ev('despensaBemParaOferecer(state)') === 'bem_teste', 'nível 19: o bem do vizinho de nível 19 conta para a oferta às visitas');
   // Conta para o teto: 2 de vizinhos reais + a do vizinho de teste = 3, e a 4.ª recusa.
-  ok(g.json('despensaTrocar(state, "dona_amelia", "' + D1 + '")').ok === true && g.json('despensaTrocar(state, "sr_joaquim", "' + D1 + '")').ok === true, 'nível 18: mais 2 trocas no mesmo dia');
+  ok(g.json('despensaTrocar(state, "dona_amelia", "' + D1 + '")').ok === true && g.json('despensaTrocar(state, "sr_joaquim", "' + D1 + '")').ok === true, 'nível 19: mais 2 trocas no mesmo dia');
   const quarta = g.json('despensaTrocar(state, "tomas", "' + D1 + '")');
-  ok(quarta.ok === false && quarta.motivo === 'teto_dia', 'nível 18: a troca do vizinho de nível 18 devia contar para o teto de 3 por dia: ' + JSON.stringify(quarta));
+  ok(quarta.ok === false && quarta.motivo === 'teto_dia', 'nível 19: a troca do vizinho de nível 19 devia contar para o teto de 3 por dia: ' + JSON.stringify(quarta));
   // Conta para a prateleira (3 de cada bem): com 3 do bem de teste, mais uma não se cobra.
-  jogador(g, { nivel: 18, despensa: { recebidos: { bem_teste: 3 }, entregues: {}, primeiraTroca: { bem_teste: DIAS[0] }, hoje: { dia: null, feitas: {} } } });
+  jogador(g, { nivel: 19, despensa: { recebidos: { bem_teste: 3 }, entregues: {}, primeiraTroca: { bem_teste: DIAS[0] }, hoje: { dia: null, feitas: {} } } });
   const cheia = g.json('despensaTrocar(state, "vizinho_teste", "' + DIAS[1] + '")');
-  ok(cheia.ok === false && cheia.motivo === 'prateleira_cheia', 'nível 18: com 3 do bem de teste a prateleira devia estar cheia: ' + JSON.stringify(cheia));
+  ok(cheia.ok === false && cheia.motivo === 'prateleira_cheia', 'nível 19: com 3 do bem de teste a prateleira devia estar cheia: ' + JSON.stringify(cheia));
 }
 
 // ---------------------------------------------------------------------
@@ -241,13 +243,15 @@ const ALBANO = 'sr_albano'; // o Sr. Albano, nível 17
   };
   // Cada grupo: os jogadores, os vizinhos que ainda não existem para eles, e quantos cartões o ecrã deve ter.
   const grupos = [
-    { nome: 'abaixo do nível 14', fechados: [NATALIA, ALBANO], cartoes: 4, jogadores: [
+    { nome: 'abaixo do nível 14', fechados: [NATALIA, ALBANO, FERNANDA], cartoes: 4, jogadores: [
       { nome: 'jogador novo no nível 7', nivel: 7 }, { nome: 'jogador novo no nível 10', nivel: 10 }, { nome: 'jogador novo no nível 13', nivel: 13 },
       { nome: 'jogador antigo com 0 de Reputação', antigo: true, reputacao: 0 }, { nome: 'jogador antigo com 300 de Reputação', antigo: true, reputacao: 300 },
       { nome: 'jogador antigo no nível 7', antigo: true, nivel: 7 }, { nome: 'jogador antigo no nível 13', antigo: true, nivel: 13 } ] },
-    { nome: 'do nível 14 ao 16', fechados: [ALBANO], cartoes: 5, jogadores: [
+    { nome: 'do nível 14 ao 16', fechados: [ALBANO, FERNANDA], cartoes: 5, jogadores: [
       { nome: 'jogador novo no nível 14', nivel: 14 }, { nome: 'jogador novo no nível 16', nivel: 16 }, { nome: 'jogador antigo no nível 14', antigo: true, nivel: 14 },
-      { nome: 'jogador antigo no nível 16', antigo: true, nivel: 16 } ] }
+      { nome: 'jogador antigo no nível 16', antigo: true, nivel: 16 } ] },
+    { nome: 'no nível 17', fechados: [FERNANDA], cartoes: 6, jogadores: [
+      { nome: 'jogador novo no nível 17', nivel: 17 }, { nome: 'jogador antigo no nível 17', antigo: true, nivel: 17 } ] }
   ];
   grupos.forEach(function (grupo) {
     grupo.jogadores.forEach(function (v) {
@@ -263,23 +267,23 @@ const ALBANO = 'sr_albano'; // o Sr. Albano, nível 17
       grupo.fechados.forEach(function (id) { ok(real.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("' + id + '"))') === false, v.nome + ': ' + id + ' não devia estar disponível'); });
     });
   });
-  // Do nível 17 em diante há 6 cartões, e os que já existiam ficam como eram (os cartões da Dona Natália e do Sr. Albano são os únicos a mais).
-  [17, 20].forEach(function (nivel) {
+  // Do nível 18 em diante há 7 cartões, e os que já existiam ficam como eram (os cartões da Dona Natália, do Sr. Albano e da Dona Fernanda são os únicos a mais).
+  [18, 20].forEach(function (nivel) {
     const real = abrir(), antes = abrir();
-    sem(antes, [NATALIA, ALBANO]);
+    sem(antes, [NATALIA, ALBANO, FERNANDA]);
     jogador(real, { nivel: nivel }); jogador(antes, { nivel: nivel });
     LINGUAS.forEach(function (l) {
       const a = real.desenhar(l, D1), b = antes.desenhar(l, D1);
       let html = a;
-      [NATALIA, ALBANO].forEach(function (id) {
+      [NATALIA, ALBANO, FERNANDA].forEach(function (id) {
         const i = html.indexOf('data-vizinho="' + id + '"');
         const ini = html.lastIndexOf('<div class="estrada-cartao">', i);
         let fim = html.indexOf('<div class="estrada-cartao">', i); if (fim === -1) fim = html.indexOf('<p class="estrada-aviso">', i);
         ok(i !== -1, 'nível ' + nivel + ' (' + l + '): ' + id + ' devia aparecer');
         if (i !== -1) html = html.slice(0, ini) + html.slice(fim);
       });
-      ok((a.match(/estrada-botao"/g) || []).length === 6, 'nível ' + nivel + ' (' + l + '): o ecrã devia ter 6 cartões');
-      ok(html === b, 'nível ' + nivel + ' (' + l + '): sem os cartões da Dona Natália e do Sr. Albano o ecrã devia ser exatamente o de sempre');
+      ok((a.match(/estrada-botao"/g) || []).length === 7, 'nível ' + nivel + ' (' + l + '): o ecrã devia ter 7 cartões');
+      ok(html === b, 'nível ' + nivel + ' (' + l + '): sem os cartões da Dona Natália, do Sr. Albano e da Dona Fernanda o ecrã devia ser exatamente o de sempre');
     });
   });
   // Um jogador novo abaixo do nível 7 não tem a Estrada (e por isso também não tem os vizinhos).
@@ -290,14 +294,16 @@ const ALBANO = 'sr_albano'; // o Sr. Albano, nível 17
   ok(g.ev("ecraDesbloqueado('estrada')") === true, 'no nível 7 a Estrada abre');
   // Um vizinho de nível mais alto continua fechado a um jogador antigo, que só abre os de origem (nível 7 ou menos).
   const h2 = abrir();
-  injetarVizinhoTeste(h2, 18);
+  injetarVizinhoTeste(h2, 19);
   const disp = function (id) { return h2.ev('despensaVizinhoDisponivel(state, despensaVizinhoPorId("' + id + '"))'); };
   jogador(h2, { antigo: true, nivel: 8 });
-  ok(disp('vizinho_teste') === false && disp(NATALIA) === false && disp(ALBANO) === false && disp('dona_amelia') === true, 'um jogador antigo de nível 8 não devia ver os vizinhos de nível 14, 17 e 18, mas continua a ver os de nível 7');
+  ok(disp('vizinho_teste') === false && disp(NATALIA) === false && disp(ALBANO) === false && disp(FERNANDA) === false && disp('dona_amelia') === true, 'um jogador antigo de nível 8 não devia ver os vizinhos de nível 14, 17, 18 e 19, mas continua a ver os de nível 7');
   jogador(h2, { antigo: true, nivel: 14 });
   ok(disp(NATALIA) === true && disp(ALBANO) === false, 'um jogador antigo de nível 14 devia ver a Dona Natália, mas não o Sr. Albano');
   jogador(h2, { antigo: true, nivel: 17 });
-  ok(disp(ALBANO) === true && disp('vizinho_teste') === false, 'um jogador antigo de nível 17 devia ver o Sr. Albano');
+  ok(disp(ALBANO) === true && disp(FERNANDA) === false, 'um jogador antigo de nível 17 devia ver o Sr. Albano, mas não a Dona Fernanda');
+  jogador(h2, { antigo: true, nivel: 18 });
+  ok(disp(FERNANDA) === true && disp('vizinho_teste') === false, 'um jogador antigo de nível 18 devia ver a Dona Fernanda');
 }
 
 // ---------------------------------------------------------------------
@@ -334,14 +340,14 @@ const ALBANO = 'sr_albano'; // o Sr. Albano, nível 17
   const g = abrir();
   const pedidosDe = function (ids) { return JSON.stringify(ids.map(function (id) { return DIAS.map(function (d) { return g.ev('despensaPedidoDoDia("' + id + '", "' + d + '")'); }); })); };
   const antes = pedidosDe(REAIS);
-  injetarVizinhoTeste(g, 18);
+  injetarVizinhoTeste(g, 19);
   ok(pedidosDe(REAIS) === antes, 'acrescentar um vizinho não devia mudar os pedidos dos que já existem');
   g.ev('ESTRADA_VIZINHOS.reverse();');
   ok(pedidosDe(REAIS) === antes, 'a ordem da lista de vizinhos não devia mudar os pedidos');
   g.ev('ESTRADA_VIZINHOS.reverse();');
-  // A Dona Natália e o Sr. Albano (sem entrada em ESTRADA_PEDIDOS) pedem sempre uvas, com ou sem o estado.
+  // A Dona Natália, o Sr. Albano e a Dona Fernanda (sem entrada em ESTRADA_PEDIDOS) pedem sempre uvas, com ou sem o estado.
   jogador(g, { nivel: 20 });
-  [NATALIA, ALBANO].forEach(function (id) {
+  [NATALIA, ALBANO, FERNANDA].forEach(function (id) {
     ok(DIAS.every(function (d) { return g.ev('despensaPedidoDoDia("' + id + '", "' + d + '")') === 'uvas' && g.ev('despensaPedidoDoDia("' + id + '", "' + d + '", state)') === 'uvas'; }) && g.ev('ESTRADA_PEDIDOS.' + id) === undefined, id + ' (sem pedidos) devia pedir sempre uvas');
   });
   // A conta: o hash de (dia + ":" + id) escolhe da lista de pedidos desse vizinho (js/despensa.js), sem usar mais nada.
@@ -354,7 +360,7 @@ const ALBANO = 'sr_albano'; // o Sr. Albano, nível 17
 }
 
 // ---------------------------------------------------------------------
-// Partes 2 e 3. Os vizinhos reais de nível mais alto: a Dona Natália (nível 14, a torta de Azeitão) e o Sr. Albano (nível 17, o pinhão de Alcácer).
+// Partes 2, 3 e 4. Os vizinhos reais de nível mais alto: a Dona Natália (nível 14, a torta de Azeitão), o Sr. Albano (nível 17, o pinhão de Alcácer) e a Dona Fernanda (nível 18, o arroz do Sado).
 // ---------------------------------------------------------------------
 function provasDoVizinho(c) {
   const SEM = function (h, l) { return h.indexOf(c.nome[l]) === -1 && h.indexOf(path.basename(c.cara)) === -1 && h.indexOf('data-vizinho="' + c.id + '"') === -1 && h.indexOf(esc(c.papel[l])) === -1; };
@@ -487,6 +493,15 @@ provasDoVizinho({
   papel: { pt: 'apanhador de pinha de Alcácer', en: 'Alcácer pine cone picker', es: 'recolector de piñas de Alcácer' },
   bemNome: { pt: 'Pinhão de Alcácer', en: 'Alcácer pine nuts', es: 'Piñones de Alcácer' },
   cara: 'assets/personagens/vizinho_albano.jpg', cena: 'assets/ecras/estrada_sr_albano.jpg', ficheirosRegex: /albano|pinhal|pinhao|pinhão|pinha/i
+});
+provasDoVizinho({
+  etiqueta: 'Fernanda', id: FERNANDA, nivel: 18, botoesAbaixo: 6, botoesNoNivel: 7, bemId: 'arroz_sado',
+  nome: { pt: 'Dona Fernanda', en: 'Dona Fernanda', es: 'Dona Fernanda' },
+  papel: { pt: 'arrozeira da Comporta', en: 'Comporta rice farmer', es: 'arrocera de la Comporta' },
+  bemNome: { pt: 'Arroz Carolino do Sado', en: 'Sado carolino rice', es: 'Arroz carolino del Sado' },
+  cara: 'assets/personagens/vizinha_fernanda.jpg', cena: 'assets/ecras/estrada_dona_fernanda.jpg',
+  // Só os ficheiros dela e do bem (não apanha yoshi_nos_arrozais.jpg, a imagem do nível 18, nem as arrozal_*.jpg de imagens_JOGO_TELEGRAM).
+  ficheirosRegex: /fernanda|arrozal_da_comporta|arroz_sado/i
 });
 
 if (falhas) { console.log(falhas + ' falha(s)'); process.exit(1); }
