@@ -46,11 +46,66 @@ function despensaBemExiste(id) {
   return ESTRADA_BENS.some(function (b) { return b.id === id; });
 }
 
+// NÍVEL MÍNIMO DOS VIZINHOS (campo "nivelMinimo" de ESTRADA_VIZINHOS, js/estrada-dados.js). Um vizinho só conta para um jogador
+// quando o nível dele (nivelPelaReputacao, js/niveis.js) chega a esse mínimo. Abaixo disso o vizinho não aparece, não pede,
+// não troca e não entra em nenhuma conta (teto de trocas por dia, bens, prateleira, oferta às visitas). Só lê o estado.
+
+// O nível mínimo do vizinho: sem o campo (undefined ou null) vale ESTRADA_NIVEL_MINIMO_PADRAO (7); um inteiro >= 1 vale por si;
+// qualquer outra coisa (texto, 0, negativo, fracionado) devolve Infinity, ou seja, o vizinho fica fechado.
+function despensaVizinhoNivelMinimo(vizinho) {
+  const padrao = typeof ESTRADA_NIVEL_MINIMO_PADRAO === 'number' ? ESTRADA_NIVEL_MINIMO_PADRAO : 7;
+  if (!vizinho || typeof vizinho !== 'object') return Infinity;
+  const n = vizinho.nivelMinimo;
+  if (n === undefined || n === null) return padrao;
+  return typeof n === 'number' && Number.isInteger(n) && n >= 1 ? n : Infinity;
+}
+
+// O nível do jogador neste estado (a partir da Reputação, como o resto do jogo); null se js/niveis.js não estiver carregado
+// (só acontece em testes que carregam menos ficheiros: no jogo carrega sempre antes deste).
+function despensaNivelDoEstado(estado) {
+  if (typeof nivelPelaReputacao !== 'function') return null;
+  const rep = estado && typeof estado === 'object' && typeof estado.reputacao === 'number' && Number.isFinite(estado.reputacao) ? estado.reputacao : 0;
+  return nivelPelaReputacao(rep);
+}
+
+// O vizinho existe para este jogador? Verdadeiro quando o nível dele chega ao nivelMinimo do vizinho.
+// Um jogador ANTIGO (state.acesso.jogadorAntigo, js/state.js) tem a Estrada aberta sem nível (ecraDesbloqueado, js/niveis.js), por
+// isso os vizinhos de origem (nivelMinimo até ao nível em que a Estrada abre) ficam-lhe como sempre foram; os de nível mais alto
+// só aparecem quando o nível dele chega lá. Sem js/niveis.js (nível desconhecido) só valem os vizinhos de origem.
+function despensaVizinhoDisponivel(estado, vizinho) {
+  const minimo = despensaVizinhoNivelMinimo(vizinho);
+  const deOrigem = minimo <= (typeof ESTRADA_NIVEL_MINIMO_PADRAO === 'number' ? ESTRADA_NIVEL_MINIMO_PADRAO : 7);
+  const nivel = despensaNivelDoEstado(estado);
+  if (nivel === null) return deOrigem;
+  if (nivel >= minimo) return true;
+  return deOrigem && !!(estado && typeof estado === 'object' && estado.acesso && estado.acesso.jogadorAntigo === true);
+}
+
+// O bem conta para este jogador? Um bem que tem vizinhos a dá-lo só conta se pelo menos um desses vizinhos estiver disponível
+// (um bem sem nenhum vizinho a dá-lo conta como sempre). Assim um bem de um vizinho que ainda não existe para o jogador não entra
+// em nenhuma conta (prateleira, oferta às visitas, receitas).
+function despensaBemDisponivel(estado, bemId) {
+  if (typeof ESTRADA_VIZINHOS === 'undefined') return true;
+  const dadores = ESTRADA_VIZINHOS.filter(function (v) { return v.bem === bemId; });
+  if (dadores.length === 0) return true;
+  return dadores.some(function (v) { return despensaVizinhoDisponivel(estado, v); });
+}
+
+// Quantas trocas já fez hoje, somando só os vizinhos que existem para o jogador (uma marca de um vizinho que ainda não existe
+// para ele não conta; um id que já não está em ESTRADA_VIZINHOS conta como sempre contou).
+function despensaTrocasFeitasHoje(estado, feitas) {
+  if (!feitas || typeof feitas !== 'object' || Array.isArray(feitas)) return 0;
+  return Object.keys(feitas).filter(function (id) {
+    const v = despensaVizinhoPorId(id);
+    return !v || despensaVizinhoDisponivel(estado, v);
+  }).length;
+}
+
 // Quantas unidades do bem tem: recebidos menos entregues, nunca abaixo de 0 (0 se nunca
 // recebeu, se o id não existe ou se um valor guardado não é um inteiro >= 0). Só lê: nunca
 // altera o estado.
 function despensaQuantos(estado, bemId) {
-  if (!despensaBemExiste(bemId)) return 0;
+  if (!despensaBemExiste(bemId) || !despensaBemDisponivel(estado, bemId)) return 0;
   const d = estado && estado.despensa;
   if (!d || typeof d !== 'object') return 0;
   const recebidos = despensaTemChave(d.recebidos, bemId) ? despensaInteiroValido(d.recebidos[bemId]) : 0;
@@ -75,6 +130,7 @@ function despensaEstado(estado) {
 
 // Regista uma troca do dia "diaLisboa" com o vizinho "vizinhoId", que dá o seu bem "bemId".
 //   - ids que não existem, ou um bem que não é o do vizinho: { ok: false, motivo: 'id_invalido' }
+//   - vizinho que ainda não existe para o jogador (nivelMinimo): { ok: false, motivo: 'nivel_insuficiente' }
 //   - dia que não seja 'AAAA-MM-DD':                          { ok: false, motivo: 'dia_invalido' }
 //   - já trocou hoje com esse vizinho:                        { ok: false, motivo: 'ja_hoje' }
 //   - senão soma 1 a recebidos[bemId], regista primeiraTroca[bemId] se ainda não havia,
@@ -87,6 +143,7 @@ function despensaRegistarTroca(estado, vizinhoId, bemId, diaLisboa) {
   if (!vizinho || !despensaBemExiste(bemId) || vizinho.bem !== bemId) return { ok: false, motivo: 'id_invalido' };
   if (typeof diaLisboa !== 'string' || !DESPENSA_DIA_REGEX.test(diaLisboa)) return { ok: false, motivo: 'dia_invalido' };
   if (!estado || typeof estado !== 'object') return { ok: false, motivo: 'id_invalido' };
+  if (!despensaVizinhoDisponivel(estado, vizinho)) return { ok: false, motivo: 'nivel_insuficiente' };
 
   const d = despensaEstado(estado);
   if (d.hoje.dia !== diaLisboa) d.hoje = { dia: diaLisboa, feitas: {} };
@@ -118,7 +175,7 @@ function despensaRegistarEntrega(estado, bemId, n) {
 }
 
 // ---------------------------------------------------------------------
-// TROCAS (PR 5A). Só regras e contas: nenhum ecrã chama isto ainda.
+// TROCAS (PR 5A). Só regras e contas; o ecrã que as chama é js/estrada.js.
 // ---------------------------------------------------------------------
 
 // Mesmo tipo de hash do cadernoHash() (js/caderno.js) e do visitasHash() (js/visitas.js).
@@ -140,10 +197,13 @@ function despensaGarrafasDisponiveis(estado) {
 // O que o vizinho pede neste dia: 'uvas', 'sal_sado' ou 'bagaceira' (ver ESTRADA_PEDIDOS: a Dona Amélia varia entre uvas e sal e o Sr. Armindo
 // entre uvas, sal e bagaceira).
 // Escolhido pelo hash de (dia + ':' + id do vizinho): igual nas 3 línguas e estável o dia todo.
-// Sem vizinho, sem lista de pedidos ou com um dia inválido, pede 'uvas'.
-function despensaPedidoDoDia(vizinho, dia) {
+// Sem vizinho, sem lista de pedidos ou com um dia inválido, pede 'uvas'. Com o "estado" (opcional), um vizinho que ainda não existe
+// para o jogador (nivelMinimo) também pede 'uvas': nunca pede sal nem bagaceira. O pedido de cada vizinho só depende do dia e do
+// id dele: acrescentar outro vizinho nunca muda os pedidos dos que já existem.
+function despensaPedidoDoDia(vizinho, dia, estado) {
   const v = typeof vizinho === 'string' ? despensaVizinhoPorId(vizinho) : vizinho;
   if (!v || typeof v.id !== 'string' || typeof dia !== 'string' || !DESPENSA_DIA_REGEX.test(dia)) return 'uvas';
+  if (estado !== undefined && !despensaVizinhoDisponivel(estado, v)) return 'uvas';
   const lista = typeof ESTRADA_PEDIDOS !== 'undefined' && despensaTemChave(ESTRADA_PEDIDOS, v.id) ? ESTRADA_PEDIDOS[v.id] : null;
   if (!Array.isArray(lista) || lista.length === 0) return 'uvas';
   return lista[despensaHash(dia + ':' + v.id) % lista.length];
@@ -177,10 +237,11 @@ function despensaUltimoDiaRegistado(estado) {
 // VALIDA TUDO antes de alterar QUALQUER coisa, por esta ordem (o 1.º que falhar é o motivo):
 //   'estado_invalido'  o estado não é um objeto
 //   'id_invalido'      o vizinho não existe
+//   'nivel_insuficiente' o vizinho ainda não existe para o jogador (o nível dele é menor que o nivelMinimo do vizinho)
 //   'dia_invalido'     o dia não é 'AAAA-MM-DD'
 //   'dia_anterior'     o dia é anterior ao último dia registado (relógio atrás)
 //   'ja_hoje'          já trocou hoje com este vizinho
-//   'teto_dia'         já fez ESTRADA_TROCA.trocasPorDiaTeto trocas hoje (no total)
+//   'teto_dia'         já fez ESTRADA_TROCA.trocasPorDiaTeto trocas hoje (no total, só dos vizinhos que existem para o jogador)
 //   'prateleira_cheia' já tem ESTRADA_TROCA.prateleiraMaxima desse bem (não cobra nada)
 //   'faltam_uvas'      tem de pagar em uvas e ficaria com menos de uvasMinimasDepoisDaTroca
 // Recusar NUNCA altera nada (nem repara o estado). Pagamento:
@@ -202,6 +263,7 @@ function despensaTrocar(estado, vizinhoId, dia) {
   const vizinho = despensaVizinhoPorId(vizinhoId);
   if (!vizinho || !despensaBemExiste(vizinho.bem)) return recusa('id_invalido');
   const bem = vizinho.bem;
+  if (!despensaVizinhoDisponivel(estado, vizinho)) return recusa('nivel_insuficiente', bem);
   if (typeof dia !== 'string' || !DESPENSA_DIA_REGEX.test(dia)) return recusa('dia_invalido', bem);
   const ultimo = despensaUltimoDiaRegistado(estado);
   if (ultimo !== null && dia < ultimo) return recusa('dia_anterior', bem);
@@ -210,14 +272,14 @@ function despensaTrocar(estado, vizinhoId, dia) {
   const d = estado.despensa && typeof estado.despensa === 'object' ? estado.despensa : null;
   const h = d && d.hoje && typeof d.hoje === 'object' && d.hoje.dia === dia && d.hoje.feitas && typeof d.hoje.feitas === 'object' && !Array.isArray(d.hoje.feitas) ? d.hoje.feitas : {};
   if (despensaTemChave(h, vizinhoId)) return recusa('ja_hoje', bem);
-  if (Object.keys(h).length >= T.trocasPorDiaTeto) return recusa('teto_dia', bem);
+  if (despensaTrocasFeitasHoje(estado, h) >= T.trocasPorDiaTeto) return recusa('teto_dia', bem);
   if (despensaQuantos(estado, bem) >= T.prateleiraMaxima) return recusa('prateleira_cheia', bem);
 
   const primeiraVez = !(d && despensaTemChave(d.primeiraTroca, bem) && DESPENSA_DIA_REGEX.test(String(d.primeiraTroca[bem])));
   let pagou;
   if (primeiraVez && despensaGarrafasDisponiveis(estado) >= 1) pagou = 'garrafa';
-  else if (!primeiraVez && despensaPedidoDoDia(vizinho, dia) === 'sal_sado' && despensaQuantos(estado, 'sal_sado') >= 1) pagou = 'sal';
-  else if (!primeiraVez && despensaPedidoDoDia(vizinho, dia) === 'bagaceira' && despensaBagaceiras(estado) >= 1) pagou = 'bagaceira';
+  else if (!primeiraVez && despensaPedidoDoDia(vizinho, dia, estado) === 'sal_sado' && despensaQuantos(estado, 'sal_sado') >= 1) pagou = 'sal';
+  else if (!primeiraVez && despensaPedidoDoDia(vizinho, dia, estado) === 'bagaceira' && despensaBagaceiras(estado) >= 1) pagou = 'bagaceira';
   else pagou = 'uvas';
   const uvas = typeof estado.uvas === 'number' && Number.isFinite(estado.uvas) ? estado.uvas : 0;
   if (pagou === 'uvas' && uvas - T.custoUvas < T.uvasMinimasDepoisDaTroca) return recusa('faltam_uvas', bem);

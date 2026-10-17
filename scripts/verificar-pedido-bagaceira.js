@@ -68,7 +68,7 @@ function suite(fontes) {
   // Estado de um jogador com o choco já provado (troca repetida).
   const base = function (extra) {
     return Object.assign({
-      uvas: 100, reputacao: 50, garrafas: 0, gotas: 5,
+      uvas: 100, reputacao: 50, garrafas: 0, gotas: 5, acesso: { jogadorAntigo: true }, // a Estrada aberta (como os outros estados deste teste)
       adega: { bagaco: 7, aguardente: 2, bagaceira: 2, cooldowns: {}, lote: null, historico: [] },
       despensa: { recebidos: { choco_sado: 1 }, entregues: {}, primeiraTroca: { choco_sado: ANT }, hoje: { dia: null, feitas: {} } }
     }, extra || {});
@@ -181,8 +181,8 @@ function suite(fontes) {
 
   // ---------------- 7. O cartão da Estrada ----------------
   {
-    const comB = abrir(); comB.ev('state.uvas = 100; state.despensa.recebidos = { choco_sado: 1 }; state.despensa.primeiraTroca = { choco_sado: "2026-01-01" }; state.adega.bagaceira = 2;');
-    const semB = abrir(); semB.ev('state.uvas = 100; state.despensa.recebidos = { choco_sado: 1 }; state.despensa.primeiraTroca = { choco_sado: "2026-01-01" }; state.adega.bagaceira = 0;');
+    const comB = abrir(); comB.ev('state.acesso.jogadorAntigo = true; state.uvas = 100; state.despensa.recebidos = { choco_sado: 1 }; state.despensa.primeiraTroca = { choco_sado: "2026-01-01" }; state.adega.bagaceira = 2;');
+    const semB = abrir(); semB.ev('state.acesso.jogadorAntigo = true; state.uvas = 100; state.despensa.recebidos = { choco_sado: 1 }; state.despensa.primeiraTroca = { choco_sado: "2026-01-01" }; state.adega.bagaceira = 0;');
     const antes = comB.ev('JSON.stringify(state)');
     const L = {
       pt: { btn: 'Trocar por 1 bagaceira', tem: 'Hoje aceita 1 bagaceira (ou 25 uvas)', nao: 'Hoje aceita bagaceira ou 25 uvas', uvas: 'Trocar por 25 uvas', fala: 'Tens aí uma bagaceira, vizinho? Com ela, a troca fica combinada.', pagou: 'Pagaste 1 bagaceira' },

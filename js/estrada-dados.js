@@ -6,6 +6,10 @@
 //
 // Quatro vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo), cada um com 3 falas
 // e 1 fala de troca; e quatro bens, um por vizinho. Os textos são pt/en/es.
+//
+// "nivelMinimo": o nível do jogador (js/niveis.js) a partir do qual o vizinho existe: abaixo dele não aparece na Estrada,
+// não pede, não troca e não conta para nenhum cálculo (ver despensaVizinhoDisponivel em js/despensa.js). Sem o campo vale
+// ESTRADA_NIVEL_MINIMO_PADRAO (7, o nível em que a Estrada abre); um valor que não seja um inteiro >= 1 deixa o vizinho fechado.
 // Os de EN e ES foram escritos a partir do PT e NÃO foram revistos por um
 // falante nativo.
 //
@@ -21,6 +25,9 @@
 // ---------------------------------------------------------------------
 
 const ESTRADA_POR_ESCREVER = '[por escrever]';
+
+// O nível mínimo de um vizinho que não traga "nivelMinimo": o nível em que a Estrada abre (NIVEL_NECESSARIO_POR_ECRA.estrada).
+const ESTRADA_NIVEL_MINIMO_PADRAO = 7;
 
 // As únicas fontes autorizadas. "url" só existe quando há um endereço aprovado.
 const ESTRADA_FONTES = {
@@ -67,6 +74,7 @@ const ESTRADA_FONTES = {
 const ESTRADA_VIZINHOS = [
   {
     id: 'dona_amelia',
+    nivelMinimo: 7,
     nome: { pt: 'Dona Amélia', en: 'Dona Amélia', es: 'Dona Amélia' },
     papel: { pt: 'queijeira de Azeitão', en: 'Azeitão cheesemaker', es: 'quesera de Azeitão' },
     cara: 'assets/personagens/vizinha_amelia.jpg',
@@ -112,6 +120,7 @@ const ESTRADA_VIZINHOS = [
   },
   {
     id: 'sr_joaquim',
+    nivelMinimo: 7,
     nome: { pt: 'Sr. Joaquim', en: 'Mr. Joaquim', es: 'Sr. Joaquim' },
     papel: { pt: 'salineiro do Sado', en: 'Sado salt worker', es: 'salinero del Sado' },
     cara: 'assets/personagens/vizinho_joaquim.jpg',
@@ -157,6 +166,7 @@ const ESTRADA_VIZINHOS = [
   },
   {
     id: 'tomas',
+    nivelMinimo: 7,
     nome: { pt: 'Tomás', en: 'Tomás', es: 'Tomás' },
     papel: { pt: 'apicultor de Sesimbra', en: 'Sesimbra beekeeper', es: 'apicultor de Sesimbra' },
     cara: 'assets/personagens/vizinho_tomas.jpg',
@@ -203,6 +213,7 @@ const ESTRADA_VIZINHOS = [
   },
   {
     id: 'sr_armindo',
+    nivelMinimo: 7,
     nome: { pt: 'Sr. Armindo', en: 'Mr. Armindo', es: 'Sr. Armindo' },
     papel: { pt: 'pescador do Sado', en: 'Sado fisherman', es: 'pescador del Sado' },
     cara: 'assets/personagens/vizinho_armindo.jpg',
@@ -291,14 +302,14 @@ const ESTRADA_BENS = [
   }
 ];
 
-// REGRAS DAS TROCAS (PR 5A: só regras e contas em js/despensa.js; nenhum ecrã as chama ainda).
+// REGRAS DAS TROCAS (as contas estão em js/despensa.js e o ecrã é js/estrada.js).
 // Tudo o que rege as trocas está só aqui, com nomes claros.
 //   custoUvas                 uvas pagas por uma troca (a 1.ª troca de cada bem, a "prova", paga com
 //                             1 garrafa disponível se houver; senão com estas uvas)
 //   uvasMinimasDepoisDaTroca  o jogador nunca fica com menos de 10 uvas depois de pagar em uvas
 //                             (só troca com custoUvas + este piso = 35 ou mais), para poder usar o Prensar
 //   prateleiraMaxima          no máximo 3 de cada bem na Despensa; com 3 não se cobra nada
-//   trocasPorDiaTeto          teto de trocas por dia, somando todos os vizinhos (dia de Lisboa)
+//   trocasPorDiaTeto          teto de trocas por dia, somando os vizinhos que já existem para o jogador (nivelMinimo; dia de Lisboa)
 //   trocasPorVizinhoPorDia    1 troca por vizinho por dia
 //   reputacaoPrimeiraTroca    +2 de Reputação só na 1.ª troca de cada bem (nunca nas repetidas)
 // Sem gotas e sem castigos: uma troca recusada não tira nada.
