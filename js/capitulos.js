@@ -179,7 +179,7 @@ function capitulosAvaliarEmSilencio() {
 
 const CAPITULOS_STRINGS = {
   pt: {
-    ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo no Nível {n}', todos: 'Todos os capítulos cumpridos' },
+    ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo no Nível {n}', todos: 'Todos os capítulos de agora cumpridos. Vêm aí mais!' },
     cap1: { titulo: 'Devolver a vida à Vinha', objetivo: 'Faz 4 tarefas diferentes na Vinha.' },
     cap2: { titulo: 'Guardiões da Colheita', objetivo: 'Faz a 1.ª colheita.' },
     cap3: { titulo: 'O primeiro Moscatel', objetivo: 'Faz a primeira garrafa.' },
@@ -192,7 +192,7 @@ const CAPITULOS_STRINGS = {
     cap10: { titulo: 'Um brinde à Quinta', objetivo: 'Brinda com o Moscatel Roxo em 3 dias diferentes.' }
   },
   en: {
-    ui: { rotulo: 'Chapter', proximo: 'Next chapter at Level {n}', todos: 'All chapters completed' },
+    ui: { rotulo: 'Chapter', proximo: 'Next chapter at Level {n}', todos: 'All the chapters so far are done. More are coming!' },
     cap1: { titulo: 'Bringing the Vineyard back to life', objetivo: 'Do 4 different tasks in the Vineyard.' },
     cap2: { titulo: 'Guardians of the Harvest', objetivo: 'Bring in your first harvest.' },
     cap3: { titulo: 'The first Moscatel', objetivo: 'Make your first bottle.' },
@@ -205,7 +205,7 @@ const CAPITULOS_STRINGS = {
     cap10: { titulo: 'A toast to the Quinta', objetivo: 'Raise a glass of Moscatel Roxo on 3 different days.' }
   },
   es: {
-    ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo en el Nivel {n}', todos: 'Todos los capítulos cumplidos' },
+    ui: { rotulo: 'Capítulo', proximo: 'Próximo capítulo en el Nivel {n}', todos: 'Todos los capítulos de ahora cumplidos. ¡Vienen más!' },
     cap1: { titulo: 'Devolver la vida al Viñedo', objetivo: 'Haz 4 tareas distintas en el Viñedo.' },
     cap2: { titulo: 'Guardianes de la Cosecha', objetivo: 'Haz tu primera cosecha.' },
     cap3: { titulo: 'El primer Moscatel', objetivo: 'Haz tu primera botella.' },
