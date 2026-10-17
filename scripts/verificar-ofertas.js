@@ -71,7 +71,7 @@ function correrTestes(src) {
   const quantos = function (estado, bem) { cx.__e = estado; cx.__b = bem; return correr('despensaQuantos(__e, __b)', 'q'); };
   const base = function (rec, extra) {
     return Object.assign({
-      uvas: 773, reputacao: 370, garrafas: 4, gotas: 3,
+      uvas: 773, reputacao: 370, garrafas: 4, gotas: 3, acesso: { jogadorAntigo: true }, // a Estrada aberta (como os outros estados deste teste)
       adega: { historico: [{ data: 'x', estacao: 'inverno', diasDescanso: 2 }, { data: 'x', estacao: 'verao', diasDescanso: 3 }] },
       despensa: { recebidos: rec || {}, entregues: {}, primeiraTroca: {}, hoje: { dia: null, feitas: {} } }
     }, extra || {});
@@ -213,8 +213,11 @@ function correrTestes(src) {
     prep({ visita: 'nenhuma', dia: diaSem }); h = linha(); ok(diaSem && h === '', 'sem visita hoje: a linha fica vazia (sem botão): ' + h.slice(0, 60));
     // Sem bens: nada (só a linha da visita).
     prep({ rec: {} }); h = linha(); ok(h.indexOf('oferta-') === -1 && h.indexOf('visita-linha') !== -1, 'visita tocada sem bens: não mostra nada da oferta');
-    // Estrada trancada (jogador novo, nível 5): nada.
+    // Estrada trancada (jogador novo, nível 5): nada. Com um vizinho de teste de nível 1 a dar o queijo (só neste caso, fora do jogo), o bem conta
+    // mesmo abaixo do nível 7, e só a tranca da Estrada esconde o botão (com os vizinhos de nível 7 o bem nem conta: ver verificar-estrada-nivel.js).
+    correr('ESTRADA_VIZINHOS.push({ id: "vizinho_teste_n1", nivelMinimo: 1, bem: "queijo_azeitao" });', 'vt');
     prep({ antigo: false }); h = linha(); ok(h.indexOf('oferta-') === -1, 'Estrada trancada (jogador novo, nível 5): sem botão');
+    correr('ESTRADA_VIZINHOS.pop();', 'vt');
     prep({ antigo: false, reputacao: 1000 }); h = linha(); ok(h.indexOf('oferta-botao') !== -1, 'jogador novo no nível 7: com botão');
     // Já ofereceu hoje: só a linha "Já ofereceste hoje" (também com o relógio atrás da última oferta).
     prep({ ofertaDia: D1 }); h = linha(); ok(h.indexOf('Já ofereceste hoje') !== -1 && h.indexOf('oferta-botao') === -1, 'oferta de hoje feita: só "Já ofereceste hoje"');

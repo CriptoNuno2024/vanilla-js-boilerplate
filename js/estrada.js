@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// A ESTRADA (Nível 7): os 4 vizinhos, o bem que dá cada um, quantos tens na Despensa, uma fala
+// A ESTRADA (Nível 7): os vizinhos que já existem para o jogador (nivelMinimo, ver js/estrada-dados.js; hoje os 4 de nível 7), o bem que dá cada um, quantos tens na Despensa, uma fala
 // do dia e (PR 5B) o botão "Trocar". As regras e as contas estão em js/despensa.js
 // (despensaTrocar) e js/estrada-dados.js (ESTRADA_TROCA); aqui só se mostra e se clica.
 //
@@ -52,7 +52,7 @@ function estradaEstadoCartao(estado, v, dia) {
   const d = estado && estado.despensa && typeof estado.despensa === 'object' ? estado.despensa : null;
   const tem = function (obj, k) { return !!obj && typeof obj === 'object' && Object.prototype.hasOwnProperty.call(obj, k); };
   const primeiraVez = !(d && tem(d.primeiraTroca, v.bem) && /^\d{4}-\d{2}-\d{2}$/.test(String(d.primeiraTroca[v.bem])));
-  const pedido = despensaPedidoDoDia(v, dia);
+  const pedido = despensaPedidoDoDia(v, dia, estado);
   let acao = 'uvas';
   if (primeiraVez && despensaGarrafasDisponiveis(estado) >= 1) acao = 'garrafa';
   else if (!primeiraVez && pedido === 'sal_sado' && despensaQuantos(estado, 'sal_sado') >= 1) acao = 'sal';
@@ -64,7 +64,7 @@ function estradaEstadoCartao(estado, v, dia) {
   let motivo = null;
   if (ultimo !== null && dia < ultimo) motivo = 'dia_anterior';
   else if (tem(feitas, v.id)) motivo = 'ja_hoje';
-  else if (Object.keys(feitas).length >= T.trocasPorDiaTeto) motivo = 'teto_dia';
+  else if (despensaTrocasFeitasHoje(estado, feitas) >= T.trocasPorDiaTeto) motivo = 'teto_dia';
   else if (despensaQuantos(estado, v.bem) >= T.prateleiraMaxima) motivo = 'prateleira_cheia';
   else if (acao === 'uvas' && uvas - T.custoUvas < T.uvasMinimasDepoisDaTroca) motivo = 'faltam_uvas';
   return { acao: acao, motivo: motivo, primeiraVez: primeiraVez, pedido: pedido };
@@ -172,7 +172,7 @@ function estradaDesenhar() {
       '<p class="mini-title" data-i18n="estrada.title"></p>' +
     '</div>' +
     '<div class="scroll-panel estrada-lista">' +
-      ESTRADA_VIZINHOS.map(function (v) { return estradaCartaoHtml(v, dia); }).join('') +
+      ESTRADA_VIZINHOS.filter(function (v) { return despensaVizinhoDisponivel(state, v); }).map(function (v) { return estradaCartaoHtml(v, dia); }).join('') +
       '<p class="estrada-aviso">' + t('estrada.garrafasLevar').replace('{n}', despensaGarrafasDisponiveis(state)) + '</p>' +
     '</div>' +
     '<div class="action-panel">' +

@@ -130,7 +130,8 @@ function verificarFonte(item, onde, obrigatoria) {
       textosEmTresLinguas(v.troca.texto, v.id + ' troca');
       verificarFonte(v.troca, v.id + ' troca', false);
     }
-    ok(Object.keys(v).sort().join() === ['bem', 'cara', 'caraPendente', 'falas', 'id', 'nome', 'papel', 'troca'].sort().join(), v.id + ': campos inesperados: ' + Object.keys(v));
+    ok(Object.keys(v).sort().join() === ['bem', 'cara', 'caraPendente', 'falas', 'id', 'nivelMinimo', 'nome', 'papel', 'troca'].sort().join(), v.id + ': campos inesperados: ' + Object.keys(v));
+    ok(v.nivelMinimo === 7, v.id + ': nivelMinimo devia ser 7 (o nível em que a Estrada abre), é ' + v.nivelMinimo);
   });
   ok(new Set(falasIds).size === falasIds.length, 'ids de falas repetidos');
 }
@@ -263,7 +264,8 @@ if (!process.env.ESTRADA_JS) {
     vm.runInContext('currentLang = ' + JSON.stringify(lingua) + '; __dia = ' + JSON.stringify(dia) + '; renderEstrada();', cx);
     return el('estrada-container').innerHTML;
   };
-  vm.runInContext('state.despensa.recebidos = { queijo_azeitao: 3 }; state.despensa.entregues = { queijo_azeitao: 1 };', cx);
+  // Um jogador com a Estrada aberta (jogador antigo: abre-a sem nível, e os vizinhos de nível 7 ficam-lhe como sempre).
+  vm.runInContext('state.acesso.jogadorAntigo = true; state.despensa.recebidos = { queijo_azeitao: 3 }; state.despensa.entregues = { queijo_azeitao: 1 };', cx);
   const com = vm.runInContext('JSON.stringify(state)', cx);
   const falasVistas = {};
   LINGUAS.forEach(function (l) {
@@ -386,7 +388,7 @@ if (!process.env.ESTRADA_JS) {
     [0, 34, 35, 773].forEach(function (uvas) { [0, 1, 4].forEach(function (garr) { [{}, { queijo_azeitao: 3 }, { sal_sado: 1 }, { sal_sado: 3, queijo_azeitao: 1 }, { bem_teste: 3 }].forEach(function (rec) { [{}, { queijo_azeitao: '2026-10-01', sal_sado: '2026-10-01', mel_sesimbra: '2026-10-01' }, { sal_sado: '2026-10-01' }].forEach(function (prim) { hojes.forEach(function (hoje) {
       dias.concat(['2026-11-01', '2026-11-02', '2026-11-03', '2026-11-04']).forEach(function (dia) {
         idsViz.forEach(function (vid) {
-          const estado = { uvas: uvas, reputacao: 0, garrafas: garr, adega: { historico: [] }, despensa: { recebidos: rec, entregues: {}, primeiraTroca: prim, hoje: hoje } };
+          const estado = { uvas: uvas, reputacao: 0, garrafas: garr, acesso: { jogadorAntigo: true }, adega: { historico: [] }, despensa: { recebidos: rec, entregues: {}, primeiraTroca: prim, hoje: hoje } };
           cx.__est = JSON.parse(JSON.stringify(estado)); cx.__viz = vid; cx.__dia2 = dia;
           const card = JSON.parse(ev('JSON.stringify(estradaEstadoCartao(__est, despensaVizinhoPorId(__viz), __dia2))'));
           const real = JSON.parse(ev('JSON.stringify(despensaTrocar(__est, __viz, __dia2))'));
@@ -427,7 +429,7 @@ if (!process.env.ESTRADA_JS) {
     ['o estado do cartão ignora o piso', 'uvas - T.custoUvas < T.uvasMinimasDepoisDaTroca', 'uvas - T.custoUvas < 0'],
     ['o estado do cartão ignora a prateleira', 'despensaQuantos(estado, v.bem) >= T.prateleiraMaxima', 'false'],
     ['o estado do cartão ignora o relógio atrás', 'ultimo !== null && dia < ultimo', 'false'],
-    ['o estado do cartão ignora o teto', 'Object.keys(feitas).length >= T.trocasPorDiaTeto', 'false'],
+    ['o estado do cartão ignora o teto', 'despensaTrocasFeitasHoje(estado, feitas) >= T.trocasPorDiaTeto', 'false'],
     ['o ecrã volta a dizer "Em breve"', "t('estrada.garrafasLevar').replace('{n}', despensaGarrafasDisponiveis(state))", "'Em breve: as trocas'"],
     ['a Reputação aparece em todas as trocas', "(r.primeiraVez ? '<p>' + t('estrada.repPrimeira')", "(true ? '<p>' + t('estrada.repPrimeira')"],
     ['o resultado não se esquece ao entrar', 'function renderEstrada() {\n  estradaResultado = null;', 'function renderEstrada() {']

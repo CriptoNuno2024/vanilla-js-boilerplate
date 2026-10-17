@@ -70,7 +70,7 @@ function correrTestes(srcDespensa, srcDados) {
   const quantos = function (estado, bem) { cx.__e = estado; cx.__b = bem; return correr('despensaQuantos(__e, __b)', 'q'); };
   const base = function (extra) {
     return Object.assign({
-      uvas: 100, reputacao: 0, garrafas: 0, gotas: 7,
+      uvas: 100, reputacao: 0, garrafas: 0, gotas: 7, acesso: { jogadorAntigo: true }, // a Estrada aberta (como os outros estados deste teste)
       adega: { historico: [{ data: 'x', estacao: 'inverno', diasDescanso: 2 }] },
       despensa: { recebidos: {}, entregues: {}, primeiraTroca: {}, hoje: { dia: null, feitas: {} } }
     }, extra || {});
@@ -450,7 +450,7 @@ const MUTANTES = [
   ['custo 40 em vez de 25', 'dados', 'ESTRADA_TROCA_CUSTO_UVAS = 25', 'ESTRADA_TROCA_CUSTO_UVAS = 40'],
   ['sem recusar dias anteriores', 'despensa', 'dia < ultimo', 'false'],
   ['sem 1 troca por vizinho por dia', 'despensa', 'if (despensaTemChave(h, vizinhoId)) return recusa', 'if (false) return recusa'],
-  ['sem o teto de 3 por dia', 'despensa', 'Object.keys(h).length >= T.trocasPorDiaTeto', 'false'],
+  ['sem o teto de 3 por dia', 'despensa', 'despensaTrocasFeitasHoje(estado, h) >= T.trocasPorDiaTeto', 'false'],
   ['sem a prateleira de 3', 'despensa', 'despensaQuantos(estado, bem) >= T.prateleiraMaxima', 'false'],
   ['Reputação em todas as trocas', 'despensa', 'if (primeiraVez) {\n    reputacaoGanha', 'if (true) {\n    reputacaoGanha'],
   ['+3 em vez de +2', 'dados', 'ESTRADA_TROCA_REPUTACAO_PRIMEIRA = 2', 'ESTRADA_TROCA_REPUTACAO_PRIMEIRA = 3'],
