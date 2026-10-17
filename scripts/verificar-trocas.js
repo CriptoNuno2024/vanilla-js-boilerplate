@@ -333,9 +333,9 @@ function correrTestes(srcDespensa, srcDados) {
     ok(lido().atual === 3 && lido().cumprido === true, 'com o mel também cumpre');
   }
 
-  // 12b. O Sr. Armindo (4.º vizinho, choco do Sado): mesmas regras; pede uvas ou sal; o teto de 3 por dia mantém-se com 4 vizinhos de nível 7 (a Dona Natália, de nível 14, e o Sr. Albano, de nível 17, só existem a partir do seu nível: ver verificar-estrada-nivel.js).
+  // 12b. O Sr. Armindo (4.º vizinho, choco do Sado): mesmas regras; pede uvas ou sal; o teto de 3 por dia mantém-se com 4 vizinhos de nível 7 (a Dona Natália, de nível 14, o Sr. Albano, de nível 17, e a Dona Fernanda, de nível 18, só existem a partir do seu nível: ver verificar-estrada-nivel.js).
   {
-    ok(J(correr("ESTRADA_VIZINHOS.map(function (v) { return v.id; }).filter(function (i) { return i.indexOf('teste') === -1; })", 'x')) === J([AM, JO, TO, AR, 'dona_natalia', 'sr_albano']) && J(correr("ESTRADA_BENS.map(function (b) { return b.id; }).filter(function (i) { return i.indexOf('teste') === -1; })", 'x')) === J(['queijo_azeitao', 'sal_sado', 'mel_sesimbra', 'choco_sado', 'torta_azeitao', 'pinhao_alcacer']), 'devia haver 6 vizinhos (4 de nível 7, a Dona Natália e o Sr. Albano) e 6 bens');
+    ok(J(correr("ESTRADA_VIZINHOS.map(function (v) { return v.id; }).filter(function (i) { return i.indexOf('teste') === -1; })", 'x')) === J([AM, JO, TO, AR, 'dona_natalia', 'sr_albano', 'dona_fernanda']) && J(correr("ESTRADA_BENS.map(function (b) { return b.id; }).filter(function (i) { return i.indexOf('teste') === -1; })", 'x')) === J(['queijo_azeitao', 'sal_sado', 'mel_sesimbra', 'choco_sado', 'torta_azeitao', 'pinhao_alcacer', 'arroz_sado']), 'devia haver 7 vizinhos (4 de nível 7, a Dona Natália, o Sr. Albano e a Dona Fernanda) e 7 bens');
     const a = base({ uvas: 100 });
     const r = trocar(a, AR, D1);
     ok(r.ok && r.bem === 'choco_sado' && r.primeiraVez && r.pagou === 'uvas' && r.uvasGastas === 25 && r.reputacaoGanha === 2 && a.uvas === 75 && a.reputacao === 2 && quantos(a, 'choco_sado') === 1, 'prova com o Sr. Armindo: choco, 25 uvas e +2: ' + J(r));
