@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Verifica os dados da Estrada (js/estrada-dados.js): 5 vizinhos (4 de nível 7 e a Dona Natália, de nível 14), falas, bens, fontes e a
+// Verifica os dados da Estrada (js/estrada-dados.js): 6 vizinhos (4 de nível 7, a Dona Natália, de nível 14, e o Sr. Albano, de nível 17), falas, bens, fontes e a
 // regras das trocas (PR 5A) e pedidos. Só LÊ o ficheiro e corre-o num ambiente simulado (vm), onde
 // Math.random e Date.now ficam proibidos. Só exige que a cara exista em disco quando
 // caraPendente é false (se for true, o ficheiro pode faltar) e confirma que o ecrã (js/estrada.js) é só de leitura: carregado no index.html, sem gravar, sem cobrar uvas, sem Reputação e sem registar trocas.
@@ -41,14 +41,16 @@ const ESPERADO = {
   sr_joaquim: { bem: 'sal_sado', cara: 'assets/personagens/vizinho_joaquim.jpg', nivelMinimo: 7 },
   tomas: { bem: 'mel_sesimbra', cara: 'assets/personagens/vizinho_tomas.jpg', nivelMinimo: 7 },
   sr_armindo: { bem: 'choco_sado', cara: 'assets/personagens/vizinho_armindo.jpg', nivelMinimo: 7 },
-  dona_natalia: { bem: 'torta_azeitao', cara: 'assets/personagens/vizinha_natalia.jpg', nivelMinimo: 14 }
+  dona_natalia: { bem: 'torta_azeitao', cara: 'assets/personagens/vizinha_natalia.jpg', nivelMinimo: 14 },
+  sr_albano: { bem: 'pinhao_alcacer', cara: 'assets/personagens/vizinho_albano.jpg', nivelMinimo: 17 }
 };
 const NOMES_BENS = {
   queijo_azeitao: { en: 'Azeitão cheese', es: 'Queso de Azeitão' },
   sal_sado: { en: 'Sado salt', es: 'Sal del Sado' },
   mel_sesimbra: { en: 'Sesimbra honey', es: 'Miel de Sesimbra' },
   choco_sado: { en: 'Sado cuttlefish', es: 'Choco del Sado' },
-  torta_azeitao: { en: 'Azeitão roll cake', es: 'Torta de Azeitão' }
+  torta_azeitao: { en: 'Azeitão roll cake', es: 'Torta de Azeitão' },
+  pinhao_alcacer: { en: 'Alcácer pine nuts', es: 'Piñones de Alcácer' }
 };
 // Só estes endereços foram aprovados como fontes.
 const URLS_APROVADOS = [
@@ -62,7 +64,12 @@ const URLS_APROVADOS = [
   'https://www.ancient-history-sites.com/sites/roman-ruins-of-troia/',
   'https://www.e-konomista.pt/torta-de-azeitao/',
   'https://destinationeatdrink.com/torta-de-azeitao/',
-  'https://cdn.fodors.com/world/europe/portugal/side-trips-from-lisbon/places/the-setubal-peninsula/vila-nogueira-de-azeitao/restaurants'
+  'https://cdn.fodors.com/world/europe/portugal/side-trips-from-lisbon/places/the-setubal-peninsula/vila-nogueira-de-azeitao/restaurants',
+  'https://bo.agroportal.pt/?p=738578',
+  'https://www.agroportal.pt/pinheiro-manso-e-alteracoes-climaticas-uma-perspetiva-ecofisiologica',
+  'https://bo.agroportal.pt/ja-estivemos-melhor-da-pinha-o-percurso-acidentado-do-pinhao',
+  'https://bibliotecadigital.ipb.pt/entities/publication/c87a89f1-b7e4-4720-9439-9e3c9e70b33f/full',
+  'https://oppla.eu/casestudy/20602'
 ];
 
 const textos = []; // { onde, texto } para contar os "[por escrever]"
@@ -110,7 +117,7 @@ function verificarFonte(item, onde, obrigatoria) {
 
 // ----- Vizinhos -----
 {
-  ok(VIZINHOS.length === 5 && VIZINHOS.map(function (v) { return v.id; }).join() === 'dona_amelia,sr_joaquim,tomas,sr_armindo,dona_natalia', 'devia haver 5 vizinhos: dona_amelia, sr_joaquim, tomas, sr_armindo, dona_natalia (por esta ordem)');
+  ok(VIZINHOS.length === 6 && VIZINHOS.map(function (v) { return v.id; }).join() === 'dona_amelia,sr_joaquim,tomas,sr_armindo,dona_natalia,sr_albano', 'devia haver 6 vizinhos: dona_amelia, sr_joaquim, tomas, sr_armindo, dona_natalia, sr_albano (por esta ordem)');
   const falasIds = [];
   VIZINHOS.forEach(function (v) {
     const esp = ESPERADO[v.id] || {};
@@ -143,7 +150,7 @@ function verificarFonte(item, onde, obrigatoria) {
 
 // ----- Bens -----
 {
-  ok(BENS.length === 5 && BENS.map(function (b) { return b.id; }).join() === 'queijo_azeitao,sal_sado,mel_sesimbra,choco_sado,torta_azeitao', 'devia haver 5 bens: queijo_azeitao, sal_sado, mel_sesimbra, choco_sado, torta_azeitao');
+  ok(BENS.length === 6 && BENS.map(function (b) { return b.id; }).join() === 'queijo_azeitao,sal_sado,mel_sesimbra,choco_sado,torta_azeitao,pinhao_alcacer', 'devia haver 6 bens: queijo_azeitao, sal_sado, mel_sesimbra, choco_sado, torta_azeitao, pinhao_alcacer');
   BENS.forEach(function (b) {
     textosEmTresLinguas(b.nome, b.id + ': nome');
     textosEmTresLinguas(b.descricao, b.id + ': descrição');
@@ -178,14 +185,14 @@ function verificarFonte(item, onde, obrigatoria) {
   ok(JSON.stringify(PEDIDOS.sr_joaquim) === '["uvas"]' && JSON.stringify(PEDIDOS.tomas) === '["uvas"]', 'o Sr. Joaquim e o Tomás pedem sempre uvas');
 }
 
-// ----- Ofertas a uma visita (PR 5C): regras e falas especiais (12: 3 visitas x 4 bens; a torta de Azeitão não tem frases) -----
+// ----- Ofertas a uma visita (PR 5C): regras e falas especiais (12: 3 visitas x 4 bens; a torta de Azeitão e o pinhão de Alcácer não têm frases) -----
 {
   ok(OFERTA.reputacao === 1 && OFERTA.porDia === 1, 'a oferta devia dar +1 de Reputação, 1 vez por dia');
-  ok(JSON.stringify(OFERTA.ordemEmpate) === '["queijo_azeitao","mel_sesimbra","sal_sado","choco_sado"]', 'empate: queijo, mel, sal, choco (a torta, fora da lista, vem a seguir pela ordem de ESTRADA_BENS)');
+  ok(JSON.stringify(OFERTA.ordemEmpate) === '["queijo_azeitao","mel_sesimbra","sal_sado","choco_sado"]', 'empate: queijo, mel, sal, choco (a torta e o pinhão, fora da lista, vêm a seguir pela ordem de ESTRADA_BENS)');
   ok(Object.keys(OFERTA).sort().join() === 'ordemEmpate,porDia,reputacao', 'a oferta não devia ter outros campos: ' + Object.keys(OFERTA));
   ok(Object.keys(OFERTA_FALAS).sort().join() === 'henrique,marisa,valentim', 'falas de oferta para as 3 visitas');
   Object.keys(OFERTA_FALAS).forEach(function (pers) {
-    ok(Object.keys(OFERTA_FALAS[pers]).sort().join() === 'choco_sado,mel_sesimbra,queijo_azeitao,sal_sado', pers + ': uma fala por bem (os 4 de nível 7; a torta de Azeitão não tem frase de oferta, a oferta funciona na mesma)');
+    ok(Object.keys(OFERTA_FALAS[pers]).sort().join() === 'choco_sado,mel_sesimbra,queijo_azeitao,sal_sado', pers + ': uma fala por bem (os 4 de nível 7; a torta de Azeitão e o pinhão de Alcácer não têm frase de oferta, a oferta funciona na mesma)');
     Object.keys(OFERTA_FALAS[pers]).forEach(function (bem) {
       const f = OFERTA_FALAS[pers][bem];
       ok(f.semFacto === true && f.fonte === undefined, pers + '/' + bem + ': a fala de oferta é só carinho (semFacto: true, sem fonte)');
@@ -271,14 +278,14 @@ if (!process.env.ESTRADA_JS) {
     vm.runInContext('currentLang = ' + JSON.stringify(lingua) + '; __dia = ' + JSON.stringify(dia) + '; renderEstrada();', cx);
     return el('estrada-container').innerHTML;
   };
-  // Um jogador novo de nível 14: tem a Estrada e os 5 vizinhos (a Dona Natália abre no nível 14).
-  vm.runInContext('state.acesso.jogadorAntigo = false; state.reputacao = NIVEIS_CONFIG[13].min; state.despensa.recebidos = { queijo_azeitao: 3 }; state.despensa.entregues = { queijo_azeitao: 1 };', cx);
-  ok(vm.runInContext('nivelPelaReputacao(state.reputacao)', cx) === 14, 'o jogador do desenho devia ser do nível 14');
+  // Um jogador novo de nível 17: tem a Estrada e os 6 vizinhos (a Dona Natália abre no nível 14 e o Sr. Albano no 17).
+  vm.runInContext('state.acesso.jogadorAntigo = false; state.reputacao = NIVEIS_CONFIG[16].min; state.despensa.recebidos = { queijo_azeitao: 3 }; state.despensa.entregues = { queijo_azeitao: 1 };', cx);
+  ok(vm.runInContext('nivelPelaReputacao(state.reputacao)', cx) === 17, 'o jogador do desenho devia ser do nível 17');
   const com = vm.runInContext('JSON.stringify(state)', cx);
   const falasVistas = {};
   LINGUAS.forEach(function (l) {
     const h = desenhar(l, '2026-10-07');
-    ok((h.match(/class="btn-pill pill-main estrada-botao"/g) || []).length === 5, 'o ecrã (' + l + ') devia ter 5 botões de trocar (nível 14)');
+    ok((h.match(/class="btn-pill pill-main estrada-botao"/g) || []).length === 6, 'o ecrã (' + l + ') devia ter 6 botões de trocar (nível 17)');
     VIZINHOS.forEach(function (v) {
       ok(h.indexOf(v.nome[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o nome de ' + v.id);
       ok(h.indexOf(v.papel[l]) !== -1, 'o ecrã (' + l + ') devia mostrar o papel de ' + v.id);
@@ -294,7 +301,7 @@ if (!process.env.ESTRADA_JS) {
   });
   // "Na Despensa: n" lê recebidos - entregues (queijo 2) e 0 nos outros.
   const hpt = desenhar('pt', '2026-10-07');
-  ok((hpt.match(/Na Despensa: 2/g) || []).length === 1 && (hpt.match(/Na Despensa: 0/g) || []).length === 4, 'Na Despensa devia ser 2, 0, 0, 0 e 0');
+  ok((hpt.match(/Na Despensa: 2/g) || []).length === 1 && (hpt.match(/Na Despensa: 0/g) || []).length === 5, 'Na Despensa devia ser 2, 0, 0, 0, 0 e 0');
   // Fala do dia: estável no mesmo dia e a rodar de um dia para o outro.
   ok(desenhar('pt', '2026-10-07') === desenhar('pt', '2026-10-07'), 'a fala do dia devia ser a mesma o dia todo');
   for (let d = 1; d <= 28; d++) {
@@ -391,12 +398,14 @@ if (!process.env.ESTRADA_JS) {
     const ev = function (expr) { return vm.runInContext(expr, cx); };
     ev("ESTRADA_BENS.push({ id: 'bem_teste', nome: { pt: 'x', en: 'x', es: 'x' } }); ESTRADA_VIZINHOS.push({ id: 'vizinho_teste', nome: { pt: 'x', en: 'x', es: 'x' }, papel: { pt: 'x', en: 'x', es: 'x' }, cara: 'x', caraPendente: true, bem: 'bem_teste', falas: [] });");
     const idsViz = JSON.parse(ev('JSON.stringify(ESTRADA_VIZINHOS.map(function (v) { return v.id; }))'));
+    // Cada vizinho só existe a partir do seu nível: o jogador do caso tem o nível mínimo dele (os de nível 7 abrem-se pelo jogador antigo).
+    const nivelDe = function (vid) { return ev('despensaVizinhoNivelMinimo(despensaVizinhoPorId(' + JSON.stringify(vid) + '))'); };
     let casos = 0, difs = 0;
     const hojes = [{ dia: null, feitas: {} }, { dia: '2026-10-20', feitas: { dona_amelia: true } }, { dia: '2026-10-20', feitas: { dona_amelia: true, sr_joaquim: true, tomas: true } }, { dia: '2026-10-21', feitas: {} }];
     [0, 34, 35, 773].forEach(function (uvas) { [0, 1, 4].forEach(function (garr) { [{}, { queijo_azeitao: 3 }, { sal_sado: 1 }, { sal_sado: 3, queijo_azeitao: 1 }, { bem_teste: 3 }].forEach(function (rec) { [{}, { queijo_azeitao: '2026-10-01', sal_sado: '2026-10-01', mel_sesimbra: '2026-10-01' }, { sal_sado: '2026-10-01' }].forEach(function (prim) { hojes.forEach(function (hoje) {
       dias.concat(['2026-11-01', '2026-11-02', '2026-11-03', '2026-11-04']).forEach(function (dia) {
         idsViz.forEach(function (vid) {
-          const estado = { uvas: uvas, reputacao: vid === 'dona_natalia' ? ev('NIVEIS_CONFIG[13].min') : 0, garrafas: garr, acesso: { jogadorAntigo: true }, adega: { historico: [] }, despensa: { recebidos: rec, entregues: {}, primeiraTroca: prim, hoje: hoje } };
+          const estado = { uvas: uvas, reputacao: nivelDe(vid) > 7 ? ev('NIVEIS_CONFIG[' + (nivelDe(vid) - 1) + '].min') : 0, garrafas: garr, acesso: { jogadorAntigo: true }, adega: { historico: [] }, despensa: { recebidos: rec, entregues: {}, primeiraTroca: prim, hoje: hoje } };
           cx.__est = JSON.parse(JSON.stringify(estado)); cx.__viz = vid; cx.__dia2 = dia;
           const card = JSON.parse(ev('JSON.stringify(estradaEstadoCartao(__est, despensaVizinhoPorId(__viz), __dia2))'));
           const real = JSON.parse(ev('JSON.stringify(despensaTrocar(__est, __viz, __dia2))'));
@@ -418,10 +427,10 @@ if (!process.env.ESTRADA_JS) {
   verificarEcra(ECRA_REAL).forEach(function (m) { ok(false, m); });
 
   // Cada vizinho tem a sua cena e o ficheiro existe em disco. Os 4 de nível 7 têm entrada em js/estrada.js (ESTRADA_CENAS: ficheiro e
-  // posição vertical); a Dona Natália NÃO tem: usa o que a Estrada procura por defeito (assets/ecras/estrada_<id>.jpg, com y 28%).
+  // posição vertical); a Dona Natália e o Sr. Albano NÃO têm: usam o que a Estrada procura por defeito (assets/ecras/estrada_<id>.jpg, com y 28%).
   VIZINHOS.forEach(function (v) {
     const m = new RegExp(v.id + ": \\{ ficheiro: '([a-z_]+)', y: '(\\d+)%' \\}").exec(ECRA_REAL);
-    if (v.id === 'dona_natalia') {
+    if (v.id === 'dona_natalia' || v.id === 'sr_albano') {
       ok(!m, v.id + ': devia usar a cena por defeito (sem entrada em ESTRADA_CENAS)');
       ok(fs.existsSync(path.join(RAIZ, 'assets', 'ecras', 'estrada_' + v.id + '.jpg')), v.id + ': falta o ficheiro assets/ecras/estrada_' + v.id + '.jpg');
       return;

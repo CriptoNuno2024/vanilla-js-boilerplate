@@ -4,8 +4,8 @@
 // Dados lidos por js/estrada.js (o ecrã A Estrada, onde se trocam os bens) e por js/despensa.js (regras
 // das trocas e das ofertas), como js/visitas.js é lido pela Quinta.
 //
-// Cinco vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, e a Dona Natália, de nível 14), cada um
-// com 3 falas e 1 fala de troca; e cinco bens, um por vizinho. Os textos são pt/en/es.
+// Seis vizinhos (a Dona Amélia, o Sr. Joaquim, o Tomás e o Sr. Armindo, de nível 7, a Dona Natália, de nível 14, e o Sr. Albano,
+// de nível 17), cada um com 3 falas e 1 fala de troca; e seis bens, um por vizinho. Os textos são pt/en/es.
 //
 // "nivelMinimo": o nível do jogador (js/niveis.js) a partir do qual o vizinho existe: abaixo dele não aparece na Estrada,
 // não pede, não troca e não conta para nenhum cálculo (ver despensaVizinhoDisponivel em js/despensa.js). Sem o campo vale
@@ -80,6 +80,26 @@ const ESTRADA_FONTES = {
   fodors_azeitao: {
     titulo: 'Fodor\'s — Vila Nogueira de Azeitão (restaurants)',
     url: 'https://cdn.fodors.com/world/europe/portugal/side-trips-from-lisbon/places/the-setubal-peninsula/vila-nogueira-de-azeitao/restaurants'
+  },
+  agroportal_pinhao: {
+    titulo: 'Agroportal — O pinhão',
+    url: 'https://bo.agroportal.pt/?p=738578'
+  },
+  agroportal_pinheiro_manso: {
+    titulo: 'Agroportal — Pinheiro-manso e alterações climáticas: uma perspetiva ecofisiológica',
+    url: 'https://www.agroportal.pt/pinheiro-manso-e-alteracoes-climaticas-uma-perspetiva-ecofisiologica'
+  },
+  agroportal_pinhao_alcacer: {
+    titulo: 'Agroportal — Já estivemos melhor da pinha: o percurso acidentado do pinhão',
+    url: 'https://bo.agroportal.pt/ja-estivemos-melhor-da-pinha-o-percurso-acidentado-do-pinhao'
+  },
+  ipb_pinhao: {
+    titulo: 'Instituto Politécnico de Bragança — Pine nuts authenticity in the Portuguese market',
+    url: 'https://bibliotecadigital.ipb.pt/entities/publication/c87a89f1-b7e4-4720-9439-9e3c9e70b33f/full'
+  },
+  oppla_pinha: {
+    titulo: 'OPPLA — Manual cone harvesting of Pinus pinea in Portugal',
+    url: 'https://oppla.eu/casestudy/20602'
   }
 };
 
@@ -314,6 +334,52 @@ const ESTRADA_VIZINHOS = [
       },
       semFacto: true
     }
+  },
+  {
+    id: 'sr_albano',
+    nivelMinimo: 17,
+    nome: { pt: 'Sr. Albano', en: 'Mr. Albano', es: 'Sr. Albano' },
+    papel: { pt: 'apanhador de pinha de Alcácer', en: 'Alcácer pine cone picker', es: 'recolector de piñas de Alcácer' },
+    cara: 'assets/personagens/vizinho_albano.jpg',
+    caraPendente: false,
+    bem: 'pinhao_alcacer',
+    falas: [
+      {
+        id: 'sr_albano_1',
+        texto: {
+          pt: 'O pinhão é a semente do pinheiro-manso: cada pinha guarda-o lá dentro.',
+          en: 'The pine nut is the seed of the stone pine: each cone keeps it inside.',
+          es: 'El piñón es la semilla del pino piñonero: cada piña lo guarda dentro.'
+        },
+        fonte: ['agroportal_pinhao', 'ipb_pinhao']
+      },
+      {
+        id: 'sr_albano_2',
+        texto: {
+          pt: 'Aqui em Alcácer dizem que esta terra é o «solar do pinhão».',
+          en: "Here in Alcácer they say this land is the 'home of the pine nut'.",
+          es: "Aquí en Alcácer dicen que esta tierra es el 'solar del piñón'."
+        },
+        fonte: ['agroportal_pinheiro_manso', 'agroportal_pinhao_alcacer']
+      },
+      {
+        id: 'sr_albano_3',
+        texto: {
+          pt: 'Ainda há quem apanhe a pinha à mão, subindo às árvores com ferramentas próprias.',
+          en: 'There are still people who pick the cones by hand, climbing the trees with special tools.',
+          es: 'Todavía hay quien recoge las piñas a mano, subiendo a los árboles con herramientas propias.'
+        },
+        fonte: ['oppla_pinha', 'agroportal_pinhao']
+      }
+    ],
+    troca: {
+      texto: {
+        pt: 'Leva lá uns pinhões, vizinho! Fresquinhos, acabados de sair da pinha.',
+        en: 'Take some pine nuts, neighbour! Fresh, straight out of the cone.',
+        es: '¡Llévate unos piñones, vecino! Frescos, recién salidos de la piña.'
+      },
+      semFacto: true
+    }
   }
 ];
 
@@ -367,6 +433,16 @@ const ESTRADA_BENS = [
       es: 'Bizcocho fino enrollado con dulce de huevo y canela.'
     },
     fonte: ['e_konomista_torta', 'fodors_azeitao']
+  },
+  {
+    id: 'pinhao_alcacer',
+    nome: { pt: 'Pinhão de Alcácer', en: 'Alcácer pine nuts', es: 'Piñones de Alcácer' },
+    descricao: {
+      pt: 'A semente do pinheiro-manso, tirada da pinha.',
+      en: 'The seed of the stone pine, taken from the cone.',
+      es: 'La semilla del pino piñonero, sacada de la piña.'
+    },
+    fonte: ['agroportal_pinhao', 'ipb_pinhao']
   }
 ];
 
@@ -402,8 +478,8 @@ const ESTRADA_TROCA = {
 //   'uvas'     paga as uvas do costume (custoUvas)
 //   'sal_sado' paga com 1 sal da Despensa; se o jogador não tiver sal, paga as uvas
 //   'bagaceira' paga com 1 Bagaceira (state.adega.bagaceira, ver js/alambique.js); se o jogador não tiver nenhuma, paga as uvas
-// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás e a Dona Natália pedem sempre uvas
-// (sem entrada aqui, um vizinho pede uvas).
+// A Dona Amélia pede uvas ou sal; o Sr. Armindo pede uvas, sal ou bagaceira; o Sr. Joaquim, o Tomás, a Dona Natália e o Sr. Albano pedem
+// sempre uvas (sem entrada aqui, um vizinho pede uvas).
 // (O pedido do dia sai do mesmo hash de sempre, por isso mudar o nº de pedidos do Sr. Armindo muda os dias em que pede cada um.)
 const ESTRADA_PEDIDOS = {
   dona_amelia: ['uvas', 'sal_sado'],
@@ -429,7 +505,7 @@ const ESTRADA_PEDIDO_FALAS = {
 //   reputacao   +1 de Reputação por oferta
 //   porDia      no máximo 1 oferta por dia (dia de Lisboa; a marca é state.despensa.ofertaDia)
 //   ordemEmpate o bem oferecido é o de que há mais; em caso de empate, por esta ordem (um bem fora da lista, como a torta de
-//               Azeitão, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
+//               Azeitão e o pinhão de Alcácer, vem a seguir aos da lista, pela ordem de ESTRADA_BENS: ver despensaBemParaOferecer em js/despensa.js)
 const ESTRADA_OFERTA_REPUTACAO = 1;
 const ESTRADA_OFERTA_POR_DIA = 1;
 const ESTRADA_OFERTA = {
