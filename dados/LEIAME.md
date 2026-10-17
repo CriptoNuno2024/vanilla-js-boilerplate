@@ -238,5 +238,5 @@ Mesmo molde dos níveis 11 a 19:
 - `dados/enciclopedia.js`: `bocage_poeta`, `bocage_casa` e `bocage_dia` (nível mínimo 20, sem imagem).
 - `dados/capitulos.js`: `cap20` «O Poeta que Partiu», critério `temIds` nessas 3 entradas. A conclusão deixa a porta aberta (não é uma despedida).
 - **Dez grupos de `nivelMinimo` (11 a 20).** Continua a ser um só grupo de prioridade: no nível 20, os grupos anteriores ainda por abrir e o de Bocage saem **todos** antes de qualquer entrada de hoje; quem já tem os anteriores abertos recebe só os que faltam. Abaixo do nível 20 o jogador não vê as de Bocage.
-- Sem nível seguinte: o cartão do Nível mostra a barra cheia e «Nível máximo atingido!» (ramo que já existia em `js/niveis.js`) e, cumpridos todos os capítulos, o cartão do capítulo mostra «Todos os capítulos cumpridos». Nada de código mudou por causa disto.
+- Sem nível seguinte: o cartão do Nível mostra a barra cheia e «Há mais níveis a caminho!» (ramo que já existia em `js/niveis.js`) e, cumpridos todos os capítulos, o cartão do capítulo mostra «Todos os capítulos de agora cumpridos. Vêm aí mais!». O jogo nunca acaba: nenhum texto soa a despedida (ver `scripts/verificar-textos-sem-fim.js`).
 - O teste deste nível é `scripts/verificar-nivel-20.js` (só os textos e números; a prova está em `scripts/_pacote-nivel.js`).
