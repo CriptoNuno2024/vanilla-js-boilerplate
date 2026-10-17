@@ -190,7 +190,7 @@ Continua a precisar de código (e de uma PR com testes):
 Mesmo molde dos níveis 11 a 15:
 
 - `dados/niveis.js`: `nivel_16`, a partir de **8650** de Reputação.
-- `dados/historias.js`: `historia_16`, 4 falas. A 1.ª leva a foto `assets/ecras/yoshicat_sado_mirar.png` e a 3.ª a foto `assets/ecras/yoshicat_binoculos_sado.png` (as falas 2 e 4 não levam foto: o jogo mantém a anterior); nenhuma leva som.
+- `dados/historias.js`: `historia_16`, 4 falas. A 1.ª leva a foto `assets/ecras/yoshicat_sado_mirar.jpg` e a 3.ª a foto `assets/ecras/yoshicat_binoculos_sado.jpg` (as falas 2 e 4 não levam foto: o jogo mantém a anterior); nenhuma leva som.
 - `dados/enciclopedia.js`: `setubal_forte`, `setubal_roxo` e `setubal_familias` (nível mínimo 16, sem imagem).
 - `dados/capitulos.js`: `cap16` «A Uva que Voltou», critério `temIds` nessas 3 entradas. A conclusão deixa a porta aberta (não é uma despedida).
 - **Seis grupos de `nivelMinimo` (11 a 16).** Continua a ser um só grupo de prioridade: no nível 16, os grupos anteriores ainda por abrir e o de Setúbal saem **todos** antes de qualquer entrada de hoje; quem já tem os anteriores abertos recebe só os que faltam. Abaixo do nível 16 o jogador não vê as de Setúbal.
@@ -201,7 +201,7 @@ Mesmo molde dos níveis 11 a 15:
 Mesmo molde dos níveis 11 a 16:
 
 - `dados/niveis.js`: `nivel_17`, a partir de **9850** de Reputação.
-- `dados/historias.js`: `historia_17`, 4 falas. A 1.ª leva a foto `assets/ecras/sado_por_do_sol.png` (PNG) e a 3.ª a foto `assets/ecras/sado_navio.jpg` (JPG) (as falas 2 e 4 não levam foto: o jogo mantém a anterior); nenhuma leva som.
+- `dados/historias.js`: `historia_17`, 4 falas. A 1.ª leva a foto `assets/ecras/sado_por_do_sol.jpg` e a 3.ª a foto `assets/ecras/sado_navio.jpg` (ambas JPG) (as falas 2 e 4 não levam foto: o jogo mantém a anterior); nenhuma leva som.
 - `dados/enciclopedia.js`: `sal_alcacer`, `sal_setubal` e `sal_redura` (nível mínimo 17, sem imagem).
 - `dados/capitulos.js`: `cap17` «O Sal que Navegou», critério `temIds` nessas 3 entradas. A conclusão deixa a porta aberta (não é uma despedida).
 - **Sete grupos de `nivelMinimo` (11 a 17).** Continua a ser um só grupo de prioridade: no nível 17, os grupos anteriores ainda por abrir e o de Alcácer saem **todos** antes de qualquer entrada de hoje; quem já tem os anteriores abertos recebe só os que faltam. Abaixo do nível 17 o jogador não vê as do sal.

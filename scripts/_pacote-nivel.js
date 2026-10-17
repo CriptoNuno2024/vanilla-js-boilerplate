@@ -8,7 +8,7 @@
 //   nivel          N, o número do nível (>= 12)
 //   limiares       limiares dos níveis 1 a N: [0, 15, ..., minimo]
 //   nome, nomeAnt  { pt, en, es } do nível N e do nível N - 1
-//   foto           'assets/ecras/xxx.jpg' (ou .png; na fala 1); fotoRaiz: nome do ficheiro que NÃO pode existir na raiz do repositório
+//   foto           'assets/ecras/xxx.jpg' (na fala 1); fotoRaiz: nome do ficheiro que NÃO pode existir na raiz do repositório
 //   fotosExtra     (opcional) { numeroDaFala: 'assets/ecras/yyy.jpg' } fotos noutras falas (a raiz também não pode ter cópia); sem isto só a fala 1 leva foto
 //   falas          4 textos { pt, en, es }
 //   ids, enc, cap  os 3 ids das entradas, os textos { titulo, texto } de cada uma e o capítulo { titulo, objetivo, conclusao }

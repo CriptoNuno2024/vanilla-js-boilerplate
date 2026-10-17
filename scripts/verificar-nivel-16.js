@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // O NÍVEL 16 REAL, «Moscatel de Setúbal» (Parte 2, A Terra), que vive só como dados (dados/niveis.js, historias.js, enciclopedia.js e
-// capitulos.js): o nível (8650 de Reputação), a história de 4 falas (a 1.ª com a foto assets/ecras/yoshicat_sado_mirar.png e a 3.ª com assets/ecras/yoshicat_binoculos_sado.png, SEM som), as 3
+// capitulos.js): o nível (8650 de Reputação), a história de 4 falas (a 1.ª com a foto assets/ecras/yoshicat_sado_mirar.jpg e a 3.ª com assets/ecras/yoshicat_binoculos_sado.jpg, SEM som), as 3
 // histórias de Setúbal na Enciclopédia (nível mínimo 16, sem imagem) e o capítulo 16 «A Uva que Voltou» (critério temIds nessas 3).
 // Só traz os textos e números do nível: a prova em si está no auxiliar scripts/_pacote-nivel.js. Textos escritos aqui, à parte (não lidos de dados/).
 //
@@ -14,9 +14,9 @@ correr({
   limiares: [0, 15, 50, 120, 300, 600, 1000, 1500, 2100, 2800, 3650, 4550, 5500, 6500, 7550, 8650],
   nome: { pt: 'Moscatel de Setúbal', en: 'Setúbal Moscatel', es: 'Moscatel de Setúbal' },
   nomeAnt: { pt: 'Moscatel de Sesimbra', en: 'Sesimbra Moscatel', es: 'Moscatel de Sesimbra' },
-  foto: 'assets/ecras/yoshicat_sado_mirar.png',
-  fotoRaiz: 'yoshicat_sado_mirar.png',
-  fotosExtra: { 3: 'assets/ecras/yoshicat_binoculos_sado.png' }, // a fala 3 também leva foto (as falas 2 e 4 não)
+  foto: 'assets/ecras/yoshicat_sado_mirar.jpg',
+  fotoRaiz: 'yoshicat_sado_mirar.jpg',
+  fotosExtra: { 3: 'assets/ecras/yoshicat_binoculos_sado.jpg' }, // a fala 3 também leva foto (as falas 2 e 4 não)
   falas: [
     {
       pt: 'Chegámos a Setúbal. Do alto do forte vê-se o rio Sado e, ao fundo, a península de Tróia.',
