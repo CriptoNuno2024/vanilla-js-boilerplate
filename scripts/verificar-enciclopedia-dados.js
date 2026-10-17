@@ -24,8 +24,8 @@ const { abrirJogo } = require('./_jogo-vm');
 const RAIZ = path.join(__dirname, '..');
 const JS_DIR = process.env.JS_DIR || path.join(RAIZ, 'js');
 const LINGUAS = ['pt', 'en', 'es'];
-// sha256 do JSON de ENCYCLOPEDIA_ENTRIES da master antes desta funcionalidade (32 histórias nas 3 línguas).
-const IMPRESSAO_DIGITAL_DE_HOJE = 'e71b7142d637f685998eadac5f5de2c4ee8090313173d6fe0631aecb5e96a4ea';
+// sha256 do JSON de ENCYCLOPEDIA_ENTRIES de hoje (32 histórias nas 3 línguas), já com a frase de Ricardo II na forma cautelosa («Diz-se que ...»).
+const IMPRESSAO_DIGITAL_DE_HOJE = 'cf4831cbf32b4679b811bd92d7b25784c5985dc94a77245b1c7a83c7e113e883';
 const REP_NIVEL_4 = 120;
 const REP_NIVEL_11 = 3600;
 
@@ -74,6 +74,15 @@ function estadoDasListas(g) { return g.ev('JSON.stringify(ENCYCLOPEDIA_ENTRIES)'
   const g = abrir({ nivel11: false });
   const lista = estadoDasListas(g);
   ok(crypto.createHash('sha256').update(lista).digest('hex') === IMPRESSAO_DIGITAL_DE_HOJE, '(f) as entradas de hoje (ENCYCLOPEDIA_ENTRIES) devem ser idênticas às da master');
+  // A entrada «origem»: o rei Ricardo II importar Moscatel não está confirmado, por isso diz-se com cautela e admite-se que a origem exata ainda está por desvendar.
+  const CAUTELA = { pt: ['Diz-se que ', 'ainda está por desvendar'], en: ['It is said that ', 'is still unknown'], es: ['Se dice que ', 'aún está por descubrir'] };
+  LINGUAS.forEach(function (l) {
+    const origem = JSON.parse(lista)[l].filter(function (e) { return e.id === 'origem'; })[0];
+    ok(!!origem && origem.texto.indexOf(CAUTELA[l][0]) === 0, '(f) a entrada «origem» (' + l + ') devia começar por «' + CAUTELA[l][0] + '»');
+    ok(!!origem && origem.texto.indexOf(CAUTELA[l][1]) !== -1, '(f) a entrada «origem» (' + l + ') devia dizer que a origem exata ' + CAUTELA[l][1]);
+    ok(!!origem && /(Ricardo|Richard) II/.test(origem.texto) && /XIV|14th/.test(origem.texto), '(f) a entrada «origem» (' + l + ') mantém o rei Ricardo II e o século XIV');
+    ok(JSON.parse(lista)[l].filter(function (e) { return e.id === 'regiao'; })[0].texto.indexOf('1907') !== -1, '(f) a entrada «regiao» (' + l + ') mantém a demarcação em 1907');
+  });
   ok(g.ev('ENCYCLOPEDIA_ENTRIES.pt.length') === 32 && g.ev('ENCYCLOPEDIA_ENTRIES.en.length') === 32 && g.ev('ENCYCLOPEDIA_ENTRIES.es.length') === 32, '(f) 32 histórias em cada língua');
   ok(g.ev('ENCYCLOPEDIA_ENTRIES.pt.some(function (e) { return e.nivelMinimo !== undefined; })') === false, '(f) nenhuma entrada de hoje tem nivelMinimo');
   ['pt', 'en', 'es'].forEach(function (l) {

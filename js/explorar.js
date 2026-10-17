@@ -9,7 +9,7 @@
 
 const ENCYCLOPEDIA_ENTRIES = {
   pt: [
-    { id: 'origem', titulo: 'As Origens do Moscatel', texto: 'Dizem os mais velhos que a fama do Moscatel de Setúbal vem do século XIV, quando o rei Ricardo II de Inglaterra o importava com frequência.' },
+    { id: 'origem', titulo: 'As Origens do Moscatel', texto: 'Diz-se que a fama do Moscatel de Setúbal vem do século XIV, quando o rei Ricardo II de Inglaterra o importava com frequência, mas a origem exata deste vinho ainda está por desvendar.' },
     { id: 'terroir', titulo: 'A Terra da Arrábida', texto: 'Muitas vinhas de Moscatel de Setúbal crescem em colinas de argila e calcário, na Serra da Arrábida, perto de Azeitão.' },
     { id: 'secagem', titulo: 'O Moscatel que Regressava', texto: 'Antigamente, barris de Moscatel iam de navio até terras distantes e voltavam. A viagem, entre o sol e o balanço do mar, melhorava o vinho: nasceu o Torna-Viagem.' },
     { id: 'estagio', titulo: 'O Estágio em Cascos de Carvalho', texto: 'O segredo de um bom Moscatel está na paciência: o vinho repousa em cascos de carvalho durante anos, ganhando notas de mel, frutos secos e passas à medida que envelhece.' },
@@ -43,7 +43,7 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'ovosAmendoas', manual: true, titulo: 'O Ovo e as Amêndoas', texto: 'O ovo é o símbolo da Páscoa porque lembra a vida nova: a casca fechada que se abre. Na Europa medieval ofereciam-se ovos cozidos e pintados, e os de chocolate só surgiram no século XIX, em França e na Alemanha. As amêndoas de Páscoa, doces e cobertas de açúcar, são um dos costumes mais antigos da época e homenageiam esse ovo. Em Ponta Delgada, nos Açores, ainda se fazem à mão em tachos de cobre, durante cerca de dez horas. O Fygmo2 jura que não provou nenhuma.' }
   ],
   en: [
-    { id: 'origem', titulo: 'The Origins of Moscatel', texto: "The elders say Setúbal Moscatel's fame goes back to the 14th century, when King Richard II of England imported it frequently." },
+    { id: 'origem', titulo: 'The Origins of Moscatel', texto: "It is said that Setúbal Moscatel's fame goes back to the 14th century, when King Richard II of England imported it frequently, but the exact origin of this wine is still unknown." },
     { id: 'terroir', titulo: 'The Land of Arrábida', texto: 'Many Setúbal Moscatel vineyards grow on clay and limestone hills in the Serra da Arrábida, near Azeitão.' },
     { id: 'secagem', titulo: 'The Moscatel That Came Back', texto: 'In the past, barrels of Moscatel sailed to distant lands and came back. The voyage, between the sun and the rocking of the sea, improved the wine: the Torna-Viagem was born.' },
     { id: 'estagio', titulo: 'Aging in Oak Casks', texto: 'The secret of a good Moscatel is patience: the wine rests in oak casks for years, gaining notes of honey, dried fruit and raisins as it ages.' },
@@ -77,7 +77,7 @@ const ENCYCLOPEDIA_ENTRIES = {
     { id: 'ovosAmendoas', manual: true, titulo: 'The Egg and the Easter Almonds', texto: "The egg is a symbol of Easter because it stands for new life: the closed shell that opens. In medieval Europe, people gave each other painted boiled eggs, and chocolate ones only appeared in the 19th century, in France and Germany. Easter almonds, sweet and sugar-coated, are one of the oldest customs of the season and pay tribute to that egg. In Ponta Delgada, in the Azores, they are still made by hand in copper pots, over about ten hours. Fygmo2 swears he didn't taste a single one." }
   ],
   es: [
-    { id: 'origem', titulo: 'Los Orígenes del Moscatel', texto: 'Dicen los más viejos que la fama del Moscatel de Setúbal viene del siglo XIV, cuando el rey Ricardo II de Inglaterra lo importaba con frecuencia.' },
+    { id: 'origem', titulo: 'Los Orígenes del Moscatel', texto: 'Se dice que la fama del Moscatel de Setúbal viene del siglo XIV, cuando el rey Ricardo II de Inglaterra lo importaba con frecuencia, pero el origen exacto de este vino aún está por descubrir.' },
     { id: 'terroir', titulo: 'La Tierra de Arrábida', texto: 'Muchos viñedos de Moscatel de Setúbal crecen en colinas de arcilla y caliza, en la Sierra de la Arrábida, cerca de Azeitão.' },
     { id: 'secagem', titulo: 'El Moscatel que Regresaba', texto: 'Antiguamente, barricas de Moscatel viajaban en barco hasta tierras lejanas y regresaban. El viaje, entre el sol y el vaivén del mar, mejoraba el vino: así nació el Torna-Viagem.' },
     { id: 'estagio', titulo: 'La Crianza en Toneles de Roble', texto: 'El secreto de un buen Moscatel está en la paciencia: el vino reposa en toneles de roble durante años, ganando notas de miel, frutos secos y pasas a medida que envejece.' },
